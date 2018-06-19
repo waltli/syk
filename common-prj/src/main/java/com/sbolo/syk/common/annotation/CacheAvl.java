@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface CacheAvl {
+public @interface CacheAvl { 
 	/**
 	 * 主key
 	 * 
