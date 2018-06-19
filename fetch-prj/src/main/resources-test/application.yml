@@ -1,0 +1,78 @@
+server: 
+  port: 30001
+  context-path: /bzjx-prj 
+
+spring: 
+  aop: 
+    proxy-target-class: true #此项配置很重要，强行使用CGLib的代理方式
+
+  datasource: 
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    url: jdbc:sqlserver://192.168.2.223:1433;DatabaseName=LIMS_test;integratedSecurity=false
+    username: sa
+    password: Zjsoft@
+    filters: mergeStat
+    initialSize: 1
+    maxActive: 20
+    minIdle: 1
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: select 'x'
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    maxOpenPreparedStatements: 20
+    removeAbandoned: true
+    removeAbandonedTimeout: 1800
+    logAbandoned: true
+    poolPreparedStatements: false
+    maxPoolPreparedStatementPerConnectionSize: 20
+    
+ # redis: 
+ #   database: 0  #根据环境更换库
+ #   host: 172.16.0.99
+ #   port: 32603
+ #   timeout: 20000  #连接超时时间（毫秒）
+ #   pool: 
+ #     max-active: 8  #连接池最大连接数（使用负值表示没有限制）
+ #     max-wait: -1  #连接池最大阻塞等待时间（使用负值表示没有限制）
+ #     max-idle: 8  #连接池中的最大空闲连接
+ #     min-idle: 0  #连接池中的最小空闲连接
+
+  mvc: 
+    view: 
+      prefix: /qzsoft/
+
+  http: 
+    multipart: 
+      maxFileSize: 100Mb
+      maxRequestSize: 100Mb
+      
+mybatis:
+  mapper-locations: classpath:mapping/**/*.xml
+  type-aliases-package: com.qzsoft.*.entity
+  
+shiro: 
+  hashAlgorithmName: SHA-1
+  hashIterations: 1
+  includes: /**
+  concurrent: true
+  rememberMeDays: 7
+  sessionTimeout: 1800
+  activeSessionsCacheName: shiro-fe-activeSessionCache
+  sessionIdCookieName: fe-shirosessionid
+
+oauth: 
+  appid: std-qm-prj
+  appkey: C1hAkYKYyUmKQcrwbfJEA
+  userinfoUrl: http://127.0.0.1:7000/cu/oauth2/rs/userinfo
+  accessTokenUrl: http://127.0.0.1:7000/cu/oauth2/access_token
+  ###逆登录
+  authorizeUrl: http://127.0.0.1:7000/cu/oauth2/authorize
+  redirectUri: http://127.0.0.1:7000/cu/oauth2/client/codecallback
+  menuinfoUrl: http://127.0.0.1:7000/cu/oauth2/rs/menuinfo
+  filterchainUrl: http://127.0.0.1:7000/cu/oauth2/rs/filterchain
+  refreshTokenUrl: http://127.0.0.1:7000/cu/oauth2/refresh_token
+  loginUrl: http://127.0.0.1:7000

@@ -1,0 +1,580 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sbolo.syk.fetch.dao.MovieInfoEntityMapper" >
+  <resultMap id="BaseResultMap" type="com.sbolo.syk.fetch.po.MovieInfoEntity" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="movie_id" property="movieId" jdbcType="VARCHAR" />
+    <result column="icon" property="icon" jdbcType="VARCHAR" />
+    <result column="poster" property="poster" jdbcType="VARCHAR" />
+    <result column="pure_name" property="pureName" jdbcType="VARCHAR" />
+    <result column="another_name" property="anotherName" jdbcType="VARCHAR" />
+    <result column="labels" property="labels" jdbcType="VARCHAR" />
+    <result column="director" property="director" jdbcType="VARCHAR" />
+    <result column="writers" property="writers" jdbcType="VARCHAR" />
+    <result column="cast" property="cast" jdbcType="VARCHAR" />
+    <result column="locations" property="locations" jdbcType="VARCHAR" />
+    <result column="language" property="language" jdbcType="VARCHAR" />
+    <result column="release_time" property="releaseTime" jdbcType="TIMESTAMP" />
+    <result column="release_time_format" property="releaseTimeFormat" jdbcType="VARCHAR" />
+    <result column="year" property="year" jdbcType="VARCHAR" />
+    <result column="duration" property="duration" jdbcType="VARCHAR" />
+    <result column="summary" property="summary" jdbcType="LONGVARCHAR" />
+    <result column="douban_id" property="doubanId" jdbcType="VARCHAR" />
+    <result column="imdb_id" property="imdbId" jdbcType="VARCHAR" />
+    <result column="douban_score" property="doubanScore" jdbcType="DOUBLE" />
+    <result column="imdb_score" property="imdbScore" jdbcType="DOUBLE" />
+    <result column="attention_rate" property="attentionRate" jdbcType="INTEGER" />
+    <result column="category" property="category" jdbcType="INTEGER" />
+    <result column="present_season" property="presentSeason" jdbcType="INTEGER" />
+    <result column="total_episode" property="totalEpisode" jdbcType="INTEGER" />
+    <result column="movie_status" property="movieStatus" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="resource_write_time" property="resourceWriteTime" jdbcType="TIMESTAMP" />
+    <result column="optimal_resource_id" property="optimalResourceId" jdbcType="VARCHAR" />
+    <result column="count_click" property="countClick" jdbcType="INTEGER" />
+    <result column="count_comment" property="countComment" jdbcType="INTEGER" />
+    <result column="count_download" property="countDownload" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, movie_id, icon, poster, pure_name, another_name, labels, director, writers, cast, locations, language, release_time, release_time_format, year, 
+    duration, summary, douban_id, imdb_id, douban_score, imdb_score, attention_rate, category, present_season, total_episode, movie_status, 
+    create_time, update_time, resource_write_time, optimal_resource_id, count_click, count_comment, count_download
+  </sql>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from movie_info
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="selectByMovieId" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from movie_info
+    where movie_id = #{movieId}
+  </select>
+  
+  <select id="selectByDoubanId" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from movie_info
+    where douban_id = #{doubanId}
+  </select>
+  
+  <select id="selectAllNoCondition" resultMap="BaseResultMap">
+  	select 
+  	<include refid="Base_Column_List" />
+  	from movie_info
+  </select>
+  
+  <select id="selectAll" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from movie_info
+  </select>
+  
+  <select id="selectListByCondition" resultMap="BaseResultMap" parameterType="java.util.Map" >
+  	select 
+  		<include refid="Base_Column_List" />
+    from movie_info t
+    <where>
+    	<if test="keyword != null">
+    		and (LOCATE(#{keyword}, t.pure_name)>0 or LOCATE(#{keyword}, t.another_name)>0 or LOCATE(#{keyword}, t.cast)>0)
+    	</if>
+    </where>
+    ORDER BY t.resource_write_time DESC
+    LIMIT #{startIndex} , #{limitNum}
+  </select>
+  
+  <select id="selectListByConditionCount" resultType="java.lang.Integer" parameterType="java.util.Map" >
+  	select count(1)
+    from movie_info t
+	<where>
+    	<if test="keyword != null">
+    		and (LOCATE(#{keyword}, t.pure_name)>0 or LOCATE(#{keyword}, t.another_name)>0 or LOCATE(#{keyword}, t.cast)>0)
+    	</if>
+    </where>
+  </select>
+  
+  <select id="selectByPureNameAndPrecision" resultMap="BaseResultMap" parameterType="java.util.Map">
+  	select
+  	<include refid="Base_Column_List" />
+  	from movie_info
+  	<where>
+  		pure_name = #{pureName}
+  		<if test="precision != null">
+  			and (LOCATE(#{precision}, director)>0 or LOCATE(#{precision}, cast)>0)
+  		</if>
+  	</where>
+  	limit 1
+  </select>
+  
+  <select id="selectByPureName" resultMap="BaseResultMap" parameterType="java.util.Map">
+  	select
+  	<include refid="Base_Column_List" />
+  	from movie_info
+  	<where>
+  		pure_name = #{pureName}
+  	</where>
+  	limit 1
+  </select>
+  
+  <select id="selectByPureNameAndReleaseTime" resultMap="BaseResultMap" parameterType="java.util.Map">
+  	select
+  	<include refid="Base_Column_List" />
+  	from movie_info
+  	<where>
+  		pure_name = #{pureName} and release_time = #{releaseTime}
+  	</where>
+  	limit 1
+  </select>
+  
+  <update id="signStatusByMovieId" parameterType="java.util.Map">
+  	update movie_info t set t.movie_status=#{movieStatus} where t.movie_id=#{movieId}
+  </update>
+  
+  <update id="batchUpdateOptimalByMovieId" parameterType="java.util.List" >
+    <foreach collection="list" item="item" index="index" separator=";">
+	    update movie_info
+	    set optimal_resource_id = #{item.optimalResourceId},
+	    	resource_write_time = #{item.resourceWriteTime}
+	    where movie_id = #{item.movieId}
+    </foreach>
+  </update>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from movie_info
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+   <update id="updateByMovieIdSelective" parameterType="com.sbolo.syk.fetch.po.MovieInfoEntity" >
+    update movie_info
+    <set >
+      <if test="icon != null" >
+        icon = #{icon,jdbcType=VARCHAR},
+      </if>
+      <if test="poster != null" >
+        poster = #{poster,jdbcType=VARCHAR},
+      </if>
+      <if test="pureName != null" >
+        pure_name = #{pureName,jdbcType=VARCHAR},
+      </if>
+      <if test="anotherName != null" >
+        another_name = #{anotherName,jdbcType=VARCHAR},
+      </if>
+      <if test="director != null" >
+        director = #{director,jdbcType=VARCHAR},
+      </if>
+      <if test="writers != null" >
+        writers = #{writers,jdbcType=VARCHAR},
+      </if>
+      <if test="cast != null" >
+        cast = #{cast,jdbcType=VARCHAR},
+      </if>
+      <if test="locations != null" >
+        locations = #{locations,jdbcType=VARCHAR},
+      </if>
+      <if test="language != null" >
+        language = #{language,jdbcType=VARCHAR},
+      </if>
+      <if test="releaseTime != null" >
+        release_time = #{releaseTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="releaseTimeFormat != null" >
+        release_time_format = #{releaseTimeFormat,jdbcType=VARCHAR},
+      </if>
+      <if test="year != null" >
+        year = #{year,jdbcType=VARCHAR},
+      </if>
+      <if test="duration != null" >
+        duration = #{duration,jdbcType=VARCHAR},
+      </if>
+      <if test="doubanId != null" >
+        douban_id = #{doubanId,jdbcType=VARCHAR},
+      </if>
+      <if test="imdbId != null" >
+        imdb_id = #{imdbId,jdbcType=VARCHAR},
+      </if>
+      <if test="doubanScore != null" >
+        douban_score = #{doubanScore,jdbcType=DOUBLE},
+      </if>
+      <if test="imdbScore != null" >
+        imdb_score = #{imdbScore,jdbcType=DOUBLE},
+      </if>
+      <if test="attentionRate != null" >
+        attention_rate = #{attentionRate,jdbcType=INTEGER},
+      </if>
+      <if test="category != null" >
+        category = #{category,jdbcType=INTEGER},
+      </if>
+      <if test="presentSeason != null" >
+        present_season = #{presentSeason},
+      </if>
+      <if test="totalEpisode != null" >
+        total_episode = #{totalEpisode,jdbcType=INTEGER},
+      </if>
+      <if test="movieStatus != null" >
+        movie_status = #{movieStatus,jdbcType=INTEGER},
+      </if>
+      <if test="summary != null" >
+        summary = #{summary,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="resourceWriteTime != null" >
+        resource_write_time = #{resourceWriteTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="optimalResourceId != null" >
+        optimal_resource_id = #{optimalResourceId},
+      </if>
+      <if test="countClick != null" >
+        count_click = #{countClick},
+      </if>
+      <if test="countComment != null" >
+        count_comment = #{countComment},
+      </if>
+      <if test="countDownload != null" >
+        count_download = #{countDownload},
+      </if>
+    </set>
+    where movie_id = #{movieId,jdbcType=INTEGER}
+  </update>
+  
+  <update id="batchUpdateByMovieIdSelective" parameterType="com.sbolo.syk.fetch.po.MovieInfoEntity" >
+  <foreach collection="list" item="item" index="index" separator=";">
+    update movie_info
+    <set >
+      <if test="item.icon != null" >
+        icon = #{item.icon,jdbcType=VARCHAR},
+      </if>
+      <if test="item.poster != null" >
+        poster = #{item.poster,jdbcType=VARCHAR},
+      </if>
+      <if test="item.pureName != null" >
+        pure_name = #{item.pureName,jdbcType=VARCHAR},
+      </if>
+      <if test="item.anotherName != null" >
+        another_name = #{item.anotherName,jdbcType=VARCHAR},
+      </if>
+      <if test="item.director != null" >
+        director = #{item.director,jdbcType=VARCHAR},
+      </if>
+      <if test="item.writers != null" >
+        writers = #{item.writers,jdbcType=VARCHAR},
+      </if>
+      <if test="item.cast != null" >
+        cast = #{item.cast,jdbcType=VARCHAR},
+      </if>
+      <if test="item.locations != null" >
+        locations = #{item.locations,jdbcType=VARCHAR},
+      </if>
+      <if test="item.language != null" >
+        language = #{item.language,jdbcType=VARCHAR},
+      </if>
+      <if test="item.releaseTime != null" >
+        release_time = #{item.releaseTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="item.releaseTimeFormat != null" >
+        release_time_format = #{item.releaseTimeFormat,jdbcType=VARCHAR},
+      </if>
+      <if test="item.year != null" >
+        year = #{item.year,jdbcType=VARCHAR},
+      </if>
+      <if test="item.duration != null" >
+        duration = #{item.duration,jdbcType=VARCHAR},
+      </if>
+      <if test="item.doubanId != null" >
+        douban_id = #{item.doubanId,jdbcType=VARCHAR},
+      </if>
+      <if test="item.imdbId != null" >
+        imdb_id = #{item.imdbId,jdbcType=VARCHAR},
+      </if>
+      <if test="item.doubanScore != null" >
+        douban_score = #{item.doubanScore,jdbcType=DOUBLE},
+      </if>
+      <if test="item.imdbScore != null" >
+        imdb_score = #{item.imdbScore,jdbcType=DOUBLE},
+      </if>
+      <if test="item.attentionRate != null" >
+        attention_rate = #{item.attentionRate,jdbcType=INTEGER},
+      </if>
+      <if test="item.category != null" >
+        category = #{item.category,jdbcType=INTEGER},
+      </if>
+      <if test="item.presentSeason != null" >
+        present_season = #{item.presentSeason},
+      </if>
+      <if test="item.totalEpisode != null" >
+        total_episode = #{item.totalEpisode,jdbcType=INTEGER},
+      </if>
+      <if test="item.movieStatus != null" >
+        movie_status = #{item.movieStatus,jdbcType=INTEGER},
+      </if>
+      <if test="item.summary != null" >
+        summary = #{item.summary,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="item.updateTime != null" >
+        update_time = #{item.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="item.resourceWriteTime != null" >
+        resource_write_time = #{item.resourceWriteTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="item.optimalResourceId != null" >
+        optimal_resource_id = #{item.optimalResourceId},
+      </if>
+      <if test="item.countClick != null" >
+        count_click = #{item.countClick},
+      </if>
+      <if test="item.countComment != null" >
+        count_comment = #{item.countComment},
+      </if>
+      <if test="item.countDownload != null" >
+        count_download = #{item.countDownload},
+      </if>
+    </set>
+    where movie_id = #{item.movieId,jdbcType=INTEGER}
+    </foreach>
+  </update>
+  
+  <update id="updateCountClick" parameterType="java.lang.String">
+  	update movie_info set count_click = count_click+1 where movie_id=#{movieId}
+  </update>
+  
+  <update id="updateCountDownload" parameterType="java.lang.String">
+  	update movie_info set count_download = count_download+1 where movie_id=#{movieId}
+  </update>
+  
+  <insert id="batchInsert" parameterType="java.util.List" >
+    insert into movie_info (movie_id, icon, poster, pure_name, another_name, labels,  
+      director, writers, 
+      cast, locations, language, 
+      release_time, release_time_format, year, duration, summary, 
+      douban_id, imdb_id, 
+      douban_score, imdb_score, attention_rate, 
+      category, present_season, total_episode, movie_status, create_time, update_time, resource_write_time, optimal_resource_id, 
+      count_click, count_comment, count_download
+      )
+    values 
+    <foreach collection="list" item="item" index="index" separator=",">
+    	(#{item.movieId,jdbcType=VARCHAR}, #{item.icon,jdbcType=VARCHAR}, #{item.poster,jdbcType=VARCHAR}, #{item.pureName,jdbcType=VARCHAR}, #{item.anotherName,jdbcType=VARCHAR}, #{item.labels,jdbcType=VARCHAR}, 
+      #{item.director,jdbcType=VARCHAR}, #{item.writers,jdbcType=VARCHAR}, 
+      #{item.cast,jdbcType=VARCHAR}, #{item.locations,jdbcType=VARCHAR}, #{item.language,jdbcType=VARCHAR}, 
+      #{item.releaseTime,jdbcType=TIMESTAMP}, #{item.releaseTimeFormat, jdbcType=VARCHAR}, #{item.year, jdbcType=VARCHAR}, #{item.duration,jdbcType=VARCHAR}, #{item.summary,jdbcType=VARCHAR}, 
+      #{item.doubanId,jdbcType=VARCHAR}, #{item.imdbId,jdbcType=VARCHAR}, 
+      #{item.doubanScore,jdbcType=DOUBLE}, #{item.imdbScore,jdbcType=DOUBLE}, #{item.attentionRate,jdbcType=INTEGER}, 
+      #{item.category}, #{item.presentSeason}, #{item.totalEpisode}, #{item.movieStatus}, #{item.createTime,jdbcType=TIMESTAMP}, #{item.updateTime,jdbcType=TIMESTAMP}, #{item.resourceWriteTime,jdbcType=TIMESTAMP}, 
+      #{item.optimalResourceId}, #{item.countClick}, #{item.countComment}, #{item.countDownload}
+      )
+    </foreach>
+
+  </insert>
+  <insert id="insertSelective" parameterType="com.sbolo.syk.fetch.po.MovieInfoEntity" >
+    insert into movie_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="movieId != null" >
+        movie_id,
+      </if>
+      <if test="icon != null" >
+        icon,
+      </if>
+      <if test="poster != null" >
+        poster,
+      </if>
+      <if test="pureName != null" >
+        pure_name,
+      </if>
+      <if test="anotherName != null" >
+        another_name,
+      </if>
+      <if test="labels != null" >
+        labels,
+      </if>
+      <if test="director != null" >
+        director,
+      </if>
+      <if test="writers != null" >
+        writers,
+      </if>
+      <if test="cast != null" >
+        cast,
+      </if>
+      <if test="locations != null" >
+        locations,
+      </if>
+      <if test="language != null" >
+        language,
+      </if>
+      <if test="releaseTime != null" >
+        release_time,
+      </if>
+      <if test="releaseTimeFormat != null" >
+        release_time_format,
+      </if>
+      <if test="year != null" >
+        year,
+      </if>
+      <if test="duration != null" >
+        duration,
+      </if>
+      <if test="doubanId != null" >
+        douban_id,
+      </if>
+      <if test="imdbId != null" >
+        imdb_id,
+      </if>
+      <if test="doubanScore != null" >
+        douban_score,
+      </if>
+      <if test="imdbScore != null" >
+        imdb_score,
+      </if>
+      <if test="attentionRate != null" >
+        attention_rate,
+      </if>
+      <if test="category != null" >
+        category,
+      </if>
+      <if test="presentSeason != null" >
+        present_season,
+      </if>
+      <if test="totalEpisode != null" >
+        total_episode,
+      </if>
+      <if test="movieStatus != null" >
+        movie_status,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="resourceWriteTime != null" >
+        resource_write_time,
+      </if>
+      <if test="summary != null" >
+        summary,
+      </if>
+      <if test="optimalResourceId != null" >
+        optimal_resource_id,
+      </if>
+      <if test="countClick != null" >
+        count_click,
+      </if>
+      <if test="countComment != null" >
+        count_comment,
+      </if>
+      <if test="countDownload != null" >
+        count_download,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="movieId != null" >
+        #{movieId,jdbcType=VARCHAR},
+      </if>
+      <if test="icon != null" >
+        #{icon,jdbcType=VARCHAR},
+      </if>
+      <if test="poster != null" >
+        #{poster,jdbcType=VARCHAR},
+      </if>
+      <if test="pureName != null" >
+        #{pureName,jdbcType=VARCHAR},
+      </if>
+      <if test="anotherName != null" >
+        #{anotherName,jdbcType=VARCHAR},
+      </if>
+      <if test="labels != null" >
+        #{labels,jdbcType=VARCHAR},
+      </if>
+      <if test="director != null" >
+        #{director,jdbcType=VARCHAR},
+      </if>
+      <if test="writers != null" >
+        #{writers,jdbcType=VARCHAR},
+      </if>
+      <if test="cast != null" >
+        #{cast,jdbcType=VARCHAR},
+      </if>
+      <if test="locations != null" >
+        #{locations,jdbcType=VARCHAR},
+      </if>
+      <if test="language != null" >
+        #{language,jdbcType=VARCHAR},
+      </if>
+      <if test="releaseTime != null" >
+        #{releaseTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="releaseTimeFormat != null" >
+        #{releaseTimeFormat,jdbcType=VARCHAR},
+      </if>
+      <if test="year != null" >
+        #{year,jdbcType=VARCHAR},
+      </if>
+      <if test="duration != null" >
+        #{duration,jdbcType=VARCHAR},
+      </if>
+      <if test="doubanId != null" >
+        #{doubanId,jdbcType=VARCHAR},
+      </if>
+      <if test="imdbId != null" >
+        #{imdbId,jdbcType=VARCHAR},
+      </if>
+      <if test="doubanScore != null" >
+        #{doubanScore,jdbcType=DOUBLE},
+      </if>
+      <if test="imdbScore != null" >
+        #{imdbScore,jdbcType=DOUBLE},
+      </if>
+      <if test="attentionRate != null" >
+        #{attentionRate,jdbcType=INTEGER},
+      </if>
+      <if test="category != null" >
+        #{category,jdbcType=INTEGER},
+      </if>
+      <if test="presentSeason != null" >
+        #{presentSeason},
+      </if>
+      <if test="totalEpisode != null" >
+        #{totalEpisode,jdbcType=INTEGER},
+      </if>
+      <if test="movieStatus != null" >
+        #{movieStatus,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="resourceWriteTime != null" >
+        #{resourceWriteTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="summary != null" >
+        #{summary,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="optimalResourceId != null" >
+        #{optimalResourceId},
+      </if>
+      <if test="countClick != null" >
+        #{countClick},
+      </if>
+      <if test="countComment != null" >
+        #{countComment},
+      </if>
+      <if test="countDownload != null" >
+        #{countDownload},
+      </if>
+    </trim>
+  </insert>
+</mapper>

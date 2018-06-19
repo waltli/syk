@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sbolo.syk.fetch.dao.MovieResourceEntityMapper" >
+  <resultMap id="BaseResultMap" type="com.sbolo.syk.fetch.po.MovieResourceEntity" >
+  	<!-- 关联查询单位信息 -->
+    <result column="movie_id" property="movieId" jdbcType="VARCHAR" />
+    <result column="icon" property="icon" jdbcType="VARCHAR" />
+    <result column="poster" property="poster" jdbcType="VARCHAR" />
+    <result column="pure_name" property="pureName" jdbcType="VARCHAR" />
+    <result column="another_name" property="anotherName" jdbcType="VARCHAR" />
+    <result column="labels" property="labels" jdbcType="VARCHAR" />
+    <result column="director" property="director" jdbcType="VARCHAR" />
+    <result column="writers" property="writers" jdbcType="VARCHAR" />
+    <result column="cast" property="cast" jdbcType="VARCHAR" />
+    <result column="locations" property="locations" jdbcType="VARCHAR" />
+    <result column="language" property="language" jdbcType="VARCHAR" />
+    <result column="release_time" property="releaseTime" jdbcType="TIMESTAMP" />
+    <result column="release_time_format" property="releaseTimeFormat" jdbcType="VARCHAR" />
+    <result column="year" property="year" jdbcType="VARCHAR" />
+    <result column="duration" property="duration" jdbcType="VARCHAR" />
+    <result column="summary" property="summary" jdbcType="LONGVARCHAR" />
+    <result column="douban_id" property="doubanId" jdbcType="VARCHAR" />
+    <result column="imdb_id" property="imdbId" jdbcType="VARCHAR" />
+    <result column="douban_score" property="doubanScore" jdbcType="DOUBLE" />
+    <result column="imdb_score" property="imdbScore" jdbcType="DOUBLE" />
+    <result column="attention_rate" property="attentionRate" jdbcType="INTEGER" />
+    <result column="category" property="category" jdbcType="INTEGER" />
+    <result column="present_season" property="presentSeason" jdbcType="INTEGER" />
+    <result column="total_episode" property="totalEpisode" jdbcType="INTEGER" />
+    <result column="movie_status" property="movieStatus" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="resource_write_time" property="resourceWriteTime" jdbcType="TIMESTAMP" />
+    <result column="optimal_resource_id" property="optimalResourceId" jdbcType="VARCHAR" />
+    <result column="count_click" property="countClick" jdbcType="INTEGER" />
+    <result column="count_comment" property="countComment" jdbcType="INTEGER" />
+    <result column="count_download" property="countDownload" jdbcType="INTEGER" />
+    
+    <!-- 关联查询单位信息 -->  
+    <result column="resource_id" property="resourceId" jdbcType="VARCHAR" />
+    <result column="size" property="size" jdbcType="VARCHAR" />
+    <result column="format" property="format" jdbcType="VARCHAR" />
+    <result column="definition" property="definition" jdbcType="INTEGER" />
+    <result column="quality" property="quality" jdbcType="VARCHAR" />
+    <result column="resolution" property="resolution" jdbcType="VARCHAR" />
+    <result column="speed" property="speed" jdbcType="INTEGER" />
+    <result column="download_link" property="downloadLink" jdbcType="VARCHAR" />
+    <result column="season" property="season" jdbcType="INTEGER" />
+    <result column="episode_start" property="episodeStart" jdbcType="INTEGER" />
+    <result column="episode_end" property="episodeEnd" jdbcType="INTEGER" />
+    <result column="subtitle" property="subtitle" jdbcType="VARCHAR" />
+    <result column="photos" property="photos" jdbcType="VARCHAR" />
+    <result column="come_from_url" property="comeFromUrl" jdbcType="VARCHAR" />
+    <result column="resource_status" property="resourceStatus" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    t.movie_id, t.icon, t.poster, t.pure_name, t.another_name, t.labels, t.director, t.writers, t.cast, t.locations, t.language, 
+    t.release_time, t.release_time_format, t.year, t.duration, t.summary, t.douban_id, t.imdb_id, t.douban_score, t.imdb_score, t.attention_rate, 
+    t.category, t.present_season, t.total_episode, t.movie_status, t.create_time, t.update_time, t.resource_write_time, t.optimal_resource_id, t.count_click, 
+    t.count_comment, t.count_download, 
+    
+    t1.resource_id, t1.size, t1.format, t1.definition, t1.quality, t1.resolution, t1.speed, t1.download_link, t1.season, t1.episode_start, t1.episode_end, 
+    t1.subtitle, t1.photos, t1.come_from_url, t1.resource_status
+  </sql>
+  
+  <select id="selectByMovieId" resultMap="BaseResultMap" parameterType="java.lang.String">
+  	select 
+  		<include refid="Base_Column_List" />
+  	from movie_info t, resource_info t1
+  	where 
+  		t.optimal_resource_id = t1.resource_id and
+  		t.movie_id=#{movieId}
+  </select>
+  
+  <select id="selectListByCondition" resultMap="BaseResultMap" parameterType="java.util.Map" >
+  	select 
+  		<include refid="Base_Column_List" />
+    from movie_info t, resource_info t1
+	WHERE 
+		t.optimal_resource_id = t1.resource_id and t.movie_status = 1 
+		<if test="keyword != null">
+    		and (LOCATE(#{keyword}, t.pure_name)>0 or LOCATE(#{keyword}, t.another_name)>0 or LOCATE(#{keyword}, t.cast)>0)
+    	</if>
+    ORDER BY t.resource_write_time DESC
+    LIMIT #{startIndex} , #{limitNum}
+  </select>
+  
+  <select id="selectListByConditionCount" resultType="java.lang.Integer" parameterType="java.util.Map" >
+  	select count(1)
+    from movie_info t, resource_info t1
+	WHERE 
+		t.optimal_resource_id = t1.resource_id and t.movie_status = 1 
+		<if test="keyword != null">
+    		and (LOCATE(#{keyword}, t.pure_name)>0 or LOCATE(#{keyword}, t.another_name)>0 or LOCATE(#{keyword}, t.cast)>0)
+    	</if>
+  </select>
+  
+  <select id="selectListByConditionWithLabel" resultMap="BaseResultMap" parameterType="java.util.Map" >
+  	SELECT 
+		<include refid="Base_Column_List" />
+  	FROM 
+  		(select b.movie_id from label_mapping b where b.label = #{label}) a, movie_info t, resource_info t1
+  	WHERE t.movie_id = a.movie_id and t.optimal_resource_id = t1.resource_id and t.movie_status = 1 
+  	ORDER BY t.resource_write_time DESC
+    LIMIT #{startIndex} , #{limitNum}
+  </select>
+  
+  <select id="selectListByConditionWithLabelCount" resultType="java.lang.Integer" parameterType="java.util.Map" >
+  	SELECT count(1)
+  	FROM 
+  		(select b.movie_id from label_mapping b where b.label = #{label}) a, movie_info t, resource_info t1
+  	WHERE t.movie_id = a.movie_id and t.optimal_resource_id = t1.resource_id and t.movie_status = 1 
+  </select>
+  
+  <select id="selectByPureNameAndLimitReleaseTime" resultMap="BaseResultMap" parameterType="java.util.Map">
+  	select 
+  		<include refid="Base_Column_List" />
+  	from movie_info t, resource_info t1
+  	where t.pure_name = #{pureName} and t.release_time &gt;= #{year} and t.optimal_resource_id=t1.resource_id
+  	limit 1
+  </select>
+  
+</mapper>
