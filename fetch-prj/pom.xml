@@ -4,21 +4,17 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>com.sbolo.syk.fetch</groupId>
+		<groupId>com.sbolo.syk</groupId>
 		<artifactId>parent-prj</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../parent-prj/pom.xml</relativePath>
 	</parent>
-	<artifactId>${app.context}</artifactId>
+	<artifactId>fetch-prj</artifactId>
 	<packaging>jar</packaging>
-	
-	<properties>
-        <app.context>bzjx-prj</app.context>
-    </properties>
 	
 	<dependencies>
 	<dependency>
-		<groupId>com.sbolo.syk.fetch</groupId>
+		<groupId>com.sbolo.syk</groupId>
 		<artifactId>common-prj</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</dependency>
@@ -30,8 +26,6 @@
 	</dependencies> 
 	
 	<build>
-		<finalName>${app.context}</finalName>
-		
 		<!-- plugins>给出构建过程中所用到的插件。 -->
 		<resources>
 			<!-- 打包时将jsp文件拷贝到META-INF目录下 -->
@@ -65,7 +59,6 @@
 			<plugin>
 	    			<groupId>org.apache.maven.plugins</groupId>
 				    <artifactId>maven-compiler-plugin</artifactId>
-	                <version>2.3.2</version>
 	                <configuration>
 	                   <!-- 测试代码不编译 -->
 	                   <skip>true</skip>
