@@ -1,8 +1,13 @@
 #内网：172.17.150.133
 #外网：47.94.149.66
+app: 
+  name: fetch
+  context: ${app.name}-prj
+
 server: 
   port: 30001
-  context-path: /bzjx-prj 
+  servlet: 
+    context-path: /${app.context}
 
 spring: 
   aop: 
@@ -10,10 +15,11 @@ spring:
 
   datasource: 
     type: com.alibaba.druid.pool.DruidDataSource
-    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    url: jdbc:sqlserver://172.17.150.133:1433;DatabaseName=LIMS_prod;integratedSecurity=false
-    username: sa
-    password: Zjsoft@
+    driverClassName: com.mysql.jdbc.Driver
+    #&useSSL=false 标识不使用ssl链接，屏蔽warn警告
+    url: jdbc:mysql://127.0.0.1:3306/syk?useUnicode=true&characterEncoding=utf8&autoReconnect=true&failOverReadOnly=false&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&useSSL=false
+    username: root
+    password: root
     filters: mergeStat
     initialSize: 1
     maxActive: 20

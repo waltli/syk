@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.sbolo.syk.fetch</groupId>
+  <groupId>com.sbolo.syk</groupId>
   <artifactId>parent-prj</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
@@ -57,6 +57,12 @@
     <version>${springBoot.arround.version}</version>
 </dependency>
 <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-test</artifactId>
+    <version>${springBoot.arround.version}</version>
+    <scope>test</scope>
+</dependency>
+<dependency>
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
 	<version>1.1.41</version>
@@ -76,12 +82,6 @@
     <groupId>com.squareup.okhttp3</groupId>
     <artifactId>okhttp</artifactId>
     <version>3.6.0</version>
-</dependency>
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-test</artifactId>
-    <version>${springBoot.arround.version}</version>
-    <scope>test</scope>
 </dependency>
 <dependency>
     <groupId>commons-beanutils</groupId>

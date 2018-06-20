@@ -69,7 +69,7 @@ public class ValidationAspect {
 	private static final String errorPage = "bzjx/error.jsp";
 	
 	@SuppressWarnings({ "rawtypes", "unchecked"})
-	@Around("execution(* com.sbolo.syk.common.lims.*.controller.*Controller.*(..)) && "
+	@Around("execution(* com.sbolo.syk.*.controller.*Controller.*(..)) && "
 			+ "(@annotation(org.springframework.web.bind.annotation.GetMapping) || "
 			+ "@annotation(org.springframework.web.bind.annotation.PostMapping) || "
 			+ "@annotation(org.springframework.web.bind.annotation.RequestMapping))")

@@ -4,10 +4,14 @@ app:
 
 server: 
   port: 30001
-  context-path: /${app.context}
+  servlet: 
+    context-path: /${app.context}
   jsp-servlet: 
     init-parameters: 
       development: true 
+
+logging: 
+  config: classpath:logback-spring.xml  
 
 spring: 
   aop: 
