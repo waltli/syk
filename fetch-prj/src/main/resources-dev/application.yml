@@ -1,6 +1,13 @@
+app: 
+  name: fetch
+  context: ${app.name}-prj
+
 server: 
   port: 30001
-  context-path: /fetch-prj 
+  context-path: /${app.context}
+  jsp-servlet: 
+    init-parameters: 
+      development: true 
 
 spring: 
   aop: 
@@ -9,7 +16,8 @@ spring:
   datasource: 
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/syk?useUnicode=true&characterEncoding=utf8&autoReconnect=true&failOverReadOnly=false&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true
+    #&useSSL=false 标识不使用ssl链接，屏蔽warn警告
+    url: jdbc:mysql://127.0.0.1:3306/syk?useUnicode=true&characterEncoding=utf8&autoReconnect=true&failOverReadOnly=false&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&useSSL=false
     username: root
     password: root
     filters: mergeStat

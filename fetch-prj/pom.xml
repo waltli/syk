@@ -9,8 +9,12 @@
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../parent-prj/pom.xml</relativePath>
 	</parent>
-	<artifactId>fetch-prj</artifactId>
+	<artifactId>${app.context}</artifactId>
 	<packaging>jar</packaging>
+	
+	<properties>
+        <app.context>bzjx-prj</app.context>
+    </properties>
 	
 	<dependencies>
 	<dependency>
@@ -26,7 +30,7 @@
 	</dependencies> 
 	
 	<build>
-		<finalName>fetch-prj</finalName>
+		<finalName>${app.context}</finalName>
 		
 		<!-- plugins>给出构建过程中所用到的插件。 -->
 		<resources>
