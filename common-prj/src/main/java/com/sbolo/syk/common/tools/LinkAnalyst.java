@@ -163,11 +163,8 @@ public class LinkAnalyst {
 						throw new AnalystException("解析种子返回的流文件不是标准bt流!");
 					}
 					byte[] bytes = response.body().bytes();
-					File file = new File("");
-					OutputStream output = new FileOutputStream(file);
-					BufferedOutputStream bufferedOutput = new BufferedOutputStream(output);
-					bufferedOutput.write(bytes);
-					return new TorrentInfo(file);
+					
+					return new TorrentInfo(bytes);
 				}
 			});
 			ti = result.getValue();
@@ -201,11 +198,7 @@ public class LinkAnalyst {
 	public static LinkAnalyzeResultVO analyseTorrent(byte[] bytes) throws Exception{
 		LinkAnalyzeResultVO mri = null;
 		try {
-			File file = new File("");
-			OutputStream output = new FileOutputStream(file);
-			BufferedOutputStream bufferedOutput = new BufferedOutputStream(output);
-			bufferedOutput.write(bytes);
-			TorrentInfo ti = new TorrentInfo(file);
+			TorrentInfo ti = new TorrentInfo(bytes);
 			FileStorage fs = ti.files();
 			mri = new LinkAnalyzeResultVO();
 			for(int i=0; i<fs.numFiles(); i++){
@@ -256,12 +249,7 @@ public class LinkAnalyst {
 //        log.info("Fetching the magnet uri, please wait...");
         LinkAnalyzeResultVO mri = null;
         byte[] bytes = s.fetchMagnet(magnetLink, 110);
-        
-        File file = new File("");
-		OutputStream output = new FileOutputStream(file);
-		BufferedOutputStream bufferedOutput = new BufferedOutputStream(output);
-		bufferedOutput.write(bytes);
-		TorrentInfo ti = new TorrentInfo(file);
+		TorrentInfo ti = new TorrentInfo(bytes);
     	FileStorage fs = ti.files();
     	mri = new LinkAnalyzeResultVO();
     	for(int i=0; i<fs.numFiles(); i++){

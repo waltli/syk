@@ -135,7 +135,7 @@
 <dependency>
     <groupId>com.frostwire</groupId>
     <artifactId>jlibtorrent</artifactId>
-    <version>1.2.0.17</version>
+    <version>1.2.0.18-RC7</version>
 </dependency>
 
 
