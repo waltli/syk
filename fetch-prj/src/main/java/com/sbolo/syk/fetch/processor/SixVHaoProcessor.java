@@ -15,8 +15,10 @@ import org.slf4j.LoggerFactory;
 
 import com.sbolo.syk.common.constants.RegexConstant;
 import com.sbolo.syk.common.exception.AnalystException;
+import com.sbolo.syk.fetch.po.MovieInfoEntity;
 import com.sbolo.syk.fetch.spider.Page;
 import com.sbolo.syk.fetch.spider.PageProcessor;
+import com.sbolo.syk.fetch.vo.ConcludeVO;
 import com.sbolo.syk.fetch.vo.GatherVO;
 import com.sbolo.syk.fetch.vo.LinkInfoVO;
 import com.sbolo.syk.fetch.vo.PureNameAndSeasonVO;
@@ -101,8 +103,10 @@ public class SixVHaoProcessor extends CommonProcessor implements PageProcessor {
 				linkInfo.setLinkDecoding("UTF-8");
 				linkInfos.add(linkInfo);
 			}
-			GatherVO gather = new GatherVO(pureNameAndSeason.getPureName(), precisions, linkInfos, null, url, null);
-			fields.put(url, gather);
+			
+			ConcludeVO filterWithCache = filterWithCache(pureNameAndSeason.getPureName(), precisions, linkInfos, null, url, null);
+			
+			fields.put(url, filterWithCache);
 		}
 	}
 

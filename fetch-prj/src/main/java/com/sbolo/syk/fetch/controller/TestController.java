@@ -8,13 +8,11 @@ import com.sbolo.syk.common.ui.RequestResult;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Controller
 public class TestController {
 	
 	@GetMapping("test111")
 	public String test(){
-		log.info("测试");
 		return null;
 	}
 }
