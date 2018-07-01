@@ -19,11 +19,10 @@ import com.sbolo.syk.fetch.po.MovieInfoEntity;
 import com.sbolo.syk.fetch.spider.Page;
 import com.sbolo.syk.fetch.spider.PageProcessor;
 import com.sbolo.syk.fetch.vo.ConcludeVO;
-import com.sbolo.syk.fetch.vo.GatherVO;
 import com.sbolo.syk.fetch.vo.LinkInfoVO;
 import com.sbolo.syk.fetch.vo.PureNameAndSeasonVO;
 
-public class SixVHaoProcessor extends CommonProcessor implements PageProcessor {
+public class SixVHaoProcessor extends ProcessorHelper implements PageProcessor {
 	private static final Logger log = LoggerFactory.getLogger(SixVHaoProcessor.class);
 	
 	private String pageUrlReg = "^http://www\\.6vhao\\.tv/$";
@@ -104,9 +103,11 @@ public class SixVHaoProcessor extends CommonProcessor implements PageProcessor {
 				linkInfos.add(linkInfo);
 			}
 			
-			ConcludeVO filterWithCache = filterWithCache(pureNameAndSeason.getPureName(), precisions, linkInfos, null, url, null);
 			
-			fields.put(url, filterWithCache);
+			ConcludeVO conclude = this.resolve(pureNameAndSeason.getPureName(), precisions, linkInfos, null, url, null);
+			if(conclude != null) {
+				fields.put(url, conclude);
+			}
 		}
 	}
 

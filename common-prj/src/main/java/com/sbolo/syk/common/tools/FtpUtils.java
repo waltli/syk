@@ -83,16 +83,19 @@ public class FtpUtils {
 
 	/**
 	 * 将本地文件上传到FTP服务器上
+	 * @throws IOException 
 	 * 
 	 */
 	public void testUpLoadFromDisk() {
-		try {
-			FileInputStream in = new FileInputStream(new File("E:/号码.txt"));
+		try (FileInputStream in = new FileInputStream(new File("E:/号码.txt"))) {
 			boolean flag = uploadFile("127.0.0.1", 21, "zlb", "123", "/",
 					"哈哈.txt", in);
 			System.out.println(flag);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 	}
 

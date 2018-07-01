@@ -39,25 +39,18 @@ import com.sbolo.syk.fetch.po.ResourceInfoEntity;
 public class MovieInfoBizService {
 	private static final Logger log = LoggerFactory.getLogger(MovieInfoBizService.class);
 	
-	@Resource
 	private MovieInfoEntityMapper movieInfoEntityMapper;
 	
-	@Resource
 	private MovieResourceEntityMapper movieResourceEntityMapper;
 	
-	@Resource
 	private LabelMappingEntityMapper labelMappingEntityMapper;
 	
-	@Resource
 	private LocationMappingEntityMapper locationMappingEntityMapper;
 	
-	@Resource
 	private ResourceInfoEntityMapper resourceInfoEntityMapper;
 	
-	@Resource
 	private HotStatisticsEntityMapper hotStatisticsEntityMapper;
 	
-	@Resource
 	private ResourceInfoBizService resourceInfoBizService;
 	
 	public static void main(String[] args) {

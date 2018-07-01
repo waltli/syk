@@ -13,7 +13,6 @@ import com.sbolo.syk.fetch.po.LabelMappingEntity;
 
 @Service
 public class LabelMappingBizService {
-	@Resource
 	private LabelMappingEntityMapper labelMappingEntityMapper;
 	
 	public void batchAdd(List<LabelMappingEntity> labels){

@@ -14,7 +14,9 @@ public class CommonConstants {
 	
 	public static final Integer insert = 1;
 	public static final Integer update = 2;
-	public static final Integer abandon = 3;
+	//还需第二次处理的
+	public static final Integer waiting = 3;
+	public static final Integer abandon = 4;
 	
 	public static final String movie_key = "movieInfo";
 	public static final String resource_key = "resourceInfo";

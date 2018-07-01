@@ -21,6 +21,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Component;
 
 public class Spider {
 	private static final Logger log = LoggerFactory.getLogger(Spider.class);
@@ -212,7 +213,7 @@ public class Spider {
 		if(threadPool2 == null){
 			threadPool2 = new ThreadPoolTaskExecutor();
 			threadPool2.setAllowCoreThreadTimeOut(true);
-			threadPool2.setCorePoolSize(5);
+			threadPool2.setCorePoolSize(1);
 			threadPool2.setMaxPoolSize(20);
 			threadPool2.setQueueCapacity(25);
 			threadPool2.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());

@@ -50,6 +50,7 @@ public class MovieInfoEntity {
     private String labels;
     
     private String[] labelsSplit;
+    
 
     private String director;
 
@@ -60,11 +61,14 @@ public class MovieInfoEntity {
     private String locations;
     
     private String[] locationSplit;
+    private List<LabelMappingEntity> labelList;
+    
+    private List<LocationMappingEntity> locationList;
 
     private String language;
     
     private String[] languageSplit;
-
+    
     private Date releaseTime;
     
     private String releaseTimeStr;
@@ -120,6 +124,22 @@ public class MovieInfoEntity {
     private Integer countDownload;
     
     private Integer action;  //Business property, that will direct 'insert' or 'update' or 'abandon'.
+
+	public List<LabelMappingEntity> getLabelList() {
+		return labelList;
+	}
+
+	public void setLabelList(List<LabelMappingEntity> labelList) {
+		this.labelList = labelList;
+	}
+
+	public List<LocationMappingEntity> getLocationList() {
+		return locationList;
+	}
+
+	public void setLocationList(List<LocationMappingEntity> locationList) {
+		this.locationList = locationList;
+	}
 
 	public Integer getMovieStatus() {
 		return movieStatus;
@@ -747,111 +767,4 @@ public class MovieInfoEntity {
     	return null;
     }
     
-    public MovieInfoEntity changeOption(MovieInfoEntity fetchMovie){
-    	MovieInfoEntity mie = new MovieInfoEntity();
-    	boolean hasChange = false;
-    	
-    	if(StringUtils.isBlank(this.getIcon()) && StringUtils.isNotBlank(fetchMovie.getIcon())){
-    		mie.setIcon(fetchMovie.getIcon());
-    		hasChange = true;
-    	}
-    	
-    	if(StringUtils.isNotBlank(fetchMovie.getAnotherName())){
-    		if(StringUtils.isBlank(this.getAnotherName()) || !this.getAnotherName().equals(fetchMovie.getAnotherName())){
-    			mie.setAnotherName(fetchMovie.getAnotherName());
-    			hasChange = true;
-    		}
-    	}
-    	
-    	if(StringUtils.isNotBlank(fetchMovie.getLanguage())){
-    		if(StringUtils.isBlank(this.getLanguage()) || !this.getLanguage().equals(fetchMovie.getLanguage())){
-    			mie.setLanguage(fetchMovie.getLanguage());
-    			hasChange = true;
-    		}
-    	}
-    	
-    	if(fetchMovie.getReleaseTime() != null){
-        	if(this.getReleaseTime() == null || !this.getReleaseTime().equals(fetchMovie.getReleaseTime())){
-    			mie.setReleaseTime(fetchMovie.getReleaseTime());
-        		mie.setReleaseTimeFormat(fetchMovie.getReleaseTimeFormat());
-        		mie.setReleaseTimeStr(fetchMovie.getReleaseTimeStr());
-    			hasChange = true;
-        	}
-    	}
-    	
-    	if(StringUtils.isNotBlank(fetchMovie.getYear())){
-    		if(StringUtils.isBlank(this.getYear()) || !this.getYear().equals(fetchMovie.getYear())){
-    			mie.setYear(fetchMovie.getYear());
-    			hasChange = true;
-    		}
-    	}
-    	
-    	if(StringUtils.isNotBlank(fetchMovie.getDuration())){
-    		if(StringUtils.isBlank(this.getDuration()) || !this.getDuration().equals(fetchMovie.getDuration())){
-    			mie.setDuration(fetchMovie.getDuration());
-    			hasChange = true;
-    		}
-    	}
-    	
-    	if(StringUtils.isNotBlank(fetchMovie.getSummary())){
-    		if(StringUtils.isBlank(this.getSummary()) || !this.getSummary().equals(fetchMovie.getSummary())){
-    			mie.setSummary(fetchMovie.getSummary());
-    			hasChange = true;
-    		}
-    	}
-    	
-    	if(StringUtils.isNotBlank(fetchMovie.getDoubanId())){
-    		if(StringUtils.isBlank(this.getDoubanId()) || !this.getDoubanId().equals(fetchMovie.getDoubanId())){
-    			mie.setDoubanId(fetchMovie.getDoubanId());
-    			hasChange = true;
-    		}
-    	}
-    	
-    	if(StringUtils.isNotBlank(fetchMovie.getImdbId())){
-    		if(StringUtils.isBlank(this.getImdbId()) || !this.getImdbId().equals(fetchMovie.getImdbId())){
-    			mie.setImdbId(fetchMovie.getImdbId());
-    			hasChange = true;
-    		}
-    	}
-    	
-    	if(fetchMovie.getPresentSeason() != null){
-    		if(this.getPresentSeason() == null || this.getPresentSeason().intValue() != fetchMovie.getPresentSeason().intValue()){
-    			mie.setPresentSeason(fetchMovie.getPresentSeason());
-    			hasChange = true;
-    		}
-    	}
-    	
-    	if(fetchMovie.getTotalEpisode() != null){
-    		if(this.getTotalEpisode() == null || this.getTotalEpisode().intValue() != fetchMovie.getTotalEpisode().intValue()){
-    			mie.setTotalEpisode(fetchMovie.getTotalEpisode());
-    			hasChange = true;
-    		}
-    	}
-    	
-    	if(fetchMovie.getDoubanScore() != null){
-    		if(this.getDoubanScore() == null || this.getDoubanScore().intValue() != fetchMovie.getDoubanScore().intValue()){
-    			mie.setDoubanScore(fetchMovie.getDoubanScore());
-    			hasChange = true;
-    		}
-    	}
-    	
-    	if(fetchMovie.getImdbScore() != null){
-    		if(this.getImdbScore() == null || this.getImdbScore().intValue() != fetchMovie.getImdbScore().intValue()){
-    			mie.setImdbScore(fetchMovie.getImdbScore());
-    			hasChange = true;
-    		}
-    	}
-    	
-    	if(fetchMovie.getAttentionRate() != null){
-    		if(this.getAttentionRate() == null || this.getAttentionRate().intValue() != fetchMovie.getAttentionRate().intValue()){
-    			mie.setAttentionRate(fetchMovie.getAttentionRate());
-    			hasChange = true;
-    		}
-    	}
-    	
-    	if(hasChange){
-    		return mie;
-    	}
-    	return null;
-    }
 }

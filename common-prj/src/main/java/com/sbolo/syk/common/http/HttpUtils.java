@@ -1,10 +1,10 @@
 package com.sbolo.syk.common.http;
 
-import java.io.InputStream;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -229,68 +229,23 @@ public class HttpUtils {
 		}
 	}
 	
-	public static String downloadPicResize(final String url, final String targetPathStr, final String fileName, final int width, final int height) throws Exception{
-		HttpResult<String> result = HttpUtils.httpGet(url, new HttpSendCallback<String>() {
+	/**
+	 * 将网络文件转换为byte[]
+	 * @param url
+	 * @return
+	 * @throws Exception
+	 */
+	public static byte[] getBytes(String url) throws Exception {
+		HttpResult<byte[]> result = HttpUtils.httpGet(url, new HttpSendCallback<byte[]>() {
 			@Override
-			public String onResponse(Response response) throws Exception {
-				if(!response.isSuccessful()){
-					return null;
-				}
-				String suffix = url.substring(url.lastIndexOf(".")+1);
-				suffix = Pattern.compile("(?<=\\w+)[^\\w]+.*").matcher(suffix).replaceAll("");
-				String newName = fileName;
-				if(StringUtils.isBlank(newName)){
-					newName = StringUtil.getId(CommonConstants.pic_s) + "."+suffix;
-				}
-				InputStream is = null;
-				try {
-					is = response.body().byteStream();
-					Utils.uploadPic(is, targetPathStr, newName, suffix, width, height);
-				} finally {
-					if(is != null){
-						is.close();
-					}
-				}
-				
-		        return newName;
-			}
-		});
-		return result.getValue();
-	}
-	
-	public static String dowloadFile(final String url, final String targetPath) throws DownloadException{
-		return dowloadFile(url, targetPath, null, null);
-	}
-	
-	public static String dowloadFile(final String url, final String targetPath, String fileName, String suffix) throws DownloadException{
-		if(StringUtils.isBlank(suffix)){
-			suffix = url.substring(url.lastIndexOf(".")+1);
-			suffix = Pattern.compile("(?<=\\w+)[^\\w]+.*").matcher(suffix).replaceAll("");
-		}
-		if(StringUtils.isBlank(fileName)){
-			fileName = StringUtil.getId(CommonConstants.file_s);
-		}
-		fileName += ("."+suffix);
-		final String finalName = fileName;
-		
-		HttpResult<String> result = HttpUtils.httpGet(url, new HttpSendCallback<String>() {
-			@Override
-			public String onResponse(Response response) throws Exception{
+			public byte[] onResponse(Response response) throws Exception{
 				if(!response.isSuccessful()){
 					throw new DownloadException("下载文件失败："+url+"响应码："+response.code());
 				}
 				byte[] bodyBytes = response.body().bytes();
-				return FileUtils.saveFile(bodyBytes, targetPath, finalName);
+				return bodyBytes;
 			}
 		});
-		try {
-			return result.getValue();
-		} catch (Exception e) {
-			if(e instanceof DownloadException){
-				throw (DownloadException) e;
-			}
-			throw new DownloadException(e);
-		}
+		return result.getValue();
 	}
-
 }

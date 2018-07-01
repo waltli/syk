@@ -49,7 +49,8 @@ public class LinkAnalyst {
 		if(Pattern.compile(RegexConstant.ed2k).matcher(downloadLink).find()){
 			return analyseEd2k(downloadLink);
 		}else if(Pattern.compile(RegexConstant.magnet).matcher(downloadLink).find()){
-			return analyseMagnet(downloadLink);
+//			return analyseMagnet(downloadLink);
+			return null;
 		}else if(Pattern.compile(RegexConstant.thunder).matcher(downloadLink).find()){
 			return analystThunder(downloadLink, thunderDecoding);
 		}else if(Pattern.compile(RegexConstant.torrent).matcher(downloadLink).find()){

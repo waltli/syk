@@ -83,9 +83,8 @@ public class MD5Utils {
         if (!file.isFile()) {
             return null;
         }
-        try {
+        try (FileInputStream in = new FileInputStream(file)) {
             MessageDigest digest = MessageDigest.getInstance("MD5");
-            FileInputStream in = new FileInputStream(file);
             byte buffer[] = new byte[1024];
             int len;
             while ((len = in.read(buffer, 0, 1024)) != -1) {

@@ -19,7 +19,6 @@ import com.sbolo.syk.fetch.po.ResourceInfoEntity;
 @Service
 public class ResourceInfoBizService {
 	private static final Logger log = LoggerFactory.getLogger(ResourceInfoBizService.class);
-	@Resource
 	private ResourceInfoEntityMapper resourceInfoEntityMapper;
 	
 	public ResourceInfoEntity getHighestResource(String movieId, Integer category, Integer episode, boolean hasSubtitle){
