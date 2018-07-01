@@ -21,6 +21,11 @@
 	<artifactId>spring-boot-starter-logging</artifactId>
 </dependency>
 <dependency>
+    <groupId>tk.mybatis</groupId>
+    <artifactId>mapper-spring-boot-starter</artifactId>
+    <version>2.0.3</version>
+</dependency>
+<dependency>
     <groupId>org.projectlombok</groupId>
     <artifactId>lombok</artifactId>
 </dependency>
@@ -41,10 +46,7 @@
 	<groupId>org.apache.commons</groupId>
 	<artifactId>commons-pool2</artifactId>
 </dependency>
-<dependency>
-	<groupId>org.mybatis.spring.boot</groupId>
-	<artifactId>mybatis-spring-boot-starter</artifactId>
-</dependency>
+
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-validation</artifactId>
@@ -138,19 +140,13 @@
 <dependency>
     <groupId>org.jsoup</groupId>
     <artifactId>jsoup</artifactId>
-    <version>1.11.3</version>
+    <version>0.0.1-SNAPSHOT</version>
 </dependency>
 <dependency>
     <groupId>com.frostwire</groupId>
     <artifactId>jlibtorrent</artifactId>
     <version>1.2.0.18-RC7</version>
 </dependency>
-
-
-<!-- <dependency>
-	<groupId>com.chrhc.mybatis</groupId>
-	<artifactId>optimisticlocker</artifactId>
-</dependency> -->
 
 <!-- ////////////////////////////////////////////////////////////////////// -->
 <!-- 热部署 -->  
@@ -243,6 +239,29 @@
       <artifactId>easypoi-annotation</artifactId>
       <version>3.0.3</version>
   </dependency>
+  
+<!-- mapper生成插件 -->
+<dependency>
+    <groupId>org.mybatis.generator</groupId>
+    <artifactId>mybatis-generator-core</artifactId>
+    <version>1.3.6</version>
+</dependency>
+<!-- 通用 Mapper -->
+<!-- https://mvnrepository.com/artifact/tk.mybatis/mapper -->
+<!-- <dependency>
+    <groupId>tk.mybatis</groupId>
+    <artifactId>mapper</artifactId>
+    <version>4.0.0</version>
+</dependency> -->
+<!-- 如果你只需要用到通用 Mapper 中的插件，可以只引入 mapper-generator -->
+<!-- 注意，这个包不需要和上面的 mapper 同时引入，mapper 中包含 generator -->
+<!-- https://mvnrepository.com/artifact/tk.mybatis/mapper-generator -->
+<dependency>
+    <groupId>tk.mybatis</groupId>
+    <artifactId>mapper-generator</artifactId>
+    <version>1.0.0</version>
+</dependency>
+<!-- mapper生成插件 结束 -->
 </dependencies>
 <build>
 	<finalName>common-prj</finalName>
