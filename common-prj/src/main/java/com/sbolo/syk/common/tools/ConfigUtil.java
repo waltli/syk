@@ -34,12 +34,21 @@ public class ConfigUtil {
 	}
 	
 	private static void init() throws IOException{
-		
-		try (InputStream inputStream = ConfigUtil.class.getResourceAsStream("/config.properties");
-				InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "utf-8");) {
+		InputStream inputStream = null;
+		InputStreamReader inputStreamReader = null;
+		try {
+			inputStream = ConfigUtil.class.getResourceAsStream("/config.properties");
 			if(inputStream != null){
+				inputStreamReader = new InputStreamReader(inputStream, "utf-8");
 				properties = new Properties();
 				properties.load(inputStreamReader);
+			}
+		}finally {
+			if(inputStream != null) {
+				inputStream.close();
+			}
+			if(inputStreamReader != null) {
+				inputStreamReader.close();
 			}
 		}
 	}
