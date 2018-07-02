@@ -137,11 +137,18 @@
     <version>3.1.8</version>
 </dependency> -->
 
-<dependency>
+<!-- <dependency>
     <groupId>org.jsoup</groupId>
     <artifactId>jsoup</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+</dependency> -->
+
+<dependency>
+    <groupId>org.jsoup</groupId>
+    <artifactId>jsoup</artifactId>
+    <version>1.11.3</version>
 </dependency>
+
 <dependency>
     <groupId>com.frostwire</groupId>
     <artifactId>jlibtorrent</artifactId>

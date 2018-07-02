@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
@@ -456,7 +457,11 @@ public class ProcessorHelper {
 				String iconUrl = doc.select("#mainpic > a > img").first().attr("src");
 				newMovie.setIconUrl(iconUrl);
 				Element movieInfoElement = doc.select("#info").first();
-				String movieInfoAll = movieInfoElement.textBySeparator(CommonConstants.SEPARATOR);
+				List<Node> childNodes = movieInfoElement.childNodes();
+				Elements allElements = movieInfoElement.getAllElements();
+				Elements children = movieInfoElement.children();
+				List<TextNode> textNodes = movieInfoElement.textNodes();
+				String movieInfoAll = "";
 				String[] movieInfoAllSplit = movieInfoAll.split(CommonConstants.SEPARATOR);
 				for(int i=0; i<movieInfoAllSplit.length; i++){
 					int separatorIdx = movieInfoAllSplit[i].indexOf(":");
