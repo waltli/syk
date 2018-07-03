@@ -4,14 +4,14 @@ import java.util.List;
 
 public class ConcludeVO {
 	private MovieInfoVO fetchMovie;
-	private List<ResourceInfoVO> resources;
+	private List<ResourceInfoVO> fetchResources;
 	
 	public ConcludeVO(){}
 	
 	public ConcludeVO(MovieInfoVO fetchMovie,
-			List<ResourceInfoVO> resources) {
+			List<ResourceInfoVO> fetchResources) {
 		this.fetchMovie = fetchMovie;
-		this.resources = resources;
+		this.fetchResources = fetchResources;
 	}
 
 	public MovieInfoVO getFetchMovie() {
@@ -22,13 +22,14 @@ public class ConcludeVO {
 		this.fetchMovie = fetchMovie;
 	}
 
-	public List<ResourceInfoVO> getResources() {
-		return resources;
+	public List<ResourceInfoVO> getFetchResources() {
+		return fetchResources;
 	}
 
-	public void setResources(List<ResourceInfoVO> resources) {
-		this.resources = resources;
+	public void setFetchResources(List<ResourceInfoVO> fetchResources) {
+		this.fetchResources = fetchResources;
 	}
+
 	
 	
 }

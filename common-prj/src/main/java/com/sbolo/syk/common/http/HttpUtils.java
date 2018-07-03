@@ -1,8 +1,18 @@
 package com.sbolo.syk.common.http;
 
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -27,7 +37,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class HttpUtils {
-	private static final Logger LOG = LoggerFactory.getLogger(HttpUtils.class);
+	private static final Logger log = LoggerFactory.getLogger(HttpUtils.class);
 	private static final String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36";
 
 	public static void httpGet(String url, HttpSendCallbackPure callback) throws Exception {
@@ -37,7 +47,7 @@ public class HttpUtils {
 		try {
 			response = httpClient.execute(request);
 			if (!response.isSuccessful()) {
-				LOG.error("请求响应失败，code: {}.  message: {}. url: {}", 
+				log.error("请求响应失败，code: {}.  message: {}. url: {}", 
 						response.code(), response.message(), response.request().url().url());
 			}
 			callback.onResponse(response);
@@ -56,7 +66,7 @@ public class HttpUtils {
 		try {
 			response = httpClient.execute(request);
 			if (!response.isSuccessful()) {
-				LOG.error("请求响应失败，code: {}.  message: {}. url: {}", 
+				log.error("请求响应失败，code: {}.  message: {}. url: {}", 
 						response.code(), response.message(), response.request().url().url());
 			}
 			result.setValue(callback.onResponse(response));
@@ -86,7 +96,7 @@ public class HttpUtils {
 		try {
 			response = httpClient.execute(request);
 			if (!response.isSuccessful()) {
-				LOG.error("请求响应失败，code: {}.  message: {}. url: {}", 
+				log.error("请求响应失败，code: {}.  message: {}. url: {}", 
 						response.code(), response.message(), response.request().url().url());
 			}
 			callback.onResponse(response);
@@ -114,7 +124,7 @@ public class HttpUtils {
 		try {
 			response = httpClient.execute(request);
 			if (!response.isSuccessful()) {
-				LOG.error("请求响应失败，code: {}.  message: {}. url: {}", 
+				log.error("请求响应失败，code: {}.  message: {}. url: {}", 
 						response.code(), response.message(), response.request().url().url());
 			}
 			result.setValue(callback.onResponse(response));
@@ -140,7 +150,7 @@ public class HttpUtils {
 		try {
 			response = httpClient.execute(request);
 			if (!response.isSuccessful()) {
-				LOG.error("请求响应失败，code: {}.  message: {}. url: {}", 
+				log.error("请求响应失败，code: {}.  message: {}. url: {}", 
 						response.code(), response.message(), response.request().url().url());
 			}
 			result.setValue(callback.onResponse(response));

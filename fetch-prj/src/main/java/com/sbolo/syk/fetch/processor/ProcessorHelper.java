@@ -24,6 +24,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
+import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +63,7 @@ import com.sbolo.syk.fetch.service.MovieInfoService;
 import com.sbolo.syk.fetch.service.MovieLabelService;
 import com.sbolo.syk.fetch.service.MovieLocationService;
 import com.sbolo.syk.fetch.service.ResourceInfoService;
+import com.sbolo.syk.fetch.tool.FetchUtils;
 import com.sbolo.syk.fetch.vo.ConcludeVO;
 import com.sbolo.syk.fetch.vo.LinkInfoVO;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
@@ -147,7 +149,8 @@ public class ProcessorHelper {
 		
 		
 		if(filter2 == null || filter2.size() == 0) {
-			throw new AnalystException("No canable resource! url: "+comeFromUrl);
+			log.info("No canable resource! url: {}", comeFromUrl);
+			return null;
 		}
 		
 		//从缓存中获取最佳的resource
@@ -322,9 +325,7 @@ public class ProcessorHelper {
 	 */
 	private String getDoubanUrl(final String pureName, final List<String> precisions) throws MovieInfoFetchException{
 		HttpResult<String> result = HttpUtils.httpGet("https://api.douban.com/v2/movie/search?q="+Utils.encode(pureName, "UTF-8"), 
-				
 				new HttpSendCallback<String>() {
-
 			@Override
 			public String onResponse(Response response) throws Exception{
 				if(!response.isSuccessful()){
@@ -457,16 +458,13 @@ public class ProcessorHelper {
 				String iconUrl = doc.select("#mainpic > a > img").first().attr("src");
 				newMovie.setIconUrl(iconUrl);
 				Element movieInfoElement = doc.select("#info").first();
-				List<Node> childNodes = movieInfoElement.childNodes();
-				Elements allElements = movieInfoElement.getAllElements();
-				Elements children = movieInfoElement.children();
-				List<TextNode> textNodes = movieInfoElement.textNodes();
-				String movieInfoAll = "";
-				String[] movieInfoAllSplit = movieInfoAll.split(CommonConstants.SEPARATOR);
-				for(int i=0; i<movieInfoAllSplit.length; i++){
-					int separatorIdx = movieInfoAllSplit[i].indexOf(":");
-					String title = movieInfoAllSplit[i].substring(0, separatorIdx).trim();
-					String content = movieInfoAllSplit[i].substring(separatorIdx+1).trim();
+				//将<br>替换为特殊符号，再解析为document，而后再获取文字
+				String movieInfoStr = Jsoup.parse(movieInfoElement.html().replace("<br>", CommonConstants.SEPARATOR)).text();
+				String[] movieInfoArr = movieInfoStr.split(CommonConstants.SEPARATOR);
+				for(String movieInfo : movieInfoArr){
+					int separatorIdx = movieInfo.indexOf(":");
+					String title = movieInfo.substring(0, separatorIdx).trim();
+					String content = movieInfo.substring(separatorIdx+1).trim();
 					content = content.replaceAll("(?<=[^\\s])/(?=[^\\s])", " / ");
 					if("导演".equals(title)){
 						newMovie.setDirectors(content);
@@ -713,7 +711,7 @@ public class ProcessorHelper {
 		List<PicVO> posterList = buildPosterPicList(fetchMovie.getPosterPageUrl(), icon.getFileName());
 		//下载icon到服务器并设置uri
 		try {
-			String iconUri = this.picDownAndFix(icon.getFetchUrl(), ConfigUtil.getPropertyValue("icon.dir"));
+			String iconUri = this.picDownAndFix(icon.getFetchUrl(), ConfigUtil.getPropertyValue("icon.dir"), CommonConstants.icon_width, CommonConstants.icon_height);
 			fetchMovie.setIconUri(iconUri);
 		}catch (Exception e) {
 			log.error("download icon wrong, url: {}", icon.getFetchUrl(), e);
@@ -723,7 +721,7 @@ public class ProcessorHelper {
 		List<String> posterNames = new ArrayList<String>();
 		for(PicVO poster:posterList){
 			try {
-				String posterUri = this.picDownAndFix(poster.getFetchUrl(), ConfigUtil.getPropertyValue("poster.dir"));
+				String posterUri = this.picDownAndFix(poster.getFetchUrl(), ConfigUtil.getPropertyValue("poster.dir"), CommonConstants.icon_width, CommonConstants.icon_height);
 				posterNames.add(posterUri);
 			} catch (Exception e) {
 				log.error("download poster wrong, url: {}", poster.getFetchUrl(), e);
@@ -743,14 +741,33 @@ public class ProcessorHelper {
 	 * @return
 	 * @throws Exception
 	 */
-	private String picDownAndFix(String picUrl, String targetDir) throws Exception {
+	private String picDownAndFix(String picUrl, String targetDir, int fixWidth, int fixHeight) throws Exception {
 		String suffix = picUrl.substring(picUrl.lastIndexOf(".")+1);
 		String fileName = StringUtil.getId(CommonConstants.pic_s);
 		byte[] bytes = HttpUtils.getBytes(picUrl);
-		byte[] imageFix = FileUtils.imageFix(bytes, CommonConstants.icon_width, CommonConstants.icon_height, suffix);
+		byte[] imageFix = FileUtils.imageFix(bytes, fixWidth, fixHeight, suffix);
 		String subDir = DateUtil.date2Str(new Date(), "yyyyMM");
 		String saveDir = targetDir+"/"+subDir;
 		FileUtils.saveFile(imageFix, saveDir, fileName, suffix);
+		String uri = saveDir.replace(ConfigUtil.getPropertyValue("fs.formal.dir"), "");
+		return uri+"/"+fileName+"."+suffix;
+	}
+	
+	/**
+	 * 下载图片并修正图片大小以及添加水印，返回uri
+	 * @param picUrl
+	 * @return
+	 * @throws Exception
+	 */
+	private String picDownAndFixMark(String picUrl, String targetDir, int fixWidth, int fixHeight) throws Exception {
+		String suffix = picUrl.substring(picUrl.lastIndexOf(".")+1);
+		String fileName = StringUtil.getId(CommonConstants.pic_s);
+		byte[] bytes = HttpUtils.getBytes(picUrl);
+		byte[] imageFix = FileUtils.imageFix(bytes, fixWidth, fixHeight, suffix);
+		byte[] imageMark = FileUtils.imageMark(imageFix, suffix);
+		String subDir = DateUtil.date2Str(new Date(), "yyyyMM");
+		String saveDir = targetDir+"/"+subDir;
+		FileUtils.saveFile(imageMark, saveDir, fileName, suffix);
 		String uri = saveDir.replace(ConfigUtil.getPropertyValue("fs.formal.dir"), "");
 		return uri+"/"+fileName+"."+suffix;
 	}
@@ -882,7 +899,7 @@ public class ProcessorHelper {
 			try {
 				String repeatedPrintscreenUri = photoUrlMapping.get(printscreenUrl);
 				if(repeatedPrintscreenUri == null){
-					String printscreenUri = this.picDownAndFix(printscreenUrl, ConfigUtil.getPropertyValue("printscreen.dir"));
+					String printscreenUri = this.picDownAndFixMark(printscreenUrl, ConfigUtil.getPropertyValue("printscreen.dir"), CommonConstants.photo_width, CommonConstants.photo_height);
 					photoUrlMapping.put(printscreenUrl, printscreenUri);
 					printscreenUriList.add(printscreenUri);
 				}else {
@@ -1314,59 +1331,6 @@ public class ProcessorHelper {
 		return definition.intValue();
 	}
     
-    private void deleteFile(String filePath) {
-    	File photo = new File(filePath);
-		if(photo.exists()){
-			photo.delete();
-		}
-    }
-    
-    /**
-     * 当原先resource被替换后，删除原resource留下的文件
-     * @param resource
-     */
-    private void deleteResourceFile(ResourceInfoEntity resource){
-		String printscreenJson = resource.getPrintscreenUriJson();
-		
-		if(StringUtils.isNotBlank(printscreenJson)){
-			List<String> printscreenUriList = JSON.parseArray(printscreenJson, String.class);
-			for(String printscreenUri:printscreenUriList){
-				String printscreenDir = ConfigUtil.getPropertyValue("printscreen.dir");
-				String printscreenPath = printscreenDir+"/"+printscreenUri;
-				deleteFile(printscreenPath);
-			}
-		}
-		
-		String downloadLink = resource.getDownloadLink();
-		if(StringUtil.isLocalLink(downloadLink)){
-			String torrentDir = ConfigUtil.getPropertyValue("torrent.dir");
-			String torrentPath = torrentDir+"/"+downloadLink;
-			deleteFile(torrentPath);
-		}
-	}
-    
-//    /**
-//     * 删除movie相关的文件
-//     * 因电影图片可以不用更新，故该方法暂时未使用
-//     * @param resource
-//     */
-//    private void deleteMovieFile(MovieInfoVO movie){
-//		String iconUri = movie.getIconUri();
-//		if(StringUtils.isNotBlank(iconUri)) {
-//			String iconPath = iconDir+"/"+iconUri;
-//			deleteFile(iconPath);
-//		}
-//		
-//		String posterUriJson = movie.getPosterUriJson();
-//		if(StringUtils.isNotBlank(posterUriJson)) {
-//			List<String> posterUriList = JSON.parseArray(posterUriJson, String.class);
-//			for(String posterUri : posterUriList) {
-//				String posterPath = posterDir + "/" + posterUri;
-//				deleteFile(posterPath);
-//			}
-//		}
-//	}
-    
     /**
 	 * 将新获得的resource与缓存中的最佳resource进行比较
 	 * @param category 类别 tv/movie
@@ -1448,7 +1412,8 @@ public class ProcessorHelper {
 				fetchOptimalResource.setAction(CommonConstants.update);
 				//因为修改，所以需要删除db中resource文件，待后面添加新的resource文件
 				if(dbOptimalResource != null) {
-					this.deleteResourceFile(dbOptimalResource);
+					ResourceInfoVO resource = VOUtils.po2vo(dbOptimalResource, ResourceInfoVO.class);
+					FetchUtils.deleteResourceFile(resource);
 				}
 			}
 			

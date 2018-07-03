@@ -1,6 +1,10 @@
 package com.sbolo.syk.common.tools;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -47,32 +51,114 @@ public class FileUtils {
 		}
 	}
 	
+	public static void deleteFile(String filePath) {
+    	File file = new File(filePath);
+		if(file.exists()){
+			file.delete();
+		}
+    }
+	
+	/**
+	 * 按比例修正图片大小
+	 * @param content
+	 * @param newWidth
+	 * @param newHeight
+	 * @param suffix
+	 * @return
+	 * @throws IOException
+	 */
 	public static byte[] imageFix(byte[] content, int newWidth, int newHeight, String suffix) throws IOException{
-		try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(content);
-				ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();) {
+		ByteArrayInputStream byteArrayInputStream = null;
+		ByteArrayOutputStream byteArrayOutputStream = null;
+		Graphics2D graphics = null;
+		try {
+			byteArrayInputStream = new ByteArrayInputStream(content);
+			byteArrayOutputStream = new ByteArrayOutputStream();
 			ImageIO.setUseCache(false);
 			Image srcImg = ImageIO.read(byteArrayInputStream);
-			Integer widthCopy = newWidth;
-			Integer heightCopy = newHeight;
 			
-			int oldWidth = srcImg.getWidth(null);  
-	        int oldHeight = srcImg.getHeight(null);
+			int imgWidth = srcImg.getWidth(null);  
+	        int imgHeight = srcImg.getHeight(null);
 	        
-	        BigDecimal scaleBig = getImageScale(oldHeight, oldWidth, heightCopy, widthCopy);
-	        
-	        widthCopy = new BigDecimal(oldWidth).multiply(scaleBig).intValue();
-	    	heightCopy = new BigDecimal(oldHeight).multiply(scaleBig).intValue();
+	        //获取比例
+	        BigDecimal scaleBig = getImageScale(imgWidth, imgHeight, newWidth, newHeight);
+	        newWidth = new BigDecimal(imgWidth).multiply(scaleBig).intValue();
+	        newHeight = new BigDecimal(imgHeight).multiply(scaleBig).intValue();
 			
-	        Image scaledImage = srcImg.getScaledInstance(widthCopy, heightCopy, Image.SCALE_SMOOTH);
-	        BufferedImage buffImg = new BufferedImage(widthCopy, heightCopy, BufferedImage.TYPE_INT_RGB);
-	        buffImg.getGraphics().drawImage(scaledImage , 0, 0, null);
+	        Image scaledImage = srcImg.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+	        BufferedImage bufImg = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+	        graphics = bufImg.createGraphics();
+	        graphics.drawImage(scaledImage , 0, 0, null);
 	        
-	        ImageIO.write(buffImg, suffix, byteArrayOutputStream);
+	        ImageIO.write(bufImg, suffix, byteArrayOutputStream);
 	        return byteArrayOutputStream.toByteArray();
+		} finally {
+			if(graphics != null) {
+				graphics.dispose();
+			}
+			if(byteArrayOutputStream != null) {
+				byteArrayOutputStream.close();
+			}
+			if(byteArrayInputStream != null) {
+				byteArrayInputStream.close();
+			}
 		}
-		
-		
 	}
+	
+	/**
+	 * 给图片右下角添加水印
+	 * @param content
+	 * @param text
+	 * @param font
+	 * @param color
+	 * @param background
+	 * @param x
+	 * @param y
+	 * @param suffix
+	 * @return
+	 * @throws IOException
+	 */
+	public static byte[] imageMark(byte[] content, String suffix) throws IOException {
+		ByteArrayInputStream byteArrayInputStream = null;
+		ByteArrayOutputStream byteArrayOutputStream = null;
+		Graphics2D graphics2D = null;
+		try {
+			byteArrayInputStream = new ByteArrayInputStream(content);
+			byteArrayOutputStream = new ByteArrayOutputStream();
+			ImageIO.setUseCache(false);
+			Image srcImg = ImageIO.read(byteArrayInputStream);
+			
+			int imgWidth = srcImg.getWidth(null);  
+	        int imgHeight = srcImg.getHeight(null);
+	        // 加水印
+			BufferedImage bufImg = new BufferedImage(imgWidth, imgHeight, BufferedImage.TYPE_INT_RGB);
+			graphics2D = bufImg.createGraphics();
+			graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); // 去除锯齿(当设置的字体过大的时候,会出现锯齿)
+			graphics2D.drawImage(srcImg, 0, 0, imgWidth, imgHeight, null);
+			graphics2D.setColor(Color.PINK);
+			graphics2D.setFont(graphics2D.getFont().deriveFont(34f));
+			graphics2D.fill(graphics2D.getFontMetrics().getStringBounds("chanying.cc",graphics2D) );
+			graphics2D.setColor(Color.BLUE);
+			graphics2D.drawString("chanying.cc",imgWidth-100,imgHeight-50);
+//			graphics.setColor(Color.blue);
+//			graphics.setFont(new Font("微软雅黑", Font.BOLD, 50)); // 设置字体
+//			graphics.drawString("chanying.cc", imgWidth - 145, imgHeight); // 设置ps上去的文字的坐标位置和文字的内容
+			ImageIO.write(bufImg, suffix, byteArrayOutputStream);
+	        return byteArrayOutputStream.toByteArray();
+		} finally {
+			if(graphics2D != null) {
+				graphics2D.dispose();
+			}
+			if(byteArrayOutputStream != null) {
+				byteArrayOutputStream.flush();
+				byteArrayOutputStream.close();
+			}
+			if(byteArrayInputStream != null) {
+				byteArrayInputStream.close();
+			}
+		}
+	}
+
 	
 	private static BigDecimal getImageScale(int oldHeight, int oldWidth, int height, int width){
 		BigDecimal oldHeightBig = new BigDecimal(oldHeight);

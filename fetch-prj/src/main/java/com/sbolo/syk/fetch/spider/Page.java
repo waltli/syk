@@ -93,7 +93,7 @@ public class Page {
 	
 	public String link(Element selectElement, String attrName){
 		String url = selectElement.attr(attrName);
-		if(!url.startsWith("http://")){
+		if(!url.startsWith("http://") && !url.startsWith("https://")){
 			if(url.startsWith("/")){
 				url = this.getHost()+url;
 			}else {

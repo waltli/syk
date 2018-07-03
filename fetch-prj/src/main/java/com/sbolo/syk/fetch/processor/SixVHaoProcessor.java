@@ -103,8 +103,26 @@ public class SixVHaoProcessor extends ProcessorHelper implements PageProcessor {
 				linkInfos.add(linkInfo);
 			}
 			
+			//获取资源截图
+			Element screensElement = document.select("div#text").first();
+			List<String> printscreens = new ArrayList<>();
+			if(screensElement != null) {
+				Elements pLabels = screensElement.children();
+				boolean isPrintscreenStart = false;
+				for(Element p : pLabels) {
+					if(p.hasText()) {
+						isPrintscreenStart = true;
+						continue;
+					}
+					Element img = p.selectFirst("img");
+					if(img != null && img.nodeName().equals("img") && isPrintscreenStart) {
+						String link = page.link(img, "src");
+						printscreens.add(link);
+					}
+				}
+			}
 			
-			ConcludeVO conclude = this.resolve(pureNameAndSeason.getPureName(), precisions, linkInfos, null, url, null);
+			ConcludeVO conclude = this.resolve(pureNameAndSeason.getPureName(), precisions, linkInfos, printscreens, url, null);
 			if(conclude != null) {
 				fields.put(url, conclude);
 			}

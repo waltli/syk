@@ -8,11 +8,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.sbolo.syk.common.mvc.configuration.properties.DruidDataSourceProperties;
 import com.sbolo.syk.fetch.configuration.properties.SpiderProperties;
-import com.sbolo.syk.fetch.pipeline.FilterPipeline;
+import com.sbolo.syk.fetch.pipeline.MysqlPipeline;
 import com.sbolo.syk.fetch.processor.SixVHaoProcessor;
-import com.sbolo.syk.fetch.spider.Downloader;
 import com.sbolo.syk.fetch.spider.PageProcessor;
 import com.sbolo.syk.fetch.spider.Pipeline;
 import com.sbolo.syk.fetch.spider.Spider;
@@ -33,7 +31,7 @@ public class SpiderConfiguration {
 	
 	@Bean
 	public Pipeline filterPipeline() {
-		FilterPipeline filterPipeline = new FilterPipeline();
+		MysqlPipeline filterPipeline = new MysqlPipeline();
 		return filterPipeline;
 	}
 	
