@@ -4,7 +4,14 @@ public class LinkAnalyzeResultVO {
 	private String movieSize;
 	private String movieFormat;
 	private String downloadLink;
+	private byte[] torrentBytes;
 	
+	public byte[] getTorrentBytes() {
+		return torrentBytes;
+	}
+	public void setTorrentBytes(byte[] torrentBytes) {
+		this.torrentBytes = torrentBytes;
+	}
 	public String getMovieSize() {
 		return movieSize;
 	}

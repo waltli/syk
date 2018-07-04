@@ -1,18 +1,25 @@
 package com.sbolo.syk.fetch.tool;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.tools.ConfigUtil;
 import com.sbolo.syk.common.tools.FileUtils;
 import com.sbolo.syk.common.tools.StringUtil;
+import com.sbolo.syk.common.vo.LinkAnalyzeResultVO;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
+import com.sbolo.syk.fetch.pipeline.MysqlPipeline;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
 import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 
 public class FetchUtils {
+	private static final Logger log = LoggerFactory.getLogger(FetchUtils.class);
+	
 	/**
      * 当原先resource被替换后，删除原resource留下的文件
      * @param resource

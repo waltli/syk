@@ -1,6 +1,5 @@
 package com.sbolo.syk.fetch.processor;
 
-import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -22,9 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
-import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +46,6 @@ import com.sbolo.syk.common.http.callback.HttpSendCallbackPure;
 import com.sbolo.syk.common.tools.ConfigUtil;
 import com.sbolo.syk.common.tools.DateUtil;
 import com.sbolo.syk.common.tools.FileUtils;
-import com.sbolo.syk.common.tools.LinkAnalyst;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.UIDGenerator;
 import com.sbolo.syk.common.tools.Utils;
@@ -64,6 +60,7 @@ import com.sbolo.syk.fetch.service.MovieLabelService;
 import com.sbolo.syk.fetch.service.MovieLocationService;
 import com.sbolo.syk.fetch.service.ResourceInfoService;
 import com.sbolo.syk.fetch.tool.FetchUtils;
+import com.sbolo.syk.fetch.tool.LinkAnalyst;
 import com.sbolo.syk.fetch.vo.ConcludeVO;
 import com.sbolo.syk.fetch.vo.LinkInfoVO;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
@@ -134,6 +131,11 @@ public class ProcessorHelper {
 		//在缓存中过滤一批resource
 		List<ResourceInfoVO> filter1 = this.filterResourceInCache(fetchMovie.getCategory(), fetchResources);
 		
+		if(filter1 == null || filter1.size() == 0) {
+			log.info("No canable resource! url: {}", comeFromUrl);
+			return null;
+		}
+		
 		//如果影片的action等于insert，那就表示是新电影，库中肯定没有资源
 		List<ResourceInfoVO> filter2 = null;
 		ResourceInfoEntity dbOptimalResource = null;
@@ -147,7 +149,6 @@ public class ProcessorHelper {
 			filter2 = this.filterResourceInDB(fetchMovie.getCategory(), finalMovie.getPrn(), filter1, dbOptimalResource, thisTime);
 		}
 		
-		
 		if(filter2 == null || filter2.size() == 0) {
 			log.info("No canable resource! url: {}", comeFromUrl);
 			return null;
@@ -158,14 +159,9 @@ public class ProcessorHelper {
 		
 		//为finalMovie设置optimalResource的相关信息
 		this.setOptimalResource(finalMovie, fetchOptimalResource);
-		
 		//集中处理电影和资源的相关文件
-		boolean hasValidLink = this.dealMovieAndResourceFiles(fetchMovie, filter2, fetchOptimalResource, dbOptimalResource);
-		
-		if(hasValidLink) {
-			return new ConcludeVO(fetchMovie, filter2);
-		}
-		throw new AnalystException("No valid download link! url: "+comeFromUrl);
+		this.dealMovieAndResourceFiles(fetchMovie, filter2, fetchOptimalResource, dbOptimalResource);
+		return new ConcludeVO(fetchMovie, filter2);
 	}
 	
 	/**
@@ -810,6 +806,11 @@ public class ProcessorHelper {
 		Map<String, ResourceInfoVO> filterMap = new HashMap<String, ResourceInfoVO>();
 		
 		for(ResourceInfoVO fetchResource:fetchResources){
+			//是否是可支持的下载链接
+			if(!this.isCanableLink(fetchResource.getDownloadLink())) {
+				continue;
+			}
+			
 			String filterKey = fetchResource.getDownloadLink();
 			if(category == MovieCategoryEnum.movie.getCode()){
 				ResourceInfoVO filterResource = filterMap.get(filterKey);
@@ -916,107 +917,119 @@ public class ProcessorHelper {
 	}
 	
 	/**
+	 * 是否是支持的下载链接
+	 * @param fetchResource
+	 * @return
+	 */
+	private boolean isCanableLink(String downloadLink) {
+		if(StringUtils.isBlank(downloadLink)) {
+			return false;
+		}
+		
+		if(Pattern.compile(RegexConstant.ed2k).matcher(downloadLink).find() || 
+				Pattern.compile(RegexConstant.thunder).matcher(downloadLink).find() || 
+				Pattern.compile(RegexConstant.torrent).matcher(downloadLink).find() || 
+				Pattern.compile(RegexConstant.magnet).matcher(downloadLink).find()){
+			return true;
+		}
+		return false;
+	}
+	
+	/**
 	 * 批量分析下载链接并填充信息，如果是种子文件则下载到服务器，再设置。
 	 * 
 	 * @param fetchResource
+	 * @throws Exception 
 	 * @throws AnalystException
 	 */
-	private boolean analyzeDownloadLink(List<ResourceInfoVO> fetchResources){
-		//是否存在有效的下载链接
-		boolean hasValidLink = false;
-		
-		if(fetchResources == null || fetchResources.size() == 0) {
-			return hasValidLink;
-		}
-		
+	private void analyzeDownloadLink(List<ResourceInfoVO> fetchResources){
 		for(ResourceInfoVO fetchResource : fetchResources) {
 			String link = fetchResource.getDownloadLink();
-			if(StringUtils.isBlank(link)){
-				log.info("The download link of \"["+fetchResource.getPureName()+"]\" is null");
-				continue;
-			}
-			
-			if(Pattern.compile(RegexConstant.baiduNet).matcher(link).find()){
-				log.info("Not support baiduNet!!!");
-				continue;
-			}
-			hasValidLink = true;
-			if(Pattern.compile(RegexConstant.torrent).matcher(link).find()){
-				try {
-					StringBuffer fileName = new StringBuffer(fetchResource.getPureName().replaceAll(" ", "."));
-					if(fetchResource.getEpisodeStart() != null){
-						fileName.append(".第").append(fetchResource.getEpisodeStart())
-						.append("-").append(fetchResource.getEpisodeEnd()).append("集");
-					}else if(fetchResource.getEpisodeEnd() != null){
-						fileName.append(".第").append(fetchResource.getEpisodeEnd()).append("集");
-					}
-					if(StringUtils.isNotBlank(fetchResource.getQuality())){
-						fileName.append(".").append(fetchResource.getQuality());
-					}
-					if(StringUtils.isNotBlank(fetchResource.getResolution())){
-						fileName.append(".").append(fetchResource.getResolution());
-					}
-					String subtitleNotice = "无字幕";
-					if(StringUtils.isNotBlank(fetchResource.getSubtitle())){
-						subtitleNotice = fetchResource.getSubtitle();
-					}
-					fileName.append(".").append(subtitleNotice).append(CommonConstants.local_sign);
-					
-					//去除当前页面文件重名的可能性
-					StringBuffer test = new StringBuffer(fileName);
-					int count = 1;
-					do{
-						Integer in = fileNameDistinct.get(test.toString());
-						if(in == null){
-							fileName = test;
-							break;
+			try {
+				if(StringUtils.isBlank(link)){
+					log.info("The download link of \"["+fetchResource.getPureName()+"]\" is null");
+					continue;
+				}
+				
+				LinkAnalyzeResultVO analyzeResult = null;
+				//根據需要分析下載鏈接
+				if(StringUtils.isBlank(fetchResource.getSize()) || StringUtils.isBlank(fetchResource.getFormat())){
+					analyzeResult = LinkAnalyst.analyseDownloadLink(link, fetchResource.getThunderDecoding());
+					if(analyzeResult != null) {
+						if(StringUtils.isBlank(fetchResource.getSize())) {
+							fetchResource.setSize(analyzeResult.getMovieSize());
 						}
-						test = new StringBuffer(fileName);
-						test.append("(").append(count).append(")");
-						count++;
-					} while(true);
-					
-					fileNameDistinct.put(fileName.toString(), 1);
-					
+						if(StringUtils.isBlank(fetchResource.getFormat())) {
+							fetchResource.setFormat(analyzeResult.getMovieFormat());
+						}
+					}
+				}
+				
+				//如果是種子文件則需要下載到服務器
+				if(Pattern.compile(RegexConstant.torrent).matcher(link).find()){
+					String torrentName = getTorrentName(fetchResource);
+					byte[] torrentBytes = null;
+					if(analyzeResult == null) {
+						torrentBytes = HttpUtils.getBytes(link);
+					}else {
+						torrentBytes = analyzeResult.getTorrentBytes();
+					}
 					String suffix = link.substring(link.lastIndexOf(".")+1);
-					byte[] bytes = HttpUtils.getBytes(link);
 					String torrentDir = ConfigUtil.getPropertyValue("torrent.dir");
 					String subDir = DateUtil.date2Str(new Date(), "yyyyMM");
 					String saveDir = torrentDir+"/"+subDir;
-					FileUtils.saveFile(bytes, saveDir, fileName.toString(), suffix);
+					FileUtils.saveFile(torrentBytes, saveDir, torrentName, suffix);
 					String uri = saveDir.replace(ConfigUtil.getPropertyValue("fs.formal.dir"), "");
-					fetchResource.setDownloadLink(uri + "/"+fileName.toString() + "." +suffix);
-				} catch (Exception e) {
-					log.error("", e);
-					continue;
+					fetchResource.setDownloadLink(uri + "/"+torrentName + "." +suffix);
 				}
+			} catch (Throwable e) {
+				log.error("解析下载链接失败！ url: "+ link, e);
 			}
-			
-			if(StringUtils.isBlank(fetchResource.getSize()) || StringUtils.isBlank(fetchResource.getFormat())){
-				final String linkCopy = fetchResource.getDownloadLink();
-				final String thunderDecodingCopy = fetchResource.getThunderDecoding();
-				
-				try {
-					LinkAnalyzeResultVO linkAnalyzeResult = LinkAnalyst.analysis(linkCopy, thunderDecodingCopy);
-					if(linkAnalyzeResult == null){
-						continue;
-					}
-					if(StringUtils.isBlank(fetchResource.getSize())){
-						fetchResource.setSize(linkAnalyzeResult.getMovieSize());
-					}
-					if(StringUtils.isBlank(fetchResource.getFormat())) {
-						fetchResource.setFormat(linkAnalyzeResult.getMovieFormat());
-					}
-				} catch (Exception e) {
-					log.error("", e);
-					continue;
-				}
-			}
-			
 			
 		}
-		return hasValidLink;
+	}
+	
+	/**
+	 * 重新组建种子文件名
+	 * @param fetchResource
+	 * @return
+	 */
+	private String getTorrentName(ResourceInfoVO fetchResource) {
+		StringBuffer fileName = new StringBuffer(fetchResource.getPureName().replaceAll(" ", "."));
+		if(fetchResource.getEpisodeStart() != null){
+			fileName.append(".第").append(fetchResource.getEpisodeStart())
+			.append("-").append(fetchResource.getEpisodeEnd()).append("集");
+		}else if(fetchResource.getEpisodeEnd() != null){
+			fileName.append(".第").append(fetchResource.getEpisodeEnd()).append("集");
+		}
+		if(StringUtils.isNotBlank(fetchResource.getQuality())){
+			fileName.append(".").append(fetchResource.getQuality());
+		}
+		if(StringUtils.isNotBlank(fetchResource.getResolution())){
+			fileName.append(".").append(fetchResource.getResolution());
+		}
+		String subtitleNotice = "";
+		if(StringUtils.isNotBlank(fetchResource.getSubtitle())){
+			subtitleNotice = fetchResource.getSubtitle();
+		}
+		fileName.append(".").append(subtitleNotice).append(CommonConstants.local_sign);
 		
+		//去除当前页面文件重名的可能性
+		StringBuffer test = new StringBuffer(fileName);
+		int count = 1;
+		do{
+			Integer in = fileNameDistinct.get(test.toString());
+			if(in == null){
+				fileName = test;
+				break;
+			}
+			test = new StringBuffer(fileName);
+			test.append("(").append(count).append(")");
+			count++;
+		} while(true);
+		
+		fileNameDistinct.put(fileName.toString(), 1);
+		return fileName.toString();
 	}
 	
 	/**
@@ -1395,13 +1408,10 @@ public class ProcessorHelper {
 	 * @param dbOptimalResource
 	 * @return
 	 */
-	private boolean dealMovieAndResourceFiles(MovieInfoVO fetchMovie, List<ResourceInfoVO> filter2, ResourceInfoVO fetchOptimalResource,  ResourceInfoEntity dbOptimalResource) {
+	private void dealMovieAndResourceFiles(MovieInfoVO fetchMovie, List<ResourceInfoVO> filter2, ResourceInfoVO fetchOptimalResource,  ResourceInfoEntity dbOptimalResource) {
 		//分析下载链接并填充下载信息，并判断是否有有效的下载链接
 		//最好放在第一步，因为如果没有有效的下载链接，就等于没有资源，也就不需要去下载其他的文件了。
-		boolean hasValidLink = this.analyzeDownloadLink(filter2);
-		if(!hasValidLink) {
-			return hasValidLink;
-		}
+		this.analyzeDownloadLink(filter2);
 		try {
 			
 			//下载电影相关图片信息到服务器，并设置uri
@@ -1422,7 +1432,6 @@ public class ProcessorHelper {
 		} catch (Exception e) {
 			log.error("", e);
 		}
-		return hasValidLink;
 	}
 	
 	

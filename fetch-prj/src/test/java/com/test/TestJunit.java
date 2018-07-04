@@ -27,6 +27,7 @@ import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
 import com.jfinal.plugin.activerecord.Record;
 import com.jfinal.plugin.druid.DruidPlugin;
 import com.sbolo.syk.fetchApplication;
+import com.sbolo.syk.common.tools.ConfigUtil;
 
 @AutoConfigureMockMvc
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -57,6 +58,12 @@ public class TestJunit {
         for (String warning : warnings) {
             System.out.println(warning);
         }
+	}
+	
+	@Test
+	public void test() throws Exception{
+		String propertyValue = ConfigUtil.getPropertyValue("fs.dir");
+		System.out.println(propertyValue);
 	}
 	
 	

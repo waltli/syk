@@ -41,7 +41,6 @@ public class RequestResult<T> implements Serializable {
 
 	private Boolean status = true;
 	private String[] error;
-	private Integer code;
 	private Throwable throwable;
 
 	public RequestResult() {
@@ -78,7 +77,6 @@ public class RequestResult<T> implements Serializable {
 		}
 	}
 	
-	@Deprecated
 	public static <T> RequestResult<T> error(String str) {
 		String[] strs = new String[]{str};
 		return error(strs);
@@ -91,32 +89,11 @@ public class RequestResult<T> implements Serializable {
 		return requestResult;
 	}
 
-//	public static <T> RequestResult<T> error(Integer code, String str) {
-//		RequestResult<T> requestResult = error(str);
-//		requestResult.setCode(code);
-//		return requestResult;
-//	}
-
 	public static <T> RequestResult<T> error(Throwable t) {
 		RequestResult<T> requestResult = new RequestResult<T>();
 		requestResult.setStatus(false);
 		requestResult.setThrowable(t);
-		Integer code = 10000;	//默认code
-		String error = ConfigUtil.getMessage(code);
-		if(t instanceof BusinessException){
-			BusinessException be = (BusinessException) t;
-			code = be.getCode();
-			error = be.getMessage();
-		}
-		requestResult.setError(error);
-		requestResult.setCode(code);
-		return requestResult;
-	}
-
-	public static <T> RequestResult<T> error(Integer code, Throwable t) {
-		RequestResult<T> requestResult = error(t);
-		requestResult.setError(ConfigUtil.getMessage(code));
-		requestResult.setCode(code);
+		requestResult.setError(t.getMessage());
 		return requestResult;
 	}
 
@@ -372,14 +349,6 @@ public class RequestResult<T> implements Serializable {
 
 	public void setPageLength(int pageLength) {
 		this.pageLength = pageLength;
-	}
-
-	public Integer getCode() {
-		return code;
-	}
-
-	public void setCode(Integer code) {
-		this.code = code;
 	}
 
 	public int getListSize() {

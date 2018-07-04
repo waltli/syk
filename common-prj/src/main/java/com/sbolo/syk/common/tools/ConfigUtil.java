@@ -23,7 +23,6 @@ import com.sbolo.syk.common.exception.BusinessException;
 public class ConfigUtil {
 
 	private static Properties properties;
-	private static Properties message;
 	
 	static{
 		try {
@@ -34,21 +33,28 @@ public class ConfigUtil {
 	}
 	
 	private static void init() throws IOException{
+		String[] configArr = new String[]{"/config_gp.properties", "/config_g.properties", "/config_p.properties"};
+		
 		InputStream inputStream = null;
 		InputStreamReader inputStreamReader = null;
-		try {
-			inputStream = ConfigUtil.class.getResourceAsStream("/config.properties");
-			if(inputStream != null){
-				inputStreamReader = new InputStreamReader(inputStream, "utf-8");
-				properties = new Properties();
-				properties.load(inputStreamReader);
-			}
-		}finally {
-			if(inputStream != null) {
-				inputStream.close();
-			}
-			if(inputStreamReader != null) {
-				inputStreamReader.close();
+		properties = new Properties();
+		
+		for(String config : configArr) {
+			try {
+				inputStream = ConfigUtil.class.getResourceAsStream(config);
+				if(inputStream != null){
+					inputStreamReader = new InputStreamReader(inputStream, "utf-8");
+					properties.load(inputStreamReader);
+				}
+			}finally {
+				if(inputStreamReader != null) {
+					inputStreamReader.close();
+					inputStreamReader = null;
+				}
+				if(inputStream != null) {
+					inputStream.close();
+					inputStream = null;
+				}
 			}
 		}
 	}
@@ -97,31 +103,4 @@ public class ConfigUtil {
 		value = value.replace(inner, innerValue);
 		return value;
 	}
-	
-	public static String getMessage(Object key, Object...objects){
-		if(message == null){
-			return null;
-		}
-		
-		Object valueObj = message.get(String.valueOf(key));
-		if (valueObj == null) {
-			return null;
-		}
-		
-		String value = String.valueOf(valueObj);
-		
-		if (value.trim().equalsIgnoreCase("")) {
-			return null;
-		}
-		
-		for(int i=0; i<objects.length; i++){
-			Object obj = objects[i];
-			value = value.replaceAll("\\{"+i+"\\}", String.valueOf(obj));
-		}
-		
-		return value;
-	}
-	
-	
-	
 }

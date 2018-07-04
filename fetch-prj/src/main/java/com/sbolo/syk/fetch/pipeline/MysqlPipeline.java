@@ -94,38 +94,6 @@ public class MysqlPipeline implements Pipeline {
 						}
 					}
 				}
-				int insertMovieSize = 0;
-				int updateMovieSize = 0;
-				int insertLabelSize = 0;
-				int insertLocationSize = 0;
-				int insertResourceSize = 0;
-				int updateResourceSize = 0;
-				if(addMovies.size() > 0) {
-					insertMovieSize = movieInfoMapper.insertList(addMovies);
-				}
-				if(updateMovies.size() > 0) {
-					updateMovieSize = movieInfoMapper.updateListByPrn(updateMovies);
-				}
-				if(addLabels.size() > 0) {
-					insertLabelSize = MovieLabelMapper.insertList(addLabels);
-				}
-				if(addLocations.size() > 0) {
-					insertLocationSize = movieLocationMapper.insertList(addLocations);
-				}
-				if(addResourceInfos.size() > 0) {
-					insertResourceSize = resourceInfoMapper.insertList(addResourceInfos);
-				}
-				if(updateResourceInfos.size() > 0) {
-					updateResourceSize = resourceInfoMapper.updateListByPrn(updateResourceInfos);
-				}
-				
-				log.info("新增movieInfo条数："+insertMovieSize);
-				log.info("修改movieInfo条数："+updateMovieSize);
-				log.info("labels条数："+insertLabelSize);
-				log.info("locations条数："+insertLocationSize);
-				log.info("新增resourceInfo条数："+insertResourceSize);
-				log.info("修改resourceInfo条数："+updateResourceSize);
-				log.info("bachAdd completion");
 			} catch (Exception e) {
 				FetchUtils.deleteMovieFile(fetchMovie);
 				for(ResourceInfoVO fetchResource : fetchResources) {
@@ -134,6 +102,39 @@ public class MysqlPipeline implements Pipeline {
 				throw e;
 			}
 		}
+		
+		int insertMovieSize = 0;
+		int updateMovieSize = 0;
+		int insertLabelSize = 0;
+		int insertLocationSize = 0;
+		int insertResourceSize = 0;
+		int updateResourceSize = 0;
+		if(addMovies.size() > 0) {
+			insertMovieSize = movieInfoMapper.insertList(addMovies);
+		}
+		if(updateMovies.size() > 0) {
+			updateMovieSize = movieInfoMapper.updateListByPrn(updateMovies);
+		}
+		if(addLabels.size() > 0) {
+			insertLabelSize = MovieLabelMapper.insertList(addLabels);
+		}
+		if(addLocations.size() > 0) {
+			insertLocationSize = movieLocationMapper.insertList(addLocations);
+		}
+		if(addResourceInfos.size() > 0) {
+			insertResourceSize = resourceInfoMapper.insertList(addResourceInfos);
+		}
+		if(updateResourceInfos.size() > 0) {
+			updateResourceSize = resourceInfoMapper.updateListByPrn(updateResourceInfos);
+		}
+		
+		log.info("新增movieInfo条数："+insertMovieSize);
+		log.info("修改movieInfo条数："+updateMovieSize);
+		log.info("labels条数："+insertLabelSize);
+		log.info("locations条数："+insertLocationSize);
+		log.info("新增resourceInfo条数："+insertResourceSize);
+		log.info("修改resourceInfo条数："+updateResourceSize);
+		log.info("bachAdd completion");
 	}
 	
 	@Override

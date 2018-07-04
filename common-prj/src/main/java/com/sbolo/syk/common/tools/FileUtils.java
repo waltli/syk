@@ -5,6 +5,8 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -130,19 +132,45 @@ public class FileUtils {
 			
 			int imgWidth = srcImg.getWidth(null);  
 	        int imgHeight = srcImg.getHeight(null);
-	        // 加水印
+	        
+	        //创建新的画板
 			BufferedImage bufImg = new BufferedImage(imgWidth, imgHeight, BufferedImage.TYPE_INT_RGB);
 			graphics2D = bufImg.createGraphics();
-			graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); // 去除锯齿(当设置的字体过大的时候,会出现锯齿)
+			// 去除锯齿(当设置的字体过大的时候,会出现锯齿)
+			graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			
+			//将原图画到新的画板上
 			graphics2D.drawImage(srcImg, 0, 0, imgWidth, imgHeight, null);
-			graphics2D.setColor(Color.PINK);
-			graphics2D.setFont(graphics2D.getFont().deriveFont(34f));
-			graphics2D.fill(graphics2D.getFontMetrics().getStringBounds("chanying.cc",graphics2D) );
-			graphics2D.setColor(Color.BLUE);
-			graphics2D.drawString("chanying.cc",imgWidth-100,imgHeight-50);
-//			graphics.setColor(Color.blue);
-//			graphics.setFont(new Font("微软雅黑", Font.BOLD, 50)); // 设置字体
-//			graphics.drawString("chanying.cc", imgWidth - 145, imgHeight); // 设置ps上去的文字的坐标位置和文字的内容
+			
+			//水印文字
+	        String word = "chanying.cc";
+	        //創建字體
+	        Font font = new Font("微软雅黑", Font.BOLD, 20);
+			
+			//获取文字长宽
+			FontRenderContext context = graphics2D.getFontRenderContext();     
+	        Rectangle2D bounds = font.getStringBounds(word, context);
+	        int wordWidth = (int) bounds.getWidth();
+	        int wordHeight = (int) bounds.getHeight();
+			
+	        //設置矩形x,y軸坐標
+	        int rectX = imgWidth-wordWidth-1;
+	        int rectY = imgHeight-wordHeight-1;
+	        //設置畫筆顏色
+	        graphics2D.setColor(Color.black);
+	        //使用畫筆顏色填充一塊矩形
+			graphics2D.fillRect(rectX,rectY, wordWidth, wordHeight);
+			
+			//設置文字x,y軸坐標
+			int wordX = imgWidth-wordWidth-2;
+			int wordY = imgHeight-8;
+			//设置畫筆顏色
+			graphics2D.setColor(Color.white);
+			//设置畫筆字體
+			graphics2D.setFont(font);
+	        //使用畫筆將文字寫入圖片指定位置
+			graphics2D.drawString(word,wordX,wordY);
+			
 			ImageIO.write(bufImg, suffix, byteArrayOutputStream);
 	        return byteArrayOutputStream.toByteArray();
 		} finally {
@@ -157,6 +185,35 @@ public class FileUtils {
 				byteArrayInputStream.close();
 			}
 		}
+	}
+	
+	/**
+	 * 将文件大小计算至最大单位
+	 * 
+	 * @param source
+	 * @return
+	 */
+	public static String unitUp(String source){
+        if(source != null){
+        	BigDecimal val = new BigDecimal(source);
+        	BigDecimal s = new BigDecimal(1024);
+        	String unit = "B";
+        	if(val.compareTo(s)>0){
+        		val = val.divide(s);
+        		unit = "KB";
+        	}
+        	if(val.compareTo(s)>0){
+        		val = val.divide(s);
+        		unit = "MB";
+        	}
+        	if(val.compareTo(s)>0){
+        		val = val.divide(s);
+        		unit = "GB";
+        	}
+        	return val.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()+unit;
+        }else {
+        	return null;
+        }
 	}
 
 	
