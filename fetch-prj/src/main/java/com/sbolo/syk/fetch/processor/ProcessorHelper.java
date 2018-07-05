@@ -132,7 +132,7 @@ public class ProcessorHelper {
 		List<ResourceInfoVO> filter1 = this.filterResourceInCache(fetchMovie.getCategory(), fetchResources);
 		
 		if(filter1 == null || filter1.size() == 0) {
-			log.info("No canable resource! url: {}", comeFromUrl);
+			log.info("No canable resource after fileter in cache! url: {}", comeFromUrl);
 			return null;
 		}
 		
@@ -150,7 +150,7 @@ public class ProcessorHelper {
 		}
 		
 		if(filter2 == null || filter2.size() == 0) {
-			log.info("No canable resource! url: {}", comeFromUrl);
+			log.info("No canable resource after filter in db! url: {}", comeFromUrl);
 			return null;
 		}
 		

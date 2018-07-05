@@ -210,6 +210,10 @@ public class FileUtils {
         		val = val.divide(s);
         		unit = "GB";
         	}
+        	if(val.compareTo(s)>0){
+        		val = val.divide(s);
+        		unit = "TB";
+        	}
         	return val.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()+unit;
         }else {
         	return null;
