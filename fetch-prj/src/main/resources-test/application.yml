@@ -7,6 +7,9 @@ server:
   servlet: 
     context-path: /${app.context}
 
+logging: 
+  config: classpath:logback-spring.xml
+
 spring: 
   aop: 
     proxy-target-class: true #此项配置很重要，强行使用CGLib的代理方式

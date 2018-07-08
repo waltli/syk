@@ -16,6 +16,7 @@ public class ResourceInfoService {
 	private ResourceInfoMapper resourceInfoMapper;
 	
 	public ResourceInfoEntity getOptimalResource(String moviePrn) {
+		ResourceInfoEntity selectByPrimaryKey = resourceInfoMapper.selectByPrimaryKey(343);
 		ResourceInfoEntity dbOptimalResource = resourceInfoMapper.selectOptimalResource(moviePrn);
 		return dbOptimalResource;
 	}

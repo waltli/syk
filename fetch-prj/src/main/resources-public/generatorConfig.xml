@@ -25,9 +25,9 @@
         </jdbcConnection>
         
 		<!-- 生成模型的包名和位置--> 
-        <javaModelGenerator targetPackage="com.sbolo.syk.${app.name}.entity" targetProject="src/main/java"/>
+        <javaModelGenerator targetPackage="com.sbolo.syk.${app.name}.entity.test" targetProject="src/main/java"/>
 		<!-- 生成映射文件的包名和位置-->  
-        <!-- <sqlMapGenerator targetPackage="mapper" targetProject="src/main/resources-public/mapping/test"/> -->
+        <sqlMapGenerator targetPackage="mapper" targetProject="src/main/resources-public/mapping"/>
 		<!-- 生成DAO的包名和位置-->  
         <!-- <javaClientGenerator targetPackage="com.sbolo.syk.${app.name}.mapper" targetProject="src/main/java"
                              type="ANNOTATEDMAPPER"/> -->

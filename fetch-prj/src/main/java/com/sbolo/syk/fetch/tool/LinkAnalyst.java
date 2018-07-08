@@ -1,6 +1,9 @@
 package com.sbolo.syk.fetch.tool;
 
+import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.net.URL;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
@@ -173,4 +176,18 @@ public class LinkAnalyst {
 		}
 		return mri;
 	}
+	
+//	public static void main(String[] args) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+////		URL resource = ClassLoader.class.getResource("/dll11");
+////		String path = resource.getPath();
+////		System.setProperty("java.library.path", path+";"+System.getProperty("java.library.path"));
+////        Field fieldSysPath = ClassLoader.class.getDeclaredField("sys_paths");
+////        fieldSysPath.setAccessible(true);
+////        fieldSysPath.set(null, null);
+//        System.out.println(System.getProperty("java.library.path"));
+////        System.loadLibrary("jlibtorrent-1.2.0.18-RC8");
+////		System.setProperty("jlibtorrent.jni.path", "D:\\_dev\\lib\\jlibtorrent-1.2.0.18-RC8.dll");
+//		TorrentInfo ti = new TorrentInfo(new File("D:/test.torrent"));
+//		System.out.println();
+//	}
 }

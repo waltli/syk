@@ -152,7 +152,7 @@
 <dependency>
     <groupId>com.frostwire</groupId>
     <artifactId>jlibtorrent</artifactId>
-    <version>1.2.0.18-RC7</version>
+    <version>1.2.0.18-RC8</version>
 </dependency>
 
 <!-- ////////////////////////////////////////////////////////////////////// -->
@@ -273,20 +273,20 @@
 <build>
 	<finalName>common-prj</finalName>
 	<resources>
-    <resource>
-        <directory>src/main/resources-${package.environment}</directory>  
-        <includes>
-            <include>**/**</include>  
-        </includes>
-        <filtering>false</filtering>  
-    </resource>
-    <resource>  
-        <directory>src/main/resources-public</directory>  
-        <includes>
-            <include>**/**</include>  
-        </includes>  
-        <filtering>false</filtering>  
-    </resource>  
-</resources>
+	    <resource>
+	        <directory>src/main/resources-${package.environment}</directory>  
+	        <includes>
+	            <include>**/**</include>  
+	        </includes>
+	        <filtering>false</filtering>  
+	    </resource>
+	    <resource>  
+	        <directory>src/main/resources-public</directory>  
+	        <includes>
+	            <include>**/**</include>  
+	        </includes>  
+	        <filtering>false</filtering>  
+	    </resource>  
+	</resources>
 </build>
 </project>

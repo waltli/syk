@@ -976,6 +976,7 @@ public class ProcessorHelper {
 					}
 					String suffix = link.substring(link.lastIndexOf(".")+1);
 					String torrentDir = ConfigUtil.getPropertyValue("torrent.dir");
+					String iconDir = ConfigUtil.getPropertyValue("fs.dir");
 					String subDir = DateUtil.date2Str(new Date(), "yyyyMM");
 					String saveDir = torrentDir+"/"+subDir;
 					FileUtils.saveFile(torrentBytes, saveDir, torrentName, suffix);
