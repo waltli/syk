@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.sbolo.syk.fetch.mapper.MovieLocationEntityMapper">
-  <resultMap id="BaseResultMap" type="com.sbolo.syk.fetch.entity.MovieLocationEntity">
+<mapper namespace="com.sbolo.syk.fetch.mapper.MovieHotStatMapper">
+  <resultMap id="BaseResultMap" type="com.sbolo.syk.fetch.entity.MovieHotStatEntity">
     <!--
       WARNING - @mbg.generated
     -->
@@ -10,7 +10,9 @@
     <result column="movie_prn" jdbcType="VARCHAR" property="moviePrn" />
     <result column="pure_name" jdbcType="VARCHAR" property="pureName" />
     <result column="release_time" jdbcType="TIMESTAMP" property="releaseTime" />
-    <result column="location_name" jdbcType="VARCHAR" property="locationName" />
+    <result column="douban_score" jdbcType="DECIMAL" property="doubanScore" />
+    <result column="imdb_score" jdbcType="DECIMAL" property="imdbScore" />
+    <result column="trigger_type" jdbcType="INTEGER" property="triggerType" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>

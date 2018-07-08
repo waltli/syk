@@ -8,9 +8,9 @@ import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
 
 import tk.mybatis.mapper.common.Mapper;
 
-public interface ResourceInfoMapper extends Mapper<ResourceInfoEntity> {
+public interface ResourceInfoMapper extends Mapper<ResourceInfoEntity>, BatchWriteMapper<ResourceInfoEntity> {
 	
 	@ResultMap("BaseResultMap")
-	@Select("select * from resource_info where prn = 'r168121444744'")
+	@Select("select t1.* from movie_info t, resource_info t1 where t.optimal_resource_prn = t1.prn and t.prn = #{moviePrn}")
 	ResourceInfoEntity selectOptimalResource(String moviePrn);
 }

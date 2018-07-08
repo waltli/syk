@@ -28,13 +28,13 @@ public class TestController {
 	@GetMapping("test111")
 	@ResponseBody
 	public RequestResult<String> test(){
-//		try {
-//			spider.run();
-//		} catch (Exception e) {
-//			log.error("",e);
-//		}
+		try {
+			spider.run();
+		} catch (Exception e) {
+			log.error("",e);
+		}
 		
-		ResourceInfoEntity optimalResource = resourceInfoService.getOptimalResource("");
+//		ResourceInfoEntity optimalResource = resourceInfoService.getOptimalResource("");
 		
 		return new RequestResult<String>("到达");
 	}
