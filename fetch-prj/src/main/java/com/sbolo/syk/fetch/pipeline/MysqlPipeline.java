@@ -122,10 +122,10 @@ public class MysqlPipeline implements Pipeline {
 			insertLocationSize = movieLocationMapper.insertList(addLocations);
 		}
 		if(addResourceInfos.size() > 0) {
-//			insertResourceSize = resourceInfoMapper.insertList(addResourceInfos);
+			insertResourceSize = resourceInfoMapper.insertList(addResourceInfos);
 		}
 		if(updateResourceInfos.size() > 0) {
-//			updateResourceSize = resourceInfoMapper.updateListByPrn(updateResourceInfos);
+			updateResourceSize = resourceInfoMapper.updateListByPrn(updateResourceInfos);
 		}
 		
 		log.info("新增movieInfo条数："+insertMovieSize);

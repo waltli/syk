@@ -145,8 +145,12 @@ public class ProcessorHelper {
 			//获取到数据库中该影片质量最好的resource
 			dbOptimalResource = resourceInfoService.getOptimalResource(finalMovie.getPrn());
 			
-			//在数据库中过滤一批reousrce
-			filter2 = this.filterResourceInDB(fetchMovie.getCategory(), finalMovie.getPrn(), filter1, dbOptimalResource, thisTime);
+			if(dbOptimalResource == null) {
+				filter2 = this.setAndGetInsertResource(fetchResources, finalMovie.getPrn(), thisTime);
+			}else {
+				//在数据库中过滤一批reousrce
+				filter2 = this.filterResourceInDB(fetchMovie.getCategory(), finalMovie.getPrn(), filter1, dbOptimalResource, thisTime);
+			}
 		}
 		
 		if(filter2 == null || filter2.size() == 0) {
@@ -154,14 +158,14 @@ public class ProcessorHelper {
 			return null;
 		}
 		
-		//从缓存中获取最佳的resource
+		//既然走到这里，证明缓存中的resource比数据库存在更佳的resource
 		ResourceInfoVO fetchOptimalResource = this.getOptimalResource(fetchMovie.getCategory(), filter2);
 		
 		//为finalMovie设置optimalResource的相关信息
 		this.setOptimalResource(finalMovie, fetchOptimalResource);
 		//集中处理电影和资源的相关文件
 		this.dealMovieAndResourceFiles(fetchMovie, filter2, fetchOptimalResource, dbOptimalResource);
-		return new ConcludeVO(fetchMovie, filter2);
+		return new ConcludeVO(finalMovie, filter2);
 	}
 	
 	/**
