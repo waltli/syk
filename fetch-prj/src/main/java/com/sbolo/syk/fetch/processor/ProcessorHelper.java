@@ -957,6 +957,7 @@ public class ProcessorHelper {
 				
 				LinkAnalyzeResultVO analyzeResult = null;
 				//根據需要分析下載鏈接
+				String property = System.getProperty("java.library.path");
 				if(StringUtils.isBlank(fetchResource.getSize()) || StringUtils.isBlank(fetchResource.getFormat())){
 					analyzeResult = LinkAnalyst.analyseDownloadLink(link, fetchResource.getThunderDecoding());
 					if(analyzeResult != null) {
