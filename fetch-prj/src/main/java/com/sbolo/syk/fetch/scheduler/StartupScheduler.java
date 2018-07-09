@@ -25,7 +25,7 @@ public class StartupScheduler implements CommandLineRunner {
     }
     
     private void setLibPath() throws Exception {
-    	URL resource = StartupScheduler.class.getResource("/dll/");
+    	URL resource = StartupScheduler.class.getResource("/dll");
     	if(resource == null) {
     		log.warn("the folder \"dll\" is not exist, when set java.library.path!");
     		return;
