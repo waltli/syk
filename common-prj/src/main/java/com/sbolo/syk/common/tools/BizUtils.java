@@ -35,7 +35,7 @@ import okhttp3.ResponseBody;
 
 public class BizUtils {
 
-	private static final Logger LOG = LoggerFactory.getLogger1(BizUtils.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BizUtils.class);
 
 	private static MediaType streamMedia = MediaType.parse("application/octet-stream");
 
