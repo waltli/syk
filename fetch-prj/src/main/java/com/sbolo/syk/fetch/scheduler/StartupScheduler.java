@@ -15,6 +15,9 @@ import com.sbolo.syk.common.tools.ConfigUtil;
 @Order(1)
 public class StartupScheduler implements CommandLineRunner {
     private static final Logger log = LoggerFactory.getLogger(StartupScheduler.class);
+    
+    @Value("${jlibtorrent.jni}")
+    private String jlibtorrent;
 
     @Override
     public void run(String... args) throws Exception {
@@ -28,10 +31,7 @@ public class StartupScheduler implements CommandLineRunner {
     		return;
     	}
 		String path = resource.getPath().replaceAll("^(file:)", "");
-		System.setProperty("java.library.path", path+";"+System.getProperty("java.library.path"));
-        Field fieldSysPath = ClassLoader.class.getDeclaredField("sys_paths");
-        fieldSysPath.setAccessible(true);
-        fieldSysPath.set(null, null);
+		System.setProperty("jlibtorrent.jni.path", path+"/"+jlibtorrent);
     }
     
 }
