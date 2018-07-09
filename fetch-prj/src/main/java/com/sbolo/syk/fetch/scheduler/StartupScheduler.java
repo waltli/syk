@@ -25,13 +25,11 @@ public class StartupScheduler implements CommandLineRunner {
     }
     
     private void setLibPath() throws Exception {
-    	URL resource = StartupScheduler.class.getResource("/dll");
-    	if(resource == null) {
-    		log.warn("the folder \"dll\" is not exist, when set java.library.path!");
+    	if(StringUtils.isBlank(jlibtorrent)) {
+    		log.warn("the jlibtorrent jni is not exist, when set jlibtorrent.jni.path in StartupScheduler!");
     		return;
     	}
-		String path = resource.getPath().replaceAll("^(file:)", "");
-		System.setProperty("jlibtorrent.jni.path", path+"/"+jlibtorrent);
+		System.setProperty("jlibtorrent.jni.path", jlibtorrent);
     }
     
 }
