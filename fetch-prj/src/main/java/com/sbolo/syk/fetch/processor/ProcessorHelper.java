@@ -973,14 +973,14 @@ public class ProcessorHelper {
 				if(Pattern.compile(RegexConstant.torrent).matcher(link).find()){
 					String torrentName = getTorrentName(fetchResource);
 					byte[] torrentBytes = null;
-					if(analyzeResult == null) {
-						torrentBytes = HttpUtils.getBytes(link);
-					}else {
+					if(analyzeResult != null) {
 						torrentBytes = analyzeResult.getTorrentBytes();
+					}
+					if(torrentBytes == null) {
+						torrentBytes = HttpUtils.getBytes(link);
 					}
 					String suffix = link.substring(link.lastIndexOf(".")+1);
 					String torrentDir = ConfigUtil.getPropertyValue("torrent.dir");
-					String iconDir = ConfigUtil.getPropertyValue("fs.dir");
 					String subDir = DateUtil.date2Str(new Date(), "yyyyMM");
 					String saveDir = torrentDir+"/"+subDir;
 					FileUtils.saveFile(torrentBytes, saveDir, torrentName, suffix);
