@@ -27,7 +27,7 @@ public class StartupScheduler implements CommandLineRunner {
     		log.warn("the folder \"dll\" is not exist, when set java.library.path!");
     		return;
     	}
-		String path = resource.getPath();
+		String path = resource.getPath().replaceAll("^(file:)", "");
 		System.setProperty("java.library.path", path+";"+System.getProperty("java.library.path"));
         Field fieldSysPath = ClassLoader.class.getDeclaredField("sys_paths");
         fieldSysPath.setAccessible(true);
