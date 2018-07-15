@@ -91,6 +91,20 @@ public class Page {
 		return l;
 	}
 	
+	public List<String> links(Elements es, String attrName, int count){
+		List<String> l = new ArrayList<String>();
+		int size = es.size();
+		for(int i=0; i<size; i++){
+			Element selectElement = es.get(i);
+			String url = link(selectElement, attrName);
+			l.add(url);
+			if(i+1 == count) {
+				break;
+			}
+		}
+		return l;
+	}
+	
 	public String link(Element selectElement, String attrName){
 		String url = selectElement.attr(attrName);
 		if(!url.startsWith("http://") && !url.startsWith("https://")){

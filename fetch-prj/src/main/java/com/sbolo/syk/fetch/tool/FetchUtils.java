@@ -3,7 +3,7 @@ package com.sbolo.syk.fetch.tool;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,13 +26,13 @@ public class FetchUtils {
      */
     public static void deleteResourceFile(ResourceInfoVO resource){
     	String formalDir = ConfigUtil.getPropertyValue("fs.formal.dir");
-		String printscreenJson = resource.getPrintscreenUriJson();
+		String photoJson = resource.getPhotoUriJson();
 		
-		if(StringUtils.isNotBlank(printscreenJson)){
-			List<String> printscreenUriList = JSON.parseArray(printscreenJson, String.class);
-			for(String printscreenUri:printscreenUriList){
-				String printscreenPath = formalDir+"/"+printscreenUri;
-				FileUtils.deleteFile(printscreenPath);
+		if(StringUtils.isNotBlank(photoJson)){
+			List<String> photoUriList = JSON.parseArray(photoJson, String.class);
+			for(String photoUri:photoUriList){
+				String photoPath = formalDir+"/"+photoUri;
+				FileUtils.deleteFile(photoPath);
 			}
 		}
 		

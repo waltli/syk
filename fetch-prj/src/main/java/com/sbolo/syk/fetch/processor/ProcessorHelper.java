@@ -17,7 +17,7 @@ import javax.annotation.Resource;
 
 import okhttp3.Response;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -75,7 +75,7 @@ public class ProcessorHelper {
 	private static final Logger log = LoggerFactory.getLogger(ProcessorHelper.class);
 	private ConcurrentMap<String, String> cacheDistinct = new ConcurrentHashMap<String, String>();
 	private ConcurrentMap<String, Integer> fileNameDistinct = new ConcurrentHashMap<String, Integer>(); 
-	private ConcurrentMap<String, String> photoUrlMapping = new ConcurrentHashMap<String, String>(); 
+	private ConcurrentMap<String, String> shotUrlMapping = new ConcurrentHashMap<String, String>(); 
 	
 	private String doubanDefaultIcon = "movie_default_large.png";
 	
@@ -105,7 +105,7 @@ public class ProcessorHelper {
 	private MovieLocationService movieLocationService;
 	
 	
-	protected ConcludeVO resolve(String pureName, List<String> precisions, List<LinkInfoVO> links, List<String> printScreens, String comeFromUrl, String doubanUrl) throws MovieInfoFetchException, AnalystException, ParseException {
+	protected ConcludeVO resolve(String pureName, List<String> precisions, List<LinkInfoVO> links, List<String> shots, String comeFromUrl, String doubanUrl) throws MovieInfoFetchException, AnalystException, ParseException {
 		Date thisTime = new Date();
 		
 		//判断豆瓣URL是否为空，因为有些网站已经将豆瓣URL贴上了
@@ -126,7 +126,7 @@ public class ProcessorHelper {
 		MovieInfoVO finalMovie = this.filterMovieInDb(fetchMovie, thisTime);
 		
 		//根据扫描的信息构建resource对象
-		List<ResourceInfoVO> fetchResources = this.getResources(links, fetchMovie, printScreens, comeFromUrl, thisTime);
+		List<ResourceInfoVO> fetchResources = this.getResources(links, fetchMovie, shots, comeFromUrl, thisTime);
 		
 		//在缓存中过滤一批resource
 		List<ResourceInfoVO> filter1 = this.filterResourceInCache(fetchMovie.getCategory(), fetchResources);
@@ -250,7 +250,7 @@ public class ProcessorHelper {
     
     protected void destroy(){
     	fileNameDistinct.clear();
-		photoUrlMapping.clear();
+    	shotUrlMapping.clear();
 		cacheDistinct.clear();
     }
     
@@ -457,6 +457,20 @@ public class ProcessorHelper {
 				newMovie.setPosterPageUrl(posterPageUrl);
 				String iconUrl = doc.select("#mainpic > a > img").first().attr("src");
 				newMovie.setIconUrl(iconUrl);
+				
+				Elements photoElements = doc.select("#related-pic li img");
+				if(photoElements != null && photoElements.size() > 0) {
+					List<String> photoUrlList = photoElements.eachAttr("src");
+					for(String photoUrl : photoUrlList) {
+						Matcher matcher = Pattern.compile("sqxs").matcher(photoUrl);
+						if(matcher.find()) {
+							photoUrl = matcher.replaceAll("l");
+						}else {
+							log.warn("豆瓣电影的photo缩略图中没有发现sqxs");
+						}
+					}
+					newMovie.setPhotoUrlList(photoUrlList);
+				}
 				Element movieInfoElement = doc.select("#info").first();
 				//将<br>替换为特殊符号，再解析为document，而后再获取文字
 				String movieInfoStr = Jsoup.parse(movieInfoElement.html().replace("<br>", CommonConstants.SEPARATOR)).text();
@@ -668,12 +682,17 @@ public class ProcessorHelper {
 						if(img == null){
 							continue;
 						}
-						//此处打开的是预览图，预览图较小，需要高清图，但高清图在下一层链接里，因知道高清图和预览图只有一个字段的区别，顾直接替换
 						String imgUrl = img.attr("src");
 						if(StringUtils.isBlank(imgUrl)){
 							continue;
 						}
-						imgUrl = imgUrl.replaceAll("thumb", "photo");
+						//此处打开的是预览图，预览图较小，需要高清图，但高清图在下一层链接里，因知道高清图和预览图只有一个字段的区别，顾直接替换
+						Matcher matcher = Pattern.compile("(?<=/photo)(m)").matcher(imgUrl);
+						if(matcher.find()) {
+							imgUrl = matcher.replaceAll("l");
+						}else {
+							log.warn("豆瓣电影的poster缩略图中没有发现m");
+						}
 						String posterName = imgUrl.substring(imgUrl.lastIndexOf("/")+1);
 						if(posterName.equals(iconName)){
 							continue;
@@ -781,7 +800,7 @@ public class ProcessorHelper {
 	 * @param comeFromUrl 爬取的网站
 	 * @return
 	 */
-	private List<ResourceInfoVO> getResources(List<LinkInfoVO> links, MovieInfoVO fetchMovie, List<String> printScreens, String comeFromUrl, Date thisTime){
+	private List<ResourceInfoVO> getResources(List<LinkInfoVO> links, MovieInfoVO fetchMovie, List<String> shots, String comeFromUrl, Date thisTime){
 		List<ResourceInfoVO> resources = new ArrayList<ResourceInfoVO>();
 		String anotherName = fetchMovie.getAnotherName();
 		for(LinkInfoVO link:links){
@@ -791,7 +810,7 @@ public class ProcessorHelper {
 			}
 			link.setName(stripEngName(link.getName(), anotherName));
 			ResourceInfoVO fetchResource = buildResourceInfoFromLinkName(fetchMovie, link, comeFromUrl, thisTime);
-			fetchResource.setPrintscreenUrlList(printScreens);
+			fetchResource.setShotUrlList(shots);
 			resources.add(fetchResource);
 		}
 		return resources;
@@ -876,8 +895,7 @@ public class ProcessorHelper {
 				fetchResource.setCreateTime(thisTime);
 				fetchResource.setMoviePrn(moviePrn);
 			}else if(action == CommonConstants.update){
-				//暂时标记为abandon，因为resource修改主要是修改下载链接和截图，符合修改条件的也许有多个，到后面只拿一个最佳的进行修改即可。
-				fetchResource.setAction(CommonConstants.waiting);
+				fetchResource.setAction(CommonConstants.update);
 				fetchResource.setUpdateTime(thisTime);
 				fetchResource.setPrn(dbOptimalResource.getPrn());
 			}
@@ -894,29 +912,38 @@ public class ProcessorHelper {
 	 * @param fetchResource 获取到的resource
 	 * @throws AnalystException
 	 */
-	private void downloadAndSetPrintScreens(ResourceInfoVO optimalResource) {
-		List<String> printscreenUrlList = optimalResource.getPrintscreenUrlList();
-		if(printscreenUrlList == null){
+	private void downloadAndSetShots(MovieInfoVO fetchMovie, List<ResourceInfoVO> filter2, ResourceInfoVO fetchOptimalResource, ResourceInfoEntity dbOptimalResource) {
+		List<String> shotUrlList = fetchOptimalResource.getShotUrlList();
+		if(shotUrlList == null){
 			return;
 		}
-		List<String> printscreenUriList = new ArrayList<>();
-		for(String printscreenUrl : printscreenUrlList){
-			try {
-				String repeatedPrintscreenUri = photoUrlMapping.get(printscreenUrl);
-				if(repeatedPrintscreenUri == null){
-					String printscreenUri = this.picDownAndFixMark(printscreenUrl, ConfigUtil.getPropertyValue("printscreen.dir"), CommonConstants.photo_width, CommonConstants.photo_height);
-					photoUrlMapping.put(printscreenUrl, printscreenUri);
-					printscreenUriList.add(printscreenUri);
-				}else {
-					printscreenUriList.add(repeatedPrintscreenUri);
+		String shotUriJson = null;
+		//如果是电视剧并且库中已经有图片，则将库中的URL直接赋值
+		if(StringUtils.isNotBlank(dbOptimalResource.getShotUriJson())) {
+			shotUriJson = dbOptimalResource.getShotUriJson();
+		}else {
+			List<String> shotUriList = new ArrayList<>();
+			for(String shotUrl : shotUrlList){
+				try {
+					String repeatedShotUri = shotUrlMapping.get(shotUrl);
+					if(repeatedShotUri == null){
+						String photoUri = this.picDownAndFixMark(shotUrl, ConfigUtil.getPropertyValue("shot.dir"), CommonConstants.photo_width, CommonConstants.photo_height);
+						shotUrlMapping.put(shotUrl, photoUri);
+						shotUriList.add(photoUri);
+					}else {
+						shotUriList.add(repeatedShotUri);
+					}
+				} catch (Exception e) {
+					log.error(fetchOptimalResource.getComeFromUrl(),e);
 				}
-			} catch (Exception e) {
-				log.error(optimalResource.getComeFromUrl(),e);
+			}
+			if(shotUriList.size() > 0){
+				shotUriJson = JSON.toJSONString(shotUriList);
 			}
 		}
-		if(printscreenUriList.size() > 0){
-			String printscreenUriJson = JSON.toJSONString(printscreenUriList);
-			optimalResource.setPrintscreenUriJson(printscreenUriJson);
+		
+		for(ResourceInfoVO fetchResource : filter2) {
+			fetchResource.setShotUriJson(shotUriJson);
 		}
 	}
 	
@@ -1414,7 +1441,7 @@ public class ProcessorHelper {
 	 * @param dbOptimalResource
 	 * @return
 	 */
-	private void dealMovieAndResourceFiles(MovieInfoVO fetchMovie, List<ResourceInfoVO> filter2, ResourceInfoVO fetchOptimalResource,  ResourceInfoEntity dbOptimalResource) {
+	private void dealMovieAndResourceFiles(MovieInfoVO fetchMovie, List<ResourceInfoVO> filter2, ResourceInfoVO fetchOptimalResource, ResourceInfoEntity dbOptimalResource) {
 		//分析下载链接并填充下载信息，并判断是否有有效的下载链接
 		//最好放在第一步，因为如果没有有效的下载链接，就等于没有资源，也就不需要去下载其他的文件了。
 		this.analyzeDownloadLink(filter2);
@@ -1423,18 +1450,8 @@ public class ProcessorHelper {
 			//下载电影相关图片信息到服务器，并设置uri
 			this.downloadAndSetMoviePic(fetchMovie);
 			
-			//如果最佳的resource的action为waiting，那么就表示这个fetchOptimalResource应该替换掉dbOptimalResource
-			if(fetchOptimalResource.getAction() == CommonConstants.waiting) {
-				fetchOptimalResource.setAction(CommonConstants.update);
-				//因为修改，所以需要删除db中resource文件，待后面添加新的resource文件
-				if(dbOptimalResource != null) {
-					ResourceInfoVO resource = VOUtils.po2vo(dbOptimalResource, ResourceInfoVO.class);
-					FetchUtils.deleteResourceFile(resource);
-				}
-			}
-			
 			//下载截图并给最佳的resource设置截图uri
-			this.downloadAndSetPrintScreens(fetchOptimalResource);
+			this.downloadAndSetShots(fetchMovie, filter2, fetchOptimalResource, dbOptimalResource);
 		} catch (Exception e) {
 			log.error("", e);
 		}

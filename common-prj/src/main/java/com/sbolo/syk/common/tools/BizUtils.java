@@ -14,9 +14,6 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.session.Session;
-import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -173,19 +170,6 @@ public class BizUtils {
 	public static <REQUEST> String buildUrl(String url, REQUEST request)
 			throws IllegalArgumentException, IllegalAccessException, UnsupportedEncodingException {
 		String JID = "";
-		try {
-			Subject subject = SecurityUtils.getSubject();
-			if (subject != null) {
-				Session session = subject.getSession();
-				if (session != null) {
-					Object attribute = session.getAttribute("JID");
-					if (attribute != null) {
-						JID = attribute.toString();
-					}
-				}
-			}
-		} catch (Exception e) {
-		}
 
 		if (request == null && StringUtils.isBlank(JID)) {
 			return url;

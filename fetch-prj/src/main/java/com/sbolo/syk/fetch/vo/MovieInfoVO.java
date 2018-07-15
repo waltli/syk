@@ -25,6 +25,8 @@ public class MovieInfoVO {
      * 多个posterUri组成的json
      */
     private String posterUriJson;
+    
+    private String photoUriJson;
 
     /**
      * 电影名
@@ -181,9 +183,27 @@ public class MovieInfoVO {
     
     private String iconUrl; //待下载的ICON链接
     
-    private Integer action;  //Business property, that will direct 'insert' or 'update' or 'abandon'.
+    private List<String> photoUrlList;
     
-    public List<MovieLabelVO> getLabelList() {
+    private Integer action;  //Business property, that will direct 'insert' or 'update' or 'abandon'.
+
+	public String getPhotoUriJson() {
+		return photoUriJson;
+	}
+
+	public void setPhotoUriJson(String photoUriJson) {
+		this.photoUriJson = photoUriJson;
+	}
+
+	public List<String> getPhotoUrlList() {
+		return photoUrlList;
+	}
+
+	public void setPhotoUrlList(List<String> photoUrlList) {
+		this.photoUrlList = photoUrlList;
+	}
+
+	public List<MovieLabelVO> getLabelList() {
 		return labelList;
 	}
 

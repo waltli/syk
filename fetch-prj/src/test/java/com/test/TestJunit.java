@@ -23,9 +23,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.alibaba.fastjson.JSON;
-import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
-import com.jfinal.plugin.activerecord.Record;
-import com.jfinal.plugin.druid.DruidPlugin;
 import com.sbolo.syk.fetchApplication;
 import com.sbolo.syk.common.tools.ConfigUtil;
 

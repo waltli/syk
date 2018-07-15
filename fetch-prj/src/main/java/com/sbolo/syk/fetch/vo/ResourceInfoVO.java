@@ -101,13 +101,12 @@ public class ResourceInfoVO {
     /**
      * 多个资源截图uri组成的json
      */
-    
-    private String printscreenUriJson;
+    private String shotUriJson;
     
     /**
      * 多个资源截图url组成的List
      */
-    private List<String> printscreenUrlList;
+    private List<String> shotUrlList;
 
     /**
      * 采集自哪个网站
@@ -143,7 +142,23 @@ public class ResourceInfoVO {
      */
     private String thunderDecoding;
 
-    public String getThunderDecoding() {
+	public String getShotUriJson() {
+		return shotUriJson;
+	}
+
+	public void setShotUriJson(String shotUriJson) {
+		this.shotUriJson = shotUriJson;
+	}
+
+	public List<String> getShotUrlList() {
+		return shotUrlList;
+	}
+
+	public void setShotUrlList(List<String> shotUrlList) {
+		this.shotUrlList = shotUrlList;
+	}
+
+	public String getThunderDecoding() {
 		return thunderDecoding;
 	}
 
@@ -157,14 +172,6 @@ public class ResourceInfoVO {
 
 	public void setAction(Integer action) {
 		this.action = action;
-	}
-
-	public List<String> getPrintscreenUrlList() {
-		return printscreenUrlList;
-	}
-
-	public void setPrintscreenUrlList(List<String> printscreenUrlList) {
-		this.printscreenUrlList = printscreenUrlList;
 	}
 
 	/**
@@ -436,14 +443,6 @@ public class ResourceInfoVO {
     public void setSubtitle(String subtitle) {
         this.subtitle = subtitle;
     }
-
-    public String getPrintscreenUriJson() {
-		return printscreenUriJson;
-	}
-
-	public void setPrintscreenUriJson(String printscreenUriJson) {
-		this.printscreenUriJson = printscreenUriJson;
-	}
 
 	/**
      * 获取采集自哪个网站

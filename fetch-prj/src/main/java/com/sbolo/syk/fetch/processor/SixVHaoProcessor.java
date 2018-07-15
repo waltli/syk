@@ -38,8 +38,8 @@ public class SixVHaoProcessor extends ProcessorHelper implements PageProcessor {
 		Document document = page.getDocument();
 		String url = page.getUrl().toString();
 		if(Pattern.compile(pageUrlReg).matcher(url).find()){
-			Elements urls_elements = document.select("div.tnlist:contains(电视剧) > ul > li > a");
-			List<String> detailUrls = page.links(urls_elements, "href");
+			Elements urls_elements = document.select("div.tnlist:contains(影片) > ul > li > a");
+			List<String> detailUrls = page.links(urls_elements, "href", 7);
 			log.info("本页影片总数：{}",detailUrls.size());
 			page.addNewUrls(detailUrls);
 		}else if(Pattern.compile(detailUrlReg).matcher(url).find()){
@@ -105,7 +105,7 @@ public class SixVHaoProcessor extends ProcessorHelper implements PageProcessor {
 			
 			//获取资源截图
 			Element screensElement = document.select("div#text").first();
-			List<String> printscreens = new ArrayList<>();
+			List<String> shots = new ArrayList<>();
 			if(screensElement != null) {
 				Elements pLabels = screensElement.children();
 				boolean isPrintscreenStart = false;
@@ -117,12 +117,12 @@ public class SixVHaoProcessor extends ProcessorHelper implements PageProcessor {
 					Element img = p.selectFirst("img");
 					if(img != null && img.nodeName().equals("img") && isPrintscreenStart) {
 						String link = page.link(img, "src");
-						printscreens.add(link);
+						shots.add(link);
 					}
 				}
 			}
 			
-			ConcludeVO conclude = this.resolve(pureNameAndSeason.getPureName(), precisions, linkInfos, printscreens, url, null);
+			ConcludeVO conclude = this.resolve(pureNameAndSeason.getPureName(), precisions, linkInfos, shots, url, null);
 			if(conclude != null) {
 				fields.put(url, conclude);
 			}

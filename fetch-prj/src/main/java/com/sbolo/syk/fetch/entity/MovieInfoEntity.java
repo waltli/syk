@@ -36,6 +36,9 @@ public class MovieInfoEntity {
      */
     @Column(name = "`poster_uri_json`")
     private String posterUriJson;
+    
+    @Column(name = "`photo_uri_json`")
+    private String photoUriJson;
 
     /**
      * 电影名
@@ -210,6 +213,14 @@ public class MovieInfoEntity {
      */
     @Column(name = "`count_download`")
     private Integer countDownload;
+
+	public String getPhotoUriJson() {
+		return photoUriJson;
+	}
+
+	public void setPhotoUriJson(String photoUriJson) {
+		this.photoUriJson = photoUriJson;
+	}
 
 	/**
      * 获取自增id

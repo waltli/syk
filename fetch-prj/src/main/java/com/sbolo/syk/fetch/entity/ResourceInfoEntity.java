@@ -106,8 +106,8 @@ public class ResourceInfoEntity {
     /**
      * 多个资源截图uri组成的json
      */
-    @Column(name = "`printscreen_uri_json`")
-    private String printscreenUriJson;
+    @Column(name = "`shot_uri_json`")
+    private String shotUriJson;
 
     /**
      * 采集自哪个网站
@@ -421,12 +421,12 @@ public class ResourceInfoEntity {
         this.subtitle = subtitle;
     }
 
-    public String getPrintscreenUriJson() {
-		return printscreenUriJson;
+	public String getShotUriJson() {
+		return shotUriJson;
 	}
 
-	public void setPrintscreenUriJson(String printscreenUriJson) {
-		this.printscreenUriJson = printscreenUriJson;
+	public void setShotUriJson(String shotUriJson) {
+		this.shotUriJson = shotUriJson;
 	}
 
 	/**

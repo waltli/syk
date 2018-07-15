@@ -119,16 +119,6 @@
     <artifactId>taglibs-standard-impl</artifactId>
     <version>1.2.5</version>
 </dependency>
-<dependency>
-    <groupId>com.github.pagehelper</groupId>
-    <artifactId>pagehelper</artifactId>
-    <version>5.1.2</version>
-</dependency>
-<dependency>
-  <groupId>com.chrhc.mybatis</groupId>
-  <artifactId>optimisticlocker</artifactId>
-  <version>0.0.2</version>
-</dependency>
 <!-- <dependency>
     <groupId>org.quartz-scheduler</groupId>
     <artifactId>quartz</artifactId>
