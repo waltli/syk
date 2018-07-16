@@ -462,11 +462,11 @@ public class ProcessorHelper {
 				if(photoElements != null && photoElements.size() > 0) {
 					List<String> photoUrlList = photoElements.eachAttr("src");
 					for(String photoUrl : photoUrlList) {
-						Matcher matcher = Pattern.compile("sqxs").matcher(photoUrl);
+						Matcher matcher = Pattern.compile("(?<=/photo/)(sqxs)").matcher(photoUrl);
 						if(matcher.find()) {
 							photoUrl = matcher.replaceAll("l");
 						}else {
-							log.warn("豆瓣电影的photo缩略图中没有发现sqxs");
+							log.warn("豆瓣电影的photo缩略图中没有发现sqxs, photoUrl: {}", photoUrl);
 						}
 					}
 					newMovie.setPhotoUrlList(photoUrlList);
@@ -653,6 +653,23 @@ public class ProcessorHelper {
 		return new PicVO(iconUrl, fileName, CommonConstants.icon_v);
 	}
 	
+	private List<PicVO> buildPhotoPic(List<String> photoUrlList) {
+		if(photoUrlList == null || photoUrlList.size() == 0){
+			return null;
+		}
+		
+		List<PicVO> picList = new ArrayList<>();
+		for(String photoUrl : photoUrlList) {
+			
+			String photoName = photoUrl.substring(photoUrl.lastIndexOf("/")+1);
+			String suffix = photoName.substring(photoName.lastIndexOf(".")+1);
+			String fileName = StringUtil.getId(CommonConstants.pic_s)+"."+suffix;
+			PicVO posterPic = new PicVO(photoUrl, fileName, CommonConstants.photo_v);
+			picList.add(posterPic);
+		}
+		return picList;
+	}
+	
 	/**
 	 * 从豆瓣PosterPage页面中爬取Poster图片list
 	 * 
@@ -687,11 +704,11 @@ public class ProcessorHelper {
 							continue;
 						}
 						//此处打开的是预览图，预览图较小，需要高清图，但高清图在下一层链接里，因知道高清图和预览图只有一个字段的区别，顾直接替换
-						Matcher matcher = Pattern.compile("(?<=/photo)(m)").matcher(imgUrl);
+						Matcher matcher = Pattern.compile("(?<=/photo/)(m)").matcher(imgUrl);
 						if(matcher.find()) {
 							imgUrl = matcher.replaceAll("l");
 						}else {
-							log.warn("豆瓣电影的poster缩略图中没有发现m");
+							log.warn("豆瓣电影的poster缩略图中没有发现m, posterUrl: {}", imgUrl);
 						}
 						String posterName = imgUrl.substring(imgUrl.lastIndexOf("/")+1);
 						if(posterName.equals(iconName)){
@@ -728,6 +745,8 @@ public class ProcessorHelper {
 		PicVO icon = buildIconPic(fetchMovie.getIconUrl());
 		//获取poster
 		List<PicVO> posterList = buildPosterPicList(fetchMovie.getPosterPageUrl(), icon.getFileName());
+		//获取photo
+		List<PicVO> photoList = buildPhotoPic(fetchMovie.getPhotoUrlList());
 		//下载icon到服务器并设置uri
 		try {
 			String iconUri = this.picDownAndFix(icon.getFetchUrl(), ConfigUtil.getPropertyValue("icon.dir"), CommonConstants.icon_width, CommonConstants.icon_height);
@@ -737,21 +756,36 @@ public class ProcessorHelper {
 		}
 		
 		//下载poster到服务器并设置uri
-		List<String> posterNames = new ArrayList<String>();
+		List<String> posterUris = new ArrayList<String>();
 		for(PicVO poster:posterList){
 			try {
-				String posterUri = this.picDownAndFix(poster.getFetchUrl(), ConfigUtil.getPropertyValue("poster.dir"), CommonConstants.icon_width, CommonConstants.icon_height);
-				posterNames.add(posterUri);
+				String posterUri = this.picDownAndFix(poster.getFetchUrl(), ConfigUtil.getPropertyValue("poster.dir"), CommonConstants.poster_width, CommonConstants.poster_height);
+				posterUris.add(posterUri);
 			} catch (Exception e) {
 				log.error("download poster wrong, url: {}", poster.getFetchUrl(), e);
 			}
 		}
 		
-		if(posterNames.size() > 0){
-			String posterUriJson = JSON.toJSONString(posterNames);
+		if(posterUris.size() > 0){
+			String posterUriJson = JSON.toJSONString(posterUris);
 			fetchMovie.setPosterUriJson(posterUriJson);
 		}
 		
+		//下载photo到服务器病设置uri
+		List<String> photoUris = new ArrayList<String>();
+		for(PicVO photo:photoList) {
+			try {
+				String photoUri = this.picDownAndFix(photo.getFetchUrl(), ConfigUtil.getPropertyValue("photo.dir"), CommonConstants.photo_width, CommonConstants.photo_height);
+				photoUris.add(photoUri);
+			} catch (Exception e) {
+				log.error("download photo wrong, url: {}", photo.getFetchUrl(), e);
+			}
+		}
+		
+		if(photoUris.size() > 0){
+			String photoUriJson = JSON.toJSONString(photoUris);
+			fetchMovie.setPhotoUriJson(photoUriJson);
+		}
 	}
 	
 	/**
@@ -919,7 +953,8 @@ public class ProcessorHelper {
 		}
 		String shotUriJson = null;
 		//如果是电视剧并且库中已经有图片，则将库中的URL直接赋值
-		if(StringUtils.isNotBlank(dbOptimalResource.getShotUriJson())) {
+		if(fetchMovie.getCategory() == MovieCategoryEnum.tv.getCode() && 
+				StringUtils.isNotBlank(dbOptimalResource.getShotUriJson())) {
 			shotUriJson = dbOptimalResource.getShotUriJson();
 		}else {
 			List<String> shotUriList = new ArrayList<>();
@@ -927,7 +962,7 @@ public class ProcessorHelper {
 				try {
 					String repeatedShotUri = shotUrlMapping.get(shotUrl);
 					if(repeatedShotUri == null){
-						String photoUri = this.picDownAndFixMark(shotUrl, ConfigUtil.getPropertyValue("shot.dir"), CommonConstants.photo_width, CommonConstants.photo_height);
+						String photoUri = this.picDownAndFixMark(shotUrl, ConfigUtil.getPropertyValue("shot.dir"), CommonConstants.shot_width, CommonConstants.shot_height);
 						shotUrlMapping.put(shotUrl, photoUri);
 						shotUriList.add(photoUri);
 					}else {
@@ -1016,6 +1051,7 @@ public class ProcessorHelper {
 					fetchResource.setDownloadLink(uri + "/"+torrentName + "." +suffix);
 				}
 			} catch (Throwable e) {
+				//假若失败，则resource还是存的原始的地址，所以不用删除
 				log.error("解析下载链接失败！ url: "+ link, e);
 			}
 			

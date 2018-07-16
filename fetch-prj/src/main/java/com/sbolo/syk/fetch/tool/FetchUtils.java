@@ -26,13 +26,13 @@ public class FetchUtils {
      */
     public static void deleteResourceFile(ResourceInfoVO resource){
     	String formalDir = ConfigUtil.getPropertyValue("fs.formal.dir");
-		String photoJson = resource.getPhotoUriJson();
+		String shotJson = resource.getShotUriJson();
 		
-		if(StringUtils.isNotBlank(photoJson)){
-			List<String> photoUriList = JSON.parseArray(photoJson, String.class);
-			for(String photoUri:photoUriList){
-				String photoPath = formalDir+"/"+photoUri;
-				FileUtils.deleteFile(photoPath);
+		if(StringUtils.isNotBlank(shotJson)){
+			List<String> shotUriList = JSON.parseArray(shotJson, String.class);
+			for(String shotUri:shotUriList){
+				String shotPath = formalDir+"/"+shotUri;
+				FileUtils.deleteFile(shotPath);
 			}
 		}
 		
@@ -62,6 +62,15 @@ public class FetchUtils {
 			for(String posterUri : posterUriList) {
 				String posterPath = formalDir + "/" + posterUri;
 				FileUtils.deleteFile(posterPath);
+			}
+		}
+		
+		String photoUriJson = movie.getPhotoUriJson();
+		if(StringUtils.isNotBlank(photoUriJson)) {
+			List<String> photoUriList = JSON.parseArray(photoUriJson, String.class);
+			for(String photoUri : photoUriList) {
+				String photoPath = formalDir + "/" + photoUri;
+				FileUtils.deleteFile(photoPath);
 			}
 		}
 	}
