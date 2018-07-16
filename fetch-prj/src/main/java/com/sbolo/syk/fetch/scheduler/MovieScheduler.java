@@ -16,12 +16,12 @@ public class MovieScheduler {
 	@Resource
 	private Spider spider;
 	
-//	@Scheduled(cron="0/5 * * * * ? ")
+	@Scheduled(cron="0 0 10,14,18,21 * * ?")
 	public void goSpider(){
-//		try {
-//			spider.run();
-//		} catch (Exception e) {
-//			log.error("",e);
-//		}
+		try {
+			spider.run();
+		} catch (Exception e) {
+			log.error("",e);
+		}
 	}
 }
