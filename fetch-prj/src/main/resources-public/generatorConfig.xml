@@ -25,20 +25,20 @@
         </jdbcConnection>
         
 		<!-- 生成模型的包名和位置--> 
-        <javaModelGenerator targetPackage="com.sbolo.syk.${app.name}.entity.test" targetProject="src/main/java"/>
+        <javaModelGenerator targetPackage="com.sbolo.syk.${app.name}.entity" targetProject="src/main/java"/>
 		<!-- 生成映射文件的包名和位置-->  
-        <sqlMapGenerator targetPackage="mapper" targetProject="src/main/resources-public/mapping"/>
+        <sqlMapGenerator targetPackage="mapping" targetProject="src/main/resources-public"/>
 		<!-- 生成DAO的包名和位置-->  
         <!-- <javaClientGenerator targetPackage="com.sbolo.syk.${app.name}.mapper" targetProject="src/main/java"
                              type="ANNOTATEDMAPPER"/> -->
 
 
 		<!-- 要生成的表 tableName是数据库中的表名或视图名 domainObjectName是实体类名-->  
-        <table tableName="movie_info" domainObjectName="MovieInfoEntity" >
-            <!--mysql 配置-->
+        <!-- <table tableName="movie_info" domainObjectName="MovieInfoEntity" >
+            mysql 配置
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
-            <!--oracle 配置-->
-            <!--<generatedKey column="id" sqlStatement="select SEQ_{1}.nextval from dual" identity="false" type="pre"/>-->
+            oracle 配置
+            <generatedKey column="id" sqlStatement="select SEQ_{1}.nextval from dual" identity="false" type="pre"/>
         </table>
         <table tableName="resource_info" domainObjectName="ResourceInfoEntity">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
@@ -50,6 +50,9 @@
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
         <table tableName="movie_location" domainObjectName="MovieLocationEntity">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
+        </table> -->
+        <table tableName="movie_file_index" domainObjectName="MovieFileIndexEntity">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
     </context>
