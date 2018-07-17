@@ -19,8 +19,8 @@ public class BucketUtils {
 		// 2 设置bucket的区域, COS地域的简称请参照 https://cloud.tencent.com/document/product/436/6224
 		ClientConfig clientConfig = new ClientConfig(new Region("ap-chengdu"));
 		// 3 生成cos客户端
-		COSClient cosclient = new COSClient(cred, clientConfig);
-		return cosclient;
+		cosClient = new COSClient(cred, clientConfig);
+		return cosClient;
 	}
 	
 	public static void shutdown() {
