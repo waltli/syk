@@ -10,19 +10,24 @@ public class MovieFileIndexVO {
     private Long id;
 
     /**
-     * 原文件MD5值
-     */
-    private String sourceMd5;
-
-    /**
      * 原文件rul
      */
     private String sourceUrl;
+    
+    /**
+     * 原文件URL的MD5值
+     */
+    private String sourceUrlMd5;
 
     /**
      * 文件修正后并上传到服务器后的uri
      */
     private String fixUri;
+    
+    /**
+     * 文件类型
+     */
+    private String fileType;
 
     /**
      * 创建时间
@@ -34,7 +39,23 @@ public class MovieFileIndexVO {
      */
     private Date updateTime;
 
-    /**
+    public String getSourceUrlMd5() {
+		return sourceUrlMd5;
+	}
+
+	public void setSourceUrlMd5(String sourceUrlMd5) {
+		this.sourceUrlMd5 = sourceUrlMd5;
+	}
+
+	public String getFileType() {
+		return fileType;
+	}
+
+	public void setFileType(String fileType) {
+		this.fileType = fileType;
+	}
+
+	/**
      * 获取自增id
      *
      * @return id - 自增id
@@ -50,24 +71,6 @@ public class MovieFileIndexVO {
      */
     public void setId(Long id) {
         this.id = id;
-    }
-
-    /**
-     * 获取原文件MD5值
-     *
-     * @return source_md5 - 原文件MD5值
-     */
-    public String getSourceMd5() {
-        return sourceMd5;
-    }
-
-    /**
-     * 设置原文件MD5值
-     *
-     * @param sourceMd5 原文件MD5值
-     */
-    public void setSourceMd5(String sourceMd5) {
-        this.sourceMd5 = sourceMd5;
     }
 
     /**

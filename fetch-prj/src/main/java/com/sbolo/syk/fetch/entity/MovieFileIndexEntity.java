@@ -14,22 +14,28 @@ public class MovieFileIndexEntity {
     private Long id;
 
     /**
-     * 原文件MD5值
-     */
-    @Column(name = "`source_md5`")
-    private String sourceMd5;
-
-    /**
-     * 原文件rul
+     * 原文件URL
      */
     @Column(name = "`source_url`")
     private String sourceUrl;
+
+    /**
+     * 原文件URL的MD5值
+     */
+    @Column(name = "`source_url_md5`")
+    private String sourceUrlMd5;
 
     /**
      * 文件修正后并上传到服务器后的uri
      */
     @Column(name = "`fix_uri`")
     private String fixUri;
+
+    /**
+     * 文件类型
+     */
+    @Column(name = "`file_type`")
+    private String fileType;
 
     /**
      * 创建时间
@@ -62,39 +68,39 @@ public class MovieFileIndexEntity {
     }
 
     /**
-     * 获取原文件MD5值
+     * 获取原文件URL
      *
-     * @return source_md5 - 原文件MD5值
-     */
-    public String getSourceMd5() {
-        return sourceMd5;
-    }
-
-    /**
-     * 设置原文件MD5值
-     *
-     * @param sourceMd5 原文件MD5值
-     */
-    public void setSourceMd5(String sourceMd5) {
-        this.sourceMd5 = sourceMd5;
-    }
-
-    /**
-     * 获取原文件rul
-     *
-     * @return source_url - 原文件rul
+     * @return source_url - 原文件URL
      */
     public String getSourceUrl() {
         return sourceUrl;
     }
 
     /**
-     * 设置原文件rul
+     * 设置原文件URL
      *
-     * @param sourceUrl 原文件rul
+     * @param sourceUrl 原文件URL
      */
     public void setSourceUrl(String sourceUrl) {
         this.sourceUrl = sourceUrl;
+    }
+
+    /**
+     * 获取原文件URL的MD5值
+     *
+     * @return source_url_md5 - 原文件URL的MD5值
+     */
+    public String getSourceUrlMd5() {
+        return sourceUrlMd5;
+    }
+
+    /**
+     * 设置原文件URL的MD5值
+     *
+     * @param sourceUrlMd5 原文件URL的MD5值
+     */
+    public void setSourceUrlMd5(String sourceUrlMd5) {
+        this.sourceUrlMd5 = sourceUrlMd5;
     }
 
     /**
@@ -113,6 +119,24 @@ public class MovieFileIndexEntity {
      */
     public void setFixUri(String fixUri) {
         this.fixUri = fixUri;
+    }
+
+    /**
+     * 获取文件类型
+     *
+     * @return file_type - 文件类型
+     */
+    public String getFileType() {
+        return fileType;
+    }
+
+    /**
+     * 设置文件类型
+     *
+     * @param fileType 文件类型
+     */
+    public void setFileType(String fileType) {
+        this.fileType = fileType;
     }
 
     /**
