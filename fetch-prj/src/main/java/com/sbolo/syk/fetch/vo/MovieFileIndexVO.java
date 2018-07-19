@@ -10,24 +10,19 @@ public class MovieFileIndexVO {
     private Long id;
 
     /**
-     * 原文件rul
+     * 原文件URL
      */
     private String sourceUrl;
-    
-    /**
-     * 原文件URL的MD5值
-     */
-    private String sourceUrlMd5;
 
     /**
      * 文件修正后并上传到服务器后的uri
      */
     private String fixUri;
-    
+
     /**
-     * 文件类型
+     * 文件类型 1---icon 2---poster 3---photo 4---shot 5---torrent
      */
-    private String fileType;
+    private Integer fileV;
 
     /**
      * 创建时间
@@ -39,23 +34,7 @@ public class MovieFileIndexVO {
      */
     private Date updateTime;
 
-    public String getSourceUrlMd5() {
-		return sourceUrlMd5;
-	}
-
-	public void setSourceUrlMd5(String sourceUrlMd5) {
-		this.sourceUrlMd5 = sourceUrlMd5;
-	}
-
-	public String getFileType() {
-		return fileType;
-	}
-
-	public void setFileType(String fileType) {
-		this.fileType = fileType;
-	}
-
-	/**
+    /**
      * 获取自增id
      *
      * @return id - 自增id
@@ -74,18 +53,18 @@ public class MovieFileIndexVO {
     }
 
     /**
-     * 获取原文件rul
+     * 获取原文件URL
      *
-     * @return source_url - 原文件rul
+     * @return source_url - 原文件URL
      */
     public String getSourceUrl() {
         return sourceUrl;
     }
 
     /**
-     * 设置原文件rul
+     * 设置原文件URL
      *
-     * @param sourceUrl 原文件rul
+     * @param sourceUrl 原文件URL
      */
     public void setSourceUrl(String sourceUrl) {
         this.sourceUrl = sourceUrl;
@@ -107,6 +86,24 @@ public class MovieFileIndexVO {
      */
     public void setFixUri(String fixUri) {
         this.fixUri = fixUri;
+    }
+
+    /**
+     * 获取文件类型 1---icon 2---poster 3---photo 4---shot 5---torrent
+     *
+     * @return file_v - 文件类型 1---icon 2---poster 3---photo 4---shot 5---torrent
+     */
+    public Integer getFileV() {
+        return fileV;
+    }
+
+    /**
+     * 设置文件类型 1---icon 2---poster 3---photo 4---shot 5---torrent
+     *
+     * @param fileV 文件类型 1---icon 2---poster 3---photo 4---shot 5---torrent
+     */
+    public void setFileV(Integer fileV) {
+        this.fileV = fileV;
     }
 
     /**

@@ -66,7 +66,9 @@ public class LinkAnalyst {
 			}
 		}
 		mri.setMovieSize(FileUtils.unitUp(ti.totalSize()+""));
-		mri.setTorrentBytes(torrentBytes);
+		mri.setDownloadLink(torrentUrl);
+		torrentBytes = null;
+		ti = null;
 		return mri;
 	}
 	

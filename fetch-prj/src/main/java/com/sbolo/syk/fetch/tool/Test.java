@@ -35,14 +35,8 @@ public class Test {
 			String key2 = os.getKey();
 			System.out.println();
 		}
-		COSObjectId fd = new COSObjectId(builder);
-		COSObjectIdBuilder jio = new COSObjectIdBuilder();
-		jio.
-		GetObjectRequest f = new GetObjectRequest(cosObjectId) 
 		PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, key, localFile);
 		PutObjectResult putObjectResult = cosClient.putObject(putObjectRequest);
-		cosClient.getObject(getObjectRequest)
-		//		putObjectResult.getETag();
 		cosClient.shutdown();
 	}
 }

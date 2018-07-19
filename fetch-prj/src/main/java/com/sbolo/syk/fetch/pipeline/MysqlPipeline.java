@@ -14,10 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.tools.VOUtils;
+import com.sbolo.syk.fetch.entity.MovieFileIndexEntity;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
 import com.sbolo.syk.fetch.entity.MovieLabelEntity;
 import com.sbolo.syk.fetch.entity.MovieLocationEntity;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
+import com.sbolo.syk.fetch.mapper.MovieFileIndexMapper;
 import com.sbolo.syk.fetch.mapper.MovieInfoMapper;
 import com.sbolo.syk.fetch.mapper.MovieLabelMapper;
 import com.sbolo.syk.fetch.mapper.MovieLocationMapper;
@@ -38,11 +40,13 @@ public class MysqlPipeline implements Pipeline {
 	@Autowired
 	private MovieInfoMapper movieInfoMapper;
 	@Autowired
-	private MovieLabelMapper MovieLabelMapper;
+	private MovieLabelMapper movieLabelMapper;
 	@Autowired
 	private MovieLocationMapper movieLocationMapper;
 	@Autowired
 	private ResourceInfoMapper resourceInfoMapper;
+	@Autowired
+	private MovieFileIndexMapper movieFileIndexMapper;
 	
 	@Override
 	@Transactional
@@ -54,11 +58,17 @@ public class MysqlPipeline implements Pipeline {
 		List<MovieInfoEntity> updateMovies = new ArrayList<>();
 		List<ResourceInfoEntity> updateResourceInfos = new ArrayList<>();
 		
+		List<MovieFileIndexEntity> fileIdxs = new ArrayList<>();
+		
 		Set<Entry<String,Object>> entrySet = fields.entrySet();
 		for(Entry<String,Object> entry : entrySet) {
 			ConcludeVO vo = (ConcludeVO) entry.getValue();
 			MovieInfoVO fetchMovie = vo.getFetchMovie();
 			List<ResourceInfoVO> fetchResources = vo.getFetchResources();
+			List<MovieFileIndexEntity> fileIdxList = vo.getFileIdxList();
+			if(fileIdxList != null && fileIdxList.size() > 0) {
+				fileIdxs.addAll(fileIdxList);
+			}
 			try {
 				if(fetchMovie.getAction() == CommonConstants.insert || 
 						fetchMovie.getAction() == CommonConstants.update) {
@@ -109,6 +119,7 @@ public class MysqlPipeline implements Pipeline {
 		int insertLocationSize = 0;
 		int insertResourceSize = 0;
 		int updateResourceSize = 0;
+		int insertFileIdxsSize = 0;
 		if(addMovies.size() > 0) {
 			insertMovieSize = movieInfoMapper.insertList(addMovies);
 		}
@@ -116,7 +127,7 @@ public class MysqlPipeline implements Pipeline {
 			updateMovieSize = movieInfoMapper.updateListByPrn(updateMovies);
 		}
 		if(addLabels.size() > 0) {
-			insertLabelSize = MovieLabelMapper.insertList(addLabels);
+			insertLabelSize = movieLabelMapper.insertList(addLabels);
 		}
 		if(addLocations.size() > 0) {
 			insertLocationSize = movieLocationMapper.insertList(addLocations);
@@ -126,6 +137,9 @@ public class MysqlPipeline implements Pipeline {
 		}
 		if(updateResourceInfos.size() > 0) {
 			updateResourceSize = resourceInfoMapper.updateListByPrn(updateResourceInfos);
+		}
+		if(fileIdxs.size() > 0) {
+			insertFileIdxsSize = movieFileIndexMapper.insertList(fileIdxs);
 		}
 		
 		log.info("新增movieInfo条数："+insertMovieSize);

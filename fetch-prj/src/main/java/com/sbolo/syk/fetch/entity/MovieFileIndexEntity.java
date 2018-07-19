@@ -20,22 +20,16 @@ public class MovieFileIndexEntity {
     private String sourceUrl;
 
     /**
-     * 原文件URL的MD5值
-     */
-    @Column(name = "`source_url_md5`")
-    private String sourceUrlMd5;
-
-    /**
      * 文件修正后并上传到服务器后的uri
      */
     @Column(name = "`fix_uri`")
     private String fixUri;
 
     /**
-     * 文件类型
+     * 文件类型 1---icon 2---poster 3---photo 4---shot 5---torrent
      */
-    @Column(name = "`file_type`")
-    private String fileType;
+    @Column(name = "`file_v`")
+    private Integer fileV;
 
     /**
      * 创建时间
@@ -86,24 +80,6 @@ public class MovieFileIndexEntity {
     }
 
     /**
-     * 获取原文件URL的MD5值
-     *
-     * @return source_url_md5 - 原文件URL的MD5值
-     */
-    public String getSourceUrlMd5() {
-        return sourceUrlMd5;
-    }
-
-    /**
-     * 设置原文件URL的MD5值
-     *
-     * @param sourceUrlMd5 原文件URL的MD5值
-     */
-    public void setSourceUrlMd5(String sourceUrlMd5) {
-        this.sourceUrlMd5 = sourceUrlMd5;
-    }
-
-    /**
      * 获取文件修正后并上传到服务器后的uri
      *
      * @return fix_uri - 文件修正后并上传到服务器后的uri
@@ -122,21 +98,21 @@ public class MovieFileIndexEntity {
     }
 
     /**
-     * 获取文件类型
+     * 获取文件类型 1---icon 2---poster 3---photo 4---shot 5---torrent
      *
-     * @return file_type - 文件类型
+     * @return file_v - 文件类型 1---icon 2---poster 3---photo 4---shot 5---torrent
      */
-    public String getFileType() {
-        return fileType;
+    public Integer getFileV() {
+        return fileV;
     }
 
     /**
-     * 设置文件类型
+     * 设置文件类型 1---icon 2---poster 3---photo 4---shot 5---torrent
      *
-     * @param fileType 文件类型
+     * @param fileV 文件类型 1---icon 2---poster 3---photo 4---shot 5---torrent
      */
-    public void setFileType(String fileType) {
-        this.fileType = fileType;
+    public void setFileV(Integer fileV) {
+        this.fileV = fileV;
     }
 
     /**
