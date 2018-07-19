@@ -26,6 +26,7 @@ public class MovieInfoVO {
      */
     private String posterUriJson;
     
+    
     private String photoUriJson;
 
     /**
@@ -185,7 +186,17 @@ public class MovieInfoVO {
     
     private List<String> photoUrlList;
     
+    private List<String> posterUrlList;
+    
     private Integer action;  //Business property, that will direct 'insert' or 'update' or 'abandon'.
+
+	public List<String> getPosterUrlList() {
+		return posterUrlList;
+	}
+
+	public void setPosterUrlList(List<String> posterUrlList) {
+		this.posterUrlList = posterUrlList;
+	}
 
 	public String getPhotoUriJson() {
 		return photoUriJson;

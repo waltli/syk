@@ -38,7 +38,8 @@ public class CommonConstants {
 	public static final int icon_v = 1;
 	public static final int poster_v = 2;
 	public static final int photo_v = 3;
-	public static final int torrent_v = 4;
+	public static final int shot_v = 4;
+	public static final int torrent_v = 5;
 	
 	//生成文件名和唯一ID标识
 	public static final String movie_s = "m";

@@ -7,9 +7,8 @@
     -->
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="source_url" jdbcType="VARCHAR" property="sourceUrl" />
-    <result column="source_url_md5" jdbcType="VARCHAR" property="sourceUrlMd5" />
     <result column="fix_uri" jdbcType="VARCHAR" property="fixUri" />
-    <result column="file_type" jdbcType="VARCHAR" property="fileType" />
+    <result column="file_v" jdbcType="INTEGER" property="fileV" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>
@@ -81,8 +80,14 @@
     <!--
       WARNING - @mbg.generated
     -->
-    id, source_url, source_url_md5, fix_uri, file_type, create_time, update_time
+    id, source_url, fix_uri, file_v, create_time, update_time
   </sql>
+  <select id="selectBatchBySourceUrl" parameterType="java.util.List" resultMap="BaseResultMap">
+  	select * from movie_file_index where source_url in 
+  	<foreach collection="list" open="(" close=")" item="item" separator=",">
+  		#{item}
+  	</foreach>
+  </select>
   <select id="selectByExample" parameterType="com.sbolo.syk.fetch.entity.MovieFileIndexEntityExample" resultMap="BaseResultMap">
     <!--
       WARNING - @mbg.generated
@@ -130,14 +135,11 @@
       <if test="record.sourceUrl != null">
         source_url = #{record.sourceUrl,jdbcType=VARCHAR},
       </if>
-      <if test="record.sourceUrlMd5 != null">
-        source_url_md5 = #{record.sourceUrlMd5,jdbcType=VARCHAR},
-      </if>
       <if test="record.fixUri != null">
         fix_uri = #{record.fixUri,jdbcType=VARCHAR},
       </if>
-      <if test="record.fileType != null">
-        file_type = #{record.fileType,jdbcType=VARCHAR},
+      <if test="record.fileV != null">
+        file_v = #{record.fileV,jdbcType=INTEGER},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=TIMESTAMP},
@@ -157,9 +159,8 @@
     update movie_file_index
     set id = #{record.id,jdbcType=BIGINT},
       source_url = #{record.sourceUrl,jdbcType=VARCHAR},
-      source_url_md5 = #{record.sourceUrlMd5,jdbcType=VARCHAR},
       fix_uri = #{record.fixUri,jdbcType=VARCHAR},
-      file_type = #{record.fileType,jdbcType=VARCHAR},
+      file_v = #{record.fileV,jdbcType=INTEGER},
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
       update_time = #{record.updateTime,jdbcType=TIMESTAMP}
     <if test="_parameter != null">

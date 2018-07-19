@@ -141,6 +141,16 @@ public class ResourceInfoVO {
      * 迅雷url解码的编码“UTF-8”
      */
     private String thunderDecoding;
+    
+    private byte[] torrentBytes;
+
+	public byte[] getTorrentBytes() {
+		return torrentBytes;
+	}
+
+	public void setTorrentBytes(byte[] torrentBytes) {
+		this.torrentBytes = torrentBytes;
+	}
 
 	public String getShotUriJson() {
 		return shotUriJson;
