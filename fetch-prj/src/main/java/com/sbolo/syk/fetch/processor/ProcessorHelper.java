@@ -1,15 +1,21 @@
 package com.sbolo.syk.fetch.processor;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,6 +37,11 @@ import org.springframework.stereotype.Component;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.qcloud.cos.model.ObjectMetadata;
+import com.qcloud.cos.model.PutObjectRequest;
+import com.qcloud.cos.model.UploadResult;
+import com.qcloud.cos.transfer.TransferManager;
+import com.qcloud.cos.transfer.Upload;
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.MovieCategoryEnum;
 import com.sbolo.syk.common.constants.MovieQualityEnum;
@@ -61,6 +72,7 @@ import com.sbolo.syk.fetch.service.MovieInfoService;
 import com.sbolo.syk.fetch.service.MovieLabelService;
 import com.sbolo.syk.fetch.service.MovieLocationService;
 import com.sbolo.syk.fetch.service.ResourceInfoService;
+import com.sbolo.syk.fetch.tool.BucketUtils;
 import com.sbolo.syk.fetch.tool.FetchUtils;
 import com.sbolo.syk.fetch.tool.LinkAnalyst;
 import com.sbolo.syk.fetch.vo.ConcludeVO;
@@ -77,7 +89,8 @@ public class ProcessorHelper {
 	private static final Logger log = LoggerFactory.getLogger(ProcessorHelper.class);
 	private ConcurrentMap<String, String> cacheDistinct = new ConcurrentHashMap<String, String>();
 	private ConcurrentMap<String, Integer> fileNameDistinct = new ConcurrentHashMap<String, Integer>(); 
-	private ConcurrentMap<String, String> shotUrlMapping = new ConcurrentHashMap<String, String>(); 
+	private ConcurrentMap<String, String> shotUrlMapping = new ConcurrentHashMap<String, String>();
+	private TransferManager transferManager;
 	
 	private String doubanDefaultIcon = "movie_default_large.png";
 	
@@ -258,6 +271,17 @@ public class ProcessorHelper {
     	fileNameDistinct.clear();
     	shotUrlMapping.clear();
 		cacheDistinct.clear();
+		if(transferManager != null) {
+			transferManager.shutdownNow();
+			transferManager = null;
+		}
+    }
+    
+    protected void initBucket() {
+    	if(transferManager == null) {
+    		ExecutorService threadPool = Executors.newFixedThreadPool(5);
+    		transferManager = new TransferManager(BucketUtils.getCOSClient(), threadPool);
+    	}
     }
     
     protected List<String> getPrecisionsByInfo(List<TextNode> textNodes) {
@@ -661,22 +685,22 @@ public class ProcessorHelper {
 		Integer picHeight = null;
 		switch (picV) {
 		case CommonConstants.icon_v:
-			picDir = ConfigUtil.getPropertyValue("icon.dir");
+			picDir = ConfigUtil.getPropertyValue("bucket.icon");
 			picWidth = CommonConstants.icon_width;
 			picHeight = CommonConstants.icon_height;
 			break;
 		case CommonConstants.poster_v:
-			picDir = ConfigUtil.getPropertyValue("poster.dir");
+			picDir = ConfigUtil.getPropertyValue("bucket.poster");
 			picWidth = CommonConstants.poster_width;
 			picHeight = CommonConstants.poster_height;
 			break;
 		case CommonConstants.photo_v:
-			picDir = ConfigUtil.getPropertyValue("photo.dir");
+			picDir = ConfigUtil.getPropertyValue("bucket.photo");
 			picWidth = CommonConstants.photo_width;
 			picHeight = CommonConstants.photo_height;
 			break;
 		case CommonConstants.shot_v:
-			picDir = ConfigUtil.getPropertyValue("shot.dir");
+			picDir = ConfigUtil.getPropertyValue("bucket.shot");
 			picWidth = CommonConstants.shot_width;
 			picHeight = CommonConstants.shot_height;
 			break;
@@ -728,7 +752,7 @@ public class ProcessorHelper {
 						if(img == null){
 							continue;
 						}
-						String imgUrl = img.attr("src");
+						String imgUrl = img.attr("src").trim();
 						if(StringUtils.isBlank(imgUrl)){
 							continue;
 						}
@@ -959,7 +983,7 @@ public class ProcessorHelper {
 				}
 				String suffix = shotUrl.substring(shotUrl.lastIndexOf(".")+1);
 				String fileName = StringUtil.getId(CommonConstants.pic_s);
-				String shotUri = this.downPicAndFixMarkWithDist(shotUrl, ConfigUtil.getPropertyValue("shot.dir"), fileName, suffix, pioneer, CommonConstants.shot_width, CommonConstants.shot_height, newFileIdxList, CommonConstants.shot_v, thisTime);
+				String shotUri = this.downPicAndFixMarkWithDist(shotUrl, ConfigUtil.getPropertyValue("bucket.shot"), fileName, suffix, pioneer, CommonConstants.shot_width, CommonConstants.shot_height, newFileIdxList, CommonConstants.shot_v, thisTime);
 				shotUrlMapping.put(shotUrl, shotUri);
 				shotUriList.add(shotUri);
 			} catch (Exception e) {
@@ -1009,7 +1033,7 @@ public class ProcessorHelper {
 					log.info("The download link of \"["+fetchResource.getPureName()+"]\" is null");
 					continue;
 				}
-				
+
 				LinkAnalyzeResultVO analyzeResult = null;
 				//根據需要分析下載鏈接
 				if(StringUtils.isBlank(fetchResource.getSize()) || StringUtils.isBlank(fetchResource.getFormat())){
@@ -1021,6 +1045,11 @@ public class ProcessorHelper {
 						if(StringUtils.isBlank(fetchResource.getFormat())) {
 							fetchResource.setFormat(analyzeResult.getMovieFormat());
 						}
+						if(analyzeResult.getTorrentBytes() != null) {
+							fetchResource.setTorrentBytes(analyzeResult.getTorrentBytes());
+							fetchResource.setDownloadLink(analyzeResult.getDownloadLink());
+							link = analyzeResult.getDownloadLink();
+						}
 					}
 				}
 				
@@ -1028,10 +1057,12 @@ public class ProcessorHelper {
 				if(Pattern.compile(RegexConstant.torrent).matcher(link).find()){
 					String torrentName = getTorrentName(fetchResource);
 					String suffix = link.substring(link.lastIndexOf(".")+1);
-					String torrentDir = ConfigUtil.getPropertyValue("torrent.dir");
-					String uri = this.downFileWithDist(link, torrentDir, torrentName, suffix, pioneer, newFileIdxList, CommonConstants.torrent_v, thisTime);
+					String torrentDir = ConfigUtil.getPropertyValue("bucket.torrent");
+					String uri = this.downTorrentWithDist(link, fetchResource.getTorrentBytes(), torrentDir, torrentName, suffix, pioneer, newFileIdxList, CommonConstants.torrent_v, thisTime);
+					link = uri;
 					fetchResource.setDownloadLink(uri);
 				}
+				
 			} catch (Throwable e) {
 				//假若失败，则resource还是存的原始的地址，所以不用删除
 				log.error("解析下载链接失败！ url: "+ link, e);
@@ -1040,10 +1071,18 @@ public class ProcessorHelper {
 		}
 	}
 	
-	private String downAndGetUri(byte[] bytes, String targetDir, String fileName, String suffix) throws Exception {
+	private String upoadBucketAndGetUri(byte[] bytes, String targetDir, String fileName, String suffix) throws Exception {
 		String subDir = DateUtil.date2Str(new Date(), "yyyyMM");
 		String saveDir = targetDir+"/"+subDir;
-		FileUtils.saveFile(bytes, saveDir, fileName, suffix);
+		String key = saveDir+"/"+fileName+"."+suffix;
+		InputStream sbs = new ByteArrayInputStream(bytes);
+		ObjectMetadata metadata = new ObjectMetadata();
+		metadata.setContentLength(bytes.length);
+		String bucketName = ConfigUtil.getPropertyValue("bucket.syk.name");
+		PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, key, sbs, metadata);
+		Upload upload = transferManager.upload(putObjectRequest);
+		// 等待传输结束（如果想同步的等待上传结束，则调用 waitForCompletion）
+		UploadResult uploadResult = upload.waitForUploadResult();
 		String uri = saveDir.replace(ConfigUtil.getPropertyValue("fs.formal.dir"), "") + "/"+fileName + "." +suffix;
 		return uri;
 	}
@@ -1061,14 +1100,16 @@ public class ProcessorHelper {
 	 * @return
 	 * @throws Exception
 	 */
-	private String downFileWithDist(String url, String targetDir, String fileName, String suffix, Map<String, MovieFileIndexEntity> pioneer, 
+	private String downTorrentWithDist(String url, byte[] bytes, String targetDir, String fileName, String suffix, Map<String, MovieFileIndexEntity> pioneer, 
 			List<MovieFileIndexEntity> newFileIdxList, Integer fileV, Date thisTime) throws Exception {
-		MovieFileIndexEntity movieFileIndexEntity = pioneer.get(url);
+		MovieFileIndexEntity movieFileIndexEntity = pioneer.get(url.trim());
 		if(movieFileIndexEntity != null) {
 			return movieFileIndexEntity.getFixUri();
 		}
-		byte[] bytes = HttpUtils.getBytes(url);
-		String uri = downAndGetUri(bytes, targetDir, fileName, suffix);
+		if(bytes == null) {
+			bytes = HttpUtils.getBytes(url);
+		}
+		String uri = upoadBucketAndGetUri(bytes, targetDir, fileName, suffix);
 		addMovieFileIdx(url, uri, fileV, thisTime, newFileIdxList);
 		return uri;
 	}
@@ -1091,13 +1132,13 @@ public class ProcessorHelper {
 	private String downPicAndFixWithDist(String url, String targetDir, String fileName, String suffix, 
 			Map<String, MovieFileIndexEntity> pioneer, int fixWidth, int fixHeight, 
 			List<MovieFileIndexEntity> newFileIdxList, Integer fileV, Date thisTime) throws Exception {
-		MovieFileIndexEntity movieFileIndexEntity = pioneer.get(url);
+		MovieFileIndexEntity movieFileIndexEntity = pioneer.get(url.trim());
 		if(movieFileIndexEntity != null) {
 			return movieFileIndexEntity.getFixUri();
 		}
 		byte[] bytes = HttpUtils.getBytes(url);
 		byte[] imageFix = FileUtils.imageFix(bytes, fixWidth, fixHeight, suffix);
-		String uri = downAndGetUri(imageFix, targetDir, fileName, suffix);
+		String uri = upoadBucketAndGetUri(imageFix, targetDir, fileName, suffix);
 		addMovieFileIdx(url, uri, fileV, thisTime, newFileIdxList);
 		return uri;
 	}
@@ -1120,14 +1161,14 @@ public class ProcessorHelper {
 	private String downPicAndFixMarkWithDist(String url, String targetDir, String fileName, String suffix, 
 			Map<String, MovieFileIndexEntity> pioneer, int fixWidth, int fixHeight, 
 			List<MovieFileIndexEntity> newFileIdxList, Integer fileV, Date thisTime) throws Exception {
-		MovieFileIndexEntity movieFileIndexEntity = pioneer.get(url);
+		MovieFileIndexEntity movieFileIndexEntity = pioneer.get(url.trim());
 		if(movieFileIndexEntity != null) {
 			return movieFileIndexEntity.getFixUri();
 		}
 		byte[] bytes = HttpUtils.getBytes(url);
 		byte[] imageFix = FileUtils.imageFix(bytes, fixWidth, fixHeight, suffix);
 		byte[] imageMark = FileUtils.imageMark(imageFix, suffix);
-		String uri = downAndGetUri(imageMark, targetDir, fileName, suffix);
+		String uri = upoadBucketAndGetUri(imageMark, targetDir, fileName, suffix);
 		addMovieFileIdx(url, uri, fileV, thisTime, newFileIdxList);
 		return uri;
 	}
@@ -1137,7 +1178,7 @@ public class ProcessorHelper {
 		fileIdx.setCreateTime(thisTime);
 		fileIdx.setFileV(fileV);
 		fileIdx.setFixUri(uri);
-		fileIdx.setSourceUrl(url);
+		fileIdx.setSourceUrl(url.trim());
 		newFileIdxList.add(fileIdx);
 	}
 	
@@ -1555,10 +1596,11 @@ public class ProcessorHelper {
 	 * @return
 	 */
 	private Map<String, MovieFileIndexEntity> getPioneer(MovieInfoVO fetchMovie, List<ResourceInfoVO> filter2){
-		List<String> urls = new ArrayList<>();
+		Set<String> urls = new HashSet<>();
 		String iconUrl = fetchMovie.getIconUrl();
 		String iconName = iconUrl.substring(iconUrl.lastIndexOf("/")+1);
 		List<String> posterUrlList = getPosterUrlList(fetchMovie.getPosterPageUrl(), iconName);
+		fetchMovie.setPosterUrlList(posterUrlList);
 		List<String> photoUrlList = fetchMovie.getPhotoUrlList();
 		
 		if(StringUtils.isNotBlank(iconUrl)) {
@@ -1583,6 +1625,7 @@ public class ProcessorHelper {
 				urls.addAll(shotUrlList);
 			}
 		}
+		
 		List<MovieFileIndexEntity> movieFileIndexList = movieFileIndexMapper.selectBatchBySourceUrl(urls);
 		
 		Map<String, MovieFileIndexEntity> maps = new HashMap<>();

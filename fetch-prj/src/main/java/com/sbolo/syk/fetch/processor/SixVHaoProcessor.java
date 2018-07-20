@@ -29,8 +29,7 @@ public class SixVHaoProcessor extends ProcessorHelper implements PageProcessor {
 	private String detailUrlReg = "^http://www\\.6vhao\\.tv/\\w+/\\d{4}-\\d{1,2}-\\d{1,2}/\\d{4,6}\\.html$";
 	@Override
 	public void before() {
-		// TODO Auto-generated method stub
-		
+		this.initBucket();
 	}
 
 	@Override

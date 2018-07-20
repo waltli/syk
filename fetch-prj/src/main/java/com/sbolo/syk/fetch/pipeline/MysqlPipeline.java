@@ -148,6 +148,7 @@ public class MysqlPipeline implements Pipeline {
 		log.info("locations条数："+insertLocationSize);
 		log.info("新增resourceInfo条数："+insertResourceSize);
 		log.info("修改resourceInfo条数："+updateResourceSize);
+		log.info("movie file index："+insertFileIdxsSize);
 		log.info("bachAdd completion");
 	}
 	
