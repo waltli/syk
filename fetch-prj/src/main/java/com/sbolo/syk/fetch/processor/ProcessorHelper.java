@@ -158,13 +158,13 @@ public class ProcessorHelper {
 		List<ResourceInfoVO> filter2 = null;
 		ResourceInfoEntity dbOptimalResource = null;
 		if(finalMovie.getAction() == CommonConstants.insert) {
-			filter2 = this.setAndGetInsertResource(fetchResources, finalMovie.getPrn(), thisTime);
+			filter2 = this.setAndGetInsertResource(filter1, finalMovie.getPrn(), thisTime);
 		}else {
 			//获取到数据库中该影片质量最好的resource
 			dbOptimalResource = resourceInfoService.getOptimalResource(finalMovie.getPrn());
 			
 			if(dbOptimalResource == null) {
-				filter2 = this.setAndGetInsertResource(fetchResources, finalMovie.getPrn(), thisTime);
+				filter2 = this.setAndGetInsertResource(filter1, finalMovie.getPrn(), thisTime);
 			}else {
 				//在数据库中过滤一批reousrce
 				filter2 = this.filterResourceInDB(fetchMovie.getCategory(), finalMovie.getPrn(), filter1, dbOptimalResource, thisTime);
