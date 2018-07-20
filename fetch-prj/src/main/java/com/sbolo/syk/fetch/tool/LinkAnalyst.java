@@ -22,8 +22,10 @@ import com.frostwire.jlibtorrent.TorrentInfo;
 import com.sbolo.syk.common.constants.RegexConstant;
 import com.sbolo.syk.common.exception.AnalystException;
 import com.sbolo.syk.common.http.HttpUtils;
+import com.sbolo.syk.common.tools.ConfigUtil;
 import com.sbolo.syk.common.tools.FileUtils;
 import com.sbolo.syk.common.tools.FtpUtils;
+import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.vo.LinkAnalyzeResultVO;
 
 import sun.misc.BASE64Decoder;
@@ -66,6 +68,7 @@ public class LinkAnalyst {
 			}
 		}
 		mri.setMovieSize(FileUtils.unitUp(ti.totalSize()+""));
+		mri.setTorrentBytes(torrentBytes);
 		mri.setDownloadLink(torrentUrl);
 		torrentBytes = null;
 		ti = null;

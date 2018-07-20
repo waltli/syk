@@ -88,7 +88,7 @@ public class ConfigUtil {
 		
 		String value = String.valueOf(valueObj);
 		
-		if (value.trim().equalsIgnoreCase("")) {
+		if (StringUtils.isBlank(value)) {
 			return null;
 		}
 		
@@ -100,6 +100,9 @@ public class ConfigUtil {
 		String inner = m.group();
 		String innerKey = m.group(1);
 		String innerValue = getPropertyValue(innerKey);
+		if(StringUtils.isBlank(innerValue)) {
+			return value;
+		}
 		value = value.replace(inner, innerValue);
 		return value;
 	}
