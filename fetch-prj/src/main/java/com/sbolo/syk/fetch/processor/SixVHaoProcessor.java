@@ -26,10 +26,10 @@ public class SixVHaoProcessor extends ProcessorHelper implements PageProcessor {
 	private static final Logger log = LoggerFactory.getLogger(SixVHaoProcessor.class);
 	
 	private String pageUrlReg = "^http://www\\.6vhao\\.tv/$";
-	private String detailUrlReg = "^http://www\\.6vhao\\.tv/\\w+/\\d{4}-\\d{1,2}-\\d{1,2}/\\d{4,6}\\.html$";
+	private String detailUrlReg = "^http://www\\.6vhao\\.tv/\\w+/\\d{4}-\\d{1,2}-\\d{1,2}/\\w{4,6}\\.html$";
+	
 	@Override
 	public void before() {
-		this.initBucket();
 	}
 
 	@Override
@@ -44,7 +44,6 @@ public class SixVHaoProcessor extends ProcessorHelper implements PageProcessor {
 		}else if(Pattern.compile(detailUrlReg).matcher(url).find()){
 			String fullName = document.select(".contentinfo > h1 > a").first().text();
 			String pureName = Pattern.compile("[【】]|(\\[.*?\\])").matcher(fullName).replaceAll("");
-			
 			PureNameAndSeasonVO pureNameAndSeason = getPureNameAndSeason(pureName, fullName);
 			Element infoElement = document.select("#text > p:matches("+RegexConstant.DYtitle+"|"+RegexConstant.YYtitle+"|"+RegexConstant.ZYtitle+")").first();
 			List<String> precisions = null;
@@ -121,10 +120,12 @@ public class SixVHaoProcessor extends ProcessorHelper implements PageProcessor {
 				}
 			}
 			
-			ConcludeVO conclude = this.resolve(pureNameAndSeason.getPureName(), precisions, linkInfos, shots, url, null);
-			if(conclude != null) {
-				fields.put(url, conclude);
-			}
+//			ConcludeVO conclude = this.resolve(pureNameAndSeason.getPureName(), precisions, linkInfos, shots, url, null);
+//			if(conclude != null) {
+//				fields.put(url, conclude);
+//			}
+		}else {
+			log.warn(url+" 不符合6vhao的正则表达式，首页："+pageUrlReg+",详情页："+detailUrlReg);
 		}
 	}
 

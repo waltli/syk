@@ -57,14 +57,14 @@ public class BucketUtils {
 		PutObjectResult putResult = cosClient.putObject(putObjectRequest);
 	}
 	
-	public static void deletes(List<String> uris) throws Exception {
+	public static void deletes(List<String> keys) throws Exception {
 		if(cosClient == null) {
 			throw new Exception("cosClient has not be opened yet!");
 		}
 		List<KeyVersion> keyVers = new ArrayList<>();
-		for(String uri : uris) {
-			KeyVersion k = new KeyVersion(uri);
-			keyVers.add(k);
+		for(String key : keys) {
+			KeyVersion kv = new KeyVersion(key);
+			keyVers.add(kv);
 		}
 		DeleteObjectsRequest d = new DeleteObjectsRequest(bucketName);
 		d.setKeys(keyVers);

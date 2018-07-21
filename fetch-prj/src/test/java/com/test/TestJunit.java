@@ -1,6 +1,9 @@
 package com.test;
 
 import java.io.IOException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,6 +22,7 @@ import org.mybatis.generator.internal.DefaultShellCallback;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -57,10 +61,28 @@ public class TestJunit {
         }
 	}
 	
+	@Autowired
+	private ThreadPoolTaskExecutor threadPool;
+	
 	@Test
 	public void test() throws Exception{
-		String propertyValue = ConfigUtil.getPropertyValue("fs.dir");
-		System.out.println(propertyValue);
+		for(int i=0; i<10; i++) {
+			threadPool.execute(new Runnable() {
+				@Override
+				public void run() {
+					System.out.println("a");
+				}
+			});
+		}
+		threadPool.shutdown();
+		for(int i=0; i<10; i++) {
+			threadPool.execute(new Runnable() {
+				@Override
+				public void run() {
+					System.out.println("b");
+				}
+			});
+		}
 	}
 	
 	

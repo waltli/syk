@@ -107,6 +107,8 @@ public class ResourceInfoVO {
      * 多个资源截图url组成的List
      */
     private List<String> shotUrlList;
+    
+    private List<String> shotUriList;
 
     /**
      * 采集自哪个网站
@@ -143,6 +145,14 @@ public class ResourceInfoVO {
     private String thunderDecoding;
     
     private byte[] torrentBytes;
+
+	public List<String> getShotUriList() {
+		return shotUriList;
+	}
+
+	public void setShotUriList(List<String> shotUriList) {
+		this.shotUriList = shotUriList;
+	}
 
 	public byte[] getTorrentBytes() {
 		return torrentBytes;

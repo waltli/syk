@@ -7,8 +7,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.sbolo.syk.common.tools.ConfigUtil;
-import com.sbolo.syk.fetch.pipeline.MysqlPipeline;
+import com.sbolo.syk.fetch.pipeline.MyPipeline;
 import com.sbolo.syk.fetch.processor.SixVHaoProcessor;
+import com.sbolo.syk.fetch.spider.Downloader;
 import com.sbolo.syk.fetch.spider.PageProcessor;
 import com.sbolo.syk.fetch.spider.Pipeline;
 import com.sbolo.syk.fetch.spider.Spider;
@@ -17,23 +18,14 @@ import com.sbolo.syk.fetch.spider.Spider;
 public class SpiderConfiguration {
 	
 	@Bean
-	public PageProcessor sixVHaoProcessor() {
-		SixVHaoProcessor sixVHaoProcessor = new SixVHaoProcessor();
-		sixVHaoProcessor.setStartUrl(ConfigUtil.getPropertyValue("spider.url.sixVHao"));
-		return sixVHaoProcessor;
-	}
-	
-	@Bean
-	public Pipeline filterPipeline() {
-		MysqlPipeline filterPipeline = new MysqlPipeline();
-		return filterPipeline;
-	}
-	
-	@Bean
 	public Spider spider() {
 		List<PageProcessor> listProcessor = new ArrayList<>();
-		listProcessor.add(sixVHaoProcessor());
-		Spider spider = new Spider(listProcessor, filterPipeline());
+		SixVHaoProcessor sixVHaoProcessor = new SixVHaoProcessor();
+		sixVHaoProcessor.setStartUrl(ConfigUtil.getPropertyValue("spider.url.sixVHao"));
+		listProcessor.add(sixVHaoProcessor);
+		MyPipeline pipeline = new MyPipeline();
+		Downloader downloader = new Downloader();
+		Spider spider = new Spider(listProcessor, pipeline, downloader);
 		return spider;
 	}
 	

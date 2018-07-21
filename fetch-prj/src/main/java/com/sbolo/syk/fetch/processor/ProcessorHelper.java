@@ -88,11 +88,7 @@ import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 public class ProcessorHelper {
 	private static final Logger log = LoggerFactory.getLogger(ProcessorHelper.class);
 	private ConcurrentMap<String, String> cacheDistinct = new ConcurrentHashMap<String, String>();
-	private ConcurrentMap<String, Integer> fileNameDistinct = new ConcurrentHashMap<String, Integer>(); 
-	private ConcurrentMap<String, String> shotUrlMapping = new ConcurrentHashMap<String, String>();
-	
-	private String doubanDefaultIcon = "movie_default_large.png";
-	
+
 	private String startUrl;
 	
 	public String getStartUrl() {
@@ -175,15 +171,17 @@ public class ProcessorHelper {
 			return null;
 		}
 		
+		//精选过后获取posterUrlList
+		List<String> posterUrlList = getPosterUrlList(finalMovie.getPosterPageUrl(), finalMovie.getIconUrl());
+		finalMovie.setPosterUrlList(posterUrlList);
+		
 		//既然走到这里，证明缓存中的resource比数据库存在更佳的resource
 		ResourceInfoVO fetchOptimalResource = this.getOptimalResource(fetchMovie.getCategory(), filter2);
 		
 		//为finalMovie设置optimalResource的相关信息
 		this.setOptimalResource(finalMovie, fetchOptimalResource);
-		//集中处理电影和资源的相关文件
-		List<MovieFileIndexEntity> newFileIdxList = this.dealMovieAndResourceFiles(fetchMovie, filter2, fetchOptimalResource, dbOptimalResource, thisTime);
 		
-		return new ConcludeVO(finalMovie, filter2, newFileIdxList);
+		return new ConcludeVO(finalMovie, filter2);
 	}
 	
 	/**
@@ -267,14 +265,7 @@ public class ProcessorHelper {
     }
     
     protected void destroy(){
-    	fileNameDistinct.clear();
-    	shotUrlMapping.clear();
 		cacheDistinct.clear();
-		BucketUtils.closeBucket();
-    }
-    
-    protected void initBucket() {
-    	BucketUtils.openBucket(ConfigUtil.getPropertyValue("bucket.syk.name"));
     }
     
     protected List<String> getPrecisionsByInfo(List<TextNode> textNodes) {
@@ -659,74 +650,17 @@ public class ProcessorHelper {
 	}
 	
 	/**
-	 * 构建icon对象
-	 * @param iconUrl
-	 * @return
-	 */
-	private PicVO buildPic(String url, int picV) {
-		if(StringUtils.isBlank(url)){
-			return null;
-		}
-		String name = url.substring(url.lastIndexOf("/")+1);
-		if(name.equals(doubanDefaultIcon)) {
-			return null;
-		}
-		String suffix = name.substring(name.lastIndexOf(".")+1);
-		String fileName = StringUtil.getId(CommonConstants.pic_s);
-		String picDir = null;
-		Integer picWidth = null;
-		Integer picHeight = null;
-		switch (picV) {
-		case CommonConstants.icon_v:
-			picDir = ConfigUtil.getPropertyValue("bucket.icon");
-			picWidth = CommonConstants.icon_width;
-			picHeight = CommonConstants.icon_height;
-			break;
-		case CommonConstants.poster_v:
-			picDir = ConfigUtil.getPropertyValue("bucket.poster");
-			picWidth = CommonConstants.poster_width;
-			picHeight = CommonConstants.poster_height;
-			break;
-		case CommonConstants.photo_v:
-			picDir = ConfigUtil.getPropertyValue("bucket.photo");
-			picWidth = CommonConstants.photo_width;
-			picHeight = CommonConstants.photo_height;
-			break;
-		case CommonConstants.shot_v:
-			picDir = ConfigUtil.getPropertyValue("bucket.shot");
-			picWidth = CommonConstants.shot_width;
-			picHeight = CommonConstants.shot_height;
-			break;
-		default:
-			break;
-		}
-		return new PicVO(url, fileName, suffix, picV, picDir, picWidth, picHeight);
-	}
-	
-	private List<PicVO> buildPicList(List<String> urlList, int picV) {
-		if(urlList == null || urlList.size() == 0){
-			return null;
-		}
-		
-		List<PicVO> picList = new ArrayList<>();
-		for(String url : urlList) {
-			PicVO pic = this.buildPic(url, picV);
-			picList.add(pic);
-		}
-		return picList;
-	}
-	
-	/**
 	 * 从豆瓣PosterPage页面中爬取Poster图片list
 	 * 
 	 * @param posterPageUrl
 	 * @param iconName 过滤掉icon的图片
 	 * @return
 	 */
-	private List<String> getPosterUrlList(String posterPageUrl, String iconName) {
+	private List<String> getPosterUrlList(String posterPageUrl, String iconUrl) {
 		if(StringUtils.isBlank(posterPageUrl)) {
 			return null;
 		}
+		String iconName = StringUtils.isNotBlank(iconUrl) ? iconUrl.substring(iconUrl.lastIndexOf("/")+1) : "";
 		List<String> posterUrlList = new ArrayList<>();
 		try {
 			HttpUtils.httpGet(posterPageUrl, new HttpSendCallbackPure() {
@@ -773,66 +707,6 @@ public class ProcessorHelper {
 		}
 		return posterUrlList;
 			
-	}
-	
-	/**
-	 * 收集icon和poster
-	 * 将收集到的icon和poster下载到服务器
-	 * 将uri设置到fetchMovie中
-	 * 
-	 * @param fetchMovie
-	 * @param picList
-	 */
-	private void downloadAndSetMoviePic(MovieInfoVO fetchMovie, Map<String, MovieFileIndexEntity> pioneer, List<MovieFileIndexEntity> newFileIdxList, Date thisTime){
-		
-		List<PicVO> picList = new ArrayList<>();
-		//获取icon
-		PicVO icon = buildPic(fetchMovie.getIconUrl(), CommonConstants.icon_v);
-		//获取poster
-		List<PicVO> posterList = buildPicList(fetchMovie.getPosterUrlList(), CommonConstants.poster_v);
-		//获取photo
-		List<PicVO> photoList = buildPicList(fetchMovie.getPhotoUrlList(), CommonConstants.photo_v);
-		if(icon != null) {
-			picList.add(icon);
-		}
-		if(posterList != null && posterList.size() > 0) {
-			picList.addAll(posterList);
-		}
-		if(photoList != null && photoList.size() > 0) {
-			picList.addAll(photoList);
-		}
-		List<String> posterUris = new ArrayList<String>();
-		List<String> photoUris = new ArrayList<String>();
-		for(PicVO pic:picList){
-			try {
-				String picUri = this.downPicAndFixWithDist(pic.getFetchUrl(), pic.getPicDir(), pic.getFileName(), pic.getSuffix(), pioneer, pic.getPicWidth(), pic.getPicHeight(), newFileIdxList, pic.getPicV(), thisTime);
-				switch (pic.getPicV()) {
-				case CommonConstants.icon_v:
-					fetchMovie.setIconUri(picUri);
-					break;
-				case CommonConstants.poster_v:
-					posterUris.add(picUri);
-					break;
-				case CommonConstants.photo_v:
-					photoUris.add(picUri);
-					break;
-				default:
-					break;
-				}
-			} catch (Exception e) {
-				log.error("download poster wrong, url: {}", pic.getFetchUrl(), e);
-			}
-		}
-		
-		if(posterUris.size() > 0){
-			String posterUriJson = JSON.toJSONString(posterUris);
-			fetchMovie.setPosterUriJson(posterUriJson);
-		}
-		
-		if(photoUris.size() > 0){
-			String photoUriJson = JSON.toJSONString(photoUris);
-			fetchMovie.setPhotoUriJson(photoUriJson);
-		}
 	}
 	
 	/**
@@ -950,47 +824,6 @@ public class ProcessorHelper {
 		return filterList;
 	}
 	
-	/**
-	 * 下载视频截图并设置
-	 * 
-	 * @param fetchResource 获取到的resource
-	 * @throws AnalystException
-	 */
-	private void downloadAndSetShots(MovieInfoVO fetchMovie, List<ResourceInfoVO> filter2, 
-			ResourceInfoVO fetchOptimalResource, ResourceInfoEntity dbOptimalResource, 
-			Map<String, MovieFileIndexEntity> pioneer, List<MovieFileIndexEntity> newFileIdxList, 
-			Date thisTime) {
-		
-		List<String> shotUrlList = fetchOptimalResource.getShotUrlList();
-		if(shotUrlList == null){
-			return;
-		}
-		String shotUriJson = null;
-		List<String> shotUriList = new ArrayList<>();
-		for(String shotUrl : shotUrlList){
-			try {
-				String repeatedShotUri = shotUrlMapping.get(shotUrl);
-				if(repeatedShotUri != null) {
-					shotUriList.add(repeatedShotUri);
-					continue;
-				}
-				String suffix = shotUrl.substring(shotUrl.lastIndexOf(".")+1);
-				String fileName = StringUtil.getId(CommonConstants.pic_s);
-				String shotUri = this.downPicAndFixMarkWithDist(shotUrl, ConfigUtil.getPropertyValue("bucket.shot"), fileName, suffix, pioneer, CommonConstants.shot_width, CommonConstants.shot_height, newFileIdxList, CommonConstants.shot_v, thisTime);
-				shotUrlMapping.put(shotUrl, shotUri);
-				shotUriList.add(shotUri);
-			} catch (Exception e) {
-				log.error(fetchOptimalResource.getComeFromUrl(),e);
-			}
-		}
-		if(shotUriList.size() > 0){
-			shotUriJson = JSON.toJSONString(shotUriList);
-		}
-		
-		for(ResourceInfoVO fetchResource : filter2) {
-			fetchResource.setShotUriJson(shotUriJson);
-		}
-	}
 	
 	/**
 	 * 是否是支持的下载链接
@@ -1046,168 +879,12 @@ public class ProcessorHelper {
 					}
 				}
 				
-				//如果是種子文件則需要下載到服務器
-				if(Pattern.compile(RegexConstant.torrent).matcher(link).find()){
-					String torrentName = getTorrentName(fetchResource);
-					String suffix = link.substring(link.lastIndexOf(".")+1);
-					String torrentDir = ConfigUtil.getPropertyValue("bucket.torrent");
-					String uri = this.downTorrentWithDist(link, fetchResource.getTorrentBytes(), torrentDir, torrentName, suffix, pioneer, newFileIdxList, CommonConstants.torrent_v, thisTime);
-					link = uri;
-					fetchResource.setDownloadLink(uri);
-				}
-				
 			} catch (Throwable e) {
 				//假若失败，则resource还是存的原始的地址，所以不用删除
 				log.error("解析下载链接失败！ url: "+ link, e);
 			}
 			
 		}
-	}
-	
-	private String upoadBucketAndGetUri(byte[] bytes, String targetDir, String fileName, String suffix) throws Exception {
-		String subDir = DateUtil.date2Str(new Date(), "yyyyMM");
-		String saveDir = targetDir+"/"+subDir;
-		BucketUtils.upload(bytes, saveDir, fileName, suffix);
-		String uri = saveDir + "/" + fileName + "." +suffix;
-		return uri;
-	}
-	
-	/**
-	 * 下载文件并返回uri
-	 * @param url
-	 * @param targetDir
-	 * @param fileName
-	 * @param suffix
-	 * @param pioneer
-	 * @param newFileIdxList
-	 * @param fileV
-	 * @param thisTime
-	 * @return
-	 * @throws Exception
-	 */
-	private String downTorrentWithDist(String url, byte[] bytes, String targetDir, String fileName, String suffix, Map<String, MovieFileIndexEntity> pioneer, 
-			List<MovieFileIndexEntity> newFileIdxList, Integer fileV, Date thisTime) throws Exception {
-		MovieFileIndexEntity movieFileIndexEntity = pioneer.get(url.trim());
-		if(movieFileIndexEntity != null) {
-			return movieFileIndexEntity.getFixUri();
-		}
-		if(bytes == null) {
-			bytes = HttpUtils.getBytes(url);
-		}
-		String uri = upoadBucketAndGetUri(bytes, targetDir, fileName, suffix);
-		addMovieFileIdx(url, uri, fileV, thisTime, newFileIdxList);
-		return uri;
-	}
-	
-	/**
-	 * 下载图片并修正图片大小，返回uri
-	 * @param url
-	 * @param targetDir
-	 * @param fileName
-	 * @param suffix
-	 * @param pioneer
-	 * @param fixWidth
-	 * @param fixHeight
-	 * @param newFileIdxList
-	 * @param fileV
-	 * @param thisTime
-	 * @return
-	 * @throws Exception
-	 */
-	private String downPicAndFixWithDist(String url, String targetDir, String fileName, String suffix, 
-			Map<String, MovieFileIndexEntity> pioneer, int fixWidth, int fixHeight, 
-			List<MovieFileIndexEntity> newFileIdxList, Integer fileV, Date thisTime) throws Exception {
-		MovieFileIndexEntity movieFileIndexEntity = pioneer.get(url.trim());
-		if(movieFileIndexEntity != null) {
-			return movieFileIndexEntity.getFixUri();
-		}
-		byte[] bytes = HttpUtils.getBytes(url);
-		byte[] imageFix = FileUtils.imageFix(bytes, fixWidth, fixHeight, suffix);
-		String uri = upoadBucketAndGetUri(imageFix, targetDir, fileName, suffix);
-		addMovieFileIdx(url, uri, fileV, thisTime, newFileIdxList);
-		return uri;
-	}
-	
-	/**
-	 * 下载图片并修正图片大小以及添加水印，返回uri
-	 * @param url
-	 * @param targetDir
-	 * @param fileName
-	 * @param suffix
-	 * @param pioneer
-	 * @param fixWidth
-	 * @param fixHeight
-	 * @param newFileIdxList
-	 * @param fileV
-	 * @param thisTime
-	 * @return
-	 * @throws Exception
-	 */
-	private String downPicAndFixMarkWithDist(String url, String targetDir, String fileName, String suffix, 
-			Map<String, MovieFileIndexEntity> pioneer, int fixWidth, int fixHeight, 
-			List<MovieFileIndexEntity> newFileIdxList, Integer fileV, Date thisTime) throws Exception {
-		MovieFileIndexEntity movieFileIndexEntity = pioneer.get(url.trim());
-		if(movieFileIndexEntity != null) {
-			return movieFileIndexEntity.getFixUri();
-		}
-		byte[] bytes = HttpUtils.getBytes(url);
-		byte[] imageFix = FileUtils.imageFix(bytes, fixWidth, fixHeight, suffix);
-		byte[] imageMark = FileUtils.imageMark(imageFix, suffix);
-		String uri = upoadBucketAndGetUri(imageMark, targetDir, fileName, suffix);
-		addMovieFileIdx(url, uri, fileV, thisTime, newFileIdxList);
-		return uri;
-	}
-	
-	private void addMovieFileIdx(String url, String uri, Integer fileV, Date thisTime, List<MovieFileIndexEntity> newFileIdxList) {
-		MovieFileIndexEntity fileIdx = new MovieFileIndexEntity();
-		fileIdx.setCreateTime(thisTime);
-		fileIdx.setFileV(fileV);
-		fileIdx.setFixUri(uri);
-		fileIdx.setSourceUrl(url.trim());
-		newFileIdxList.add(fileIdx);
-	}
-	
-	/**
-	 * 重新组建种子文件名
-	 * @param fetchResource
-	 * @return
-	 */
-	private String getTorrentName(ResourceInfoVO fetchResource) {
-		StringBuffer fileName = new StringBuffer(fetchResource.getPureName().replaceAll(" ", "."));
-		if(fetchResource.getEpisodeStart() != null){
-			fileName.append(".第").append(fetchResource.getEpisodeStart())
-			.append("-").append(fetchResource.getEpisodeEnd()).append("集");
-		}else if(fetchResource.getEpisodeEnd() != null){
-			fileName.append(".第").append(fetchResource.getEpisodeEnd()).append("集");
-		}
-		if(StringUtils.isNotBlank(fetchResource.getQuality())){
-			fileName.append(".").append(fetchResource.getQuality());
-		}
-		if(StringUtils.isNotBlank(fetchResource.getResolution())){
-			fileName.append(".").append(fetchResource.getResolution());
-		}
-		String subtitleNotice = "";
-		if(StringUtils.isNotBlank(fetchResource.getSubtitle())){
-			subtitleNotice = fetchResource.getSubtitle();
-		}
-		fileName.append(".").append(subtitleNotice).append(CommonConstants.local_sign);
-		
-		//去除当前页面文件重名的可能性
-		StringBuffer test = new StringBuffer(fileName);
-		int count = 1;
-		do{
-			Integer in = fileNameDistinct.get(test.toString());
-			if(in == null){
-				fileName = test;
-				break;
-			}
-			test = new StringBuffer(fileName);
-			test.append("(").append(count).append(")");
-			count++;
-		} while(true);
-		
-		fileNameDistinct.put(fileName.toString(), 1);
-		return fileName.toString();
 	}
 	
 	/**
@@ -1619,38 +1296,6 @@ public class ProcessorHelper {
 			maps.put(entity.getSourceUrl(), entity);
 		}
 		return maps;
-	}
-	
-	
-	/**
-	 * 集中处理电影和资源的文件
-	 * 下载链接最为重要，如果有下载链接，其他的文件就算不下载依然可通过
-	 * 如果没有下载链接，那么其他的文件统统不做处理
-	 * 删除被替换的文件
-	 * 下载新文件到服务器，再讲uri填充到对象中
-	 * @param fetchMovie
-	 * @param filter2
-	 * @param fetchOptimalResource
-	 * @param dbOptimalResource
-	 * @return
-	 */
-	private List<MovieFileIndexEntity> dealMovieAndResourceFiles(MovieInfoVO fetchMovie, List<ResourceInfoVO> filter2, ResourceInfoVO fetchOptimalResource, ResourceInfoEntity dbOptimalResource, Date thisTime) {
-		Map<String, MovieFileIndexEntity> pioneer = getPioneer(fetchMovie, filter2);
-		List<MovieFileIndexEntity> newFileIdxList = new ArrayList<>();
-		//分析下载链接并填充下载信息，并判断是否有有效的下载链接
-		//最好放在第一步，因为如果没有有效的下载链接，就等于没有资源，也就不需要去下载其他的文件了。
-		this.analyzeDownloadLink(filter2, pioneer, newFileIdxList, thisTime);
-		try {
-			
-			//下载电影相关图片信息到服务器，并设置uri
-			this.downloadAndSetMoviePic(fetchMovie, pioneer, newFileIdxList, thisTime);
-			//下载截图并给最佳的resource设置截图uri
-			this.downloadAndSetShots(fetchMovie, filter2, fetchOptimalResource, dbOptimalResource, pioneer, newFileIdxList, thisTime);
-		} catch (Exception e) {
-			log.error("", e);
-		}
-		
-		return newFileIdxList;
 	}
 	
 	

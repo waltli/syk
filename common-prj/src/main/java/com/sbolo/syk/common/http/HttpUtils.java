@@ -54,6 +54,7 @@ public class HttpUtils {
 		} finally {
 			if (response != null) {
 				response.close();
+				response = null;
 			}
 		}
 	}
@@ -76,6 +77,7 @@ public class HttpUtils {
 		} finally {
 			if (response != null) {
 				response.close();
+				response = null;
 			}
 		}
 		return result;
@@ -103,6 +105,7 @@ public class HttpUtils {
 		} finally {
 			if (response != null) {
 				response.close();
+				response = null;
 			}
 		}
 	}
@@ -134,6 +137,7 @@ public class HttpUtils {
 		} finally {
 			if (response != null) {
 				response.close();
+				response = null;
 			}
 		}
 		return result;
@@ -160,6 +164,7 @@ public class HttpUtils {
 		} finally {
 			if (response != null) {
 				response.close();
+				response = null;
 			}
 		}
 		return result;
