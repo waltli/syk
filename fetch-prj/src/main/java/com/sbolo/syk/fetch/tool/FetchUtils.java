@@ -13,7 +13,7 @@ import com.sbolo.syk.common.tools.FileUtils;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.vo.LinkAnalyzeResultVO;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
-import com.sbolo.syk.fetch.pipeline.MysqlPipeline;
+import com.sbolo.syk.fetch.pipeline.MyPipeline;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
 import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 

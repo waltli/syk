@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.sbolo.syk.common.tools.ConfigUtil;
-import com.sbolo.syk.fetch.pipeline.MysqlPipeline;
+import com.sbolo.syk.fetch.pipeline.MyPipeline;
 import com.sbolo.syk.fetch.processor.SixVHaoProcessor;
 import com.sbolo.syk.fetch.spider.PageProcessor;
 import com.sbolo.syk.fetch.spider.Pipeline;
@@ -25,7 +25,7 @@ public class SpiderConfiguration {
 	
 	@Bean
 	public Pipeline filterPipeline() {
-		MysqlPipeline filterPipeline = new MysqlPipeline();
+		MyPipeline filterPipeline = new MyPipeline();
 		return filterPipeline;
 	}
 	

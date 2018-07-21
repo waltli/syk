@@ -165,19 +165,24 @@ public class Spider {
 					log.error("", e);
 				} finally {
 					curProcessor.after();
-					this.destroy();
 				}
 			}
-			try {
-				pipeline.before();
-				pipeline.process(fields);
-			} catch(Exception e){
-				log.error("", e);
-			} finally {
-				pipeline.after();
-			}
+//			try {
+//				if(fields == null || fields.size() == 0) {
+//					return;
+//				}
+//				pipeline.before();
+//				pipeline.process(fields);
+//			} catch(Exception e){
+//				log.error("", e);
+//			} finally {
+//				pipeline.after();
+//			}
 		} finally{
 			isRun = false;
+			this.destroy();
+			threadPool2.shutdown();
+			threadPool2 = null;
 			log.info("所有processor已全部运行完毕！");
 		}
 	}

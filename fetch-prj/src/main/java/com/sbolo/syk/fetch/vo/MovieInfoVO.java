@@ -188,7 +188,27 @@ public class MovieInfoVO {
     
     private List<String> posterUrlList;
     
+    private List<String> photoUriList;
+    
+    private List<String> posterUriList;
+    
     private Integer action;  //Business property, that will direct 'insert' or 'update' or 'abandon'.
+
+	public List<String> getPhotoUriList() {
+		return photoUriList;
+	}
+
+	public void setPhotoUriList(List<String> photoUriList) {
+		this.photoUriList = photoUriList;
+	}
+
+	public List<String> getPosterUriList() {
+		return posterUriList;
+	}
+
+	public void setPosterUriList(List<String> posterUriList) {
+		this.posterUriList = posterUriList;
+	}
 
 	public List<String> getPosterUrlList() {
 		return posterUrlList;
