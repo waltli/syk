@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sbolo.syk.common.constants.CommonConstants;
+import com.sbolo.syk.common.tools.ConfigUtil;
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.fetch.entity.MovieFileIndexEntity;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
@@ -25,6 +26,7 @@ import com.sbolo.syk.fetch.mapper.MovieLabelMapper;
 import com.sbolo.syk.fetch.mapper.MovieLocationMapper;
 import com.sbolo.syk.fetch.mapper.ResourceInfoMapper;
 import com.sbolo.syk.fetch.spider.Pipeline;
+import com.sbolo.syk.fetch.tool.BucketUtils;
 import com.sbolo.syk.fetch.tool.FetchUtils;
 import com.sbolo.syk.fetch.vo.ConcludeVO;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
@@ -105,6 +107,7 @@ public class MysqlPipeline implements Pipeline {
 					}
 				}
 			} catch (Exception e) {
+				BucketUtils.deletes(uris);
 				FetchUtils.deleteMovieFile(fetchMovie);
 				for(ResourceInfoVO fetchResource : fetchResources) {
 					FetchUtils.deleteResourceFile(fetchResource);
@@ -154,6 +157,12 @@ public class MysqlPipeline implements Pipeline {
 	
 	@Override
 	public void after() {
+		BucketUtils.closeBucket();
+	}
+
+	@Override
+	public void before() {
+		BucketUtils.openBucket(ConfigUtil.getPropertyValue("bucket.syk.name"));
 	}
 	
 	

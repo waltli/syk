@@ -90,7 +90,6 @@ public class ProcessorHelper {
 	private ConcurrentMap<String, String> cacheDistinct = new ConcurrentHashMap<String, String>();
 	private ConcurrentMap<String, Integer> fileNameDistinct = new ConcurrentHashMap<String, Integer>(); 
 	private ConcurrentMap<String, String> shotUrlMapping = new ConcurrentHashMap<String, String>();
-	private TransferManager transferManager;
 	
 	private String doubanDefaultIcon = "movie_default_large.png";
 	
@@ -271,17 +270,11 @@ public class ProcessorHelper {
     	fileNameDistinct.clear();
     	shotUrlMapping.clear();
 		cacheDistinct.clear();
-		if(transferManager != null) {
-			transferManager.shutdownNow();
-			transferManager = null;
-		}
+		BucketUtils.closeBucket();
     }
     
     protected void initBucket() {
-    	if(transferManager == null) {
-    		ExecutorService threadPool = Executors.newFixedThreadPool(5);
-    		transferManager = new TransferManager(BucketUtils.getCOSClient(), threadPool);
-    	}
+    	BucketUtils.openBucket(ConfigUtil.getPropertyValue("bucket.syk.name"));
     }
     
     protected List<String> getPrecisionsByInfo(List<TextNode> textNodes) {
@@ -1074,16 +1067,8 @@ public class ProcessorHelper {
 	private String upoadBucketAndGetUri(byte[] bytes, String targetDir, String fileName, String suffix) throws Exception {
 		String subDir = DateUtil.date2Str(new Date(), "yyyyMM");
 		String saveDir = targetDir+"/"+subDir;
-		String key = saveDir+"/"+fileName+"."+suffix;
-		InputStream sbs = new ByteArrayInputStream(bytes);
-		ObjectMetadata metadata = new ObjectMetadata();
-		metadata.setContentLength(bytes.length);
-		String bucketName = ConfigUtil.getPropertyValue("bucket.syk.name");
-		PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, key, sbs, metadata);
-		Upload upload = transferManager.upload(putObjectRequest);
-		// 等待传输结束（如果想同步的等待上传结束，则调用 waitForCompletion）
-		UploadResult uploadResult = upload.waitForUploadResult();
-		String uri = saveDir.replace(ConfigUtil.getPropertyValue("fs.formal.dir"), "") + "/"+fileName + "." +suffix;
+		BucketUtils.upload(bytes, saveDir, fileName, suffix);
+		String uri = saveDir + "/" + fileName + "." +suffix;
 		return uri;
 	}
 	

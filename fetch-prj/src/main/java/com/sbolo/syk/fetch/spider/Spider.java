@@ -161,14 +161,20 @@ public class Spider {
 						}
 						count++;
 					}
-					pipeline.process(fields);
-				}catch(Exception e){
+				} catch(Exception e){
 					log.error("", e);
-				}finally{
+				} finally {
 					curProcessor.after();
-					pipeline.after();
 					this.destroy();
 				}
+			}
+			try {
+				pipeline.before();
+				pipeline.process(fields);
+			} catch(Exception e){
+				log.error("", e);
+			} finally {
+				pipeline.after();
 			}
 		} finally{
 			isRun = false;
