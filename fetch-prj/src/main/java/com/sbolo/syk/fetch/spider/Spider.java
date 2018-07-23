@@ -32,21 +32,19 @@ public class Spider {
 	
 	private List<PageProcessor> listProcessor;
 	
-	private BlockingQueue<String> queue = new LinkedBlockingQueue<String>();
+	private BlockingQueue<String> queue;
 	
-	private AtomicInteger threadAlive = new AtomicInteger();
+	private AtomicInteger threadAlive;
 	
 	private ThreadPoolTaskExecutor threadPool2;
 	
-	private ReentrantLock newUrlLock = new ReentrantLock();
+	private ReentrantLock newUrlLock;
 	
-	private Condition newUrlCondition = newUrlLock.newCondition();
+	private Condition newUrlCondition;
 	
-	private Set<String> urlsSet = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+	private Set<String> urlsSet;
 	
-	private Map<String, Object> fields = new LinkedHashMap<String, Object>();
-	
-	protected Vector<String> waitManual = new Vector<String>();
+	private Map<String, Object> fields;
 	
 	private boolean isRun = false;
 	
@@ -122,7 +120,7 @@ public class Spider {
 		
 		try {
 			isRun = true;
-			initComponent();
+			init();
 			for(int i=0; i<listProcessor.size(); i++){
 				final PageProcessor curProcessor = listProcessor.get(i);
 				try {
@@ -180,8 +178,6 @@ public class Spider {
 		} finally{
 			isRun = false;
 			this.destroy();
-			threadPool2.shutdown();
-			threadPool2 = null;
 			log.info("所有processor已全部运行完毕！");
 		}
 	}
@@ -212,11 +208,31 @@ public class Spider {
 	}
 	
 	public void destroy(){
-		fields.clear();
+		queue.clear();
 		urlsSet.clear();
+		fields.clear();
+		
+		queue = null;
+		threadAlive = null;
+		newUrlCondition = null;
+		newUrlLock = null;
+		urlsSet = null;
+		fields = null;
 	}
 	
-	private void initComponent(){
+	private void init(){
+		queue = new LinkedBlockingQueue<String>();
+		
+		threadAlive = new AtomicInteger();
+		
+		newUrlLock = new ReentrantLock();
+		
+		newUrlCondition = newUrlLock.newCondition();
+		
+		urlsSet = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+		
+		fields = new LinkedHashMap<String, Object>();
+		
 		if(downloader == null){
 			downloader = new Downloader();
 		}

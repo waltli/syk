@@ -31,17 +31,11 @@ import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.qcloud.cos.model.ObjectMetadata;
-import com.qcloud.cos.model.PutObjectRequest;
-import com.qcloud.cos.model.UploadResult;
-import com.qcloud.cos.transfer.TransferManager;
-import com.qcloud.cos.transfer.Upload;
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.MovieCategoryEnum;
 import com.sbolo.syk.common.constants.MovieQualityEnum;
@@ -87,7 +81,7 @@ import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 @Component
 public class ProcessorHelper {
 	private static final Logger log = LoggerFactory.getLogger(ProcessorHelper.class);
-	private ConcurrentMap<String, String> cacheDistinct = new ConcurrentHashMap<String, String>();
+	private ConcurrentMap<String, String> cacheDist;
 
 	private String startUrl;
 	
@@ -98,9 +92,6 @@ public class ProcessorHelper {
 	public void setStartUrl(String startUrl) {
 		this.startUrl = startUrl;
 	}
-	
-	@Resource
-	private ThreadPoolTaskExecutor threadPool;
 	
 	@Resource
 	private ResourceInfoService resourceInfoService;
@@ -180,6 +171,9 @@ public class ProcessorHelper {
 		
 		//为finalMovie设置optimalResource的相关信息
 		this.setOptimalResource(finalMovie, fetchOptimalResource);
+		
+		//从下载连接中分析资源信息
+		this.analyzeDownloadLink(fetchResources, thisTime);
 		
 		return new ConcludeVO(finalMovie, filter2);
 	}
@@ -265,7 +259,12 @@ public class ProcessorHelper {
     }
     
     protected void destroy(){
-		cacheDistinct.clear();
+		cacheDist.clear();
+		cacheDist = null;
+    }
+    
+    protected void init() {
+    	cacheDist = new ConcurrentHashMap<String, String>();
     }
     
     protected List<String> getPrecisionsByInfo(List<TextNode> textNodes) {
@@ -602,12 +601,12 @@ public class ProcessorHelper {
 	private boolean isRepeatedMovieInCache(MovieInfoVO fetchMovie, String comeFromUrl) throws MovieInfoFetchException {
 		String fetchPureName = fetchMovie.getPureName();
 		String fetchReleaseTimeStr = fetchMovie.getReleaseTimeStr();
-		String repeatedUrl = cacheDistinct.get(fetchPureName+fetchReleaseTimeStr);
+		String repeatedUrl = cacheDist.get(fetchPureName+fetchReleaseTimeStr);
 		if(repeatedUrl != null){
 			log.info("warning!!! ["+fetchMovie.getPureName()+"] has appeared in this web. between "+ repeatedUrl +" and " + comeFromUrl);
 			return true;
 		}
-		cacheDistinct.put(fetchPureName+fetchReleaseTimeStr, comeFromUrl);
+		cacheDist.put(fetchPureName+fetchReleaseTimeStr, comeFromUrl);
 		return false;
 	}
 	
@@ -851,7 +850,7 @@ public class ProcessorHelper {
 	 * @throws Exception 
 	 * @throws AnalystException
 	 */
-	private void analyzeDownloadLink(List<ResourceInfoVO> fetchResources, Map<String, MovieFileIndexEntity> pioneer, List<MovieFileIndexEntity> newFileIdxList, Date thisTime){
+	private void analyzeDownloadLink(List<ResourceInfoVO> fetchResources, Date thisTime){
 		for(ResourceInfoVO fetchResource : fetchResources) {
 			String link = fetchResource.getDownloadLink();
 			try {
@@ -1250,54 +1249,6 @@ public class ProcessorHelper {
 		}
 		
 	}
-	
-	/**
-	 * 从DB中获取以前 已经上传过的文件映射关系
-	 * @param fetchMovie
-	 * @param filter2
-	 * @return
-	 */
-	private Map<String, MovieFileIndexEntity> getPioneer(MovieInfoVO fetchMovie, List<ResourceInfoVO> filter2){
-		Set<String> urls = new HashSet<>();
-		String iconUrl = fetchMovie.getIconUrl();
-		String iconName = iconUrl.substring(iconUrl.lastIndexOf("/")+1);
-		List<String> posterUrlList = getPosterUrlList(fetchMovie.getPosterPageUrl(), iconName);
-		fetchMovie.setPosterUrlList(posterUrlList);
-		List<String> photoUrlList = fetchMovie.getPhotoUrlList();
-		
-		if(StringUtils.isNotBlank(iconUrl)) {
-			urls.add(iconUrl);
-		}
-		
-		if(posterUrlList != null && posterUrlList.size() > 0) {
-			urls.addAll(posterUrlList);
-		}
-		
-		if(photoUrlList != null && photoUrlList.size() > 0) {
-			urls.addAll(photoUrlList);
-		}
-		
-		for(ResourceInfoVO fetchResource : filter2) {
-			String downLink = fetchResource.getDownloadLink();
-			List<String> shotUrlList = fetchResource.getShotUrlList();
-			if(Pattern.compile(RegexConstant.torrent).matcher(downLink).find()) {
-				urls.add(downLink);
-			}
-			if(shotUrlList != null && shotUrlList.size() > 0) {
-				urls.addAll(shotUrlList);
-			}
-		}
-		
-		List<MovieFileIndexEntity> movieFileIndexList = movieFileIndexMapper.selectBatchBySourceUrl(urls);
-		
-		Map<String, MovieFileIndexEntity> maps = new HashMap<>();
-		
-		for(MovieFileIndexEntity entity : movieFileIndexList) {
-			maps.put(entity.getSourceUrl(), entity);
-		}
-		return maps;
-	}
-	
 	
 	/**
 	 * 将数据库中的电影信息，和新爬到的电影信息进行对比，看是否有更新项

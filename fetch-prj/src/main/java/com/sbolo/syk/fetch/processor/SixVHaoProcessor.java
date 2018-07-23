@@ -30,6 +30,7 @@ public class SixVHaoProcessor extends ProcessorHelper implements PageProcessor {
 	
 	@Override
 	public void before() {
+		this.init();
 	}
 
 	@Override
@@ -120,10 +121,10 @@ public class SixVHaoProcessor extends ProcessorHelper implements PageProcessor {
 				}
 			}
 			
-//			ConcludeVO conclude = this.resolve(pureNameAndSeason.getPureName(), precisions, linkInfos, shots, url, null);
-//			if(conclude != null) {
-//				fields.put(url, conclude);
-//			}
+			ConcludeVO conclude = this.resolve(pureNameAndSeason.getPureName(), precisions, linkInfos, shots, url, null);
+			if(conclude != null) {
+				fields.put(url, conclude);
+			}
 		}else {
 			log.warn(url+" 不符合6vhao的正则表达式，首页："+pageUrlReg+",详情页："+detailUrlReg);
 		}
