@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Select;
 
-import com.sbolo.syk.fetch.basemapper.BatchWriteMapper;
+import com.sbolo.syk.common.mvc.mapper.BatchWriteMapper;
 import com.sbolo.syk.fetch.entity.MovieLocationEntity;
 
 import tk.mybatis.mapper.common.Mapper;

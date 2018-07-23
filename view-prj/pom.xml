@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.sbolo.syk</groupId>
+		<artifactId>parent-prj</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../parent-prj/pom.xml</relativePath>
+	</parent>
+	<artifactId>view-prj</artifactId>
+	<packaging>jar</packaging>
+	
+	<dependencies>
+	<dependency>
+		<groupId>com.sbolo.syk</groupId>
+		<artifactId>common-prj</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</dependency>
+	<dependency>  
+	    <groupId>org.springframework.boot</groupId>  
+	    <artifactId>spring-boot-starter-test</artifactId>
+	    <scope>test</scope>  
+	</dependency>
+	</dependencies> 
+	
+	<build>
+		<finalName>view-prj</finalName>
+		<resources>
+			<!-- 打包时将jsp文件拷贝到META-INF目录下 -->
+			<resource>
+				<directory>src/main/webapp</directory>
+				<targetPath>webapp</targetPath>
+				<includes>
+					<include>**/**</include>
+				</includes>
+				<filtering>false</filtering>
+			</resource>
+			<resource>
+				<directory>src/main/resources-${package.environment}</directory>
+				<includes>
+					<include>**/**</include>
+				</includes>
+				<filtering>false</filtering>
+			</resource>
+			<resource>
+				<directory>src/main/resources-public</directory>
+				<includes>
+					<include>**/**</include>
+				</includes>
+				<filtering>false</filtering>
+			</resource>
+		</resources>
+
+		<plugins>
+			<plugin>
+	    			<groupId>org.apache.maven.plugins</groupId>
+				    <artifactId>maven-compiler-plugin</artifactId>
+	                <configuration>
+	                   <!-- 测试代码不编译 -->
+	                   <skip>true</skip>
+		               <source>1.8</source>
+		               <target>1.8</target>
+		               <encoding>UTF-8</encoding>
+		           </configuration>
+				</plugin>
+			
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<mainClass>${start-class}</mainClass>
+					<layout>JAR</layout>
+				</configuration>
+			</plugin>
+
+		</plugins>
+
+	</build>
+
+
+</project>

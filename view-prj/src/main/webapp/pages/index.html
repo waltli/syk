@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+@include("/webapp/pages/common/global.html"){}
+@include("/webapp/pages/common/header.html"){}
+<title>
+@if(isNotEmpty(params.keyword)){
+	电影搜索：${params.keyword }
+@} else if(isNotEmpty(params.label)) {
+	电影标签：${params.label }
+@}else {
+	蝉影
+@}
+</title>
+<link rel="stylesheet" type="text/css" href="${pageCtx('ctxassets')}/css/index.css" />
+</head>
+<body>
+	@include("/webapp/pages/common/nav.html"){}
+	<div id="wrapper">
+		<div id="pagecontent">
+			@if(isNotEmpty(params.label) || isNotEmpty(params.q)){
+				<div id="titleBar">
+					<h1 class="label_notice">
+						@if(isNotEmpty(params.label)){
+							电影标签：<span class="tags-name">${params.label}</span><sup class="tags-del" belong="label"></sup>
+						@}
+						@if(isNotEmpty(params.q)){
+							搜索：<span class="tags-name">${params.q}</span><sup class="tags-del" belong="q"></sup>
+						@}
+					</h1>
+				</div>
+			@}
+			<div id="main">
+				<div class="article">
+					<ul>
+						@for(item in requestResult.list!){
+							@var index = itemLP.index;
+							<li>
+								<p class="ul${index == 1 ? ' first' : '' }"></p>
+								<table class="article-el">
+									<tr>
+										<td valign="top" class="icon">
+											<a href="${pageCtx('ctx')}/detail?mi=${item.prn!}">
+												<img alt="" src="${pageCtx('ctxassets')}/images/movie_default_small.png" data-original="${item.iconUrl!}">
+											</a>
+										</td>
+										<td valign="top" class="intro">
+											<table class="pl">
+												<tr>
+													<td colspan="3" class="pl2">
+														<a href="${pageCtx('ctx')}/detail?mi=${item.prn!}">
+																${item.pureName!}
+															
+														</a>
+														<span class="extra">
+															@if(isNotEmpty(item.locations)){
+																(${item.year!}&nbsp;.&nbsp;${item.locations })
+															@}else {
+																(${item.year!})
+															@}
+														</span>
+														
+														<span style="float: right;">
+															@if(isNotEmpty(item.labelArr)){
+																@var realLen = item.labelArr.~size;
+																@for(label in item.labelArr){
+																	@if(labelLP == 3){
+																		@break;
+																	@}
+																	<span class="label">
+																		${label}
+																	</span>
+																@}
+																@if(realLen > 3){
+																	<span>
+																		...
+																	</span>
+																@}
+															@}
+														</span>
+													</td>
+												</tr>
+												<tr class="summary">
+													<td valign="middle" colspan="3">
+														${item.summaryShow!}
+													</td>
+												</tr>
+												<tr class="feeling">
+													<td colspan="3" valign="bottom">
+														<div class="titleReviewBar">
+															<div class="definition${item.optimalResource.definition!} titleReviewBarSubItem">
+																${item.optimalResource.definition == 0 ? '' : item.optimalResource.definition }
+															</div>
+															<div class="titleReviewBarSubItem right">
+																<div>清晰度：</div>
+																<div>
+																	@if(isEmpty(item.optimalResource.quality) && isEmpty(item.optimalResource.resolution)){
+																		--
+																	@}else {
+																		${item.optimalResource.quality } ${item.optimalResource.resolution }
+																	@}
+																</div>
+															</div>
+														</div>
+														<div class="divider"></div>
+														<div class="titleReviewBar">
+															<div>热度：</div>
+															<div>
+																<span style="margin-right:10px;">${isNotEmpty(item.countClick) ? item.countClick : 0 } 点击</span>
+																<span>${isNotEmpty(item.countComment) ? item.countComment : 0 } 评论</span>
+															</div>
+														</div>
+														<div class="divider"></div>
+														<div class="titleReviewBar">
+															<div class="largestar${item.doubanScoreCalc!} titleReviewBarSubItem"></div>
+															<div class="titleReviewBarSubItem right">
+																<div>豆瓣评分：</div>
+																<div>
+																	@if(isNotEmpty(item.doubanScore)){
+																		<span class="score">${item.doubanScore!}</span>
+																		<span>(${item.attentionRate!}人评价)</span>
+																	@}else {
+																		暂无
+																	@}
+																</div>
+															</div>
+														</div>
+													</td>
+												</tr>
+											</table>
+										</td>
+									</tr>
+								</table>
+							</li>
+						@}
+					</ul>
+				</div>
+				@include("/webapp/pages/common/paginator-heavy.html"){}
+			</div>
+			<div id="sidebar">
+				@include("/webapp/pages/common/sidebar.html"){}
+			</div>
+			<br class="clear">
+			@include("/webapp/pages/common/footer.html"){}
+		</div>
+	</div>
+</body>
+</html>

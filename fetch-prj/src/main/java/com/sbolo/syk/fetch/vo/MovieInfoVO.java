@@ -6,9 +6,6 @@ import java.util.List;
 
 import javax.persistence.*;
 
-import com.sbolo.syk.fetch.po.LabelMappingEntity;
-import com.sbolo.syk.fetch.po.LocationMappingEntity;
-
 public class MovieInfoVO {
 
     /**

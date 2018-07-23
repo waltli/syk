@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -32,21 +31,19 @@ public class Spider {
 	
 	private List<PageProcessor> listProcessor;
 	
-	private BlockingQueue<String> queue = new LinkedBlockingQueue<String>();
+	private BlockingQueue<String> queue;
 	
-	private AtomicInteger threadAlive = new AtomicInteger();
+	private AtomicInteger threadAlive;
 	
-	private ThreadPoolTaskExecutor threadPool2;
+	private ThreadPoolExecutor threadPool;
 	
-	private ReentrantLock newUrlLock = new ReentrantLock();
+	private ReentrantLock newUrlLock;
 	
-	private Condition newUrlCondition = newUrlLock.newCondition();
+	private Condition newUrlCondition;
 	
-	private Set<String> urlsSet = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+	private Set<String> urlsSet;
 	
-	private Map<String, Object> fields = new LinkedHashMap<String, Object>();
-	
-	protected Vector<String> waitManual = new Vector<String>();
+	private Map<String, Object> fields;
 	
 	private boolean isRun = false;
 	
@@ -79,14 +76,6 @@ public class Spider {
 
 	public void setDownloader(Downloader downloader) {
 		this.downloader = downloader;
-	}
-
-	public ThreadPoolTaskExecutor getThreadPool2() {
-		return threadPool2;
-	}
-
-	public void setThreadPool2(ThreadPoolTaskExecutor threadPool) {
-		this.threadPool2 = threadPool;
 	}
 
 	public List<PageProcessor> getListProcessor() {
@@ -122,12 +111,12 @@ public class Spider {
 		
 		try {
 			isRun = true;
-			initComponent();
+			init();
 			for(int i=0; i<listProcessor.size(); i++){
 				final PageProcessor curProcessor = listProcessor.get(i);
 				try {
 					int count = 0;
-					log.info("===============================进入{}========================================================", curProcessor.getClass().getSimpleName());
+					log.info("===============================进入{}================================", curProcessor.getClass().getSimpleName());
 					curProcessor.before();
 					while(true){
 						if(count == 0){
@@ -136,13 +125,13 @@ public class Spider {
 						final String url = queue.poll();
 						if(url == null){
 							if(threadAlive.get() == 0){ //当前运行线程个数为0则跳出循环
-								log.info("跳出循环");
+								log.info(curProcessor.getClass().getSimpleName()+"网页遍历结束");
 								break;
 							}
 							waitNewUrl();
 						}else {
 							threadAlive.incrementAndGet(); //运行线程数加一
-							threadPool2.execute(new Runnable() {
+							threadPool.execute(new Runnable() {
 								@Override
 								public void run() {
 									try {
@@ -151,8 +140,7 @@ public class Spider {
 										//the exception of time out that do nothing
 									} catch (Exception e) {
 										log.error(url,e);
-									}
-									finally{
+									} finally{
 										threadAlive.decrementAndGet(); //the thread of running was subtracted when it run end
 									}
 								}
@@ -166,23 +154,21 @@ public class Spider {
 					curProcessor.after();
 				}
 			}
-//			try {
-//				if(fields == null || fields.size() == 0) {
-//					return;
-//				}
-//				pipeline.before();
-//				pipeline.process(fields);
-//			} catch(Exception e){
-//				log.error("", e);
-//			} finally {
-//				pipeline.after();
-//			}
+			if(fields == null || fields.size() == 0) {
+				return;
+			}
+			try {
+				pipeline.before();
+				pipeline.process(fields);
+			} catch(Exception e){
+				log.error("", e);
+			} finally {
+				pipeline.after();
+			}
 		} finally{
 			isRun = false;
 			this.destroy();
-			threadPool2.shutdown();
-			threadPool2 = null;
-			log.info("所有processor已全部运行完毕！");
+			log.info("spider执行结束！");
 		}
 	}
 	
@@ -212,22 +198,45 @@ public class Spider {
 	}
 	
 	public void destroy(){
-		fields.clear();
-		urlsSet.clear();
+		if(queue != null) {
+			queue.clear();
+			queue = null;
+		}
+		
+		if(urlsSet != null) {
+			urlsSet.clear();
+			urlsSet = null;
+		}
+		
+		if(fields != null) {
+			fields.clear();
+			fields = null;
+		}
+		
+		threadAlive = null;
+		newUrlCondition = null;
+		newUrlLock = null;
 	}
 	
-	private void initComponent(){
+	private void init(){
+		queue = new LinkedBlockingQueue<String>();
+		
+		threadAlive = new AtomicInteger();
+		
+		newUrlLock = new ReentrantLock();
+		
+		newUrlCondition = newUrlLock.newCondition();
+		
+		urlsSet = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+		
+		fields = new LinkedHashMap<String, Object>();
+		
 		if(downloader == null){
 			downloader = new Downloader();
 		}
-		if(threadPool2 == null){
-			threadPool2 = new ThreadPoolTaskExecutor();
-			threadPool2.setAllowCoreThreadTimeOut(true);
-			threadPool2.setCorePoolSize(1);
-			threadPool2.setMaxPoolSize(20);
-			threadPool2.setQueueCapacity(25);
-			threadPool2.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-			threadPool2.initialize();
+		if(threadPool == null){
+			threadPool = new ThreadPoolExecutor(1, 20, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue(25), new ThreadPoolExecutor.CallerRunsPolicy());
+			threadPool.allowCoreThreadTimeOut(true);
 		}
 	}
 	

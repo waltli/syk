@@ -211,6 +211,7 @@ public class HttpUtils {
 		}
 		return value;
 	}
+	
 	public static class HttpResult<V> {
 		private V value;
 		private Exception exception;

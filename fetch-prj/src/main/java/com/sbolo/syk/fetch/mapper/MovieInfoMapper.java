@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.ResultMap;
 import org.apache.ibatis.annotations.Select;
 
-import com.sbolo.syk.fetch.basemapper.BatchWriteMapper;
+import com.sbolo.syk.common.mvc.mapper.BatchWriteMapper;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
 
 import tk.mybatis.mapper.common.Mapper;

@@ -84,8 +84,17 @@ public class DateUtil {
 			dateFormat = "yyyy-MM-dd HH:mm:ss";
 		}else if(Pattern.compile("^\\d{4}-\\d{1,2}-\\d{1,2}$").matcher(dateStr).find()){
 			dateFormat = "yyyy-MM-dd";
-		}else {
-			throw new BusinessException("时间格式错误，请符合：yyyy-MM-dd HH:mm:ss 或 yyyy-MM-dd");
+		}else if(Pattern.compile("^\\d{4}-\\d{1,2}$").matcher(dateStr).find()) {
+			dateFormat = "yyyy-MM";
+		}else if(Pattern.compile("^\\d{4}$").matcher(dateStr).find()) {
+			Integer year = Integer.valueOf(dateStr);
+			if(year < 1969 || year > 2099) {
+				throw new BusinessException("时间年份"+year+" 超过了有效年份: 1969-2099");
+			}
+			dateFormat = "yyyy";
+		}
+		else {
+			throw new BusinessException("时间格式错误，请符合：yyyy-MM-dd HH:mm:ss, yyyy-MM-dd, yyyy-MM, yyyy");
 		}
 		return dateFormat;
 	}

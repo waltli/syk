@@ -56,9 +56,9 @@ public class MyPipeline implements Pipeline {
 	
 	private String doubanDefaultIcon = "movie_default_large.png";
 	
-	private ConcurrentMap<String, String> shotUrlMapping = new ConcurrentHashMap<String, String>();
+	private ConcurrentMap<String, String> shotUrlMapping;
 	
-	private ConcurrentMap<String, Integer> torrentNameMapping = new ConcurrentHashMap<String, Integer>(); 
+	private ConcurrentMap<String, Integer> torrentNameMapping; 
 	
 	@Autowired
 	private MovieInfoMapper movieInfoMapper;
@@ -301,22 +301,22 @@ public class MyPipeline implements Pipeline {
 		Integer picHeight = null;
 		switch (picV) {
 		case CommonConstants.icon_v:
-			picDir = ConfigUtil.getPropertyValue("bucket.icon");
+			picDir = ConfigUtil.getPropertyValue("bucket.formal.icon");
 			picWidth = CommonConstants.icon_width;
 			picHeight = CommonConstants.icon_height;
 			break;
 		case CommonConstants.poster_v:
-			picDir = ConfigUtil.getPropertyValue("bucket.poster");
+			picDir = ConfigUtil.getPropertyValue("bucket.formal.poster");
 			picWidth = CommonConstants.poster_width;
 			picHeight = CommonConstants.poster_height;
 			break;
 		case CommonConstants.photo_v:
-			picDir = ConfigUtil.getPropertyValue("bucket.photo");
+			picDir = ConfigUtil.getPropertyValue("bucket.formal.photo");
 			picWidth = CommonConstants.photo_width;
 			picHeight = CommonConstants.photo_height;
 			break;
 		case CommonConstants.shot_v:
-			picDir = ConfigUtil.getPropertyValue("bucket.shot");
+			picDir = ConfigUtil.getPropertyValue("bucket.formal.shot");
 			picWidth = CommonConstants.shot_width;
 			picHeight = CommonConstants.shot_height;
 			break;
@@ -364,7 +364,7 @@ public class MyPipeline implements Pipeline {
 					}
 					String suffix = shotUrl.substring(shotUrl.lastIndexOf(".")+1);
 					String fileName = StringUtil.getId(CommonConstants.pic_s);
-					String shotUri = this.downPicAndFixMarkWithDist(shotUrl, ConfigUtil.getPropertyValue("bucket.shot"), fileName, suffix, pioneer, CommonConstants.shot_width, CommonConstants.shot_height, newFileIdxList, CommonConstants.shot_v, thisTime);
+					String shotUri = this.downPicAndFixMarkWithDist(shotUrl, ConfigUtil.getPropertyValue("bucket.formal.shot"), fileName, suffix, pioneer, CommonConstants.shot_width, CommonConstants.shot_height, newFileIdxList, CommonConstants.shot_v, thisTime);
 					shotUrlMapping.put(shotUrl, shotUri);
 					shotUriList.add(shotUri);
 				} catch (Exception e) {
@@ -383,7 +383,7 @@ public class MyPipeline implements Pipeline {
 				if(Pattern.compile(RegexConstant.torrent).matcher(fetchResource.getDownloadLink()).find()){
 					String torrentName = getTorrentName(fetchResource);
 					String suffix = fetchResource.getDownloadLink().substring(fetchResource.getDownloadLink().lastIndexOf(".")+1);
-					String torrentDir = ConfigUtil.getPropertyValue("bucket.torrent");
+					String torrentDir = ConfigUtil.getPropertyValue("bucket.formal.torrent");
 					String uri = this.downTorrentWithDist(fetchResource.getDownloadLink(), fetchResource.getTorrentBytes(), torrentDir, torrentName, suffix, pioneer, newFileIdxList, CommonConstants.torrent_v, thisTime);
 					fetchResource.setDownloadLink(uri);
 				}
@@ -606,12 +606,20 @@ public class MyPipeline implements Pipeline {
 	@Override
 	public void after() {
 		BucketUtils.closeBucket();
-		shotUrlMapping.clear();
-		torrentNameMapping.clear();
+		if(shotUrlMapping != null) {
+			shotUrlMapping.clear();
+			shotUrlMapping = null;
+		}
+		if(torrentNameMapping != null) {
+			torrentNameMapping.clear();
+			torrentNameMapping = null;
+		}
 	}
 
 	@Override
 	public void before() {
+		shotUrlMapping = new ConcurrentHashMap<String, String>();
+		torrentNameMapping = new ConcurrentHashMap<String, Integer>();
 		BucketUtils.openBucket(ConfigUtil.getPropertyValue("bucket.name"));
 	}
 	

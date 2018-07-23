@@ -41,7 +41,7 @@ public class HttpClient {
 	private OkHttpClient okHttpClient;
 	private List<StatefulProxy> listProxies = new ArrayList<StatefulProxy>();
 	private StatefulProxy proxy;
-	private List<OuterInterceptor> oIntercepts = new ArrayList<OuterInterceptor>();
+	private List<OuterInterceptor> oIntercepts;
 	public static HashMap<String, Map<String, Cookie>> cookieStore = new HashMap<String, Map<String, Cookie>>();
 	private int READ_TIMEOUT = 300;
 	private int WRITE_TIMEOUT = 300;
@@ -92,7 +92,17 @@ public class HttpClient {
 			okHttpBuilder.sslSocketFactory(sslSocketFactory).hostnameVerifier(new TrustAllHostnameVerifier());
 		}
 		okHttpClient = okHttpBuilder.build();
-                
+		init();
+	}
+	
+	private void init() {
+		if(oIntercepts == null) {
+			oIntercepts = new ArrayList<OuterInterceptor>();
+			DynamicProxyInterceptor dynamicProxyInterceptor = new DynamicProxyInterceptor(this, listProxies);
+			ExecutorInterceptor executorInterceptor = new ExecutorInterceptor(okHttpClient);
+			oIntercepts.add(dynamicProxyInterceptor);
+			oIntercepts.add(executorInterceptor);
+		}
 	}
 	
 	protected static final HttpClient getHttpClient(){
@@ -100,15 +110,13 @@ public class HttpClient {
 	}
 	
 	public HttpClient addOInterceptor(OuterInterceptor oInterceptor){
-		oIntercepts.add(oInterceptor);
+		if(!oIntercepts.contains(oInterceptor)) {
+			oIntercepts.add(oInterceptor);
+		}
 		return this;
 	}
 	
 	public Response execute(Request request) throws IOException{
-		DynamicProxyInterceptor dynamicProxyInterceptor = new DynamicProxyInterceptor(this, listProxies);
-		ExecutorInterceptor executorInterceptor = new ExecutorInterceptor(okHttpClient);
-		oIntercepts.add(dynamicProxyInterceptor);
-		oIntercepts.add(executorInterceptor);
 		OuterChain oChain = new OuterChain(this, request, 0, oIntercepts);
 		Response response = oChain.proceed(request);
 		return response;

@@ -1,0 +1,300 @@
+#main-top {
+	width:667px;
+	color:#666666;
+	margin-bottom:20px;
+}
+
+.vital {
+	height:295px;
+}
+
+.attention {
+	width: 40px;
+    height: 58px;
+    display: inline-block;
+    background: url(../images/detail/attention.png) no-repeat;
+    position: absolute;
+}
+
+.title_wrapper{
+	display: inline-block;
+	vertical-align: top;
+	margin-left: 50px;
+}
+
+.title_wrapper #title {
+    word-wrap: break-word;
+    display: inline-block;
+    font-size: 25px;
+    font-weight: bold;
+    color: #494949;
+    margin: 0;
+    padding: 0 0 15px 0;
+    line-height: 1.1;
+}
+
+#title h1 {
+	display: inline;
+}
+
+#title #year {
+	vertical-align: top;
+	color: #888;
+    font-family: Arial;
+    font-weight:bold;
+}
+
+/* #subtext{
+	font-size: 11px;
+    color: #888;
+} */
+
+.vital .ghost {
+    margin: 0 .5em;
+    color: #6b6b6b;
+}
+
+#poster {
+	height:272px;
+}
+
+#poster #icon {
+    text-align: center !important;
+	overflow: hidden;
+	width:182px;
+	height:272px;
+	float: left;
+}
+
+#poster #slider {
+	float: right;
+	width:477px;
+	height:272px;
+	line-height: 1;
+}
+
+#icon img {
+	width: 182px;
+	height: 272px;
+}
+
+#slider .slides li {
+	background: #b3b3b0;
+    background: -webkit-linear-gradient(top, #b3b3b0 0%, #e3e2dd 200px);
+    background: linear-gradient(top, #b3b3b0 0%,#e3e2dd 200px);
+    background-color: #e3e2dd;
+    background-repeat: no-repeat;
+	text-align: center !important;
+	height: 272px;
+	overflow: hidden;
+    display: -webkit-flex; display: flex; 
+    -webkit-align-items: center; 
+    align-items: center; 
+    -webkit-justify-content: center; 
+    justify-content: center;
+}
+
+#slider .slides img {
+}
+
+/*position controls*/
+.controls li {
+	top: 50%;
+	margin-top: -30px
+}
+
+.controls li:nth-child(1) {
+	left: 0;
+}
+
+.controls li:nth-child(2) {
+	right: 0;
+}
+
+
+/*------------PAGINATION------------*/
+
+/*style pagination*/
+.pagination li {
+	background-color: #ddd;
+}
+
+.pagination li.active {
+	background-color: #000;
+}
+
+
+/*-------------HELPERS----------------*/
+
+
+.clearfix:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+.plot_summary .summary_text {
+    padding-bottom: 16px;
+    line-height: 18px;
+}
+
+h4.inline {
+    font-size: 13px;
+    margin: 0.35em 0 0.25em;
+    display: inline;
+    padding: 0 0.5em 0 0;
+    color: #007722;
+    font-weight: normal;
+}
+
+#summary_wrapper .star {
+	margin-top:10px;
+}
+
+#summary_wrapper .star span {
+	vertical-align: top;
+    display: inline-block;
+}
+
+.allstar50, .allstar45, .allstar40, .allstar35, .allstar30, .allstar25, .allstar20, .allstar15, .allstar10, .allstar05, .allstar00 {
+	width: 75px;
+    height: 15px;
+    margin: 0 3px 0 0;
+    overflow: hidden;
+    display: inline-block;
+    zoom: 1;
+    background: url(../images/detail/ic_rating_s.png) no-repeat;
+}
+
+.allstar50 {
+    background-position: 0 -1px;
+}
+
+.allstar45 {
+    background-position: 0 -16px;
+}
+
+.allstar40 {
+    background-position: 0 -31px
+}
+
+.allstar35 {
+    background-position: 0 -46px
+}
+
+.allstar30 {
+    background-position: 0 -61px
+}
+
+.allstar25 {
+    background-position: 0 -76px
+}
+
+.allstar20 {
+    background-position: 0 -91px
+}
+
+.allstar15 {
+    background-position: 0 -106px
+}
+
+.allstar10 {
+    background-position: 0 -121px
+}
+
+.allstar05 {
+    background-position: 0 -136px
+}
+
+.allstar00 {
+    background-position: 0 -151px
+}
+
+#links {
+	margin-top:10px;
+}
+
+#links table{
+	width:100%;
+}
+
+#links table tr{
+	height:35px;
+}
+
+#links table td{
+	color:#666;
+	padding:0px 5px;
+}
+
+#links table .title{
+	width:40%;
+}
+
+#links table .subtitle {
+	width: 90px;
+}
+
+.definition1, .definition2, .definition3, .definition4, .definition5, .definition6, .definition7, .definition8, .definition9, .definition10 {
+	color:#fff; 
+	display: inline-block;
+    width: 95px;
+    line-height: 20px;
+    height: 20px;
+    text-align: center;
+}
+
+.definition9, .definition10 {
+    background-color: #66CC33;
+}
+
+.definition7, .definition8 {
+    background-color: #a8d12c;
+}
+
+.definition5, .definition6 {
+    background-color: #FFCC33;
+}
+
+.definition3, .definition4 {
+    background-color: #f06e04;
+}
+
+.definition1, .definition2 {
+    background-color: #FF0000;
+}
+
+#links table .png {
+	width: 20px;
+    height: 20px;
+    display: inline-block;
+}
+
+#links table .download img {
+	width: 20px;
+    height: 20px;
+}
+
+#links table .updateTime{
+	width:70px;
+}
+
+#links table .center {
+	text-align: center;
+}
+
+table .showLink {
+	height: 28px !important;
+    vertical-align: top;
+}
+
+.showLink .linkinput {
+	width: 100%;
+    height: 24px;
+    cursor: text;
+    font-size: 13px;
+    line-height: 24px;
+    border: 1px solid #e5ebe4;
+    color: #666;
+    background-color: transparent;
+}

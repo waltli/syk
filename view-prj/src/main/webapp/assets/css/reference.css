@@ -1,0 +1,36 @@
+.definition1, .definition2, .definition3, .definition4, .definition5, .definition6, .definition7, .definition8, .definition9, .definition10 {
+	color:#fff; 
+	display: inline-block;
+    width: 30px;
+    line-height: 30px;
+    height: 30px;
+    text-align: center;
+    margin-right:13px;
+}
+
+.definition9, .definition10 {
+    background-color: #66CC33;
+}
+
+.definition7, .definition8 {
+    background-color: #a8d12c;
+}
+
+.definition5, .definition6 {
+    background-color: #FFCC33;
+}
+
+.definition3, .definition4 {
+    background-color: #f06e04;
+}
+
+.definition1, .definition2 {
+    background-color: #FF0000;
+}
+
+.rules h3 {
+    margin-top: 10px;
+    background-color: #f2fbf2;
+    margin-bottom: 1px;
+    padding-left:8px;
+}
