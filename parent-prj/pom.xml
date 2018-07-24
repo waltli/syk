@@ -17,6 +17,7 @@
 <modules>
 	<module>../common-prj</module>
 	<module>../fetch-prj</module>
+	<module>../view-prj</module>
 </modules>
 
 <repositories>
