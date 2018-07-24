@@ -2,8 +2,8 @@
 <html>
 <head>
 <meta charset="UTF-8">
-@include("/webapp/pages/common/global.html"){}
-@include("/webapp/pages/common/header.html"){}
+@include("common/global.html"){}
+@include("common/header.html"){}
 <title>
 @if(isNotEmpty(params.keyword)){
 	电影搜索：${params.keyword }
@@ -16,7 +16,7 @@
 <link rel="stylesheet" type="text/css" href="${pageCtx('ctxassets')}/css/index.css" />
 </head>
 <body>
-	@include("/webapp/pages/common/nav.html"){}
+	@include("common/nav.html"){}
 	<div id="wrapper">
 		<div id="pagecontent">
 			@if(isNotEmpty(params.label) || isNotEmpty(params.q)){
@@ -136,13 +136,13 @@
 						@}
 					</ul>
 				</div>
-				@include("/webapp/pages/common/paginator-heavy.html"){}
+				@include("common/paginator-heavy.html"){}
 			</div>
 			<div id="sidebar">
-				@include("/webapp/pages/common/sidebar.html"){}
+				@include("common/sidebar.html"){}
 			</div>
 			<br class="clear">
-			@include("/webapp/pages/common/footer.html"){}
+			@include("common/footer.html"){}
 		</div>
 	</div>
 </body>

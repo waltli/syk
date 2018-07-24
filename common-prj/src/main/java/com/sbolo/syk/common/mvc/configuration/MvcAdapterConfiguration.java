@@ -12,19 +12,11 @@ import com.sbolo.syk.common.tools.ConfigUtil;
 
 @Configuration
 public class MvcAdapterConfiguration extends WebMvcConfigurerAdapter {
-	String htmlMapping = ConfigUtil.getPropertyValue("velocity.htmlmapping");
-	String tempHtmlMapping = ConfigUtil.getPropertyValue("velocity.tempHtmlmapping");
-	String htmlPath = ConfigUtil.getPropertyValue("velocity.htmlpath");
-	String tempPath = ConfigUtil.getPropertyValue("velocity.tempHtmlpath");
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		registry.addResourceHandler(ConfigUtil.getPropertyValue("fs.mapping") + "/**")
-				.addResourceLocations("file:" + ConfigUtil.getPropertyValue("fs.dir") + "/");
-		if (StringUtils.isNotBlank(htmlMapping) && StringUtils.isNotBlank(tempHtmlMapping) && StringUtils.isNotBlank(htmlPath)) {
-			registry.addResourceHandler(htmlMapping + "/**").addResourceLocations("file:" + htmlPath + "/");
-			registry.addResourceHandler(tempHtmlMapping + "/**").addResourceLocations("file:" + tempPath + "/");
-		}
+		//配置静态资源路由
+		registry.addResourceHandler("/assets/**").addResourceLocations("classpath:/webapp/assets/");
 		super.addResourceHandlers(registry);
 	}
 	
@@ -33,14 +25,6 @@ public class MvcAdapterConfiguration extends WebMvcConfigurerAdapter {
 	 */
 	@Override
     public void addViewControllers(ViewControllerRegistry registry) {
-		String homePageUri = "/";
-		String testServerUri = "/"+ConfigUtil.getPropertyValue("testService.name");
-		String homePageName = ConfigUtil.getPropertyValue("homePage.viewName");
-		String testServerName = ConfigUtil.getPropertyValue("testService.viewName");
-		registry.addViewController(homePageUri).setViewName("redirect:"+htmlMapping+"/"+homePageName);
-		registry.addViewController(testServerUri).setViewName("redirect:"+htmlMapping+"/"+testServerName);
-		registry.setOrder(Ordered.HIGHEST_PRECEDENCE );
-        super.addViewControllers(registry);
     }
 
 	/*拦截器配置*/

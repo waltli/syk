@@ -1,6 +1,8 @@
 package com.sbolo.syk.common.mvc.configuration;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 import org.beetl.core.resource.ClasspathResourceLoader;
 import org.beetl.core.resource.WebAppResourceLoader;
@@ -21,10 +23,15 @@ public class BeetlConfiguration {
         ClasspathResourceLoader classpathResourceLoader = new ClasspathResourceLoader();
         beetlGroupUtilConfiguration.setResourceLoader(classpathResourceLoader);
         ResourcePatternResolver patternResolver = ResourcePatternUtils.getResourcePatternResolver(new DefaultResourceLoader());
-        //此处设置页面的根目录（classpath）
-        WebAppResourceLoader webAppResourceLoader = new WebAppResourceLoader(patternResolver.getResource("/").getFile().getPath());
-        beetlGroupUtilConfiguration.setResourceLoader(webAppResourceLoader);
-        beetlGroupUtilConfiguration.setConfigFileResource(patternResolver.getResource("classpath:beetl.properties"));
+        //配置html文件路由
+        ClasspathResourceLoader classPathLoader= new ClasspathResourceLoader("/");
+        beetlGroupUtilConfiguration.setResourceLoader(classPathLoader);
+        try(InputStream resourceAsStream = this.getClass().getResourceAsStream("/beetl.properties");){
+        	Properties properties = new Properties();
+        	properties.load(resourceAsStream);
+        	beetlGroupUtilConfiguration.setConfigProperties(properties);
+        }
+        
         //读取配置文件信息
         return beetlGroupUtilConfiguration;
     }
