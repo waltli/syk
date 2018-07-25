@@ -475,16 +475,20 @@ public class ProcessorHelper {
 				
 				Elements photoElements = doc.select("#related-pic li img");
 				if(photoElements != null && photoElements.size() > 0) {
-					List<String> photoUrlList = photoElements.eachAttr("src");
-					for(String photoUrl : photoUrlList) {
+					List<String> thumPhotoUrlList = photoElements.eachAttr("src");
+					List<String> photoUrlList = new ArrayList<>();
+					for(String photoUrl : thumPhotoUrlList) {
 						Matcher matcher = Pattern.compile("(?<=/photo/)(sqxs)").matcher(photoUrl);
 						if(matcher.find()) {
 							photoUrl = matcher.replaceAll("l");
 						}else {
 							log.warn("豆瓣电影的photo缩略图中没有发现sqxs, photoUrl: {}", photoUrl);
 						}
+						photoUrlList.add(photoUrl);
 					}
-					newMovie.setPhotoUrlList(photoUrlList);
+					if(photoUrlList.size() > 0) {
+						newMovie.setPhotoUrlList(photoUrlList);
+					}
 				}
 				Element movieInfoElement = doc.select("#info").first();
 				//将<br>替换为特殊符号，再解析为document，而后再获取文字
