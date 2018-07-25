@@ -31,11 +31,6 @@
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %contextName [%15.15t] %-5level %logger{36} - %msg%n</pattern>
             <charset>utf-8</charset>
         </encoder>
-        <filter class="ch.qos.logback.classic.filter.LevelFilter">
-            <level>info</level>
-            <onMatch>ACCEPT</onMatch>
-            <onMismatch>DENY</onMismatch>
-        </filter>
     </appender>
     
     <!-- 日志记录器，日期滚动记录 -->
