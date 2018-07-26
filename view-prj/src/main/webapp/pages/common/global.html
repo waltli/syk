@@ -1,6 +1,6 @@
 @var serverPort = ":"+request.serverPort;
 @if(request.serverPort == 80){
-	serverPort = "";
+	@serverPort = "";
 @}
 @var ctx = request.scheme+"://"+request.serverName+serverPort+ctxPath;
 @pageCtx("ctx", ctx);
@@ -8,8 +8,8 @@
 
 @if(isNotEmpty(params)){
 	@var availableParams = "";
-	@for(var c in params){
-		@availableParams = availableParams+c.key=c.value+"&";
+	@for(c in params){
+		@availableParams = availableParams+c.key+"="+c.value+"&";
 	@}
 	@availableParams = strutil.subStringTo(availableParams,0,strutil.length(availableParams)-1);
 	@pageCtx("availableParams",availableParams);

@@ -146,4 +146,19 @@
 		</div>
 	</div>
 </body>
+<script type="text/javascript">
+	$(".tags-del").click(function(){
+		var belong = $(this).attr("belong");
+		delete params[belong];
+		var freshParam = "";
+		for(var p in params){
+			freshParam += (p+"="+params[p]+"&");
+		}
+		if(freshParam){
+			freshParam = "?"+freshParam.substring(0, freshParam.length-1);
+		}
+		var url = location.origin + location.pathname;
+		location.href = url + freshParam;
+	});
+</script>
 </html>

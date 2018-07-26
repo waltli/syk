@@ -75,7 +75,7 @@ public class SixVHaoProcessor extends ProcessorHelper implements PageProcessor {
 				table = tableElements.get(0);
 			}
 			
-			Elements resourceElements = table.select("table tr > td > a");
+			Elements resourceElements = table.select("div#text > table tr > td > a");
 
 			List<LinkInfoVO> linkInfos = new ArrayList<LinkInfoVO>();
 			for(int i=0; i<resourceElements.size(); i++){

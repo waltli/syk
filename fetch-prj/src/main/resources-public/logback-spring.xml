@@ -71,6 +71,7 @@
     
     <!-- 需要输出sql语句时请改为debug -->
     <logger name="com.sbolo.syk.${appName}.mapper" level="info" additivity="false">  
-	    <appender-ref ref="console"/>  
+	    <appender-ref ref="console"/>
+	    <appender-ref ref="fileInfo" /> 
 	</logger>
 </configuration>

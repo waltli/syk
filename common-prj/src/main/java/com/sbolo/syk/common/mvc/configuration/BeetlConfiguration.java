@@ -22,8 +22,7 @@ public class BeetlConfiguration {
 		BeetlGroupUtilConfiguration beetlGroupUtilConfiguration = new BeetlGroupUtilConfiguration();
         ClasspathResourceLoader classpathResourceLoader = new ClasspathResourceLoader();
         beetlGroupUtilConfiguration.setResourceLoader(classpathResourceLoader);
-        ResourcePatternResolver patternResolver = ResourcePatternUtils.getResourcePatternResolver(new DefaultResourceLoader());
-        //配置html文件路由
+        //配置html文件路由，classpath的根目录为页面的根目录
         ClasspathResourceLoader classPathLoader= new ClasspathResourceLoader("/");
         beetlGroupUtilConfiguration.setResourceLoader(classPathLoader);
         try(InputStream resourceAsStream = this.getClass().getResourceAsStream("/beetl.properties");){

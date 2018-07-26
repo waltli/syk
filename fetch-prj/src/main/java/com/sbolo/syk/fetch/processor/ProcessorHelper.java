@@ -110,6 +110,11 @@ public class ProcessorHelper {
 	
 	
 	protected ConcludeVO resolve(String pureName, List<String> precisions, List<LinkInfoVO> links, List<String> shots, String comeFromUrl, String doubanUrl) throws MovieInfoFetchException, AnalystException, ParseException {
+		if(links == null || links.size() == 0) {
+			log.info("No donload link url: {}", comeFromUrl);
+			return null;
+		}
+		
 		Date thisTime = new Date();
 		
 		//判断豆瓣URL是否为空，因为有些网站已经将豆瓣URL贴上了

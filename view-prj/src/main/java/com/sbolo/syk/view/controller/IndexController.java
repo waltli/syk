@@ -45,7 +45,7 @@ public class IndexController {
 	@Autowired
 	private MovieLabelService movieLabelService;
 	
-	@RequestMapping("/index")
+	@RequestMapping("")
 	@Paginator
 	public String go(Model model,
 			@RequestParam(value="page",defaultValue="1", required=false) Integer pageNum,
