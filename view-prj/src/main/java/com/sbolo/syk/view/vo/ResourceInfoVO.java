@@ -613,9 +613,9 @@ public class ResourceInfoVO {
     	
     }
     
-    public static void parse(List<ResourceInfoEntity> list){
-    	for(ResourceInfoEntity entity : list){
-    		entity.parse();
+    public static void parse(List<ResourceInfoVO> list){
+    	for(ResourceInfoVO vo : list){
+    		vo.parse();
     	}
     }
     

@@ -27,4 +27,23 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>
+  
+  <select id="selectByMoviePrnOrder" resultMap="BaseResultMap" parameterType="java.util.Map">
+  	SELECT *
+	FROM
+		resource_info
+	WHERE
+		movie_prn = #{moviePrn} and st = 1
+	ORDER BY
+		<choose>
+			<when test="istv">
+				episode_end ASC, subtitle DESC
+			</when>
+			<otherwise>
+				create_time DESC
+			</otherwise>
+		</choose>
+  </select>
+  
+  
 </mapper>

@@ -53,6 +53,8 @@ public class MovieInfoVO {
      * 别名
      */
     private String anotherName;
+    
+    private String[] anotherNameArr;
 
     /**
      * 多个label，逗号间隔
@@ -209,6 +211,24 @@ public class MovieInfoVO {
     
     private ResourceInfoVO optimalResource;
     
+    private List<String> shotUrlList;
+    
+	public String[] getAnotherNameArr() {
+		return anotherNameArr;
+	}
+
+	public void setAnotherNameArr(String[] anotherNameArr) {
+		this.anotherNameArr = anotherNameArr;
+	}
+
+	public List<String> getShotUrlList() {
+		return shotUrlList;
+	}
+
+	public void setShotUrlList(List<String> shotUrlList) {
+		this.shotUrlList = shotUrlList;
+	}
+
 	public String getSummaryShow() {
 		return summaryShow;
 	}
@@ -925,6 +945,20 @@ public class MovieInfoVO {
 //    			posterUrlStr += ","+posterUrl;
     		}
     		this.setPosterUrlList(posterUrlList);
+    	}
+    	
+    	if(StringUtils.isNotBlank(this.getPhotoUriJson())){
+    		List<String> photoUris = JSON.parseArray(this.getPhotoUriJson(), String.class);
+    		List<String> photoUrlList = new ArrayList<String>();
+    		for(String photoUri : photoUris){
+    			String photoUrl = bucketHost + photoUri;
+    			photoUrlList.add(photoUrl);
+    		}
+    		this.setPhotoUrlList(photoUrlList);
+    	}
+    	
+    	if(StringUtils.isNotBlank(this.getAnotherName())){
+    		this.setAnotherNameArr(this.getAnotherName().split(RegexConstant.slashSep));
     	}
     	
     	if(StringUtils.isNotBlank(this.getLabels())){

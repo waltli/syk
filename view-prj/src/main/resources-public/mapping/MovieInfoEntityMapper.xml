@@ -9,6 +9,7 @@
     <result column="prn" jdbcType="VARCHAR" property="prn" />
     <result column="icon_uri" jdbcType="VARCHAR" property="iconUri" />
     <result column="poster_uri_json" jdbcType="VARCHAR" property="posterUriJson" />
+    <result column="photo_uri_json" jdbcType="VARCHAR" property="photoUriJson" />
     <result column="pure_name" jdbcType="VARCHAR" property="pureName" />
     <result column="another_name" jdbcType="VARCHAR" property="anotherName" />
     <result column="labels" jdbcType="VARCHAR" property="labels" />

@@ -42,13 +42,13 @@ public class MovieHotStatEntity {
      * 豆瓣分数
      */
     @Column(name = "`douban_score`")
-    private BigDecimal doubanScore;
+    private Double doubanScore;
 
     /**
      * imdb分数
      */
     @Column(name = "`imdb_score`")
-    private BigDecimal imdbScore;
+    private Double imdbScore;
 
     /**
      * 触发方式
@@ -67,8 +67,18 @@ public class MovieHotStatEntity {
      */
     @Column(name = "`update_time`")
     private Date updateTime;
+    
+    private Integer hotCount;
 
-    /**
+    public Integer getHotCount() {
+		return hotCount;
+	}
+
+	public void setHotCount(Integer hotCount) {
+		this.hotCount = hotCount;
+	}
+
+	/**
      * 获取自增id
      *
      * @return id - 自增id
@@ -158,43 +168,23 @@ public class MovieHotStatEntity {
         this.releaseTime = releaseTime;
     }
 
-    /**
-     * 获取豆瓣分数
-     *
-     * @return douban_score - 豆瓣分数
-     */
-    public BigDecimal getDoubanScore() {
-        return doubanScore;
-    }
+    public Double getDoubanScore() {
+		return doubanScore;
+	}
 
-    /**
-     * 设置豆瓣分数
-     *
-     * @param doubanScore 豆瓣分数
-     */
-    public void setDoubanScore(BigDecimal doubanScore) {
-        this.doubanScore = doubanScore;
-    }
+	public void setDoubanScore(Double doubanScore) {
+		this.doubanScore = doubanScore;
+	}
 
-    /**
-     * 获取imdb分数
-     *
-     * @return imdb_score - imdb分数
-     */
-    public BigDecimal getImdbScore() {
-        return imdbScore;
-    }
+	public Double getImdbScore() {
+		return imdbScore;
+	}
 
-    /**
-     * 设置imdb分数
-     *
-     * @param imdbScore imdb分数
-     */
-    public void setImdbScore(BigDecimal imdbScore) {
-        this.imdbScore = imdbScore;
-    }
+	public void setImdbScore(Double imdbScore) {
+		this.imdbScore = imdbScore;
+	}
 
-    /**
+	/**
      * 获取触发方式
      *
      * @return trigger_type - 触发方式

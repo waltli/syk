@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +20,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sbolo.syk.common.annotation.Paginator;
+import com.sbolo.syk.common.exception.BusinessException;
 import com.sbolo.syk.common.tools.DateUtil;
+import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.common.ui.RequestResult;
 import com.sbolo.syk.view.entity.MovieHotStatEntity;
 import com.sbolo.syk.view.entity.MovieInfoEntity;
+import com.sbolo.syk.view.entity.ResourceInfoEntity;
+import com.sbolo.syk.view.mapper.ResourceInfoMapper;
 import com.sbolo.syk.view.service.MovieInfoService;
 import com.sbolo.syk.view.service.MovieLabelService;
+import com.sbolo.syk.view.service.ResourceInfoService;
 import com.sbolo.syk.view.vo.MovieInfoVO;
+import com.sbolo.syk.view.vo.ResourceInfoVO;
 
 
 @Controller
@@ -44,6 +51,12 @@ public class IndexController {
 	
 	@Autowired
 	private MovieLabelService movieLabelService;
+	
+	@Autowired
+	private ThreadPoolTaskExecutor threadPool;
+	
+	@Autowired
+	private ResourceInfoService resourceInfoService;
 	
 	@RequestMapping("")
 	@Paginator
@@ -88,48 +101,54 @@ public class IndexController {
 		
 		return result;
 	}
-//	
-//	@RequestMapping("hotDownload")
-//	@ResponseBody
-//	public AjaxResult hotDownload(@RequestParam(value="mi", required=true) String movieId){
-//		AjaxResult result = new AjaxResult(true);
-//		try {
-//			movieInfoBizService.modifyCountDownload(movieId);
-//		} catch (Exception e) {
-//			result.setRequestResult(false);
-//			log.error("",e);
-//		}
-//		
-//		return result;
-//	}
-//	
-//	@RequestMapping("detail")
-//	public String detail(Model model,
-//            @RequestParam(value="mi", required=true) final String movieId){
-//		
-//		threadPool.execute(new Runnable() {
-//			@Override
-//			public void run() {
-//				movieInfoBizService.modifyCountClick(movieId);
-//			}
-//		});
-//		
-//		MovieInfoEntity movie = movieInfoBizService.getMovieInfoByMovieId(movieId);
-//		movie.parse();
-//		String optimalResourceId = movie.getOptimalResourceId();
-//		List<ResourceInfoEntity> resources = resourceInfoBizService.getListByMovieIdOrder(movieId, movie.getCategory());
-//		ResourceInfoEntity.parse(resources);
-//		for(ResourceInfoEntity resource:resources){
-//			if(optimalResourceId.equals(resource.getResourceId())){
-//				if(resource.getBusPhotosList() != null){
-//					movie.setBusPhotosList(resource.getBusPhotosList());
-//				}
-//			}
-//		}
-//		model.addAttribute("movie", movie);
-//		model.addAttribute("resources", resources);
-//		return detail;
-//	}
+	
+	@RequestMapping("hotDownload")
+	@ResponseBody
+	public RequestResult<String> hotDownload(@RequestParam(value="mi", required=true) String moviePrn){
+		RequestResult<String> result = null;
+		try {
+			movieInfoService.modifyCountDownload(moviePrn);
+		} catch (Exception e) {
+			result = RequestResult.error(e);
+			log.error("",e);
+		}
+		
+		return result;
+	}
+	
+	@RequestMapping("detail")
+	public String detail(Model model,
+            @RequestParam(value="mi", required=true) final String moviePrn){
+		if(StringUtils.isBlank(moviePrn) || moviePrn.equals("null")) {
+			throw new BusinessException("prn不能为空");
+		}
+		threadPool.execute(new Runnable() {
+			@Override
+			public void run() {
+				movieInfoService.modifyCountClick(moviePrn);
+			}
+		});
+		
+		MovieInfoEntity movie = movieInfoService.getMovieByPrn(moviePrn);
+		List<ResourceInfoEntity> resources = resourceInfoService.getListByMoviePrnOrder(moviePrn, movie.getCategory());
+		MovieInfoVO movieVO = VOUtils.po2vo(movie, MovieInfoVO.class);
+		movieVO.parse();
+		String optimalResourcePrn = movieVO.getOptimalResourcePrn();
+		List<ResourceInfoVO> reosurcesVO = VOUtils.po2vo(resources, ResourceInfoVO.class);
+		ResourceInfoVO.parse(reosurcesVO);
+		for(ResourceInfoVO resourceVO:reosurcesVO){
+			if(optimalResourcePrn.equals(resourceVO.getPrn())){
+				List<String> shotUrlList = resourceVO.getShotUrlList();
+				if(shotUrlList != null && shotUrlList.size() > 0){
+					movieVO.setShotUrlList(shotUrlList);
+				}
+				break;
+			}
+		}
+		model.addAttribute("movie", movieVO);
+		model.addAttribute("resources", reosurcesVO);
+		return detail;
+	}
 	
 	@RequestMapping("disclaimer")
 	public String disclaimer(){

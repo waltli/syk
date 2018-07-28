@@ -23,10 +23,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.sbolo.syk.common.constants.CommonConstants;
+import com.sbolo.syk.common.constants.TriggerEnum;
+import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.common.ui.RequestResult;
 import com.sbolo.syk.view.entity.MovieHotStatEntity;
@@ -34,6 +38,7 @@ import com.sbolo.syk.view.entity.MovieInfoEntity;
 import com.sbolo.syk.view.entity.ResourceInfoEntity;
 import com.sbolo.syk.view.mapper.MovieHotStatMapper;
 import com.sbolo.syk.view.mapper.MovieInfoMapper;
+import com.sbolo.syk.view.po.HotStatisticsEntity;
 import com.sbolo.syk.view.vo.MovieInfoVO;
 import com.sbolo.syk.view.vo.ResourceInfoVO;
 
@@ -145,5 +150,47 @@ public class MovieInfoService {
 			tops.put(topKey, entities);
 		}
 		return tops;
+	}
+	
+	@Transactional
+	public void modifyCountClick(String prn){
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			log.error("",e);
+		}
+		movieInfoMapper.updateCountClick(prn);
+		MovieHotStatEntity hotStat = buildHotStat(prn, TriggerEnum.click.getCode());
+		movieHotStatMapper.insertSelective(hotStat);
+	}
+	
+	public MovieInfoEntity getMovieByPrn(String prn){
+		return movieInfoMapper.selectByPrn(prn);
+	}
+	
+	@Transactional
+	public void modifyCountDownload(String moviePrn){
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			log.error("",e);
+		}
+		movieInfoMapper.updateCountDownload(moviePrn);
+		MovieHotStatEntity hotStat = buildHotStat(moviePrn, TriggerEnum.download.getCode());
+		movieHotStatMapper.insertSelective(hotStat);
+	}
+	
+	private MovieHotStatEntity buildHotStat(String prn, Integer trigger){
+		MovieInfoEntity movie = movieInfoMapper.selectByPrn(prn);
+		MovieHotStatEntity hot = new MovieHotStatEntity();
+		hot.setPrn(StringUtil.getId(CommonConstants.hot_s));
+		hot.setMoviePrn(prn);
+		hot.setDoubanScore(movie.getDoubanScore());
+		hot.setImdbScore(movie.getImdbScore());
+		hot.setPureName(movie.getPureName());
+		hot.setReleaseTime(movie.getReleaseTime());
+		hot.setTriggerType(trigger);
+		hot.setCreateTime(new Date());
+		return hot;
 	}
 }

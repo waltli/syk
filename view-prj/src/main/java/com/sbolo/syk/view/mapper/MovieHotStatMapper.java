@@ -11,8 +11,8 @@ import com.sbolo.syk.view.entity.MovieHotStatEntity;
 public interface MovieHotStatMapper {
 	
 	@ResultMap("BaseResultMap")
-	@Select("SELECT a.movie_prn, a.pure_name, a.douban_score, b.hot_count " + 
-			"from movie_hot_stat a left join " + 
+	@Select("SELECT a.prn, a.pure_name, a.douban_score, b.hot_count " + 
+			"from " + 
 			"(SELECT t.movie_prn, COUNT(1) AS hot_count " + 
 			"FROM movie_hot_stat t " + 
 			"WHERE " + 
@@ -20,7 +20,10 @@ public interface MovieHotStatMapper {
 			"AND t.create_time < #{timeEnd} " + 
 			"GROUP BY t.movie_prn " +
 			"LIMIT #{limitNum}) b " + 
-			"on a.movie_prn = b.movie_prn " + 
+			"left join movie_info a " + 
+			"on a.prn = b.movie_prn " + 
 			"ORDER BY hot_count DESC")
 	List<MovieHotStatEntity> selectHotByTime(Map<String, Object> params);
+	
+	int insertSelective(MovieHotStatEntity record);
 }
