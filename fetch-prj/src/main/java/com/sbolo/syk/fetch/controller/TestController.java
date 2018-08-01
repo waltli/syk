@@ -1,9 +1,13 @@
 package com.sbolo.syk.fetch.controller;
 
+import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
 import java.text.ParseException;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +16,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.tools.DateUtil;
+import com.sbolo.syk.common.tools.FileUtils;
+import com.sbolo.syk.common.tools.GrapicmagickUtils;
 import com.sbolo.syk.common.ui.RequestResult;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
 import com.sbolo.syk.fetch.service.MovieInfoService;
@@ -51,6 +58,18 @@ public class TestController {
 //		
 //		ResourceInfoEntity optimalResource = resourceInfoService.getOptimalResource("");
 		
+		return new RequestResult<String>("到达");
+	}
+	
+	@GetMapping("test222")
+	@ResponseBody
+	public RequestResult<String> test222() throws Exception{
+		String url = "https://syk-1253786918.cos.ap-chengdu.myqcloud.com/2/shot/201807/p179766854696.jpg";
+    	byte[] bytes = HttpUtils.getBytes(url);
+    	InputStream resourceAsStream = this.getClass().getResourceAsStream("/img/mark.png");
+    	byte[] byteArray = IOUtils.toByteArray(resourceAsStream);
+		byte[] watermark = GrapicmagickUtils.watermark(bytes, byteArray);
+		FileUtils.saveFile(watermark, "D:/test", "test", "jpg");
 		return new RequestResult<String>("到达");
 	}
 }

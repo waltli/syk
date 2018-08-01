@@ -83,7 +83,7 @@ public class Page {
 	public List<String> links(Elements es, String attrName){
 		List<String> l = new ArrayList<String>();
 		int size = es.size();
-		for(int i=0; i<size; i++){
+		for(int i=size-1; i>=0; i--){
 			Element selectElement = es.get(i);
 			String url = link(selectElement, attrName);
 			l.add(url);
@@ -94,7 +94,8 @@ public class Page {
 	public List<String> links(Elements es, String attrName, int count){
 		List<String> l = new ArrayList<String>();
 		int size = es.size();
-		for(int i=0; i<size; i++){
+		//最新的是第一个，然而存数据库应该最后一个存，所以采用倒叙
+		for(int i=size-1; i>=0; i--){
 			Element selectElement = es.get(i);
 			String url = link(selectElement, attrName);
 			l.add(url);

@@ -682,8 +682,7 @@ public class ProcessorHelper {
 					}
 					Document doc = Jsoup.parse(new String(response.body().bytes(), "utf-8"));
 					Elements lis = doc.select("#content > div > div.article > ul > li[data-id]");
-					int count = 1;
-					for(int i=lis.size()-1; i >= 0; i--){
+					for(int i=0; i < 4; i++){
 						Element li = lis.get(i);
 						Element img = li.select(".cover > a > img").first();
 						if(img == null){
@@ -705,10 +704,6 @@ public class ProcessorHelper {
 							continue;
 						}
 						posterUrlList.add(imgUrl);
-						if(count >= 4){
-							break;
-						}
-						count++;
 					}
 				}
 			});

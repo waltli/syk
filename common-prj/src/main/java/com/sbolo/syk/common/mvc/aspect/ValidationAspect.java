@@ -61,8 +61,8 @@ import com.sbolo.syk.common.tools.ReflectionUtils;
 import com.sbolo.syk.common.tools.Utils;
 import com.sbolo.syk.common.ui.RequestResult;
 
-@Aspect
-@Component
+//@Aspect
+//@Component
 public class ValidationAspect {
 	
 	private static final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();

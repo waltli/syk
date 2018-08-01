@@ -1,5 +1,6 @@
 package com.sbolo.syk.fetch.pipeline;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +29,7 @@ import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.tools.ConfigUtil;
 import com.sbolo.syk.common.tools.DateUtil;
 import com.sbolo.syk.common.tools.FileUtils;
+import com.sbolo.syk.common.tools.GrapicmagickUtils;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.fetch.entity.MovieFileIndexEntity;
@@ -549,9 +552,9 @@ public class MyPipeline implements Pipeline {
 		if(movieFileIndexEntity != null) {
 			return movieFileIndexEntity.getFixUri();
 		}
-		byte[] bytes = HttpUtils.getBytes(url);
-		byte[] imageFix = FileUtils.imageFix(bytes, fixWidth, fixHeight, suffix);
-		String uri = upoadBucketAndGetUri(imageFix, targetDir, fileName, suffix);
+		byte[] imageBytes = HttpUtils.getBytes(url);
+		imageBytes = GrapicmagickUtils.descale(imageBytes, fixWidth, fixHeight);
+		String uri = upoadBucketAndGetUri(imageBytes, targetDir, fileName, suffix);
 		addMovieFileIdx(url, uri, fileV, thisTime, newFileIdxList);
 		return uri;
 	}
@@ -578,12 +581,25 @@ public class MyPipeline implements Pipeline {
 		if(movieFileIndexEntity != null) {
 			return movieFileIndexEntity.getFixUri();
 		}
-		byte[] bytes = HttpUtils.getBytes(url);
-		byte[] imageFix = FileUtils.imageFix(bytes, fixWidth, fixHeight, suffix);
-		byte[] imageMark = FileUtils.imageMark(imageFix, suffix);
-		String uri = upoadBucketAndGetUri(imageMark, targetDir, fileName, suffix);
-		addMovieFileIdx(url, uri, fileV, thisTime, newFileIdxList);
-		return uri;
+		
+		InputStream markStream = null;
+		try {
+			byte[] imageBytes = HttpUtils.getBytes(url);
+			imageBytes = GrapicmagickUtils.descale(imageBytes, fixWidth, fixHeight);
+			markStream = this.getClass().getResourceAsStream("/img/mark.png");
+			if(markStream != null) {
+				byte[] markBytes = IOUtils.toByteArray(markStream);
+				imageBytes = GrapicmagickUtils.watermark(imageBytes, markBytes);
+			}
+			String uri = upoadBucketAndGetUri(imageBytes, targetDir, fileName, suffix);
+			addMovieFileIdx(url, uri, fileV, thisTime, newFileIdxList);
+			return uri;
+		} finally {
+			if(markStream != null) {
+				markStream.close();
+				markStream = null;
+			}
+		}
 	}
 	
 	private void addMovieFileIdx(String url, String uri, Integer fileV, Date thisTime, List<MovieFileIndexEntity> newFileIdxList) {

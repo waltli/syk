@@ -159,6 +159,21 @@
                         </div>
 					</div>
 					
+					@var shotUrlList = movie.shotUrlList;
+					@if(isEmpty(shotUrlList)){
+						@shotUrlList = movie.photoUrlList;
+					@}
+					
+					@if(isNotEmpty(shotUrlList)){
+						<div id="shot">
+							@for(shot in shotUrlList){
+								<div style="margin-top:10px;    text-align: center !important;">
+									<img src="${pageCtx('ctxassets')}/images/movie_default_cross.png" data-original="${shot}">
+								</div>
+							@}
+						</div>
+					@}
+					
 					<div id="links">
 						<table>
 							<tr class="theme">
@@ -170,7 +185,7 @@
 								<td class="center updateTime">更新时间</td>
 							</tr>
 							@for(item in resources){
-								<tr class="${itemLP.index % 2 == 0 ? 'backgray':'' }">
+								<tr class="${itemLP.index % 2 != 0 ? 'backgray':'' }">
 									@var pureName = item.pureName;
 									@if(isNotEmpty(item.format)){
 										@pureName = pureName + "." + item.format;

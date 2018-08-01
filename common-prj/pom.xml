@@ -215,6 +215,12 @@
         <artifactId>beetl</artifactId>
 </dependency>
 
+<dependency>
+	    <groupId>org.im4java</groupId>
+	    <artifactId>im4java</artifactId>
+	    <version>1.4.0</version>
+	</dependency>
+
 </dependencies>
 <build>
 	<finalName>common-prj</finalName>
