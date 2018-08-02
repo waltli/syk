@@ -25,8 +25,13 @@ import org.slf4j.LoggerFactory;
 import com.sbolo.syk.common.constants.ContentTypeEnum;
 import com.sbolo.syk.common.http.HttpUtils;
 
+/**
+ * 使用此工具类必须在服务器中安装GraphicsMagick工具
+ * @author Walter
+ *
+ */
 public class GrapicmagickUtils {
-    private static String GRAPHICS_MAGICK_PATH = "D:\\Program Files\\GraphicsMagick-1.3.30-Q8";
+    private static String GRAPHICS_MAGICK_PATH = ConfigUtil.getPropertyValue("gm.home");
  
     private static boolean IS_WINDOWS = SystemUtils.IS_OS_WINDOWS;
     
