@@ -73,10 +73,10 @@ public class GrapicmagickUtils {
 	    	
 	    	// set up command
 	    	ConvertCmd convert = new ConvertCmd(true);
-//	    	if (IS_WINDOWS) {
+	    	if (IS_WINDOWS) {
         		// linux下不要设置此值，不然会报错
         		convert.setSearchPath(GRAPHICS_MAGICK_PATH);
-//        	}
+        	}
 	    	convert.setInputProvider(pipeIn);
 	    	convert.setOutputConsumer(pipeOut);
 	    	convert.run(op, mark);
@@ -137,10 +137,10 @@ public class GrapicmagickUtils {
         	pipeIn = new Pipe(is, null);
         	pipeOut = new Pipe(null, os);
         	ConvertCmd cmd = new ConvertCmd(true);
-//        	if (IS_WINDOWS) {
+        	if (IS_WINDOWS) {
         		// linux下不要设置此值，不然会报错
         		cmd.setSearchPath(GRAPHICS_MAGICK_PATH);
-//        	}
+        	}
         	cmd.setInputProvider(pipeIn);
         	cmd.setOutputConsumer(pipeOut);
         	cmd.run(op);
