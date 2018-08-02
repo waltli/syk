@@ -27,10 +27,10 @@ public class CommonConstants {
 	//图片裁剪的尺寸，比实际需要大了1px，以为在裁剪的时候有误差
 	public static final int icon_width = 183;  
 	public static final int icon_height = 273;
-	public static final int poster_width = 478;  
-	public static final int poster_height = 273;
-	public static final int photo_width = 630;
-	public static final int photo_height = 354;
+	public static final int photo_width = 478;
+	public static final int photo_height = 273;
+	public static final int poster_width = 630;  
+	public static final int poster_height = 354;
 	public static final int shot_width = 630;
 	public static final int shot_height = 354;
 	

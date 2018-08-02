@@ -12,7 +12,7 @@
 	width: 40px;
     height: 58px;
     display: inline-block;
-    background: url(../images/detail/attention.png) no-repeat;
+    background: url(../img/detail/attention.png) no-repeat;
     position: absolute;
 }
 
@@ -163,7 +163,7 @@ h4.inline {
     overflow: hidden;
     display: inline-block;
     zoom: 1;
-    background: url(../images/detail/ic_rating_s.png) no-repeat;
+    background: url(../img/detail/ic_rating_s.png) no-repeat;
 }
 
 .allstar50 {

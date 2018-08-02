@@ -34,26 +34,26 @@
 					<div class="vital">
 						<div id="poster">
 							<div id="icon">
-								<img alt="" src="${pageCtx('ctxassets')}/images/movie_default_large.png" data-original="${movie.iconUrl!}">
+								<img alt="" src="${pageCtx('ctxassets')}/img/movie_default_large.png" data-original="${movie.iconUrl!}">
 							</div>
 							<div id="slider" style="visibility: hidden;">
-								@if(isNotEmpty(movie.posterUrlList)){
+								@if(isNotEmpty(movie.photoUrlList)){
 									<ul class="slides clearfix">
-										@for(item in movie.posterUrlList){
+										@for(item in movie.photoUrlList){
 											<li><img class="responsive" src="${item }" ></li>
 										@}
 									</ul>
 									<ul class="controls">
-										<li><img src="${pageCtx('ctxassets')}/images/detail/prev.png" alt="previous"></li>
-										<li><img src="${pageCtx('ctxassets')}/images/detail/next.png" alt="next"></li>
+										<li><img src="${pageCtx('ctxassets')}/img/detail/prev.png" alt="previous"></li>
+										<li><img src="${pageCtx('ctxassets')}/img/detail/next.png" alt="next"></li>
 									</ul>
 									<ul class="pagination">
-										@for(item in movie.posterUrlList){
+										@for(item in movie.photoUrlList){
 											<li class="${itemLP.index == 1 ? 'active' : '' }"></li>
 										@}
 									</ul>
 								@}else {
-									<img alt="" src="${pageCtx('ctxassets')}/images/movie_default_cross.png">
+									<img alt="" src="${pageCtx('ctxassets')}/img/movie_default_cross.png">
 								@}
 							</div>
 						</div>
@@ -161,14 +161,14 @@
 					
 					@var shotUrlList = movie.shotUrlList;
 					@if(isEmpty(shotUrlList)){
-						@shotUrlList = movie.photoUrlList;
+						@shotUrlList = movie.posterUrlList;
 					@}
 					
 					@if(isNotEmpty(shotUrlList)){
 						<div id="shot">
 							@for(shot in shotUrlList){
 								<div style="margin-top:10px;    text-align: center !important;">
-									<img src="${pageCtx('ctxassets')}/images/movie_default_cross.png" data-original="${shot}">
+									<img src="${pageCtx('ctxassets')}/img/movie_default_cross_big.png" data-original="${shot}">
 								</div>
 							@}
 						</div>
@@ -215,7 +215,7 @@
 									<td class="center">${item.size!"--"}</td>
 									<td class="center">
 										<a class="download" href="${item.downloadLinkUrl!}">
-											<img alt="" src="${pageCtx('ctxassets')}/images/detail/other.png" data-original="${pageCtx('ctxassets')}/images/detail/${item.linkType!}.png">
+											<img alt="" src="${pageCtx('ctxassets')}/img/detail/other.png" data-original="${pageCtx('ctxassets')}/img/detail/${item.linkType!}.png">
 										</a>
 									</td>
 									<td class="center updateTime">${item.updateTimeStr!item.createTimeStr}</td>
