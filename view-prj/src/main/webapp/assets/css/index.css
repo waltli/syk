@@ -109,7 +109,7 @@ p.first {
 .largestar50, .largestar45, .largestar40, .largestar35, .largestar30, .largestar25, .largestar20, .largestar15, .largestar10, .largestar05, .largestar00 {
     display: inline-block;
     zoom: 1;
-    background: url(../images/index/douban-score.png) no-repeat;
+    background: url(../img/index/douban-score.png) no-repeat;
     width: 30px !important;
     height: 30px;
     overflow: hidden;
