@@ -25,8 +25,13 @@ import org.slf4j.LoggerFactory;
 import com.sbolo.syk.common.constants.ContentTypeEnum;
 import com.sbolo.syk.common.http.HttpUtils;
 
+/**
+ * 使用此工具类必须在服务器中安装GraphicsMagick工具
+ * @author Walter
+ *
+ */
 public class GrapicmagickUtils {
-    private static String GRAPHICS_MAGICK_PATH = "D:\\Program Files\\GraphicsMagick-1.3.30-Q8";
+    private static String GRAPHICS_MAGICK_PATH = ConfigUtil.getPropertyValue("gm.home");
  
     private static boolean IS_WINDOWS = SystemUtils.IS_OS_WINDOWS;
     
@@ -68,10 +73,10 @@ public class GrapicmagickUtils {
 	    	
 	    	// set up command
 	    	ConvertCmd convert = new ConvertCmd(true);
-	    	if (IS_WINDOWS) {
+//	    	if (IS_WINDOWS) {
         		// linux下不要设置此值，不然会报错
         		convert.setSearchPath(GRAPHICS_MAGICK_PATH);
-        	}
+//        	}
 	    	convert.setInputProvider(pipeIn);
 	    	convert.setOutputConsumer(pipeOut);
 	    	convert.run(op, mark);
@@ -132,10 +137,10 @@ public class GrapicmagickUtils {
         	pipeIn = new Pipe(is, null);
         	pipeOut = new Pipe(null, os);
         	ConvertCmd cmd = new ConvertCmd(true);
-        	if (IS_WINDOWS) {
+//        	if (IS_WINDOWS) {
         		// linux下不要设置此值，不然会报错
         		cmd.setSearchPath(GRAPHICS_MAGICK_PATH);
-        	}
+//        	}
         	cmd.setInputProvider(pipeIn);
         	cmd.setOutputConsumer(pipeOut);
         	cmd.run(op);
