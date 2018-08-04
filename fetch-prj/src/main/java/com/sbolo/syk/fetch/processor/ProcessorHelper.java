@@ -682,7 +682,13 @@ public class ProcessorHelper {
 					}
 					Document doc = Jsoup.parse(new String(response.body().bytes(), "utf-8"));
 					Elements lis = doc.select("#content > div > div.article > ul > li[data-id]");
-					for(int i=0; i < 4; i++){
+					int lisSize = lis.size();
+					if(lisSize >= 4) {
+						lisSize = 4;
+					}
+					
+					
+					for(int i=0; i < lisSize; i++){
 						Element li = lis.get(i);
 						Element img = li.select(".cover > a > img").first();
 						if(img == null){
