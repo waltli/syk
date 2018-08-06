@@ -1,0 +1,212 @@
+
+#pagecontent h1.label_notice {
+    margin-left: 20px;
+}
+
+.label_notice .tags-del {
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    height: 12px;
+    width: 12px;
+    top: -10px;
+    _top: -15px;
+    left: 3px;
+    background: url(../img/index/del.png) no-repeat 0 -11px;
+    overflow: hidden;
+    margin-right: 10px;
+}
+
+.label_notice .tags-del:hover {
+    background-position: 0 0;
+}
+
+.article {
+    border-radius: 12px;
+    border: 1px solid #E8E8E8;
+    margin-bottom: 7px;
+    padding: 10px 12px;
+    width: auto;
+    background-color: #FFFFFF;
+}
+
+.article-el {
+	width:100%;
+}
+
+p.first {
+    margin-top: 0;
+    margin-bottom: 5px;
+    border-bottom: 0;
+}
+
+.ul {
+    border-bottom: 1px dashed #DDDDDD;
+    line-height: 100%;
+    clear: both;
+    margin-bottom: 15px;
+}
+
+.icon {
+	width: 105px;
+    height: 148px;
+}
+
+.icon img{
+	width:89px;
+	height:131px;
+}
+
+.intro table {
+	width:100%;
+}
+
+.intro .extra {
+	margin-left:10px; 
+	color:#888;
+	font-weight: bold;
+}
+
+.intro .label {
+	margin-right:6px;
+	color:#888;
+}
+
+.definition0, .definition1, .definition2, .definition3, .definition4, .definition5, .definition6, .definition7, .definition8, .definition9, .definition10 {
+	display:inline-block;
+	height: 30px;
+    width: 30px !important;
+    vertical-align: middle;
+    line-height: 30px;
+    text-align: center;
+    color: #ffffff;
+}
+
+.definition9, .definition10 {
+    background-color: #66CC33;
+}
+
+.definition7, .definition8 {
+    background-color: #a8d12c;
+}
+
+.definition5, .definition6 {
+    background-color: #FFCC33;
+}
+
+.definition3, .definition4 {
+    background-color: #f06e04;
+}
+
+.definition1, .definition2 {
+    background-color: #FF0000;
+}
+
+.definition0 {
+	border:1px solid #a8d12c;
+}
+
+.largestar50, .largestar45, .largestar40, .largestar35, .largestar30, .largestar25, .largestar20, .largestar15, .largestar10, .largestar05, .largestar00 {
+    display: inline-block;
+    zoom: 1;
+    background: url(../img/index/douban-score.png) no-repeat;
+    width: 30px !important;
+    height: 30px;
+    overflow: hidden;
+}
+
+.largestar50 {
+	background-position:-270px 0px
+}
+
+.largestar45 {
+	background-position:-240px 0px
+}
+
+.largestar40 {
+	background-position:-210px 0px
+}
+
+.largestar35 {
+	background-position:-180px 0px
+}
+
+.largestar30 {
+	background-position:-150px 0px
+}
+
+.largestar25 {
+	background-position: -120px 0px
+}
+
+.largestar20 {
+	background-position: -90px 0px
+}
+
+.largestar15 {
+	background-position: -60px 0px;
+}
+
+.largestar10 {
+	background-position:-30px 0px;
+}
+
+.largestar05 {
+	background-position:0px 0px;
+}
+
+.largestar00 {
+	background-position:0px -30px;
+}
+
+.summary {
+	height:77px;
+	word-wrap:break-word;
+	word-break:break-all;
+}
+
+.summary td {
+	padding:10px 0px; !important
+}
+
+.feeling td{
+	width: 30%;
+}
+
+.feeling div{
+	vertical-align: top;
+	font:11px;
+}
+
+.feeling td label{
+	display: block;
+	width: 48px;
+	text-align: justify;
+	text-align-last: justify;
+	float:left;
+}
+
+.titleReviewBar {
+	display:inline-block;
+	min-width: 124px;
+	line-height: 17px;
+}
+
+.titleReviewBar .right {
+	margin-left:10px;
+}
+
+.titleReviewBar .titleReviewBarSubItem  {
+	display:inline-block;
+}
+
+.divider {
+	display:inline-block;
+    border-left: solid 1px #c5c5c5;
+    display: inline-block;
+    height: 32px;
+    margin: 0 5px 0 5px;
+    padding: 0;
+    vertical-align: top;
+    width: 1px;
+}

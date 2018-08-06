@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sbolo.syk.view.mapper.MovieLabelMapper">
+  <resultMap id="BaseResultMap" type="com.sbolo.syk.view.entity.MovieLabelEntity">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="prn" jdbcType="VARCHAR" property="prn" />
+    <result column="movie_prn" jdbcType="VARCHAR" property="moviePrn" />
+    <result column="pure_name" jdbcType="VARCHAR" property="pureName" />
+    <result column="release_time" jdbcType="TIMESTAMP" property="releaseTime" />
+    <result column="label_name" jdbcType="VARCHAR" property="labelName" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+</mapper>

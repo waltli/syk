@@ -5,10 +5,10 @@
 @include("common/global.html"){}
 @include("common/header.html"){}
 <title>
-@if(isNotEmpty(params.keyword)){
-	电影搜索：${params.keyword }
-@} else if(isNotEmpty(params.label)) {
-	电影标签：${params.label }
+@if(isNotEmpty(params.q)){
+	电影搜索：${params.q }
+@} else if(isNotEmpty(params.l)) {
+	电影标签：${params.l }
 @}else {
 	蝉影
 @}
@@ -19,11 +19,11 @@
 	@include("common/nav.html"){}
 	<div id="wrapper">
 		<div id="pagecontent">
-			@if(isNotEmpty(params.label) || isNotEmpty(params.q)){
+			@if(isNotEmpty(params.l) || isNotEmpty(params.q)){
 				<div id="titleBar">
 					<h1 class="label_notice">
-						@if(isNotEmpty(params.label)){
-							电影标签：<span class="tags-name">${params.label}</span><sup class="tags-del" belong="label"></sup>
+						@if(isNotEmpty(params.l)){
+							电影标签：<span class="tags-name">${params.l}</span><sup class="tags-del" belong="l"></sup>
 						@}
 						@if(isNotEmpty(params.q)){
 							搜索：<span class="tags-name">${params.q}</span><sup class="tags-del" belong="q"></sup>

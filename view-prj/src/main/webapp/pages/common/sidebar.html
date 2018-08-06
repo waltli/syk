@@ -27,7 +27,7 @@ function buildLabels(labels){
 	var html = '<h2>标签· · · · · ·</h2>'+
 	           '<div class="tags-body">';
 	for(var i in labels){
-		html += '<a href="'+ ctx+'?label='+encodeURIComponent(labels[i])+'" class="">'+labels[i]+'</a>';
+		html += '<a href="'+ ctx+'?l='+encodeURIComponent(labels[i])+'" class="">'+labels[i]+'</a>';
 	}
 	html += '</div>';
 	$("#tags").empty().append($(html));

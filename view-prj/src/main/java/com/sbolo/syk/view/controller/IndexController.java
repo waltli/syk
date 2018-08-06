@@ -62,7 +62,7 @@ public class IndexController {
 	@Paginator
 	public String go(Model model,
 			@RequestParam(value="page",defaultValue="1", required=false) Integer pageNum,
-            @RequestParam(value="label", required=false) String label,
+            @RequestParam(value="l", required=false) String label,
             @RequestParam(value="q", required=false) String keyword){
 		RequestResult<MovieInfoVO> result = null;
 		try {

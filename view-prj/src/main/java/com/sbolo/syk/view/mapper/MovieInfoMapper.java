@@ -17,9 +17,9 @@ import tk.mybatis.mapper.common.Mapper;
 
 public interface MovieInfoMapper extends Mapper<MovieInfoEntity>, BatchWriteMapper<MovieInfoEntity> {
 
-	List<MovieInfoEntity> selectOneByAssociation(Map<String, Object> params);
+	List<MovieInfoEntity> selectByAssociation(Map<String, Object> params);
 	
-	List<MovieInfoEntity> selectOneByAssociationWithLabel(Map<String, Object> params);
+	List<MovieInfoEntity> selectByAssociationWithLabel(Map<String, Object> params);
 	
 	@Update("update movie_info set count_click = count_click+1 where prn=#{prn}")
 	int updateCountClick(String prn);

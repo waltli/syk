@@ -38,7 +38,6 @@ import com.sbolo.syk.view.entity.MovieInfoEntity;
 import com.sbolo.syk.view.entity.ResourceInfoEntity;
 import com.sbolo.syk.view.mapper.MovieHotStatMapper;
 import com.sbolo.syk.view.mapper.MovieInfoMapper;
-import com.sbolo.syk.view.po.HotStatisticsEntity;
 import com.sbolo.syk.view.vo.MovieInfoVO;
 import com.sbolo.syk.view.vo.ResourceInfoVO;
 
@@ -61,11 +60,11 @@ public class MovieInfoService {
         List<MovieInfoEntity> list = null;
 		if(StringUtils.isBlank(label)){
 			PageHelper.startPage(pageNum, pageSize, "t.resource_write_time DESC");
-			list = movieInfoMapper.selectOneByAssociation(params);
+			list = movieInfoMapper.selectByAssociation(params);
 		}else {
 			params.put("label", label);
 			PageHelper.startPage(pageNum, pageSize, "t.resource_write_time DESC");
-			list = movieInfoMapper.selectOneByAssociationWithLabel(params);
+			list = movieInfoMapper.selectByAssociationWithLabel(params);
 		}
 		PageInfo<MovieInfoEntity> pageInfo = new PageInfo<>(list);
 		List<MovieInfoVO> movieVOList = new ArrayList<>();

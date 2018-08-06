@@ -16,7 +16,6 @@ import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.RegexConstant;
 import com.sbolo.syk.common.tools.ConfigUtil;
 import com.sbolo.syk.common.tools.StringUtil;
-import com.sbolo.syk.view.po.ResourceInfoEntity;
 
 public class ResourceInfoVO {
     /**
