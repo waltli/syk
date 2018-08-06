@@ -88,7 +88,7 @@ public class MovieController {
 	
 	@RequestMapping("fetch-list")
 	@ResponseBody
-	public AjaxResult doubanResult(@RequestParam(value="q", required=true) String query){
+	public RequestResult<T> doubanResult(@RequestParam(value="q", required=true) String query){
 		AjaxResult result = new AjaxResult(true);
 		try {
 			List<MovieInfoEntity> fetchMovies = movieService.fetchFromDouban(query);
