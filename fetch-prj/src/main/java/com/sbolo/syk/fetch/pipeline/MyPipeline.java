@@ -32,6 +32,10 @@ import com.sbolo.syk.common.tools.FileUtils;
 import com.sbolo.syk.common.tools.GrapicmagickUtils;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.VOUtils;
+import com.sbolo.syk.common.vo.MovieInfoVO;
+import com.sbolo.syk.common.vo.MovieLabelVO;
+import com.sbolo.syk.common.vo.MovieLocationVO;
+import com.sbolo.syk.common.vo.ResourceInfoVO;
 import com.sbolo.syk.fetch.entity.MovieFileIndexEntity;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
 import com.sbolo.syk.fetch.entity.MovieLabelEntity;
@@ -46,11 +50,7 @@ import com.sbolo.syk.fetch.spider.Pipeline;
 import com.sbolo.syk.fetch.tool.BucketUtils;
 import com.sbolo.syk.fetch.tool.FetchUtils;
 import com.sbolo.syk.fetch.vo.ConcludeVO;
-import com.sbolo.syk.fetch.vo.MovieInfoVO;
-import com.sbolo.syk.fetch.vo.MovieLabelVO;
-import com.sbolo.syk.fetch.vo.MovieLocationVO;
 import com.sbolo.syk.fetch.vo.PicVO;
-import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 
 @Component
 public class MyPipeline implements Pipeline {

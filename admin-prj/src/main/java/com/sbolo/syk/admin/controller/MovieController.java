@@ -37,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.alibaba.fastjson.JSON;
+import com.sbolo.syk.admin.entity.MovieInfoEntity;
 import com.sbolo.syk.admin.service.MovieInfoService;
 import com.sbolo.syk.admin.vo.MovieInfoVO;
 import com.sbolo.syk.common.annotation.Paginator;
@@ -88,14 +89,13 @@ public class MovieController {
 	
 	@RequestMapping("fetch-list")
 	@ResponseBody
-	public RequestResult<T> doubanResult(@RequestParam(value="q", required=true) String query){
-		AjaxResult result = new AjaxResult(true);
+	public RequestResult<MovieInfoEntity> doubanResult(@RequestParam(value="q", required=true) String query){
+		RequestResult<MovieInfoEntity> result = null;
 		try {
-			List<MovieInfoEntity> fetchMovies = movieService.fetchFromDouban(query);
-			result.put("movies", fetchMovies);
+			List<MovieInfoEntity> fetchMovies = movieInfoService.fetchFromDouban(query);
+			result = new RequestResult<>(fetchMovies);
 		} catch (Exception e) {
-			result.setRequestResult(false);
-			result.setError(e.getMessage());
+			result = RequestResult.error(e);
 			log.error("",e);
 		}
 		return result;
