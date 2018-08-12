@@ -21,4 +21,11 @@ public class ResourceInfoService {
 	@Resource
 	private ResourceInfoMapper resourceInfoMapper;
 	
+	public void updateStatusByMovieId(String moviePrn, int resourceStatus){
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("moviePrn", moviePrn);
+		params.put("resourceStatus", resourceStatus);
+		resourceInfoMapper.signStatusByMoviePrn(params);
+	}
+	
 }

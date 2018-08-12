@@ -210,6 +210,8 @@ public class MovieInfoVO {
     
     private String iconUrl; //待下载的ICON链接
     
+    private String iconUriTemp; //上传后的临时uri
+    
     private List<String> photoUrlList;
     
     private List<String> posterUrlList;
@@ -221,6 +223,14 @@ public class MovieInfoVO {
     private Integer action;  //Business property, that will direct 'insert' or 'update' or 'abandon'.
     
     private ResourceInfoVO optimalResource;
+
+	public String getIconUriTemp() {
+		return iconUriTemp;
+	}
+
+	public void setIconUriTemp(String iconUriTemp) {
+		this.iconUriTemp = iconUriTemp;
+	}
 
 	public String getSummaryShow() {
 		return summaryShow;

@@ -20,4 +20,13 @@ public interface MovieInfoMapper extends Mapper<MovieInfoEntity>, BatchWriteMapp
 	List<MovieInfoEntity> selectByAssociation(Map<String, Object> params);
 	
 	List<MovieInfoEntity> selectByAssociationWithLabel(Map<String, Object> params);
+	
+	@Update("update movie_info t set t.st=#{movieStatus} where t.prn=#{moviePrn}")
+	int signStatusByPrn(Map<String, Object> params);
+	
+	@Select("select * from movie_info where douban_id = #{doubanId}")
+	MovieInfoEntity selectByDoubanId(String doubanId);
+	
+	@Select("select * from movie_info where pure_name = #{pureName} and release_time = #{releaseTime} limit 1")
+	MovieInfoEntity selectByPureNameAndReleaseTime(Map<String, Object> params);
 }

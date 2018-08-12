@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.ibatis.annotations.ResultMap;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import com.sbolo.syk.common.mvc.mapper.BatchWriteMapper;
 import com.sbolo.syk.admin.entity.ResourceInfoEntity;
@@ -16,6 +17,9 @@ public interface ResourceInfoMapper extends Mapper<ResourceInfoEntity>, BatchWri
 	@ResultMap("BaseResultMap")
 	@Select("select t1.* from movie_info t, resource_info t1 where t.optimal_resource_prn = t1.prn and t.prn = #{moviePrn}")
 	ResourceInfoEntity selectOptimalResource(String moviePrn);
+	
+	@Update("update resource_info t set t.st=#{resourceStatus} where t.movie_prn=#{moviePrn}")
+	int signStatusByMoviePrn(Map<String, Object> param);
 	
 	List<ResourceInfoEntity> selectByMoviePrnOrder(Map<String, Object> param);
 }

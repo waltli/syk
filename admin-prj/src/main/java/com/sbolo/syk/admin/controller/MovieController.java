@@ -39,9 +39,15 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.admin.entity.MovieInfoEntity;
 import com.sbolo.syk.admin.service.MovieInfoService;
-import com.sbolo.syk.admin.vo.MovieInfoVO;
+import com.sbolo.syk.admin.vo.ResourceInfosVO;
 import com.sbolo.syk.common.annotation.Paginator;
+import com.sbolo.syk.common.tools.DateUtil;
+import com.sbolo.syk.common.tools.DoubanUtils;
+import com.sbolo.syk.common.tools.StringUtil;
+import com.sbolo.syk.common.tools.Utils;
 import com.sbolo.syk.common.ui.RequestResult;
+import com.sbolo.syk.common.vo.MovieInfoVO;
+import com.sbolo.syk.common.vo.ResourceInfoVO;
 
 @Controller
 @RequestMapping("movie")
@@ -60,16 +66,7 @@ public class MovieController {
 	private MovieInfoService movieInfoService;
 	
 	@Resource
-	private ResourceInfoBizService resourceInfoBizService;
-	
-	@Resource
 	private ThreadPoolTaskExecutor threadPool;
-	
-	@Resource
-	private LabelMappingBizService labelMappingBizService;
-	
-	@Resource
-	private MovieService movieService;
 	
 	@RequestMapping("list")
 	@Paginator
@@ -89,10 +86,10 @@ public class MovieController {
 	
 	@RequestMapping("fetch-list")
 	@ResponseBody
-	public RequestResult<MovieInfoEntity> doubanResult(@RequestParam(value="q", required=true) String query){
-		RequestResult<MovieInfoEntity> result = null;
+	public RequestResult<MovieInfoVO> doubanResult(@RequestParam(value="q", required=true) String query){
+		RequestResult<MovieInfoVO> result = null;
 		try {
-			List<MovieInfoEntity> fetchMovies = movieInfoService.fetchFromDouban(query);
+			List<MovieInfoVO> fetchMovies = DoubanUtils.fetchListFromDouban(query);
 			result = new RequestResult<>(fetchMovies);
 		} catch (Exception e) {
 			result = RequestResult.error(e);
@@ -103,14 +100,14 @@ public class MovieController {
 	
 	@RequestMapping("fetch-detail")
 	@ResponseBody
-	public AjaxResult doubanDetail(@RequestParam(value="doubanId", required=true) String doubanId){
-		AjaxResult result = new AjaxResult(true);
+	public RequestResult<MovieInfoVO> doubanDetail(@RequestParam(value="doubanId", required=true) String doubanId){
+		RequestResult<MovieInfoVO> result = null;
 		try {
-			MovieInfoEntity fetchMovie = movieService.fetchDetailFromDouban(doubanId);
-			result.put("movie", fetchMovie);
+			String doubanUrl = StringUtil.jointDoubanUrl(doubanId);
+			MovieInfoVO fetchMovie = DoubanUtils.fetchMovieFromDouban(doubanUrl, new Date());
+			result = new RequestResult<>(fetchMovie);
 		} catch (Exception e) {
-			result.setRequestResult(false);
-			result.setError(e.getMessage());
+			result = RequestResult.error(e);
 			log.error("",e);
 		}
 		return result;
@@ -119,13 +116,13 @@ public class MovieController {
 	
 	@RequestMapping(value="signDelete", method=RequestMethod.POST)
 	@ResponseBody
-	public AjaxResult signDelete(String movieId){
-		AjaxResult result = new AjaxResult(true);
+	public RequestResult<String> signDelete(String moviePrn){
+		RequestResult<String> result = null;
 		try {
-			movieService.signDeleteable(movieId);
+			movieInfoService.signDeleteable(moviePrn);
+			result = new RequestResult<>("success");
 		} catch (Exception e) {
-			result.setRequestResult(false);
-			result.setError(e.getMessage());
+			result = RequestResult.error(e);
 			log.error("",e);
 		}
 		return result;
@@ -133,13 +130,13 @@ public class MovieController {
 	
 	@RequestMapping(value="signAvailable", method=RequestMethod.POST)
 	@ResponseBody
-	public AjaxResult signAvailable(String movieId){
-		AjaxResult result = new AjaxResult(true);
+	public RequestResult<String> signAvailable(String moviePrn){
+		RequestResult<String> result = null;
 		try {
-			movieService.signAvailable(movieId);
+			movieInfoService.signAvailable(moviePrn);
+			result = new RequestResult<>("success");
 		} catch (Exception e) {
-			result.setRequestResult(false);
-			result.setError(e.getMessage());
+			result = RequestResult.error(e);
 			log.error("",e);
 		}
 		return result;
@@ -149,9 +146,9 @@ public class MovieController {
 	public String addHere(Model model,
 			@RequestParam(value="doubanId", required=false) String doubanId){
 		if(StringUtils.isNotBlank(doubanId)){
-			MovieInfoEntity movie = movieInfoBizService.getMovieInfoByDoubanId(doubanId);
+			MovieInfoEntity movie = movieInfoService.getMovieInfoByDoubanId(doubanId);
 			if(movie != null){
-				return "redirect:existed?mi="+movie.getMovieId();
+				return "redirect:existed?mi="+movie.getPrn();
 			}
 		}
 		if(StringUtils.isNotBlank(doubanId)){
@@ -161,14 +158,14 @@ public class MovieController {
 	}
 	
 	@RequestMapping(value="add-work", method={RequestMethod.POST})
-	public String addWork(Model model, HttpServletRequest request, MovieInfoEntity movie, ResourceInfosVO resourceModel) {
-		Date releaseTime = Utils.str2DateByFormat(movie.getReleaseTimeStr());
-		MovieInfoEntity existMovie = movieInfoBizService.getMovieInfoByPureNameAndReleaseTime(movie.getPureName(), releaseTime);
+	public String addWork(Model model, HttpServletRequest request, MovieInfoVO movie, ResourceInfosVO resourceModel) {
+		Date releaseTime = DateUtil.str2Date(movie.getReleaseTimeStr());
+		MovieInfoEntity existMovie = movieInfoService.getMovieInfoByPureNameAndReleaseTime(movie.getPureName(), releaseTime);
 		if(existMovie != null){
-			return "redirect:existed?mi="+movie.getMovieId();
+			return "redirect:existed?mi="+movie.getPrn();
 		}
 		
-		List<ResourceInfoEntity> resources = resourceModel.getResources();
+		List<ResourceInfoVO> resources = resourceModel.getResources();
 		String rootPath = request.getSession().getServletContext().getRealPath("");
 		try {
 			movieService.manualAddAround(movie, resources, rootPath);
