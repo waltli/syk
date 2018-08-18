@@ -210,7 +210,7 @@ public class MovieInfoVO {
     
     private String iconUrl; //待下载的ICON链接
     
-    private String iconUriTemp; //上传后的临时uri
+    private String iconTempUri; //上传后的临时uri
     
     private List<String> photoUrlList;
     
@@ -224,12 +224,12 @@ public class MovieInfoVO {
     
     private ResourceInfoVO optimalResource;
 
-	public String getIconUriTemp() {
-		return iconUriTemp;
+	public String getIconTempUri() {
+		return iconTempUri;
 	}
 
-	public void setIconUriTemp(String iconUriTemp) {
-		this.iconUriTemp = iconUriTemp;
+	public void setIconTempUri(String iconTempUri) {
+		this.iconTempUri = iconTempUri;
 	}
 
 	public String getSummaryShow() {

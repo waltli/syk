@@ -1,5 +1,8 @@
 package com.sbolo.syk.admin.service;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -15,7 +18,9 @@ import javax.annotation.Resource;
 
 import okhttp3.Response;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tools.ant.taskdefs.Input;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -39,7 +44,10 @@ import com.sbolo.syk.common.constants.TriggerEnum;
 import com.sbolo.syk.common.exception.MovieInfoFetchException;
 import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.http.callback.HttpSendCallbackPure;
+import com.sbolo.syk.common.tools.BucketUtils;
+import com.sbolo.syk.common.tools.ConfigUtil;
 import com.sbolo.syk.common.tools.DoubanUtils;
+import com.sbolo.syk.common.tools.FileUtils;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.Utils;
 import com.sbolo.syk.common.tools.VOUtils;
@@ -192,13 +200,20 @@ public class MovieInfoService {
 		
 		
 		//上传ICON图片
-		String tempIconStr = movie.getIconUriTemp();
-		if(StringUtils.isNotBlank(tempIconStr)){
-			String newRootPath = ConfigUtil.getPropertyValue("iconDir");
-			String suffix = tempIconStr.substring(tempIconStr.lastIndexOf(".")+1);
-			String newName = StringUtil.getId(CommonConstants.pic_s)+"."+suffix;
+		String iconTempUri = movie.getIconTempUri();
+		if(StringUtils.isNotBlank(iconTempUri)){
+			String iconTempDir = ConfigUtil.getPropertyValue("icon.temp.dir");
+			String formalName = StringUtil.getId(CommonConstants.pic_s);
+			String suffix = iconTempUri.substring(iconTempUri.lastIndexOf(".")+1);
+			String iconTempPath = iconTempDir+"/"+formalName+"."+suffix;
+			InputStream is = null;
 			try {
-				String reloadIcon = Utils.copyFile(oldRootPath, tempIconStr, newRootPath, newName);
+				File file = new File(iconTempPath);
+				if(file.exists()) {
+					is = new FileInputStream(file);
+					byte[] bytes = IOUtils.toByteArray(is);
+					String uri = BucketUtils.upload2Dir(bytes, targetDir, fileName, suffix);
+				}
 				movie.setIcon(reloadIcon);
 			} catch (IOException e) {
 				log.error("",e);
