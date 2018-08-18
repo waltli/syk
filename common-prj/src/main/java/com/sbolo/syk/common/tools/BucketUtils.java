@@ -1,4 +1,4 @@
-package com.sbolo.syk.fetch.tool;
+package com.sbolo.syk.common.tools;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -23,7 +23,6 @@ import com.qcloud.cos.model.DeleteObjectsResult;
 import com.qcloud.cos.region.Region;
 import com.qcloud.cos.transfer.TransferManager;
 import com.qcloud.cos.transfer.Upload;
-import com.sbolo.syk.common.tools.ConfigUtil;
 
 public class BucketUtils {
 	
@@ -55,6 +54,14 @@ public class BucketUtils {
 		String key = targetDir+"/"+fileName+"."+suffix;
 		PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, key, sbs, metadata);
 		PutObjectResult putResult = cosClient.putObject(putObjectRequest);
+	}
+	
+	public static String upload2Dir(byte[] bytes, String targetDir, String fileName, String suffix) throws Exception {
+		String subDir = FileUtils.getSubDir();
+		String saveDir = targetDir+subDir;
+		upload(bytes, saveDir, fileName, suffix);
+		String uri = saveDir + "/" + fileName + "." +suffix;
+		return uri;
 	}
 	
 	public static void deletes(List<String> keys) throws Exception {

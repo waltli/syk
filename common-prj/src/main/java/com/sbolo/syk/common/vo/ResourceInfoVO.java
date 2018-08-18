@@ -124,6 +124,8 @@ public class ResourceInfoVO {
     private List<String> shotUrlList;
     
     private List<String> shotUriList;
+    
+    private String shotTempUriStr;
 
     /**
      * 采集自哪个网站
@@ -166,6 +168,14 @@ public class ResourceInfoVO {
     private byte[] torrentBytes;
     
     private String linkType;
+
+	public String getShotTempUriStr() {
+		return shotTempUriStr;
+	}
+
+	public void setShotTempUriStr(String shotTempUriStr) {
+		this.shotTempUriStr = shotTempUriStr;
+	}
 
 	public String getLinkType() {
 		return linkType;

@@ -26,11 +26,13 @@ import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.RegexConstant;
 import com.sbolo.syk.common.exception.AnalystException;
 import com.sbolo.syk.common.http.HttpUtils;
+import com.sbolo.syk.common.tools.BucketUtils;
 import com.sbolo.syk.common.tools.ConfigUtil;
 import com.sbolo.syk.common.tools.DateUtil;
 import com.sbolo.syk.common.tools.FileUtils;
 import com.sbolo.syk.common.tools.GrapicmagickUtils;
 import com.sbolo.syk.common.tools.StringUtil;
+import com.sbolo.syk.common.tools.SykUtils;
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.common.vo.MovieInfoVO;
 import com.sbolo.syk.common.vo.MovieLabelVO;
@@ -47,7 +49,6 @@ import com.sbolo.syk.fetch.mapper.MovieLabelMapper;
 import com.sbolo.syk.fetch.mapper.MovieLocationMapper;
 import com.sbolo.syk.fetch.mapper.ResourceInfoMapper;
 import com.sbolo.syk.fetch.spider.Pipeline;
-import com.sbolo.syk.fetch.tool.BucketUtils;
 import com.sbolo.syk.fetch.tool.FetchUtils;
 import com.sbolo.syk.fetch.vo.ConcludeVO;
 import com.sbolo.syk.fetch.vo.PicVO;
@@ -367,7 +368,17 @@ public class MyPipeline implements Pipeline {
 					}
 					String suffix = shotUrl.substring(shotUrl.lastIndexOf(".")+1);
 					String fileName = StringUtil.getId(CommonConstants.pic_s);
-					String shotUri = this.downPicAndFixMarkWithDist(shotUrl, ConfigUtil.getPropertyValue("bucket.formal.shot"), fileName, suffix, pioneer, CommonConstants.shot_width, CommonConstants.shot_height, newFileIdxList, CommonConstants.shot_v, thisTime);
+					
+					String shotUri = "";
+					MovieFileIndexEntity movieFileIndexEntity = pioneer.get(shotUrl.trim());
+					if(movieFileIndexEntity != null) {
+						shotUri = movieFileIndexEntity.getFixUri();
+					}else {
+						shotUri = SykUtils.downPicAndFixMarkWithDist(shotUrl, ConfigUtil.getPropertyValue("bucket.formal.shot"), fileName, suffix, CommonConstants.shot_width, CommonConstants.shot_height);
+						MovieFileIndexEntity fileIdx = this.buildFileIndex(shotUrl.trim(), shotUri, CommonConstants.shot_v, thisTime);
+						newFileIdxList.add(fileIdx);
+					}
+					
 					shotUrlMapping.put(shotUrl, shotUri);
 					shotUriList.add(shotUri);
 				} catch (Exception e) {
@@ -387,14 +398,32 @@ public class MyPipeline implements Pipeline {
 					String torrentName = getTorrentName(fetchResource);
 					String suffix = fetchResource.getDownloadLink().substring(fetchResource.getDownloadLink().lastIndexOf(".")+1);
 					String torrentDir = ConfigUtil.getPropertyValue("bucket.formal.torrent");
-					String uri = this.downTorrentWithDist(fetchResource.getDownloadLink(), fetchResource.getTorrentBytes(), torrentDir, torrentName, suffix, pioneer, newFileIdxList, CommonConstants.torrent_v, thisTime);
-					fetchResource.setDownloadLink(uri);
+					
+					String torrentUri = "";
+					MovieFileIndexEntity movieFileIndexEntity = pioneer.get(fetchResource.getDownloadLink().trim());
+					if(movieFileIndexEntity != null) {
+						torrentUri = movieFileIndexEntity.getFixUri();
+					}else {
+						torrentUri = SykUtils.downTorrentWithDist(fetchResource.getDownloadLink(), fetchResource.getTorrentBytes(), torrentDir, torrentName, suffix);
+						MovieFileIndexEntity fileIdx = this.buildFileIndex(fetchResource.getDownloadLink(), torrentUri, CommonConstants.torrent_v, thisTime);
+						newFileIdxList.add(fileIdx);
+					}
+					fetchResource.setDownloadLink(torrentUri);
 				}
 			} catch (Throwable e) {
 				//假若失败，则resource还是存的原始的地址，所以不用删除
 				log.error("下载种子文件失败！ url: "+ fetchResource.getDownloadLink(), e);
 			}
 		}
+	}
+	
+	private MovieFileIndexEntity buildFileIndex(String sourceUrl, String uri, int fileV, Date thisTime) {
+		MovieFileIndexEntity fileIdx = new MovieFileIndexEntity();
+		fileIdx.setCreateTime(thisTime);
+		fileIdx.setFileV(fileV);
+		fileIdx.setFixUri(uri);
+		fileIdx.setSourceUrl(sourceUrl);
+		return fileIdx;
 	}
 	
 	/**
@@ -470,7 +499,18 @@ public class MyPipeline implements Pipeline {
 			List<String> photoUris = new ArrayList<String>();
 			for(PicVO pic:picList){
 				try {
-					String picUri = this.downPicAndFixWithDist(pic.getFetchUrl(), pic.getPicDir(), pic.getFileName(), pic.getSuffix(), pioneer, pic.getPicWidth(), pic.getPicHeight(), newFileIdxList, pic.getPicV(), thisTime);
+					
+					String picUri = "";
+					MovieFileIndexEntity movieFileIndexEntity = pioneer.get(pic.getFetchUrl().trim());
+					if(movieFileIndexEntity != null) {
+						picUri = movieFileIndexEntity.getFixUri();
+					}else {
+						picUri = SykUtils.downPicAndFixWithDist(pic.getFetchUrl(), pic.getPicDir(), pic.getFileName(), pic.getSuffix(), pic.getPicWidth(), pic.getPicHeight());
+						//url去重入库
+						MovieFileIndexEntity fileIdx = buildFileIndex(pic.getFetchUrl(), picUri, pic.getPicV(), thisTime);
+						newFileIdxList.add(fileIdx);
+					}
+					
 					switch (pic.getPicV()) {
 					case CommonConstants.icon_v:
 						fetchMovie.setIconUri(picUri);
@@ -501,122 +541,6 @@ public class MyPipeline implements Pipeline {
 				fetchMovie.setPhotoUriJson(photoUriJson);
 			}
 		}
-	}
-	
-	/**
-	 * 下载文件并返回uri
-	 * @param url
-	 * @param targetDir
-	 * @param fileName
-	 * @param suffix
-	 * @param pioneer
-	 * @param newFileIdxList
-	 * @param fileV
-	 * @param thisTime
-	 * @return
-	 * @throws Exception
-	 */
-	private String downTorrentWithDist(String url, byte[] bytes, String targetDir, String fileName, String suffix, Map<String, MovieFileIndexEntity> pioneer, 
-			List<MovieFileIndexEntity> newFileIdxList, Integer fileV, Date thisTime) throws Exception {
-		MovieFileIndexEntity movieFileIndexEntity = pioneer.get(url.trim());
-		if(movieFileIndexEntity != null) {
-			return movieFileIndexEntity.getFixUri();
-		}
-		if(bytes == null) {
-			bytes = HttpUtils.getBytes(url);
-		}
-		String uri = upoadBucketAndGetUri(bytes, targetDir, fileName, suffix);
-		addMovieFileIdx(url, uri, fileV, thisTime, newFileIdxList);
-		return uri;
-	}
-	
-	/**
-	 * 下载图片并修正图片大小，返回uri
-	 * @param url
-	 * @param targetDir
-	 * @param fileName
-	 * @param suffix
-	 * @param pioneer
-	 * @param fixWidth
-	 * @param fixHeight
-	 * @param newFileIdxList
-	 * @param fileV
-	 * @param thisTime
-	 * @return
-	 * @throws Exception
-	 */
-	private String downPicAndFixWithDist(String url, String targetDir, String fileName, String suffix, 
-			Map<String, MovieFileIndexEntity> pioneer, int fixWidth, int fixHeight, 
-			List<MovieFileIndexEntity> newFileIdxList, Integer fileV, Date thisTime) throws Exception {
-		MovieFileIndexEntity movieFileIndexEntity = pioneer.get(url.trim());
-		if(movieFileIndexEntity != null) {
-			return movieFileIndexEntity.getFixUri();
-		}
-		byte[] imageBytes = HttpUtils.getBytes(url);
-		imageBytes = GrapicmagickUtils.descale(imageBytes, fixWidth, fixHeight);
-		String uri = upoadBucketAndGetUri(imageBytes, targetDir, fileName, suffix);
-		addMovieFileIdx(url, uri, fileV, thisTime, newFileIdxList);
-		return uri;
-	}
-	
-	/**
-	 * 下载图片并修正图片大小以及添加水印，返回uri
-	 * @param url
-	 * @param targetDir
-	 * @param fileName
-	 * @param suffix
-	 * @param pioneer
-	 * @param fixWidth
-	 * @param fixHeight
-	 * @param newFileIdxList
-	 * @param fileV
-	 * @param thisTime
-	 * @return
-	 * @throws Exception
-	 */
-	private String downPicAndFixMarkWithDist(String url, String targetDir, String fileName, String suffix, 
-			Map<String, MovieFileIndexEntity> pioneer, int fixWidth, int fixHeight, 
-			List<MovieFileIndexEntity> newFileIdxList, Integer fileV, Date thisTime) throws Exception {
-		MovieFileIndexEntity movieFileIndexEntity = pioneer.get(url.trim());
-		if(movieFileIndexEntity != null) {
-			return movieFileIndexEntity.getFixUri();
-		}
-		
-		InputStream markStream = null;
-		try {
-			byte[] imageBytes = HttpUtils.getBytes(url);
-			imageBytes = GrapicmagickUtils.descale(imageBytes, fixWidth, fixHeight);
-			markStream = this.getClass().getResourceAsStream("/img/mark.png");
-			if(markStream != null) {
-				byte[] markBytes = IOUtils.toByteArray(markStream);
-				imageBytes = GrapicmagickUtils.watermark(imageBytes, markBytes);
-			}
-			String uri = upoadBucketAndGetUri(imageBytes, targetDir, fileName, suffix);
-			addMovieFileIdx(url, uri, fileV, thisTime, newFileIdxList);
-			return uri;
-		} finally {
-			if(markStream != null) {
-				markStream.close();
-				markStream = null;
-			}
-		}
-	}
-	
-	private void addMovieFileIdx(String url, String uri, Integer fileV, Date thisTime, List<MovieFileIndexEntity> newFileIdxList) {
-		MovieFileIndexEntity fileIdx = new MovieFileIndexEntity();
-		fileIdx.setCreateTime(thisTime);
-		fileIdx.setFileV(fileV);
-		fileIdx.setFixUri(uri);
-		fileIdx.setSourceUrl(url.trim());
-		newFileIdxList.add(fileIdx);
-	}
-	
-	private String upoadBucketAndGetUri(byte[] bytes, String targetDir, String fileName, String suffix) throws Exception {
-		String subDir = DateUtil.date2Str(new Date(), "yyyyMM");
-		String saveDir = targetDir+"/"+subDir;
-		BucketUtils.upload(bytes, saveDir, fileName, suffix);
-		String uri = saveDir + "/" + fileName + "." +suffix;
-		return uri;
 	}
 	
 	@Override

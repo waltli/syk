@@ -1,7 +1,12 @@
 package com.sbolo.syk.admin.service;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -15,7 +20,9 @@ import javax.annotation.Resource;
 
 import okhttp3.Response;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tools.ant.taskdefs.Input;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -39,8 +46,12 @@ import com.sbolo.syk.common.constants.TriggerEnum;
 import com.sbolo.syk.common.exception.MovieInfoFetchException;
 import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.http.callback.HttpSendCallbackPure;
+import com.sbolo.syk.common.tools.BucketUtils;
+import com.sbolo.syk.common.tools.ConfigUtil;
 import com.sbolo.syk.common.tools.DoubanUtils;
+import com.sbolo.syk.common.tools.FileUtils;
 import com.sbolo.syk.common.tools.StringUtil;
+import com.sbolo.syk.common.tools.SykUtils;
 import com.sbolo.syk.common.tools.Utils;
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.common.ui.RequestResult;
@@ -189,46 +200,32 @@ public class MovieInfoService {
 			locationList.add(locationEntity);
 		}
 		
-		
-		
 		//上传ICON图片
-		String tempIconStr = movie.getIconUriTemp();
-		if(StringUtils.isNotBlank(tempIconStr)){
-			String newRootPath = ConfigUtil.getPropertyValue("iconDir");
-			String suffix = tempIconStr.substring(tempIconStr.lastIndexOf(".")+1);
-			String newName = StringUtil.getId(CommonConstants.pic_s)+"."+suffix;
-			try {
-				String reloadIcon = Utils.copyFile(oldRootPath, tempIconStr, newRootPath, newName);
-				movie.setIcon(reloadIcon);
-			} catch (IOException e) {
-				log.error("",e);
-			}
-		}
+		String iconUri = SykUtils.uploadIcon4Uri(movie.getIconTempUri());
 		
 		//上传poster图片
-		String tempPosterStr = movie.getBusPoster();
-		List<String> reloadPosterNames = null;
-		if(StringUtils.isNotBlank(tempPosterStr)){
-			String[] tempPosterArr = tempPosterStr.split(",");
-			String newRootPath = ConfigUtil.getPropertyValue("posterDir");
-			reloadPosterNames = uploadService.copyFiles(oldRootPath, tempPosterArr, newRootPath, CommonConstants.pic_s);
-		}
-		if(reloadPosterNames != null && reloadPosterNames.size() > 0){
-			String reloadPoster = JSON.toJSONString(reloadPosterNames);
-			movie.setPoster(reloadPoster);
-		}
+		String posterTempUriStr = movie.getPosterTempUriStr();
+		String[] posterTempUriArr = posterTempUriStr.split(",");
+		String posterUriStr = SykUtils.uploadPoster4Uri(Arrays.asList(posterTempUriArr));
+		movie.setPosterUriJson(posterUriStr);
+		
+		//上传photo图片
+		String photoTempUriStr = movie.getPhotoTempUriStr();
+		String[] photoTempUriArr = photoTempUriStr.split(",");
+		String photoUriStr = SykUtils.uploadPoster4Uri(Arrays.asList(photoTempUriArr));
+		movie.setPhotoUriJson(photoUriStr);
 		
 		Integer optimalIdx = 0;
 		Integer maxDefinition = -1;
 		Integer maxEpisodeStart = -1;
 		Integer maxEpisodeEnd = -1;
 		for(int i=0; i<resources.size(); i++){
-			ResourceInfoEntity resource = resources.get(i);
-			String resourceId = StringUtil.getId(CommonConstants.resource_s);
-			resource.setResourceId(resourceId);
-			resource.setMovieId(movieId);
+			ResourceInfoVO resource = resources.get(i);
+			String resourcePrn = StringUtil.getId(CommonConstants.resource_s);
+			resource.setPrn(resourcePrn);
+			resource.setMoviePrn(moviePrn);
 			resource.setPureName(movie.getPureName());
-			resource.setResourceStatus(MovieStatusEnum.available.getCode());
+			resource.setSt(MovieStatusEnum.available.getCode());
 			resource.setReleaseTime(releaseTime);
 			resource.setSpeed(5);
 			resource.setSeason(movie.getPresentSeason());
@@ -265,19 +262,11 @@ public class MovieInfoService {
 				}
 			}
 			
-			//上传photos图片
-			String tempPhotosStr = resource.getBusPhotos();
-			List<String> reloadPhotoNames = null;
-			if(StringUtils.isNotBlank(tempPhotosStr)){
-				String[] tempPhotosArr = tempPhotosStr.split(",");
-				String newRootPath = ConfigUtil.getPropertyValue("photoDir");
-				reloadPhotoNames = uploadService.copyFiles(oldRootPath, tempPhotosArr, newRootPath, CommonConstants.pic_s);
-			}
-			
-			if(reloadPhotoNames != null && reloadPhotoNames.size() > 0){
-				String reloadPhotos = JSON.toJSONString(reloadPhotoNames);
-				resource.setPhotos(reloadPhotos);
-			}
+			//上传shot图片
+			String shotTempUriStr = resource.getShotTempUriStr();
+			String[] shotTempUriArr = shotTempUriStr.split(",");
+			String shotUriStr = SykUtils.uploadPoster4Uri(Arrays.asList(shotTempUriArr));
+			resource.setShotUriJson(shotUriStr);
 			
 			//资源清晰度得分
 			Integer definitionScore = Utils.translateDefinitionIntoScore(resource.getQuality(), resource.getResolution());

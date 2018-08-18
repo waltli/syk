@@ -60,6 +60,11 @@ public class FileUtils {
 		}
     }
 	
+	public static String getSubDir() {
+		String subDir = "/"+DateUtil.date2Str(new Date(), "yyyyMM");
+		return subDir;
+	}
+	
 	/**
 	 * 按比例修正图片大小
 	 * @param content
