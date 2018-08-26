@@ -1,11 +1,15 @@
 package com.sbolo.syk.common.tools;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import org.apache.commons.io.IOUtils;
 
 import com.qcloud.cos.COSClient;
 import com.qcloud.cos.ClientConfig;
@@ -62,6 +66,16 @@ public class BucketUtils {
 		upload(bytes, saveDir, fileName, suffix);
 		String uri = saveDir + "/" + fileName + "." +suffix;
 		return uri;
+	}
+	
+	public static String upload2Dir(File file, String targetDir, String fileName, String suffix) throws Exception {
+		if(!file.exists()) {
+			return null;
+		}
+		try(FileInputStream fis = new FileInputStream(file)){
+			byte[] bytes = IOUtils.toByteArray(fis);
+			return upload2Dir(bytes, targetDir, fileName, suffix);
+		}
 	}
 	
 	public static void deletes(List<String> keys) throws Exception {

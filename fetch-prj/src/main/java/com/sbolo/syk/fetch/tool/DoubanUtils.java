@@ -1,4 +1,4 @@
-package com.sbolo.syk.common.tools;
+package com.sbolo.syk.fetch.tool;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,7 +29,10 @@ import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.http.HttpUtils.HttpResult;
 import com.sbolo.syk.common.http.callback.HttpSendCallback;
 import com.sbolo.syk.common.http.callback.HttpSendCallbackPure;
-import com.sbolo.syk.common.vo.MovieInfoVO;
+import com.sbolo.syk.common.tools.DateUtil;
+import com.sbolo.syk.common.tools.StringUtil;
+import com.sbolo.syk.common.tools.Utils;
+import com.sbolo.syk.fetch.vo.MovieInfoVO;
 
 import okhttp3.Response;
 

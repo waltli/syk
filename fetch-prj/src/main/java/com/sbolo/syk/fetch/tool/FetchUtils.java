@@ -12,10 +12,10 @@ import com.sbolo.syk.common.tools.ConfigUtil;
 import com.sbolo.syk.common.tools.FileUtils;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.vo.LinkAnalyzeResultVO;
-import com.sbolo.syk.common.vo.MovieInfoVO;
-import com.sbolo.syk.common.vo.ResourceInfoVO;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
 import com.sbolo.syk.fetch.pipeline.MyPipeline;
+import com.sbolo.syk.fetch.vo.MovieInfoVO;
+import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 
 public class FetchUtils {
 	private static final Logger log = LoggerFactory.getLogger(FetchUtils.class);

@@ -1,12 +1,23 @@
-package com.sbolo.syk.common.vo;
+package com.sbolo.syk.fetch.vo;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.persistence.*;
 
-public class MovieInfoVOBack {
+import org.apache.commons.lang3.StringUtils;
+
+import com.alibaba.fastjson.JSON;
+import com.sbolo.syk.common.constants.CommonConstants;
+import com.sbolo.syk.common.constants.RegexConstant;
+import com.sbolo.syk.common.tools.ConfigUtil;
+import com.sbolo.syk.common.tools.StringUtil;
+
+public class MovieInfoVO {
 
     /**
      * 全局唯一标识
@@ -35,11 +46,15 @@ public class MovieInfoVOBack {
      * 别名
      */
     private String anotherName;
+    
+    private String[] anotherNameArr;
 
     /**
      * 多个label，逗号间隔
      */
     private String labels;
+    
+    private String[] labelArr;
     
     private List<MovieLabelVO> labelList;
     
@@ -69,6 +84,8 @@ public class MovieInfoVOBack {
      * 多个电影语言，逗号间隔
      */
     private String languages;
+    
+    private String[] languageArr;
 
     /**
      * 上映时间
@@ -96,6 +113,8 @@ public class MovieInfoVOBack {
      * 剧情概要
      */
     private String summary;
+    
+    private String summaryShow;
 
     /**
      * 豆瓣ID
@@ -111,6 +130,8 @@ public class MovieInfoVOBack {
      * 豆瓣评分
      */
     private Double doubanScore;
+    
+    private String doubanScoreCalc;
 
     /**
      * IMDB评分
@@ -141,21 +162,29 @@ public class MovieInfoVOBack {
      * 状态 1---可用 2---可删除
      */
     private Integer st;
+    
+    private String stDescp;
 
     /**
      * 创建时间
      */
     private Date createTime;
+    
+    private String createTimeStr;
 
     /**
      * 更新时间
      */
     private Date updateTime;
+    
+    private String updateTimeStr;
 
     /**
      * 资源写入时间
      */
     private Date resourceWriteTime;
+    
+    private String resourceWriteTimeStr;
 
     /**
      * 最佳资源的prn
@@ -177,19 +206,131 @@ public class MovieInfoVOBack {
      */
     private Integer countDownload;
     
+    private ResourceInfoVO optimalResource;
+    
     private String posterPageUrl;  //待去下载poster的网址
     
     private String iconUrl; //待下载的ICON链接
     
-    private List<String> photoUrlList;
+    private String iconTempUri; //上传后的临时uri
     
-    private List<String> posterUrlList;
+    private List<String> photoUrlList;
     
     private List<String> photoUriList;
     
+    private String photoTempUriStr;
+    
+    private List<String> posterUrlList;
+    
     private List<String> posterUriList;
     
-    private Integer action;  //Business property, that will direct 'insert' or 'update' or 'abandon'.
+    private String posterTempUriStr;
+    
+    public String getPhotoTempUriStr() {
+		return photoTempUriStr;
+	}
+
+	public void setPhotoTempUriStr(String photoTempUriStr) {
+		this.photoTempUriStr = photoTempUriStr;
+	}
+
+	public String getPosterTempUriStr() {
+		return posterTempUriStr;
+	}
+
+	public void setPosterTempUriStr(String posterTempUriStr) {
+		this.posterTempUriStr = posterTempUriStr;
+	}
+
+	private Integer action;  //Business property, that will direct 'insert' or 'update' or 'abandon'.
+    
+	public String getIconTempUri() {
+		return iconTempUri;
+	}
+
+	public void setIconTempUri(String iconTempUri) {
+		this.iconTempUri = iconTempUri;
+	}
+
+	public ResourceInfoVO getOptimalResource() {
+		return optimalResource;
+	}
+
+	public void setOptimalResource(ResourceInfoVO optimalResource) {
+		this.optimalResource = optimalResource;
+	}
+
+	public String getSummaryShow() {
+		return summaryShow;
+	}
+
+	public void setSummaryShow(String summaryShow) {
+		this.summaryShow = summaryShow;
+	}
+
+	public String[] getAnotherNameArr() {
+		return anotherNameArr;
+	}
+
+	public void setAnotherNameArr(String[] anotherNameArr) {
+		this.anotherNameArr = anotherNameArr;
+	}
+
+	public String[] getLabelArr() {
+		return labelArr;
+	}
+
+	public void setLabelArr(String[] labelArr) {
+		this.labelArr = labelArr;
+	}
+
+	public String[] getLanguageArr() {
+		return languageArr;
+	}
+
+	public void setLanguageArr(String[] languageArr) {
+		this.languageArr = languageArr;
+	}
+
+	public String getDoubanScoreCalc() {
+		return doubanScoreCalc;
+	}
+
+	public void setDoubanScoreCalc(String doubanScoreCalc) {
+		this.doubanScoreCalc = doubanScoreCalc;
+	}
+
+	public String getStDescp() {
+		return stDescp;
+	}
+
+	public void setStDescp(String stDescp) {
+		this.stDescp = stDescp;
+	}
+
+	public String getCreateTimeStr() {
+		return createTimeStr;
+	}
+
+	public void setCreateTimeStr(String createTimeStr) {
+		this.createTimeStr = createTimeStr;
+	}
+
+	public String getUpdateTimeStr() {
+		return updateTimeStr;
+	}
+
+	public void setUpdateTimeStr(String updateTimeStr) {
+		this.updateTimeStr = updateTimeStr;
+	}
+
+	public String getResourceWriteTimeStr() {
+		return resourceWriteTimeStr;
+	}
+
+	public void setResourceWriteTimeStr(String resourceWriteTimeStr) {
+		this.resourceWriteTimeStr = resourceWriteTimeStr;
+	}
 
 	public List<String> getPhotoUriList() {
 		return photoUriList;
@@ -827,4 +968,104 @@ public class MovieInfoVOBack {
     public void setCountDownload(Integer countDownload) {
         this.countDownload = countDownload;
     }
+    
+    public void parse(){
+    	SimpleDateFormat sdf = new SimpleDateFormat(CommonConstants.timeFormat.get(10));
+    	String bucketHost = ConfigUtil.getPropertyValue("bucket.host");
+    	if(this.getCreateTime() != null){
+    		this.setCreateTimeStr(sdf.format(this.getCreateTime()));
+    	}
+    	if(this.getUpdateTime() != null){
+    		this.setUpdateTimeStr(sdf.format(this.getUpdateTime()));
+    	}
+    	if(this.getResourceWriteTime() != null){
+    		this.setResourceWriteTimeStr(sdf.format(this.getResourceWriteTime()));
+    	}
+    	if(this.getReleaseTime() != null){
+    		if(StringUtils.isNotBlank(this.getReleaseTimeFormat())){
+    			sdf = new SimpleDateFormat(this.getReleaseTimeFormat());
+    		}
+    		this.setReleaseTimeStr(sdf.format(this.getReleaseTime()));
+    	}
+    	
+    	if(StringUtils.isBlank(this.getYear())){
+    		this.setYear(this.getReleaseTimeStr().substring(0,4));
+    	}
+    	
+    	if(StringUtils.isNotEmpty(this.getIconUri())){
+    		this.setIconUrl(bucketHost + this.getIconUri());
+    	}
+    	
+    	if(StringUtils.isNotBlank(this.getPosterUriJson())){
+    		List<String> posterUris = JSON.parseArray(this.getPosterUriJson(), String.class);
+    		List<String> posterUrlList = new ArrayList<String>();
+//    		String posterUrlStr = "";
+    		for(String posterUri : posterUris){
+    			String posterUrl = bucketHost + posterUri;
+    			posterUrlList.add(posterUrl);
+//    			posterUrlStr += ","+posterUrl;
+    		}
+    		this.setPosterUrlList(posterUrlList);
+    	}
+    	
+    	if(StringUtils.isNotBlank(this.getPhotoUriJson())){
+    		List<String> photoUris = JSON.parseArray(this.getPhotoUriJson(), String.class);
+    		List<String> photoUrlList = new ArrayList<String>();
+    		for(String photoUri : photoUris){
+    			String photoUrl = bucketHost + photoUri;
+    			photoUrlList.add(photoUrl);
+    		}
+    		this.setPhotoUrlList(photoUrlList);
+    	}
+    	
+    	if(StringUtils.isNotBlank(this.getAnotherName())){
+    		this.setAnotherNameArr(this.getAnotherName().split(RegexConstant.slashSep));
+    	}
+    	
+    	if(StringUtils.isNotBlank(this.getLabels())){
+    		this.setLabelArr(this.getLabels().split(RegexConstant.slashSep));
+    	}
+    	
+    	if(StringUtils.isNotBlank(this.getLanguages())){
+    		this.setLanguageArr(this.getLanguages().split(RegexConstant.slashSep));
+    	}
+    	
+    	if(this.getDoubanScore() != null){
+    		BigDecimal divisor = new BigDecimal(2);
+    		BigDecimal dividend = new BigDecimal(this.getDoubanScore());
+    		BigDecimal quotient = dividend.divide(divisor, 1, BigDecimal.ROUND_FLOOR);
+    		String quotientStr = quotient.toString();
+    		String[] intAndPoint = quotientStr.split("\\.");
+    		String integerStr = intAndPoint[0];
+    		int point = Integer.valueOf(intAndPoint[1]);
+    		if(point <= 1){
+    			integerStr += "0";
+    		}else if(point <= 6){
+    			integerStr += "5";
+    		}else if(point <= 9){
+    			integerStr = (Integer.valueOf(integerStr)+1)+"0";
+    		}
+    		this.setDoubanScoreCalc(integerStr);
+    	}else {
+    		this.setDoubanScoreCalc("00");
+    	}
+    	
+    	if(StringUtils.isNotBlank(this.getSummary())){
+    		
+    		String summary = Pattern.compile("(\\s|　)*<br>(\\s|　)*").matcher(this.getSummary()).replaceAll("");
+    		String summaryShow =  StringUtil.StringLimit(summary, 124);
+        	this.setSummaryShow(summaryShow);
+    	}else {
+    		this.setSummaryShow("...");
+    	}
+    	
+    }
+    
+    public static void parse(List<MovieInfoVO> list){
+    	for(MovieInfoVO vo : list){
+    		vo.parse();
+    	}
+    }
+    
+    
 }

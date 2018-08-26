@@ -1,19 +1,29 @@
-package com.sbolo.syk.common.tools;
+package com.sbolo.syk.fetch.tool;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
+import com.sbolo.syk.common.constants.MovieQualityEnum;
+import com.sbolo.syk.common.constants.MovieResolutionConstant;
+import com.sbolo.syk.common.constants.RegexConstant;
 import com.sbolo.syk.common.http.HttpUtils;
+import com.sbolo.syk.common.tools.BucketUtils;
+import com.sbolo.syk.common.tools.ConfigUtil;
+import com.sbolo.syk.common.tools.GrapicmagickUtils;
+import com.sbolo.syk.common.tools.StringUtil;
+import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 
 public class SykUtils {
 	
@@ -169,6 +179,17 @@ public class SykUtils {
 		return null;
 	}
 	
+	public static String uploadTorrent4Uri(String downloadLinkTemp, String torrentName) throws Exception {
+		if(StringUtils.isNotBlank(downloadLinkTemp)){
+			String torrentTempDir = ConfigUtil.getPropertyValue("torrent.temp.dir");
+			String suffix = downloadLinkTemp.substring(downloadLinkTemp.lastIndexOf(".")+1);
+			String targetDir = ConfigUtil.getPropertyValue("bucket.formal.torrent");
+			String downloadLink = BucketUtils.upload2Dir(new File(torrentTempDir), targetDir, torrentName, suffix);
+			return downloadLink;
+		}
+		return null;
+	}
+	
 	
 	/**
 	 * 下载文件并返回uri
@@ -240,5 +261,60 @@ public class SykUtils {
 				markStream = null;
 			}
 		}
+	}
+	
+	/**
+	 * 重新组建种子文件名
+	 * @param fetchResource
+	 * @return
+	 */
+	public static String getTorrentName(ResourceInfoVO fetchResource) {
+		StringBuffer fileName = new StringBuffer(fetchResource.getPureName().replaceAll(" ", "."));
+		if(fetchResource.getEpisodeStart() != null){
+			fileName.append(".第").append(fetchResource.getEpisodeStart())
+			.append("-").append(fetchResource.getEpisodeEnd()).append("集");
+		}else if(fetchResource.getEpisodeEnd() != null){
+			fileName.append(".第").append(fetchResource.getEpisodeEnd()).append("集");
+		}
+		if(StringUtils.isNotBlank(fetchResource.getQuality())){
+			fileName.append(".").append(fetchResource.getQuality());
+		}
+		if(StringUtils.isNotBlank(fetchResource.getResolution())){
+			fileName.append(".").append(fetchResource.getResolution());
+		}
+		String subtitleNotice = "";
+		if(StringUtils.isNotBlank(fetchResource.getSubtitle())){
+			subtitleNotice = fetchResource.getSubtitle();
+		}
+		fileName.append(".").append(subtitleNotice).append(CommonConstants.local_sign);
+		return fileName.toString();
+	}
+	
+	/**
+     * 计算资源resource的得分情况
+     * 方便进行资源的好坏的比较
+     * @param quality
+     * @param resolution
+     * @return
+     */
+    public static int translateDefinitionIntoScore(String quality, String resolution){
+		
+		if(StringUtils.isBlank(quality) && StringUtils.isBlank(resolution)){
+			return 0;
+		}
+		if(StringUtils.isBlank(quality)){
+			return MovieResolutionConstant.getPureResolutionScoreByKey(resolution);
+		}
+		
+		if(StringUtils.isBlank(resolution)){
+			return MovieQualityEnum.getScoreByName(quality);
+		}
+		
+		BigDecimal rat = new BigDecimal(0.69);
+		BigDecimal qualityScore = new BigDecimal(MovieQualityEnum.getScoreByName(quality));
+		BigDecimal resolutionScore = new BigDecimal(MovieResolutionConstant.getResolutionScoreByKey(resolution));
+		BigDecimal definition = qualityScore.add(resolutionScore).multiply(rat).setScale(0,BigDecimal.ROUND_HALF_UP);
+		
+		return definition.intValue();
 	}
 }

@@ -1,4 +1,4 @@
-package com.sbolo.syk.common.vo;
+package com.sbolo.syk.admin.vo;
 
 import java.util.Date;
 import javax.persistence.*;

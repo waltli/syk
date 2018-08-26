@@ -1,10 +1,10 @@
-package com.sbolo.syk.common.vo;
+package com.sbolo.syk.fetch.vo;
 
 import java.util.Date;
 import javax.persistence.*;
 
 
-public class MovieLabelVO {
+public class MovieLocationVO {
 
     /**
      * 全局唯一标识
@@ -31,10 +31,10 @@ public class MovieLabelVO {
     private Date releaseTime;
 
     /**
-     * 标签名
+     * 上映地点名称
      */
     
-    private String labelName;
+    private String locationName;
 
     /**
      * 创建时间
@@ -121,21 +121,21 @@ public class MovieLabelVO {
     }
 
     /**
-     * 获取标签名
+     * 获取上映地点名称
      *
      * 
      */
-    public String getLabelName() {
-        return labelName;
+    public String getLocationName() {
+        return locationName;
     }
 
     /**
-     * 设置标签名
+     * 设置上映地点名称
      *
      * 
      */
-    public void setLabelName(String labelName) {
-        this.labelName = labelName;
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
     }
 
     /**

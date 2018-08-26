@@ -1,20 +1,21 @@
-package com.sbolo.syk.common.vo;
+package com.sbolo.syk.admin.vo;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import javax.persistence.*;
 
 
-public class MovieHotStatVO {
+public class MovieLocationVO {
 
     /**
      * 全局唯一标识
      */
+    
     private String prn;
 
     /**
      * 电影prn
      */
+    
     private String moviePrn;
 
     /**
@@ -30,22 +31,10 @@ public class MovieHotStatVO {
     private Date releaseTime;
 
     /**
-     * 豆瓣分数
+     * 上映地点名称
      */
     
-    private BigDecimal doubanScore;
-
-    /**
-     * imdb分数
-     */
-    
-    private BigDecimal imdbScore;
-
-    /**
-     * 触发方式
-     */
-    
-    private Integer triggerType;
+    private String locationName;
 
     /**
      * 创建时间
@@ -58,7 +47,6 @@ public class MovieHotStatVO {
      */
     
     private Date updateTime;
-
 
     /**
      * 获取全局唯一标识
@@ -133,57 +121,21 @@ public class MovieHotStatVO {
     }
 
     /**
-     * 获取豆瓣分数
+     * 获取上映地点名称
      *
      * 
      */
-    public BigDecimal getDoubanScore() {
-        return doubanScore;
+    public String getLocationName() {
+        return locationName;
     }
 
     /**
-     * 设置豆瓣分数
+     * 设置上映地点名称
      *
      * 
      */
-    public void setDoubanScore(BigDecimal doubanScore) {
-        this.doubanScore = doubanScore;
-    }
-
-    /**
-     * 获取imdb分数
-     *
-     * 
-     */
-    public BigDecimal getImdbScore() {
-        return imdbScore;
-    }
-
-    /**
-     * 设置imdb分数
-     *
-     * 
-     */
-    public void setImdbScore(BigDecimal imdbScore) {
-        this.imdbScore = imdbScore;
-    }
-
-    /**
-     * 获取触发方式
-     *
-     * 
-     */
-    public Integer getTriggerType() {
-        return triggerType;
-    }
-
-    /**
-     * 设置触发方式
-     *
-     * 
-     */
-    public void setTriggerType(Integer triggerType) {
-        this.triggerType = triggerType;
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
     }
 
     /**

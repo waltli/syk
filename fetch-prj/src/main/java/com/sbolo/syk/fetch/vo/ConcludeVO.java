@@ -2,9 +2,6 @@ package com.sbolo.syk.fetch.vo;
 
 import java.util.List;
 
-import com.sbolo.syk.common.vo.MovieInfoVO;
-import com.sbolo.syk.common.vo.ResourceInfoVO;
-
 public class ConcludeVO {
 	private MovieInfoVO fetchMovie;
 	private List<ResourceInfoVO> fetchResources;
