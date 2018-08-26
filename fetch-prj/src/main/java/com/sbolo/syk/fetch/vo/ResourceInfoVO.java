@@ -1,4 +1,4 @@
-package com.sbolo.syk.common.vo;
+package com.sbolo.syk.fetch.vo;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -88,6 +88,8 @@ public class ResourceInfoVO {
     private String downloadLink;
     
     private String downloadLinkUrl;
+    
+    private String downloadLinkTemp;
 
     /**
      * 第几季
@@ -126,7 +128,7 @@ public class ResourceInfoVO {
     private List<String> shotUriList;
     
     private String shotTempUriStr;
-
+    
     /**
      * 采集自哪个网站
      */
@@ -175,6 +177,14 @@ public class ResourceInfoVO {
 
 	public void setShotTempUriStr(String shotTempUriStr) {
 		this.shotTempUriStr = shotTempUriStr;
+	}
+
+	public String getDownloadLinkTemp() {
+		return downloadLinkTemp;
+	}
+
+	public void setDownloadLinkTemp(String downloadLinkTemp) {
+		this.downloadLinkTemp = downloadLinkTemp;
 	}
 
 	public String getLinkType() {

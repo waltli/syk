@@ -48,15 +48,11 @@ import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.http.callback.HttpSendCallbackPure;
 import com.sbolo.syk.common.tools.BucketUtils;
 import com.sbolo.syk.common.tools.ConfigUtil;
-import com.sbolo.syk.common.tools.DoubanUtils;
 import com.sbolo.syk.common.tools.FileUtils;
 import com.sbolo.syk.common.tools.StringUtil;
-import com.sbolo.syk.common.tools.SykUtils;
 import com.sbolo.syk.common.tools.Utils;
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.common.ui.RequestResult;
-import com.sbolo.syk.common.vo.MovieInfoVO;
-import com.sbolo.syk.common.vo.ResourceInfoVO;
 import com.sbolo.syk.admin.entity.MovieHotStatEntity;
 import com.sbolo.syk.admin.entity.MovieInfoEntity;
 import com.sbolo.syk.admin.entity.MovieLabelEntity;
@@ -65,6 +61,8 @@ import com.sbolo.syk.admin.entity.ResourceInfoEntity;
 import com.sbolo.syk.admin.mapper.MovieHotStatMapper;
 import com.sbolo.syk.admin.mapper.MovieInfoMapper;
 import com.sbolo.syk.admin.po.HotStatisticsEntity;
+import com.sbolo.syk.admin.vo.MovieInfoVO;
+import com.sbolo.syk.admin.vo.ResourceInfoVO;
 
 @Service
 public class MovieInfoService {
@@ -212,7 +210,7 @@ public class MovieInfoService {
 		//上传photo图片
 		String photoTempUriStr = movie.getPhotoTempUriStr();
 		String[] photoTempUriArr = photoTempUriStr.split(",");
-		String photoUriStr = SykUtils.uploadPoster4Uri(Arrays.asList(photoTempUriArr));
+		String photoUriStr = SykUtils.uploadPhoto4Uri(Arrays.asList(photoTempUriArr));
 		movie.setPhotoUriJson(photoUriStr);
 		
 		Integer optimalIdx = 0;
@@ -241,12 +239,12 @@ public class MovieInfoService {
 			}
 			
 			//上传torrent文件
-			String tempLinkStr = resource.getBusDownloadLink();
-			if(StringUtils.isNotBlank(tempLinkStr)){
+			String downloadLinkTemp = resource.getDownloadLinkTemp();
+			if(StringUtils.isNotBlank(downloadLinkTemp)){
 				String reloadLink = null;
-				if(Pattern.compile(RegexConstant.torrent).matcher(tempLinkStr).find()){
-					String newRootPath = ConfigUtil.getPropertyValue("torrentDir");
-					String suffix = tempLinkStr.substring(tempLinkStr.lastIndexOf(".")+1);
+				if(Pattern.compile(RegexConstant.torrent).matcher(downloadLinkTemp).find()){
+					String torrentTempDir = ConfigUtil.getPropertyValue("torrent.temp.dir");
+					String suffix = downloadLinkTemp.substring(downloadLinkTemp.lastIndexOf(".")+1);
 					String newName = resourceService.buildTorrentName(resource)+"."+suffix;
 					try {
 						String reloadBt = Utils.copyFile(oldRootPath, tempLinkStr, newRootPath, newName);

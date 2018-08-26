@@ -32,12 +32,7 @@ import com.sbolo.syk.common.tools.DateUtil;
 import com.sbolo.syk.common.tools.FileUtils;
 import com.sbolo.syk.common.tools.GrapicmagickUtils;
 import com.sbolo.syk.common.tools.StringUtil;
-import com.sbolo.syk.common.tools.SykUtils;
 import com.sbolo.syk.common.tools.VOUtils;
-import com.sbolo.syk.common.vo.MovieInfoVO;
-import com.sbolo.syk.common.vo.MovieLabelVO;
-import com.sbolo.syk.common.vo.MovieLocationVO;
-import com.sbolo.syk.common.vo.ResourceInfoVO;
 import com.sbolo.syk.fetch.entity.MovieFileIndexEntity;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
 import com.sbolo.syk.fetch.entity.MovieLabelEntity;
@@ -50,8 +45,13 @@ import com.sbolo.syk.fetch.mapper.MovieLocationMapper;
 import com.sbolo.syk.fetch.mapper.ResourceInfoMapper;
 import com.sbolo.syk.fetch.spider.Pipeline;
 import com.sbolo.syk.fetch.tool.FetchUtils;
+import com.sbolo.syk.fetch.tool.SykUtils;
 import com.sbolo.syk.fetch.vo.ConcludeVO;
+import com.sbolo.syk.fetch.vo.MovieInfoVO;
+import com.sbolo.syk.fetch.vo.MovieLabelVO;
+import com.sbolo.syk.fetch.vo.MovieLocationVO;
 import com.sbolo.syk.fetch.vo.PicVO;
+import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 
 @Component
 public class MyPipeline implements Pipeline {
@@ -395,7 +395,22 @@ public class MyPipeline implements Pipeline {
 			try {
 				//如果是種子文件則需要下載到服務器
 				if(Pattern.compile(RegexConstant.torrent).matcher(fetchResource.getDownloadLink()).find()){
-					String torrentName = getTorrentName(fetchResource);
+					String torrentName = SykUtils.getTorrentName(fetchResource);
+					//去除当前页面文件重名的可能性
+					StringBuffer sb = new StringBuffer(torrentName);
+					int count = 1;
+					do{
+						Integer in = torrentNameMapping.get(sb.toString());
+						if(in == null){
+							torrentName = sb.toString();
+							break;
+						}
+						sb = new StringBuffer(torrentName);
+						sb.append("(").append(count).append(")");
+						count++;
+					} while(true);
+					torrentNameMapping.put(sb.toString(), 1);
+					
 					String suffix = fetchResource.getDownloadLink().substring(fetchResource.getDownloadLink().lastIndexOf(".")+1);
 					String torrentDir = ConfigUtil.getPropertyValue("bucket.formal.torrent");
 					
@@ -424,49 +439,6 @@ public class MyPipeline implements Pipeline {
 		fileIdx.setFixUri(uri);
 		fileIdx.setSourceUrl(sourceUrl);
 		return fileIdx;
-	}
-	
-	/**
-	 * 重新组建种子文件名
-	 * @param fetchResource
-	 * @return
-	 */
-	private String getTorrentName(ResourceInfoVO fetchResource) {
-		StringBuffer fileName = new StringBuffer(fetchResource.getPureName().replaceAll(" ", "."));
-		if(fetchResource.getEpisodeStart() != null){
-			fileName.append(".第").append(fetchResource.getEpisodeStart())
-			.append("-").append(fetchResource.getEpisodeEnd()).append("集");
-		}else if(fetchResource.getEpisodeEnd() != null){
-			fileName.append(".第").append(fetchResource.getEpisodeEnd()).append("集");
-		}
-		if(StringUtils.isNotBlank(fetchResource.getQuality())){
-			fileName.append(".").append(fetchResource.getQuality());
-		}
-		if(StringUtils.isNotBlank(fetchResource.getResolution())){
-			fileName.append(".").append(fetchResource.getResolution());
-		}
-		String subtitleNotice = "";
-		if(StringUtils.isNotBlank(fetchResource.getSubtitle())){
-			subtitleNotice = fetchResource.getSubtitle();
-		}
-		fileName.append(".").append(subtitleNotice).append(CommonConstants.local_sign);
-		
-		//去除当前页面文件重名的可能性
-		StringBuffer test = new StringBuffer(fileName);
-		int count = 1;
-		do{
-			Integer in = torrentNameMapping.get(test.toString());
-			if(in == null){
-				fileName = test;
-				break;
-			}
-			test = new StringBuffer(fileName);
-			test.append("(").append(count).append(")");
-			count++;
-		} while(true);
-		
-		torrentNameMapping.put(fileName.toString(), 1);
-		return fileName.toString();
 	}
 	
 	/**

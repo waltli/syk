@@ -1,4 +1,4 @@
-package com.sbolo.syk.admin.vo;
+package com.sbolo.syk.fetch.vo;
 
 import java.util.List;
 

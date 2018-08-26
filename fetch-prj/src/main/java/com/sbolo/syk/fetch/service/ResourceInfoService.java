@@ -1,5 +1,8 @@
 package com.sbolo.syk.fetch.service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.annotation.Resource;
 
 import org.slf4j.Logger;
@@ -18,6 +21,13 @@ public class ResourceInfoService {
 	public ResourceInfoEntity getOptimalResource(String moviePrn) {
 		ResourceInfoEntity dbOptimalResource = resourceInfoMapper.selectOptimalResource(moviePrn);
 		return dbOptimalResource;
+	}
+	
+	public void updateStatusByMovieId(String moviePrn, int resourceStatus){
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("moviePrn", moviePrn);
+		params.put("resourceStatus", resourceStatus);
+		resourceInfoMapper.signStatusByMoviePrn(params);
 	}
 	
 }

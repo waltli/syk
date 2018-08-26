@@ -51,17 +51,12 @@ import com.sbolo.syk.common.http.callback.HttpSendCallbackPure;
 import com.sbolo.syk.common.tools.BucketUtils;
 import com.sbolo.syk.common.tools.ConfigUtil;
 import com.sbolo.syk.common.tools.DateUtil;
-import com.sbolo.syk.common.tools.DoubanUtils;
 import com.sbolo.syk.common.tools.FileUtils;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.UIDGenerator;
 import com.sbolo.syk.common.tools.Utils;
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.common.vo.LinkAnalyzeResultVO;
-import com.sbolo.syk.common.vo.MovieInfoVO;
-import com.sbolo.syk.common.vo.MovieLabelVO;
-import com.sbolo.syk.common.vo.MovieLocationVO;
-import com.sbolo.syk.common.vo.ResourceInfoVO;
 import com.sbolo.syk.fetch.entity.MovieFileIndexEntity;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
 import com.sbolo.syk.fetch.entity.MovieLabelEntity;
@@ -72,12 +67,18 @@ import com.sbolo.syk.fetch.service.MovieInfoService;
 import com.sbolo.syk.fetch.service.MovieLabelService;
 import com.sbolo.syk.fetch.service.MovieLocationService;
 import com.sbolo.syk.fetch.service.ResourceInfoService;
+import com.sbolo.syk.fetch.tool.DoubanUtils;
 import com.sbolo.syk.fetch.tool.FetchUtils;
 import com.sbolo.syk.fetch.tool.LinkAnalyst;
+import com.sbolo.syk.fetch.tool.SykUtils;
 import com.sbolo.syk.fetch.vo.ConcludeVO;
 import com.sbolo.syk.fetch.vo.LinkInfoVO;
+import com.sbolo.syk.fetch.vo.MovieInfoVO;
+import com.sbolo.syk.fetch.vo.MovieLabelVO;
+import com.sbolo.syk.fetch.vo.MovieLocationVO;
 import com.sbolo.syk.fetch.vo.PicVO;
 import com.sbolo.syk.fetch.vo.PureNameAndSeasonVO;
+import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 
 @Component
 public class ProcessorHelper {
@@ -826,7 +827,7 @@ public class ProcessorHelper {
 		}
 		
 		//计算清晰度得分
-		Integer definitionScore = this.translateDefinitionIntoScore(newResource.getQuality(), newResource.getResolution());
+		Integer definitionScore = SykUtils.translateDefinitionIntoScore(newResource.getQuality(), newResource.getResolution());
 		newResource.setDefinition(definitionScore);
 		
 		//从下载链接名字中获取字幕信息
@@ -914,34 +915,6 @@ public class ProcessorHelper {
 		newResource.setCreateTime(thisTime);
 		return newResource;
     }
-    
-    /**
-     * 计算资源resource的得分情况
-     * 方便进行资源的好坏的比较
-     * @param quality
-     * @param resolution
-     * @return
-     */
-    private int translateDefinitionIntoScore(String quality, String resolution){
-		
-		if(StringUtils.isBlank(quality) && StringUtils.isBlank(resolution)){
-			return 0;
-		}
-		if(StringUtils.isBlank(quality)){
-			return MovieResolutionConstant.getPureResolutionScoreByKey(resolution);
-		}
-		
-		if(StringUtils.isBlank(resolution)){
-			return MovieQualityEnum.getScoreByName(quality);
-		}
-		
-		BigDecimal rat = new BigDecimal(0.69);
-		BigDecimal qualityScore = new BigDecimal(MovieQualityEnum.getScoreByName(quality));
-		BigDecimal resolutionScore = new BigDecimal(MovieResolutionConstant.getResolutionScoreByKey(resolution));
-		BigDecimal definition = qualityScore.add(resolutionScore).multiply(rat).setScale(0,BigDecimal.ROUND_HALF_UP);
-		
-		return definition.intValue();
-	}
     
     /**
 	 * 将新获得的resource与缓存中的最佳resource进行比较

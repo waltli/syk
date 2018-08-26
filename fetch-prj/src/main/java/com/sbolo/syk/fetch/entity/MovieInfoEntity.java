@@ -210,6 +210,16 @@ public class MovieInfoEntity {
      */
     @Column(name = "`count_download`")
     private Integer countDownload;
+    
+    private ResourceInfoEntity optimalResource;
+
+	public ResourceInfoEntity getOptimalResource() {
+		return optimalResource;
+	}
+
+	public void setOptimalResource(ResourceInfoEntity optimalResource) {
+		this.optimalResource = optimalResource;
+	}
 
 	public String getPhotoUriJson() {
 		return photoUriJson;
