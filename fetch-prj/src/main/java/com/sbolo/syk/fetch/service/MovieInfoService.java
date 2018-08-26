@@ -211,7 +211,7 @@ public class MovieInfoService {
 		//上传photo图片
 		String photoTempUriStr = movie.getPhotoTempUriStr();
 		String[] photoTempUriArr = photoTempUriStr.split(",");
-		String photoUriStr = SykUtils.uploadPoster4Uri(Arrays.asList(photoTempUriArr));
+		String photoUriStr = SykUtils.uploadPhoto4Uri(Arrays.asList(photoTempUriArr));
 		movie.setPhotoUriJson(photoUriStr);
 		
 		Integer optimalIdx = 0;
@@ -248,14 +248,12 @@ public class MovieInfoService {
 			}else {
 				downloadLink = downloadLinkTemp;
 			}
-			if(StringUtils.isNotBlank(downloadLink)){
-				resource.setDownloadLink(downloadLink);
-			}
+			resource.setDownloadLink(downloadLink);
 			
 			//上传shot图片
 			String shotTempUriStr = resource.getShotTempUriStr();
 			String[] shotTempUriArr = shotTempUriStr.split(",");
-			String shotUriStr = SykUtils.uploadPoster4Uri(Arrays.asList(shotTempUriArr));
+			String shotUriStr = SykUtils.uploadShot4Uri(Arrays.asList(shotTempUriArr));
 			resource.setShotUriJson(shotUriStr);
 			
 			//资源清晰度得分
