@@ -20,4 +20,7 @@ public interface BatchWriteMapper<T> {
 	@UpdateProvider(type = BatchWriteProvider.class, method = "dynamicSQL")
 	int updateListByPrn(List<T> recordList);
 	
+	@UpdateProvider(type = BatchWriteProvider.class, method = "dynamicSQL")
+	int updateByPrn(T record);
+	
 }

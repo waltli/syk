@@ -3,6 +3,8 @@ package com.sbolo.syk.fetch.vo;
 import java.util.Date;
 import javax.persistence.*;
 
+import com.sbolo.syk.common.tools.UIDGenerator;
+
 
 public class MovieLabelVO {
 
@@ -173,4 +175,15 @@ public class MovieLabelVO {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
+    
+    public static MovieLabelVO buildLabel(String labelName, String moviePrn, String pureName, Date releaseTime, Date thisTime) {
+		MovieLabelVO label = new MovieLabelVO();
+		label.setLabelName(labelName);
+		label.setPrn(UIDGenerator.getUID()+"");
+		label.setMoviePrn(moviePrn);
+		label.setPureName(pureName);
+		label.setReleaseTime(releaseTime);
+		label.setCreateTime(thisTime);
+		return label;
+	}
 }

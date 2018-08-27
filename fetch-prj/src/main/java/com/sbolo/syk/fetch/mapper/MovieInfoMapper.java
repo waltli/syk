@@ -35,5 +35,13 @@ public interface MovieInfoMapper extends Mapper<MovieInfoEntity>, BatchWriteMapp
 	@Select("select * from movie_info where pure_name = #{pureName} and release_time = #{releaseTime} limit 1")
 	MovieInfoEntity selectByPureNameAndReleaseTime(Map<String, Object> params);
 	
+	@Select("select * from movie_info where pure_name = #{pureName} limit 1")
+	MovieInfoEntity selectByPureName(String pureName);
+	
+	@Select("select * from movie_info where prn=#{moviePrn}")
+	MovieInfoEntity selectByPrn(String moviePrn);
+	
+	MovieInfoEntity selectByPureNameAndPrecision(Map<String, Object> params);
+	
 	
 }

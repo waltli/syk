@@ -70,7 +70,6 @@ import com.sbolo.syk.fetch.service.ResourceInfoService;
 import com.sbolo.syk.fetch.tool.DoubanUtils;
 import com.sbolo.syk.fetch.tool.FetchUtils;
 import com.sbolo.syk.fetch.tool.LinkAnalyst;
-import com.sbolo.syk.fetch.tool.SykUtils;
 import com.sbolo.syk.fetch.vo.ConcludeVO;
 import com.sbolo.syk.fetch.vo.LinkInfoVO;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
@@ -380,7 +379,9 @@ public class ProcessorHelper {
 			return fetchMovie;
 		}
 		//获取有改变的属性项
-		MovieInfoVO changeOption = this.changeOption(dbMovie, fetchMovie, thisTime);
+		List<MovieLabelEntity> dbLabels = movieLabelService.getListByMoviePrn(dbMovie.getPrn());
+		List<MovieLocationEntity> dbLocations = movieLocationService.getListByMoviePrn(dbMovie.getPrn());
+		MovieInfoVO changeOption = FetchUtils.changeOption(dbMovie, fetchMovie, dbLabels, dbLocations, thisTime);
 		if(changeOption == null){
 			//如果没有改变，则new一个新的，用作放置optimalResourcePrn
 			changeOption = new MovieInfoVO();
@@ -708,30 +709,10 @@ public class ProcessorHelper {
 		List<MovieLabelVO> labels = new ArrayList<MovieLabelVO>();
 		for(int i=0; i<labelsSplit.length; i++){
 			String labelName = labelsSplit[i];
-			MovieLabelVO label = this.buildLabel(labelName, moviePrn, pureName, releaseTime, thisTime);
+			MovieLabelVO label = MovieLabelVO.buildLabel(labelName, moviePrn, pureName, releaseTime, thisTime);
 			labels.add(label);
 		}
 		return labels;
-	}
-	
-	/**
-	 * 构建一个label
-	 * @param labelName
-	 * @param moviePrn
-	 * @param pureName
-	 * @param releaseTime
-	 * @param now
-	 * @return
-	 */
-	private MovieLabelVO buildLabel(String labelName, String moviePrn, String pureName, Date releaseTime, Date thisTime) {
-		MovieLabelVO label = new MovieLabelVO();
-		label.setLabelName(labelName);
-		label.setPrn(UIDGenerator.getUID()+"");
-		label.setMoviePrn(moviePrn);
-		label.setPureName(pureName);
-		label.setReleaseTime(releaseTime);
-		label.setCreateTime(thisTime);
-		return label;
 	}
 	
 	/**
@@ -757,21 +738,10 @@ public class ProcessorHelper {
 				continue;
 			}
 			String locationName = m.group();
-			MovieLocationVO location = this.buildLocation(locationName, moviePrn, pureName, releaseTime, thisTime);
+			MovieLocationVO location = MovieLocationVO.buildLocation(locationName, moviePrn, pureName, releaseTime, thisTime);
 			locations.add(location);
 		}
 		return locations;
-	}
-	
-	private MovieLocationVO buildLocation(String locationName, String moviePrn, String pureName, Date releaseTime, Date thisTime) {
-		MovieLocationVO location = new MovieLocationVO();
-		location.setLocationName(locationName);
-		location.setPrn(UIDGenerator.getUID()+"");
-		location.setMoviePrn(moviePrn);
-		location.setPureName(pureName);
-		location.setReleaseTime(releaseTime);
-		location.setCreateTime(thisTime);
-		return location;
 	}
 	
 	/**
@@ -827,7 +797,7 @@ public class ProcessorHelper {
 		}
 		
 		//计算清晰度得分
-		Integer definitionScore = SykUtils.translateDefinitionIntoScore(newResource.getQuality(), newResource.getResolution());
+		Integer definitionScore = FetchUtils.translateDefinitionIntoScore(newResource.getQuality(), newResource.getResolution());
 		newResource.setDefinition(definitionScore);
 		
 		//从下载链接名字中获取字幕信息
@@ -967,183 +937,5 @@ public class ProcessorHelper {
 		}
 		
 	}
-	
-	/**
-	 * 将数据库中的电影信息，和新爬到的电影信息进行对比，看是否有更新项
-	 * 如果有则赋值到新的movieInfo对象中并返回
-	 * @param dbMovie
-	 * @param fetchMovie
-	 * @return
-	 */
-	private MovieInfoVO changeOption(MovieInfoEntity dbMovie, MovieInfoVO fetchMovie, Date thisTime){
-    	MovieInfoVO changeOption = new MovieInfoVO();
-    	boolean hasChange = false;
-    	
-    	if(StringUtils.isNotBlank(dbMovie.getLabels()) && 
-    			StringUtils.isNotBlank(fetchMovie.getLabels()) &&
-    			!dbMovie.getLabels().equals(fetchMovie.getLabels())) {
-    		//从数据库中查询出的labels
-    		List<MovieLabelEntity> dbLabels = movieLabelService.getListByMoviePrn(dbMovie.getPrn());
-    		String[] fetchLabelNames = fetchMovie.getLabels().split(",");
-    		
-    		List<MovieLabelVO> newLabels = new ArrayList<>();
-    		
-    		for(String fetchLabelName : fetchLabelNames) {
-    			for(MovieLabelEntity dbLabel : dbLabels) {
-    				if(dbLabel.getLabelName().equals(fetchLabelName)) {
-    					//如果有相同的，证明之前已经有了，直接break，循环下一个被fetch到的
-    					break;
-    				}
-    			}
-    			MovieLabelVO newLabel = this.buildLabel(fetchLabelName, dbMovie.getPrn(), dbMovie.getPureName(), dbMovie.getReleaseTime(), thisTime);
-    			newLabels.add(newLabel);
-    		}
-    		if(newLabels.size() != 0) {
-    			hasChange = true;
-    			changeOption.setLabels(fetchMovie.getLabels());
-    			changeOption.setLabelList(newLabels);
-    		}
-    	}
-    	
-    	
-    	if(StringUtils.isNotBlank(dbMovie.getLocations()) && 
-    			StringUtils.isNotBlank(fetchMovie.getLocations()) &&
-    			!dbMovie.getLocations().equals(fetchMovie.getLocations())) {
-    		//从数据库中查询出的labels 
-    		List<MovieLocationEntity> dbLocations = movieLocationService.getListByMoviePrn(dbMovie.getPrn());
-    		String[] fetchLocationNames = fetchMovie.getLocations().split(",");
-    		
-    		List<MovieLocationVO> newLocations = new ArrayList<>();
-    		
-    		for(String fetchLocationStr : fetchLocationNames) {
-    			//地区只要中文，如果实在没有也没有办法！
-    			Matcher m = Pattern.compile(RegexConstant.chinese).matcher(fetchLocationStr);
-    			if(!m.find()){
-    				continue;
-    			}
-    			String fetchLocationName = m.group();
-    			for(MovieLocationEntity dbLocation : dbLocations) {
-    				if(dbLocation.getLocationName().equals(fetchLocationName)) {
-    					//如果有相同的，证明之前已经有了，直接break，循环下一个被fetch到的
-    					break;
-    				}
-    			}
-    			MovieLocationVO newLocation = this.buildLocation(fetchLocationName, dbMovie.getPrn(), dbMovie.getPureName(), dbMovie.getReleaseTime(), thisTime);
-    			newLocations.add(newLocation);
-    		}
-    		if(newLocations.size() != 0) {
-    			hasChange = true;
-    			changeOption.setLocations(fetchMovie.getLocations());
-    			changeOption.setLocationList(newLocations);
-    		}
-    	}
-    	
-    	
-    	
-    	
-    	if(StringUtils.isBlank(dbMovie.getIconUri()) && StringUtils.isNotBlank(fetchMovie.getIconUri())){
-    		changeOption.setIconUri(fetchMovie.getIconUri());
-    		hasChange = true;
-    	}
-    	
-    	if(StringUtils.isNotBlank(fetchMovie.getAnotherName())){
-    		if(StringUtils.isBlank(dbMovie.getAnotherName()) || !dbMovie.getAnotherName().equals(fetchMovie.getAnotherName())){
-    			changeOption.setAnotherName(fetchMovie.getAnotherName());
-    			hasChange = true;
-    		}
-    	}
-    	
-    	if(StringUtils.isNotBlank(fetchMovie.getLanguages())){
-    		if(StringUtils.isBlank(dbMovie.getLanguages()) || !dbMovie.getLanguages().equals(fetchMovie.getLanguages())){
-    			changeOption.setLanguages(fetchMovie.getLanguages());
-    			hasChange = true;
-    		}
-    	}
-
-    	if(fetchMovie.getReleaseTime() != null){
-        	if(dbMovie.getReleaseTime() == null || !dbMovie.getReleaseTime().equals(fetchMovie.getReleaseTime())){
-        		changeOption.setReleaseTime(fetchMovie.getReleaseTime());
-        		changeOption.setReleaseTimeFormat(fetchMovie.getReleaseTimeFormat());
-        		changeOption.setReleaseTimeStr(fetchMovie.getReleaseTimeStr());
-    			hasChange = true;
-        	}
-    	}
-    	
-    	if(StringUtils.isNotBlank(fetchMovie.getYear())){
-    		if(StringUtils.isBlank(dbMovie.getYear()) || !dbMovie.getYear().equals(fetchMovie.getYear())){
-    			changeOption.setYear(fetchMovie.getYear());
-    			hasChange = true;
-    		}
-    	}
-    	
-    	if(StringUtils.isNotBlank(fetchMovie.getDuration())){
-    		if(StringUtils.isBlank(dbMovie.getDuration()) || !dbMovie.getDuration().equals(fetchMovie.getDuration())){
-    			changeOption.setDuration(fetchMovie.getDuration());
-    			hasChange = true;
-    		}
-    	}
-    	
-    	if(StringUtils.isNotBlank(fetchMovie.getSummary())){
-    		if(StringUtils.isBlank(dbMovie.getSummary()) || !dbMovie.getSummary().equals(fetchMovie.getSummary())){
-    			changeOption.setSummary(fetchMovie.getSummary());
-    			hasChange = true;
-    		}
-    	}
-    	
-    	if(StringUtils.isNotBlank(fetchMovie.getDoubanId())){
-    		if(StringUtils.isBlank(dbMovie.getDoubanId()) || !dbMovie.getDoubanId().equals(fetchMovie.getDoubanId())){
-    			changeOption.setDoubanId(fetchMovie.getDoubanId());
-    			hasChange = true;
-    		}
-    	}
-    	
-    	if(StringUtils.isNotBlank(fetchMovie.getImdbId())){
-    		if(StringUtils.isBlank(dbMovie.getImdbId()) || !dbMovie.getImdbId().equals(fetchMovie.getImdbId())){
-    			changeOption.setImdbId(fetchMovie.getImdbId());
-    			hasChange = true;
-    		}
-    	}
-    	
-    	if(fetchMovie.getPresentSeason() != null){
-    		if(dbMovie.getPresentSeason() == null || dbMovie.getPresentSeason().intValue() != fetchMovie.getPresentSeason().intValue()){
-    			changeOption.setPresentSeason(fetchMovie.getPresentSeason());
-    			hasChange = true;
-    		}
-    	}
-    	
-    	if(fetchMovie.getTotalEpisode() != null){
-    		if(dbMovie.getTotalEpisode() == null || dbMovie.getTotalEpisode().intValue() != fetchMovie.getTotalEpisode().intValue()){
-    			changeOption.setTotalEpisode(fetchMovie.getTotalEpisode());
-    			hasChange = true;
-    		}
-    	}
-    	
-    	if(fetchMovie.getDoubanScore() != null){
-    		if(dbMovie.getDoubanScore() == null || dbMovie.getDoubanScore().intValue() != fetchMovie.getDoubanScore().intValue()){
-    			changeOption.setDoubanScore(fetchMovie.getDoubanScore());
-    			hasChange = true;
-    		}
-    	}
-    	
-    	if(fetchMovie.getImdbScore() != null){
-    		if(dbMovie.getImdbScore() == null || dbMovie.getImdbScore().intValue() != fetchMovie.getImdbScore().intValue()){
-    			changeOption.setImdbScore(fetchMovie.getImdbScore());
-    			hasChange = true;
-    		}
-    	}
-    	
-    	if(fetchMovie.getAttentionRate() != null){
-    		if(dbMovie.getAttentionRate() == null || dbMovie.getAttentionRate().intValue() != fetchMovie.getAttentionRate().intValue()){
-    			changeOption.setAttentionRate(fetchMovie.getAttentionRate());
-    			hasChange = true;
-    		}
-    	}
-    	
-    	if(hasChange){
-    		return changeOption;
-    	}
-    	return null;
-    }
-	
 	
 }

@@ -121,5 +121,16 @@
   	WHERE t.prn = a.movie_prn and t.optimal_resource_prn = t1.prn and t.st = 1
   </select>
   
+  <select id="selectByPureNameAndPrecision" resultMap="BaseResultMap" parameterType="java.util.Map">
+  	select * from movie_info
+  	<where>
+  		pure_name = #{pureName}
+  		<if test="precision != null">
+  			and (LOCATE(#{precision}, directors)>0 or LOCATE(#{precision}, casts)>0)
+  		</if>
+  	</where>
+  	limit 1
+  </select>
+  
   
 </mapper>

@@ -12,6 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,6 +60,22 @@ public class FileUtils {
 			file.delete();
 		}
     }
+	
+	public static byte[] getBytes(File file) throws Exception {
+		InputStream is = null;
+		try {
+			if(!file.exists()) {
+				throw new IOException("The file: "+file.getPath() +" is not exists!");
+			}
+			is = new FileInputStream(file);
+			return IOUtils.toByteArray(is);
+		} finally {
+			if(is != null) {
+				is.close();
+				is = null;
+			}
+		}
+	}
 	
 	public static String getSubDir() {
 		String subDir = "/"+DateUtil.date2Str(new Date(), "yyyyMM");

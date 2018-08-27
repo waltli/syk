@@ -11,6 +11,11 @@ public class PicVO {
 	
 	public PicVO(){}
 	
+	public PicVO(String fetchUrl, Integer picV) {
+		this.fetchUrl = fetchUrl;
+		this.picV = picV;
+	}
+	
 	public PicVO(String fetchUrl, String fileName, String suffix, Integer picV, String picDir, Integer picWidth, Integer picHeight) {
 		this.fetchUrl = fetchUrl;
 		this.fileName = fileName;

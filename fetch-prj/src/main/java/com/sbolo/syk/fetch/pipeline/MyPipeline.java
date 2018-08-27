@@ -45,7 +45,6 @@ import com.sbolo.syk.fetch.mapper.MovieLocationMapper;
 import com.sbolo.syk.fetch.mapper.ResourceInfoMapper;
 import com.sbolo.syk.fetch.spider.Pipeline;
 import com.sbolo.syk.fetch.tool.FetchUtils;
-import com.sbolo.syk.fetch.tool.SykUtils;
 import com.sbolo.syk.fetch.vo.ConcludeVO;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
 import com.sbolo.syk.fetch.vo.MovieLabelVO;
@@ -286,64 +285,6 @@ public class MyPipeline implements Pipeline {
 	}
 	
 	/**
-	 * 构建icon对象
-	 * @param iconUrl
-	 * @return
-	 */
-	private PicVO buildPic(String url, int picV) {
-		if(StringUtils.isBlank(url)){
-			return null;
-		}
-		String name = url.substring(url.lastIndexOf("/")+1);
-		if(name.equals(doubanDefaultIcon)) {
-			return null;
-		}
-		String suffix = name.substring(name.lastIndexOf(".")+1);
-		String fileName = StringUtil.getId(CommonConstants.pic_s);
-		String picDir = null;
-		Integer picWidth = null;
-		Integer picHeight = null;
-		switch (picV) {
-		case CommonConstants.icon_v:
-			picDir = ConfigUtil.getPropertyValue("bucket.formal.icon");
-			picWidth = CommonConstants.icon_width;
-			picHeight = CommonConstants.icon_height;
-			break;
-		case CommonConstants.poster_v:
-			picDir = ConfigUtil.getPropertyValue("bucket.formal.poster");
-			picWidth = CommonConstants.poster_width;
-			picHeight = CommonConstants.poster_height;
-			break;
-		case CommonConstants.photo_v:
-			picDir = ConfigUtil.getPropertyValue("bucket.formal.photo");
-			picWidth = CommonConstants.photo_width;
-			picHeight = CommonConstants.photo_height;
-			break;
-		case CommonConstants.shot_v:
-			picDir = ConfigUtil.getPropertyValue("bucket.formal.shot");
-			picWidth = CommonConstants.shot_width;
-			picHeight = CommonConstants.shot_height;
-			break;
-		default:
-			break;
-		}
-		return new PicVO(url, fileName, suffix, picV, picDir, picWidth, picHeight);
-	}
-	
-	private List<PicVO> buildPicList(List<String> urlList, int picV) {
-		if(urlList == null || urlList.size() == 0){
-			return null;
-		}
-		
-		List<PicVO> picList = new ArrayList<>();
-		for(String url : urlList) {
-			PicVO pic = this.buildPic(url, picV);
-			picList.add(pic);
-		}
-		return picList;
-	}
-	
-	/**
 	 * 下载视频截图并设置
 	 * 
 	 * @param fetchResource 获取到的resource
@@ -366,15 +307,13 @@ public class MyPipeline implements Pipeline {
 						shotUriList.add(repeatedShotUri);
 						continue;
 					}
-					String suffix = shotUrl.substring(shotUrl.lastIndexOf(".")+1);
-					String fileName = StringUtil.getId(CommonConstants.pic_s);
 					
 					String shotUri = "";
 					MovieFileIndexEntity movieFileIndexEntity = pioneer.get(shotUrl.trim());
 					if(movieFileIndexEntity != null) {
 						shotUri = movieFileIndexEntity.getFixUri();
 					}else {
-						shotUri = SykUtils.downPicAndFixMarkWithDist(shotUrl, ConfigUtil.getPropertyValue("bucket.formal.shot"), fileName, suffix, CommonConstants.shot_width, CommonConstants.shot_height);
+						shotUri = FetchUtils.uploadShot(shotUrl);
 						MovieFileIndexEntity fileIdx = this.buildFileIndex(shotUrl.trim(), shotUri, CommonConstants.shot_v, thisTime);
 						newFileIdxList.add(fileIdx);
 					}
@@ -395,31 +334,33 @@ public class MyPipeline implements Pipeline {
 			try {
 				//如果是種子文件則需要下載到服務器
 				if(Pattern.compile(RegexConstant.torrent).matcher(fetchResource.getDownloadLink()).find()){
-					String torrentName = SykUtils.getTorrentName(fetchResource);
-					//去除当前页面文件重名的可能性
-					StringBuffer sb = new StringBuffer(torrentName);
-					int count = 1;
-					do{
-						Integer in = torrentNameMapping.get(sb.toString());
-						if(in == null){
-							torrentName = sb.toString();
-							break;
-						}
-						sb = new StringBuffer(torrentName);
-						sb.append("(").append(count).append(")");
-						count++;
-					} while(true);
-					torrentNameMapping.put(sb.toString(), 1);
-					
-					String suffix = fetchResource.getDownloadLink().substring(fetchResource.getDownloadLink().lastIndexOf(".")+1);
-					String torrentDir = ConfigUtil.getPropertyValue("bucket.formal.torrent");
-					
 					String torrentUri = "";
 					MovieFileIndexEntity movieFileIndexEntity = pioneer.get(fetchResource.getDownloadLink().trim());
 					if(movieFileIndexEntity != null) {
 						torrentUri = movieFileIndexEntity.getFixUri();
 					}else {
-						torrentUri = SykUtils.downTorrentWithDist(fetchResource.getDownloadLink(), fetchResource.getTorrentBytes(), torrentDir, torrentName, suffix);
+						String torrentName = FetchUtils.getTorrentName(fetchResource);
+						//去除当前页面文件重名的可能性
+						StringBuffer sb = new StringBuffer(torrentName);
+						int count = 1;
+						do{
+							Integer in = torrentNameMapping.get(sb.toString());
+							if(in == null){
+								torrentName = sb.toString();
+								break;
+							}
+							sb = new StringBuffer(torrentName);
+							sb.append("(").append(count).append(")");
+							count++;
+						} while(true);
+						torrentNameMapping.put(sb.toString(), 1);
+						
+						if(fetchResource.getTorrentBytes() == null) {
+							torrentUri = FetchUtils.uploadTorrent(fetchResource.getDownloadLink(), torrentName);
+						}else {
+							String suffix = fetchResource.getDownloadLink().substring(fetchResource.getDownloadLink().lastIndexOf(".")+1);
+							torrentUri = FetchUtils.uploadTorrent(fetchResource.getTorrentBytes(), torrentName, suffix);
+						}
 						MovieFileIndexEntity fileIdx = this.buildFileIndex(fetchResource.getDownloadLink(), torrentUri, CommonConstants.torrent_v, thisTime);
 						newFileIdxList.add(fileIdx);
 					}
@@ -453,48 +394,45 @@ public class MyPipeline implements Pipeline {
 		for(MovieInfoVO fetchMovie : fetchMovies) {
 			List<PicVO> picList = new ArrayList<>();
 			//获取icon
-			PicVO icon = buildPic(fetchMovie.getIconUrl(), CommonConstants.icon_v);
+			picList.add(new PicVO(fetchMovie.getIconUrl(), CommonConstants.icon_v));
 			//获取poster
-			List<PicVO> posterList = buildPicList(fetchMovie.getPosterUrlList(), CommonConstants.poster_v);
+			List<String> posterUrlList = fetchMovie.getPosterUrlList();
+			for(String posterUrl : posterUrlList) {
+				picList.add(new PicVO(posterUrl, CommonConstants.poster_v));
+			}
 			//获取photo
-			List<PicVO> photoList = buildPicList(fetchMovie.getPhotoUrlList(), CommonConstants.photo_v);
-			if(icon != null) {
-				picList.add(icon);
-			}
-			if(posterList != null && posterList.size() > 0) {
-				picList.addAll(posterList);
-			}
-			if(photoList != null && photoList.size() > 0) {
-				picList.addAll(photoList);
+			List<String> photoUrlList = fetchMovie.getPhotoUrlList();
+			for(String photoUrl : photoUrlList) {
+				picList.add(new PicVO(photoUrl, CommonConstants.photo_v));
 			}
 			List<String> posterUris = new ArrayList<String>();
 			List<String> photoUris = new ArrayList<String>();
 			for(PicVO pic:picList){
 				try {
-					
 					String picUri = "";
 					MovieFileIndexEntity movieFileIndexEntity = pioneer.get(pic.getFetchUrl().trim());
 					if(movieFileIndexEntity != null) {
 						picUri = movieFileIndexEntity.getFixUri();
 					}else {
-						picUri = SykUtils.downPicAndFixWithDist(pic.getFetchUrl(), pic.getPicDir(), pic.getFileName(), pic.getSuffix(), pic.getPicWidth(), pic.getPicHeight());
+						switch (pic.getPicV()) {
+						case CommonConstants.icon_v:
+							picUri = FetchUtils.uploadIcon(pic.getFetchUrl());
+							fetchMovie.setIconUri(picUri);
+							break;
+						case CommonConstants.poster_v:
+							picUri = FetchUtils.uploadPoster(pic.getFetchUrl());
+							posterUris.add(picUri);
+							break;
+						case CommonConstants.photo_v:
+							picUri = FetchUtils.uploadPhoto(pic.getFetchUrl());
+							photoUris.add(picUri);
+							break;
+						default:
+							break;
+						}
 						//url去重入库
 						MovieFileIndexEntity fileIdx = buildFileIndex(pic.getFetchUrl(), picUri, pic.getPicV(), thisTime);
 						newFileIdxList.add(fileIdx);
-					}
-					
-					switch (pic.getPicV()) {
-					case CommonConstants.icon_v:
-						fetchMovie.setIconUri(picUri);
-						break;
-					case CommonConstants.poster_v:
-						posterUris.add(picUri);
-						break;
-					case CommonConstants.photo_v:
-						photoUris.add(picUri);
-						break;
-					default:
-						break;
 					}
 				} catch (Exception e) {
 					log.error("download poster wrong, url: {}", pic.getFetchUrl(), e);

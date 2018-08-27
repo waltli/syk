@@ -3,6 +3,8 @@ package com.sbolo.syk.fetch.vo;
 import java.util.Date;
 import javax.persistence.*;
 
+import com.sbolo.syk.common.tools.UIDGenerator;
+
 
 public class MovieLocationVO {
 
@@ -173,4 +175,15 @@ public class MovieLocationVO {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
+    
+    public static MovieLocationVO buildLocation(String locationName, String moviePrn, String pureName, Date releaseTime, Date thisTime) {
+		MovieLocationVO location = new MovieLocationVO();
+		location.setLocationName(locationName);
+		location.setPrn(UIDGenerator.getUID()+"");
+		location.setMoviePrn(moviePrn);
+		location.setPureName(pureName);
+		location.setReleaseTime(releaseTime);
+		location.setCreateTime(thisTime);
+		return location;
+	}
 }

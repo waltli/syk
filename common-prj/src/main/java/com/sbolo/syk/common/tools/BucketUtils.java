@@ -60,7 +60,7 @@ public class BucketUtils {
 		PutObjectResult putResult = cosClient.putObject(putObjectRequest);
 	}
 	
-	public static String upload2Dir(byte[] bytes, String targetDir, String fileName, String suffix) throws Exception {
+	public static String upload2Subdir(byte[] bytes, String targetDir, String fileName, String suffix) throws Exception {
 		String subDir = FileUtils.getSubDir();
 		String saveDir = targetDir+subDir;
 		upload(bytes, saveDir, fileName, suffix);
@@ -68,13 +68,13 @@ public class BucketUtils {
 		return uri;
 	}
 	
-	public static String upload2Dir(File file, String targetDir, String fileName, String suffix) throws Exception {
+	public static String upload2Subdir(File file, String targetDir, String fileName, String suffix) throws Exception {
 		if(!file.exists()) {
 			return null;
 		}
 		try(FileInputStream fis = new FileInputStream(file)){
 			byte[] bytes = IOUtils.toByteArray(fis);
-			return upload2Dir(bytes, targetDir, fileName, suffix);
+			return upload2Subdir(bytes, targetDir, fileName, suffix);
 		}
 	}
 	
@@ -90,6 +90,12 @@ public class BucketUtils {
 		DeleteObjectsRequest d = new DeleteObjectsRequest(bucketName);
 		d.setKeys(keyVers);
 		DeleteObjectsResult deleteResults = cosClient.deleteObjects(d);
+	}
+	
+	public static void delete(String key) throws Exception {
+		List<String> keys = new ArrayList<>();
+		keys.add(key);
+		deletes(keys);
 	}
 	
 	public static void closeBucket() {

@@ -49,8 +49,10 @@ import com.sbolo.syk.fetch.mapper.MovieInfoMapper;
 import com.sbolo.syk.fetch.mapper.MovieLabelMapper;
 import com.sbolo.syk.fetch.mapper.MovieLocationMapper;
 import com.sbolo.syk.fetch.mapper.ResourceInfoMapper;
-import com.sbolo.syk.fetch.tool.SykUtils;
+import com.sbolo.syk.fetch.tool.FetchUtils;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
+import com.sbolo.syk.fetch.vo.MovieLabelVO;
+import com.sbolo.syk.fetch.vo.MovieLocationVO;
 import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 
 @Service
@@ -199,20 +201,16 @@ public class MovieInfoService {
 		}
 		
 		//上传ICON图片
-		String iconUri = SykUtils.uploadIcon4Uri(movie.getIconTempUri());
+		String iconUri = FetchUtils.uploadIconFromUri(movie.getIconTempUri());
 		movie.setIconUri(iconUri);
 		
 		//上传poster图片
-		String posterTempUriStr = movie.getPosterTempUriStr();
-		String[] posterTempUriArr = posterTempUriStr.split(",");
-		String posterUriStr = SykUtils.uploadPoster4Uri(Arrays.asList(posterTempUriArr));
-		movie.setPosterUriJson(posterUriStr);
+		String posterUriJson = FetchUtils.uploadPosterAndGetUriJsonFromTempUris(movie.getPosterTempUriStr());
+		movie.setPosterUriJson(posterUriJson);
 		
 		//上传photo图片
-		String photoTempUriStr = movie.getPhotoTempUriStr();
-		String[] photoTempUriArr = photoTempUriStr.split(",");
-		String photoUriStr = SykUtils.uploadPhoto4Uri(Arrays.asList(photoTempUriArr));
-		movie.setPhotoUriJson(photoUriStr);
+		String photoUriJson = FetchUtils.uploadPhotoAndGetUriJsonFromTempUris(movie.getPhotoTempUriStr());
+		movie.setPhotoUriJson(photoUriJson);
 		
 		Integer optimalIdx = 0;
 		Integer maxDefinition = -1;
@@ -243,21 +241,19 @@ public class MovieInfoService {
 			String downloadLinkTemp = resource.getDownloadLinkTemp();
 			String downloadLink = null;
 			if(Pattern.compile(RegexConstant.torrent).matcher(downloadLinkTemp).find()) {
-				String torrentName = SykUtils.getTorrentName(resource);
-				downloadLink = SykUtils.uploadTorrent4Uri(downloadLinkTemp, torrentName);
+				String torrentName = FetchUtils.getTorrentName(resource);
+				downloadLink = FetchUtils.uploadTorrentFromUri(downloadLinkTemp, torrentName);
 			}else {
 				downloadLink = downloadLinkTemp;
 			}
 			resource.setDownloadLink(downloadLink);
 			
 			//上传shot图片
-			String shotTempUriStr = resource.getShotTempUriStr();
-			String[] shotTempUriArr = shotTempUriStr.split(",");
-			String shotUriStr = SykUtils.uploadShot4Uri(Arrays.asList(shotTempUriArr));
-			resource.setShotUriJson(shotUriStr);
+			String shotUriJson = FetchUtils.uploadShotAndGetUriJsonFromTempUris(resource.getShotTempUriStr());
+			resource.setShotUriJson(shotUriJson);
 			
 			//资源清晰度得分
-			Integer definitionScore = SykUtils.translateDefinitionIntoScore(resource.getQuality(), resource.getResolution());
+			Integer definitionScore = FetchUtils.translateDefinitionIntoScore(resource.getQuality(), resource.getResolution());
 			resource.setDefinition(definitionScore);
 			if(definitionScore > maxDefinition){
 				maxDefinition = definitionScore;
@@ -285,5 +281,70 @@ public class MovieInfoService {
 			List<ResourceInfoEntity> resourceEntities = VOUtils.po2vo(resources, ResourceInfoEntity.class);
 			resourceInfoMapper.insertList(resourceEntities);
 		}
+	}
+	
+	public MovieInfoEntity getMovieInfoByPureName(String pureName){
+		return movieInfoMapper.selectByPureName(pureName);
+	}
+	
+	public MovieInfoEntity getMovieInfoByMoviePrn(String moviePrn){
+		return movieInfoMapper.selectByPrn(moviePrn);
+	}
+	
+	@Transactional
+	public void modiMovieInfoManual(MovieInfoVO modiMovie) throws Exception{
+		MovieInfoEntity dbMovie = movieInfoMapper.selectByPrn(modiMovie.getPrn());
+		if(dbMovie == null){
+			throw new Exception("该影片信息不存在，修改失败！");
+		}
+		List<MovieLabelEntity> dbLabels = movieLabelMapper.selectListByMoviePrn(dbMovie.getPrn());
+		List<MovieLocationEntity> dbLocations = movieLocationMapper.selectListByMoviePrn(dbMovie.getPrn());
+		MovieInfoVO changeMovie = FetchUtils.changeOption(dbMovie, modiMovie, dbLabels, dbLocations, new Date());
+		
+		if(changeMovie == null){
+			return;
+		}
+		
+		//上传ICON图片
+		String iconUri = FetchUtils.uploadIconFromUri(changeMovie.getIconTempUri());
+		changeMovie.setIconUri(iconUri);
+		BucketUtils.delete(dbMovie.getIconUri());
+		
+		
+		//上传poster图片
+		String posterUriJson = FetchUtils.uploadPosterAndGetUriJsonFromTempUris(changeMovie.getPosterTempUriStr());
+		changeMovie.setPosterUriJson(posterUriJson);
+		List<String> oldPosterUriList = JSON.parseArray(dbMovie.getPosterUriJson(), String.class);
+		BucketUtils.deletes(oldPosterUriList);
+		
+		//上传photo图片
+		String photoUriJson = FetchUtils.uploadPhotoAndGetUriJsonFromTempUris(changeMovie.getPhotoTempUriStr());
+		changeMovie.setPhotoUriJson(photoUriJson);
+		List<String> oldPhotoUriList = JSON.parseArray(dbMovie.getPhotoUriJson(), String.class);
+		BucketUtils.deletes(oldPhotoUriList);
+		
+		
+		List<MovieLabelVO> labelList = changeMovie.getLabelList();
+		List<MovieLocationVO> locationList = changeMovie.getLocationList();
+		
+		List<MovieLabelEntity> labelEntities = VOUtils.po2vo(labelList, MovieLabelEntity.class);
+		List<MovieLocationEntity> locationEntities = VOUtils.po2vo(locationList, MovieLocationEntity.class);
+		MovieInfoEntity movieInfoEntity = VOUtils.po2vo(changeMovie, MovieInfoEntity.class);
+		movieLabelMapper.insertList(labelEntities);
+		movieLocationMapper.insertList(locationEntities);
+		movieInfoMapper.updateByPrn(movieInfoEntity);
+	}
+	
+	public void updateByPrn(MovieInfoEntity entity) {
+		movieInfoMapper.updateByPrn(entity);
+	}
+	
+	public MovieInfoEntity getMovieInfoByPureNameAndPrecision(String pureName, List<String> precisions) {
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("pureName", pureName);
+		if(precisions != null && precisions.size() > 0){
+			params.put("precision", precisions.get(0));
+		}
+		return movieInfoMapper.selectByPureNameAndPrecision(params);
 	}
 }
