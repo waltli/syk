@@ -1,6 +1,7 @@
 package com.sbolo.syk.fetch.tool;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -521,4 +522,56 @@ public class FetchUtils {
     	}
     	return null;
     }
+	
+	public static String saveTempIcon(byte[] bytes, String suffix) throws IOException {
+		String targetDir = ConfigUtil.getPropertyValue("icon.temp.dir");
+		String fileName = StringUtil.getId(CommonConstants.pic_s);
+		FileUtils.saveFile(bytes, targetDir, fileName, suffix);
+		return targetDir+"/"+fileName+"."+suffix;
+	}
+	
+	public static String saveTempIcon(String url) throws Exception {
+		byte[] bytes = HttpUtils.getBytes(url);
+		String suffix = url.substring(url.lastIndexOf(".")+1);
+		return saveTempIcon(bytes, suffix);
+	}
+	
+	public static String saveTempPoster(byte[] bytes, String suffix) throws IOException {
+		String targetDir = ConfigUtil.getPropertyValue("poster.temp.dir");
+		String fileName = StringUtil.getId(CommonConstants.pic_s);
+		FileUtils.saveFile(bytes, targetDir, fileName, suffix);
+		return targetDir+"/"+fileName+"."+suffix;
+	}
+	
+	public static String saveTempPoster(String url) throws Exception {
+		byte[] bytes = HttpUtils.getBytes(url);
+		String suffix = url.substring(url.lastIndexOf(".")+1);
+		return saveTempPoster(bytes, suffix);
+	}
+	
+	public static String saveTempPhoto(byte[] bytes, String suffix) throws IOException {
+		String targetDir = ConfigUtil.getPropertyValue("photo.temp.dir");
+		String fileName = StringUtil.getId(CommonConstants.pic_s);
+		FileUtils.saveFile(bytes, targetDir, fileName, suffix);
+		return targetDir+"/"+fileName+"."+suffix;
+	}
+	
+	public static String saveTempPhoto(String url) throws Exception {
+		byte[] bytes = HttpUtils.getBytes(url);
+		String suffix = url.substring(url.lastIndexOf(".")+1);
+		return saveTempPhoto(bytes, suffix);
+	}
+	
+	public static String saveTempShot(byte[] bytes, String suffix) throws IOException {
+		String targetDir = ConfigUtil.getPropertyValue("shot.temp.dir");
+		String fileName = StringUtil.getId(CommonConstants.pic_s);
+		FileUtils.saveFile(bytes, targetDir, fileName, suffix);
+		return targetDir+"/"+fileName+"."+suffix;
+	}
+	
+	public static String saveTempShot(String url) throws Exception {
+		byte[] bytes = HttpUtils.getBytes(url);
+		String suffix = url.substring(url.lastIndexOf(".")+1);
+		return saveTempShot(bytes, suffix);
+	}
 }

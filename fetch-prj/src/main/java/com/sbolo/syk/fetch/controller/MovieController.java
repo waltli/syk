@@ -1,29 +1,15 @@
 package com.sbolo.syk.fetch.controller;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
-import java.util.concurrent.CountDownLatch;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import okhttp3.Response;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -33,19 +19,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.annotation.Paginator;
+import com.sbolo.syk.common.exception.BusinessException;
 import com.sbolo.syk.common.tools.DateUtil;
 import com.sbolo.syk.common.tools.StringUtil;
-import com.sbolo.syk.common.tools.Utils;
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.common.ui.RequestResult;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
 import com.sbolo.syk.fetch.service.MovieInfoService;
 import com.sbolo.syk.fetch.tool.DoubanUtils;
+import com.sbolo.syk.fetch.tool.FetchUtils;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
 import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 import com.sbolo.syk.fetch.vo.ResourceInfosVO;
@@ -265,18 +249,15 @@ public class MovieController {
 	
 	@RequestMapping("download-icon")
 	@ResponseBody
-	public RequestResult<String> downloadPic(HttpServletRequest request, String url){
-		RequestResult<String> result = null;
+	public RequestResult<Map<String, Object>> downloadIcon(HttpServletRequest request, String url){
+		RequestResult<Map<String, Object>> result = null;
 		try {
-			int idx = url.lastIndexOf("/")+1;
-			String iconName = url.substring(idx);
-			String ownPath = "temp/icon";
-			String tempPath = request.getSession().getServletContext().getRealPath(ownPath);
-			HttpUtil.downloadPicResize(url, tempPath, iconName, CommonConstants.icon_width, CommonConstants.icon_height);
-			result.put("uri", ownPath+"/"+iconName);
+			String uri = FetchUtils.saveTempIcon(url);
+			Map<String, Object> map = new HashMap<>();
+			map.put("iconTempUri", uri);
+			result = new RequestResult<>(map);
 		} catch (Exception e) {
-			result.setRequestResult(false);
-			result.setError(e.getMessage());
+			result = RequestResult.error(e);
 			log.error("下载出错："+url, e);
 		}
 		return result;
@@ -285,82 +266,31 @@ public class MovieController {
 	
 	@RequestMapping("download-posters")
 	@ResponseBody
-	public AjaxResult downloadPosters(HttpServletRequest request, final String pageUrl, final String iconName){
-		AjaxResult result = new AjaxResult(true);
-		final List<String> picUrls = new ArrayList<String>();
+	public RequestResult<Map<String, Object>> downloadPosters(HttpServletRequest request, final String pageUrl, final String iconName){
+		RequestResult<Map<String, Object>> result = null;
 		try {
-			HttpUtil.httpGet(pageUrl, new HttpSendCallbackPure() {
-				
-				@Override
-				public void onResponse(Response response) throws Exception {
-					if(!response.isSuccessful()){
-						throw new MovieInfoFetchException("Get movie poster failed from douban, code:"+response.code()+", url:"+pageUrl);
-					}
-					Document doc = Jsoup.parse(new String(response.body().bytes(), "utf-8"));
-					Elements lis = doc.select("#content > div > div.article > ul > li[data-id]");
-					for(int i=lis.size()-1; i >= 0; i--){
-						Element li = lis.get(i);
-						Element img = li.select(".cover > a > img").first();
-						if(img == null){
-							continue;
-						}
-						//此处打开的是预览图，预览图较小，需要高清图，但高清图在下一层链接里，因知道高清图和预览图只有一个字段的区别，顾直接替换
-						String imgUrl = img.attr("src").replaceAll("thumb", "photo");
-						int idx = imgUrl.lastIndexOf("/")+1;
-						
-						String posterName = imgUrl.substring(idx);
-						if(iconName.equals(posterName)){
-							continue;
-						}
-						picUrls.add(imgUrl);
-						if(picUrls.size() >= 4){
-							break;
-						}
-					}
-				}
-			});
+			List<String> posterUrlList = DoubanUtils.getPosterUrlList(pageUrl, iconName);
 			
-			if(picUrls.size() <= 0){
-				result.setError("在"+pageUrl+"中没有获取到poster");
-				return result;
+			if(posterUrlList == null || posterUrlList.size() <= 0){
+				throw new BusinessException("在"+pageUrl+"中没有获取到poster");
 			}
 			
-			final CountDownLatch downLatch = new CountDownLatch(picUrls.size());
-			final String ownPath = "temp/poster";
-			final String tempPath = request.getSession().getServletContext().getRealPath(ownPath);
-			final Vector<String> completeUri = new Vector<String>();
-			for(final String picUrl : picUrls){
-				threadPool.execute(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							int idx = picUrl.lastIndexOf("/")+1;
-							String posterName = picUrl.substring(idx);
-							HttpUtil.downloadPicResize(picUrl, tempPath, posterName, CommonConstants.photo_width, CommonConstants.photo_height);
-							completeUri.add(ownPath+"/"+posterName);
-						} catch (Exception e) {
-							log.error("download poster wrong, url: {}", picUrl, e);
-						}finally {
-							downLatch.countDown();
-						}
-					}
-				});
+			List<String> posterTempUriList = new ArrayList<>();
+			for(String posterUrl : posterUrlList) {
+				String uri = FetchUtils.saveTempPoster(posterUrl);
+				posterTempUriList.add(uri);
 			}
-			try {
-				downLatch.await();
-			} catch (InterruptedException e) {
-				log.error("downLatch.await()",e);
-			}
-			if(completeUri.size() > 0){
-				result.put("uris", completeUri);
+			Map<String, Object> map = new HashMap<>();
+			map.put("posterTempUriList", posterTempUriList);
+			if(posterTempUriList.size() > 0){
+				result = new RequestResult<>(map);
+			}else {
+				throw new BusinessException("下载poster计数为零");
 			}
 		} catch (Exception e) {
-			result.setRequestResult(false);
-			result.setError(e.getMessage());
+			result = RequestResult.error(e);
 			log.error("下载poster出错："+pageUrl, e);
 		}
 		return result;
 	}
-	
-	
 }

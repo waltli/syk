@@ -393,4 +393,65 @@ public class DoubanUtils {
 		MovieInfoVO movieInfo = fetchMovieFromDouban(doubanUrl, thisTime);
 		return movieInfo;
 	}
+	
+	/**
+	 * 从豆瓣PosterPage页面中爬取Poster图片list
+	 * 
+	 * @param posterPageUrl
+	 * @param iconName 过滤掉icon的图片
+	 * @return
+	 */
+	public static List<String> getPosterUrlList(String posterPageUrl, String iconUrl) {
+		if(StringUtils.isBlank(posterPageUrl)) {
+			return null;
+		}
+		String iconName = StringUtils.isNotBlank(iconUrl) ? iconUrl.substring(iconUrl.lastIndexOf("/")+1) : "";
+		List<String> posterUrlList = new ArrayList<>();
+		try {
+			HttpUtils.httpGet(posterPageUrl, new HttpSendCallbackPure() {
+				
+				@Override
+				public void onResponse(Response response) throws Exception {
+					if(!response.isSuccessful()){
+						throw new MovieInfoFetchException("Get movie poster failed from douban, code:"+response.code()+", url:"+posterPageUrl);
+					}
+					Document doc = Jsoup.parse(new String(response.body().bytes(), "utf-8"));
+					Elements lis = doc.select("#content > div > div.article > ul > li[data-id]");
+					int lisSize = lis.size();
+					if(lisSize >= 4) {
+						lisSize = 4;
+					}
+					
+					
+					for(int i=0; i < lisSize; i++){
+						Element li = lis.get(i);
+						Element img = li.select(".cover > a > img").first();
+						if(img == null){
+							continue;
+						}
+						String imgUrl = img.attr("src").trim();
+						if(StringUtils.isBlank(imgUrl)){
+							continue;
+						}
+						//此处打开的是预览图，预览图较小，需要高清图，但高清图在下一层链接里，因知道高清图和预览图只有一个字段的区别，顾直接替换
+						Matcher matcher = Pattern.compile("(?<=/photo/)(m)").matcher(imgUrl);
+						if(matcher.find()) {
+							imgUrl = matcher.replaceAll("l");
+						}else {
+							log.warn("豆瓣电影的poster缩略图中没有发现m, posterUrl: {}", imgUrl);
+						}
+						String posterName = imgUrl.substring(imgUrl.lastIndexOf("/")+1);
+						if(posterName.equals(iconName)){
+							continue;
+						}
+						posterUrlList.add(imgUrl);
+					}
+				}
+			});
+		} catch (Exception e) {
+			log.error("Request posterPageUrl failed. url: {}", posterPageUrl, e);
+		}
+		return posterUrlList;
+			
+	}
 }

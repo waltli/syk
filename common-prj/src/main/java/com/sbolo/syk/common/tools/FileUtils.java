@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.RegexConstant;
 import com.sbolo.syk.common.exception.BusinessException;
+import com.sbolo.syk.common.http.HttpUtils;
 
 public class FileUtils {
 	private static final Logger LOG = LoggerFactory.getLogger(FileUtils.class);
