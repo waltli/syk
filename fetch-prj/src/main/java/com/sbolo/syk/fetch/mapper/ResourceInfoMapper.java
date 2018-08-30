@@ -19,7 +19,16 @@ public interface ResourceInfoMapper extends Mapper<ResourceInfoEntity>, BatchWri
 	ResourceInfoEntity selectOptimalResource(String moviePrn);
 	
 	@Update("update resource_info t set t.st=#{resourceStatus} where t.movie_prn=#{moviePrn}")
-	int signStatusByMoviePrn(Map<String, Object> param);
+	int signStatusByMoviePrn(Map<String, Object> params);
+	
+	@Update("update resource_info t set t.st=#{resourceStatus} where t.prn=#{resourcePrn}")
+	int signStatusByPrn(Map<String, Object> params);
+	
+	@ResultMap("BaseResultMap")
+	@Select("SELECT * FROM resource_info WHERE movie_prn = #{moviePrn} and st = #{resourceStatus}")
+	List<ResourceInfoEntity> selectAllByMoviePrnAndStatus(Map<String, Object> params);
 	
 	List<ResourceInfoEntity> selectByMoviePrnOrder(Map<String, Object> param);
+	
+	List<ResourceInfoEntity> selectByMoviePrnOrderNostatus(Map<String, Object> params);
 }

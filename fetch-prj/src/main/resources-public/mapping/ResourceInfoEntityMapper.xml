@@ -44,4 +44,22 @@
 			</otherwise>
 		</choose>
   </select>
+  
+  <select id="selectByMoviePrnOrderNostatus" resultMap="BaseResultMap" parameterType="java.util.Map">
+  	SELECT
+		<include refid="Base_Column_List" />
+	FROM
+		resource_info
+	WHERE
+		movie_prn = #{moviePrn}
+	ORDER BY
+		<choose>
+			<when test="istv">
+				episode_end ASC, subtitle DESC
+			</when>
+			<otherwise>
+				create_time DESC
+			</otherwise>
+		</choose>
+  </select>
 </mapper>

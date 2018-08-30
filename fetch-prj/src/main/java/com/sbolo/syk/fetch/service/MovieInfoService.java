@@ -117,7 +117,7 @@ public class MovieInfoService {
 		params.put("movieStatus", MovieStatusEnum.deletable.getCode());
 		movieInfoMapper.signStatusByPrn(params);
 		
-		resourceInfoService.updateStatusByMovieId(moviePrn, MovieStatusEnum.deletable.getCode());
+		resourceInfoService.updateStatusByMoviePrn(moviePrn, MovieStatusEnum.deletable.getCode());
 	}
 	
 	@Transactional
@@ -127,7 +127,7 @@ public class MovieInfoService {
 		params.put("movieStatus", MovieStatusEnum.available.getCode());
 		movieInfoMapper.signStatusByPrn(params);
 		
-		resourceInfoService.updateStatusByMovieId(moviePrn, MovieStatusEnum.available.getCode());
+		resourceInfoService.updateStatusByMoviePrn(moviePrn, MovieStatusEnum.available.getCode());
 	}
 	
 	public MovieInfoEntity getMovieInfoByDoubanId(String doubanId){
@@ -347,4 +347,59 @@ public class MovieInfoService {
 		}
 		return movieInfoMapper.selectByPureNameAndPrecision(params);
 	}
+	
+	public MovieInfoEntity freshOptimalResource(int category, ResourceInfoVO newOptimalResourceVO, ResourceInfoEntity nowOptimalResourceVO) throws Exception{
+		if(category == MovieCategoryEnum.movie.getCode()){
+			if(newOptimalResourceVO.getDefinition() == null){
+				return null;
+			}
+			int newDefinition = newOptimalResourceVO.getDefinition().intValue();
+			int oldDefinition = nowOptimalResourceVO.getDefinition().intValue();
+			
+			if(newDefinition <= oldDefinition){
+				return null;
+			}
+			
+			ResourceInfoEntity optimalResource = getNowOptimalResource(nowOptimalResourceVO.getMoviePrn());
+			
+			int optimalDefinition = optimalResource.getDefinition().intValue();
+			if(newDefinition <= optimalDefinition){
+				return null;
+			}
+		}else {
+			if(newOptimalResourceVO.getEpisodeEnd() == null){
+				return null;
+			}
+			int newEpisodeEnd = newOptimalResourceVO.getEpisodeEnd().intValue();
+			int oldEpisodeEnd = nowOptimalResourceVO.getEpisodeEnd().intValue();
+			
+			if(newEpisodeEnd <= oldEpisodeEnd){
+				return null;
+			}
+			ResourceInfoEntity optimalResource = getNowOptimalResource(nowOptimalResourceVO.getMoviePrn());
+			
+			int optimalEpisodeEnd = optimalResource.getEpisodeEnd();
+			
+			if(newEpisodeEnd <= optimalEpisodeEnd){
+				return null;
+			}
+		}
+		
+		MovieInfoEntity toUpMovie = new MovieInfoEntity();
+		toUpMovie.setOptimalResourcePrn(newOptimalResourceVO.getPrn());
+		toUpMovie.setPrn(nowOptimalResourceVO.getMoviePrn());
+		toUpMovie.setUpdateTime(new Date());
+		return toUpMovie;
+		
+	}
+	
+	private ResourceInfoEntity getNowOptimalResource(String moviePrn) throws Exception{
+		MovieInfoEntity movieAround = movieInfoMapper.selectAssociationByMoviePrn(moviePrn);
+		if(movieAround == null){
+			throw new Exception("当前resource找不到关联的movie！");
+		}
+		ResourceInfoEntity optimalResource = movieAround.getOptimalResource();
+		return optimalResource;
+	}
+	
 }

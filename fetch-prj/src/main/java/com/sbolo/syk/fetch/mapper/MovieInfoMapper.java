@@ -26,6 +26,8 @@ public interface MovieInfoMapper extends Mapper<MovieInfoEntity>, BatchWriteMapp
 	
 	List<MovieInfoEntity> selectByAssociationWithLabel(Map<String, Object> params);
 	
+	MovieInfoEntity selectAssociationByMoviePrn(String moviePrn);
+	
 	@Update("update movie_info t set t.st=#{movieStatus} where t.prn=#{moviePrn}")
 	int signStatusByPrn(Map<String, Object> params);
 	
