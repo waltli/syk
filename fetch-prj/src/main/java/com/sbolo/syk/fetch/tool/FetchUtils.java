@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
+import com.sbolo.syk.common.constants.MovieCategoryEnum;
 import com.sbolo.syk.common.constants.MovieQualityEnum;
 import com.sbolo.syk.common.constants.MovieResolutionConstant;
 import com.sbolo.syk.common.constants.RegexConstant;
@@ -26,6 +27,7 @@ import com.sbolo.syk.common.tools.ConfigUtil;
 import com.sbolo.syk.common.tools.FileUtils;
 import com.sbolo.syk.common.tools.GrapicmagickUtils;
 import com.sbolo.syk.common.tools.StringUtil;
+import com.sbolo.syk.common.tools.Utils;
 import com.sbolo.syk.common.vo.LinkAnalyzeResultVO;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
 import com.sbolo.syk.fetch.entity.MovieLabelEntity;
@@ -297,7 +299,7 @@ public class FetchUtils {
      * 当原先resource被替换后，删除原resource留下的文件
      * @param resource
      */
-    public static void deleteResourceFile(ResourceInfoVO resource){
+    public static void deleteResourceTempFile(ResourceInfoVO resource){
     	String formalDir = ConfigUtil.getPropertyValue("fs.formal.dir");
 		String shotJson = resource.getShotUriJson();
 		
@@ -321,7 +323,7 @@ public class FetchUtils {
      * 因电影图片可以不用更新，故该方法暂时未使用
      * @param resource
      */
-    public static void deleteMovieFile(MovieInfoVO movie){
+    public static void deleteMovieTempFile(MovieInfoVO movie){
     	String formalDir = ConfigUtil.getPropertyValue("fs.formal.dir");
 		String iconUri = movie.getIconUri();
 		if(StringUtils.isNotBlank(iconUri)) {
@@ -355,7 +357,7 @@ public class FetchUtils {
 	 * @param fetchMovie
 	 * @return
 	 */
-	public static MovieInfoVO changeOption(MovieInfoEntity dbMovie, MovieInfoVO fetchMovie, List<MovieLabelEntity> dbLabels, List<MovieLocationEntity> dbLocations, Date thisTime){
+	public static MovieInfoVO movieChangeOption(MovieInfoEntity dbMovie, MovieInfoVO fetchMovie, List<MovieLabelEntity> dbLabels, List<MovieLocationEntity> dbLocations, Date thisTime){
     	MovieInfoVO changeOption = new MovieInfoVO();
     	boolean hasChange = false;
     	
@@ -523,6 +525,176 @@ public class FetchUtils {
     	return null;
     }
 	
+	public static ResourceInfoVO resourceChangeOption(ResourceInfoEntity dbResource, ResourceInfoVO fetchResource){
+    	ResourceInfoVO changeOption = new ResourceInfoVO();
+    	boolean hasChange = false;
+    	
+    	if(StringUtils.isNotBlank(fetchResource.getDownloadLinkTemp())){
+    		changeOption.setDownloadLinkTemp(fetchResource.getDownloadLinkTemp());
+			hasChange = true;
+    	}
+    	
+    	if(StringUtils.isNotBlank(fetchResource.getSize())){
+    		if(StringUtils.isBlank(dbResource.getSize()) || !dbResource.getSize().equals(fetchResource.getSize())){
+    			changeOption.setSize(fetchResource.getSize());
+    			hasChange = true;
+    		}
+    	}
+    	
+    	if(StringUtils.isNotBlank(fetchResource.getFormat())){
+    		if(StringUtils.isBlank(dbResource.getFormat()) || !dbResource.getFormat().equals(fetchResource.getFormat())){
+    			changeOption.setFormat(fetchResource.getFormat());
+    			hasChange = true;
+    		}
+    	}
+    	
+    	if(StringUtils.isNotBlank(fetchResource.getQuality())){
+    		if(StringUtils.isBlank(dbResource.getQuality()) || !dbResource.getQuality().equals(fetchResource.getQuality())){
+    			changeOption.setQuality(fetchResource.getQuality());
+    			hasChange = true;
+    		}
+    	}
+    	
+    	if(StringUtils.isNotBlank(fetchResource.getResolution())){
+    		if(StringUtils.isBlank(dbResource.getResolution()) || !dbResource.getResolution().equals(fetchResource.getResolution())){
+    			changeOption.setResolution(fetchResource.getResolution());
+    			hasChange = true;
+    		}
+    	}
+    	
+    	if(fetchResource.getEpisodeStart() != null){
+    		if(dbResource.getEpisodeStart() == null || dbResource.getEpisodeStart().intValue() != fetchResource.getEpisodeStart().intValue()){
+    			changeOption.setEpisodeStart(fetchResource.getEpisodeStart());
+    			hasChange = true;
+    		}
+    	}
+    	
+    	if(fetchResource.getEpisodeEnd() != null){
+    		if(dbResource.getEpisodeEnd() == null || dbResource.getEpisodeEnd().intValue() != fetchResource.getEpisodeEnd().intValue()){
+    			changeOption.setEpisodeEnd(fetchResource.getEpisodeEnd());
+    			hasChange = true;
+    		}
+    	}
+    	
+    	if(StringUtils.isNotBlank(fetchResource.getSubtitle())){
+    		if(StringUtils.isBlank(dbResource.getSubtitle()) || !dbResource.getSubtitle().equals(fetchResource.getSubtitle())){
+    			changeOption.setSubtitle(fetchResource.getSubtitle());
+    			hasChange = true;
+    		}
+    	}
+    	
+    	if(StringUtils.isNotBlank(fetchResource.getShotTempUriStr())){
+    		changeOption.setShotTempUriStr(fetchResource.getShotTempUriStr());
+			hasChange = true;
+    	}
+    	
+    	if(hasChange){
+    		return changeOption;
+    	}
+    	return null;
+    	
+    }
+	
+	public static ResourceInfoVO getResouceInfoFromName(String downloadLinkName, Integer category, Integer season, Integer totalEpisode){
+		ResourceInfoVO resourceVO = new ResourceInfoVO();
+		
+		Matcher m2 = Pattern.compile(RegexConstant.quality).matcher(downloadLinkName);
+    	String finalMatch = null;
+    	while(m2.find()){
+    		finalMatch = m2.group();
+    	}
+    	if(StringUtils.isNotBlank(finalMatch)){
+    		MovieQualityEnum movieQualityEnum = MovieQualityEnum.getEnumByName(StringUtil.replaceBlank2(finalMatch).toUpperCase());
+    		resourceVO.setQuality(movieQualityEnum.getQuality());
+    	}
+		
+		//从下载链接名字中获取片源分辨率
+		m2 = Pattern.compile(RegexConstant.resolution).matcher(downloadLinkName);
+		if(m2.find()){
+			resourceVO.setResolution(m2.group());
+		}
+		
+		//计算清晰度得分
+		Integer definitionScore = FetchUtils.translateDefinitionIntoScore(resourceVO.getQuality(), resourceVO.getResolution());
+		resourceVO.setDefinition(definitionScore);
+		
+		//从下载链接名字中获取字幕信息
+		m2 = Pattern.compile(RegexConstant.subtitle).matcher(downloadLinkName);
+		if(m2.find()){
+			resourceVO.setSubtitle(m2.group());
+		}else {
+			m2 = Pattern.compile(RegexConstant.subtitle_m_encn).matcher(downloadLinkName);
+			if(m2.find()){
+				resourceVO.setSubtitle("中英双字");
+			}else {
+				m2 = Pattern.compile(RegexConstant.subtitle_m_cn).matcher(downloadLinkName);
+				if(m2.find()){
+					resourceVO.setSubtitle("中文字幕");
+				}
+			}
+		}
+		
+		//若此处未获取到，则在处理链接的时候再次获取
+		m2 = Pattern.compile(RegexConstant.format).matcher(downloadLinkName);
+		if(m2.find()){
+			resourceVO.setFormat(m2.group());
+		}
+		
+		//若此处未获取到，则在处理链接的时候再次获取
+		m2 = Pattern.compile(RegexConstant.size).matcher(downloadLinkName);
+		if(m2.find()){
+			resourceVO.setSize(m2.group());
+		}
+		
+		//避免标题处没有写明第几季的情况，在资源name处再次获取
+		if(category == MovieCategoryEnum.tv.getCode() && season == null){
+			for(int i=0; i<RegexConstant.list_season.size(); i++){
+				m2 = RegexConstant.list_season.get(i).matcher(StringUtil.trimAll(downloadLinkName));
+				if(m2.find()){
+					season = Utils.chineseNumber2Int(m2.group(1));
+					break;
+				}
+			}
+		}
+		resourceVO.setSeason(season);
+		
+		//如果是连续剧则获取最新集数
+		if(category == MovieCategoryEnum.tv.getCode()){
+			List<Pattern> list_episode = RegexConstant.list_episode3;
+			
+			for(int i=0; i<list_episode.size(); i++){
+	    		m2 = list_episode.get(i).matcher(downloadLinkName);
+	    		if(m2.find()){
+	    			String m2Grop1 = m2.group(1);
+	    			if(m2Grop1 == null){
+	    				m2Grop1 = "";
+	    			}
+					Matcher m3 = Pattern.compile(RegexConstant.cn_number).matcher(m2Grop1);
+					if(m3.find()){
+						//将中文数字转换为阿拉伯数字
+						resourceVO.setEpisodeEnd(Utils.chineseNumber2Int(m3.group()));
+					}else if(m2.group().equals("全集")){
+						resourceVO.setEpisodeStart(1);
+						resourceVO.setEpisodeEnd(totalEpisode);
+					}else if(m2Grop1.indexOf("-") != -1){
+						//如过集数的样式为40-50
+						String[] episodeArr = m2.group(1).split("-");
+						Integer startEpisode = Integer.valueOf(episodeArr[0]);
+						Integer endEpisode = Integer.valueOf(episodeArr[1]);
+						if(endEpisode.intValue()>startEpisode.intValue()){
+							resourceVO.setEpisodeStart(startEpisode);
+						}
+						resourceVO.setEpisodeEnd(endEpisode);
+					}else {
+						resourceVO.setEpisodeEnd(Integer.valueOf(m2Grop1));
+					}
+					break;
+	    		}
+	    	}
+		}
+		return resourceVO;
+	}
+	
 	public static String saveTempIcon(byte[] bytes, String suffix) throws IOException {
 		String targetDir = ConfigUtil.getPropertyValue("icon.temp.dir");
 		String fileName = StringUtil.getId(CommonConstants.pic_s);
@@ -573,5 +745,18 @@ public class FetchUtils {
 		byte[] bytes = HttpUtils.getBytes(url);
 		String suffix = url.substring(url.lastIndexOf(".")+1);
 		return saveTempShot(bytes, suffix);
+	}
+	
+	public static String saveTempTorrent(byte[] bytes, String suffix) throws IOException {
+		String targetDir = ConfigUtil.getPropertyValue("torrent.temp.dir");
+		String fileName = StringUtil.getId(CommonConstants.file_s);
+		FileUtils.saveFile(bytes, targetDir, fileName, suffix);
+		return targetDir+"/"+fileName+"."+suffix;
+	}
+	
+	public static String saveTempTorrent(String url) throws Exception {
+		byte[] bytes = HttpUtils.getBytes(url);
+		String suffix = url.substring(url.lastIndexOf(".")+1);
+		return saveTempTorrent(bytes, suffix);
 	}
 }

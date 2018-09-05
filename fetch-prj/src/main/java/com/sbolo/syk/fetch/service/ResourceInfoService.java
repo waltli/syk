@@ -5,17 +5,22 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.MovieCategoryEnum;
 import com.sbolo.syk.common.constants.MovieStatusEnum;
+import com.sbolo.syk.common.constants.RegexConstant;
+import com.sbolo.syk.common.tools.BucketUtils;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
@@ -56,7 +61,7 @@ public class ResourceInfoService {
 		resourceInfoMapper.signStatusByPrn(params);
 	}
 	
-	public List<ResourceInfoEntity> getListByMoviePrnOrderNoStatus(String moviePrn, Integer category){
+	public List<ResourceInfoVO> getListByMoviePrnOrderNoStatus(String moviePrn, Integer category){
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("moviePrn", moviePrn);
 		Boolean istv = false;
@@ -65,7 +70,9 @@ public class ResourceInfoService {
 		}
 		params.put("istv", istv);
 		
-		return resourceInfoMapper.selectByMoviePrnOrderNostatus(params);
+		List<ResourceInfoEntity> resourceList = resourceInfoMapper.selectByMoviePrnOrderNostatus(params);
+		List<ResourceInfoVO> resourceVOList = VOUtils.po2vo(resourceList, ResourceInfoVO.class);
+		return resourceVOList;
 	}
 	
 	@Transactional
@@ -154,6 +161,70 @@ public class ResourceInfoService {
 		}
 		if(resources.size() != 0){
 			resourceInfoMapper.insertList(resources);
+		}
+	}
+	
+	public ResourceInfoVO getResourceByPrn(String resourcePrn){
+		ResourceInfoEntity resource = resourceInfoMapper.selectByPrn(resourcePrn);
+		ResourceInfoVO resourceVO = VOUtils.po2vo(resource, ResourceInfoVO.class);
+		resourceVO.parse();
+		return resourceVO;
+	}
+	
+	@Transactional
+	public void modiResource(ResourceInfoVO newResource, boolean isOptimal) throws Exception{
+		ResourceInfoEntity oldResource = resourceInfoMapper.selectByPrn(newResource.getPrn());
+		if(oldResource == null){
+			throw new Exception("该资源信息不存在，修改失败！");
+		}
+		
+		ResourceInfoVO changeOption = FetchUtils.resourceChangeOption(oldResource, newResource);
+		
+		if(changeOption != null){
+			//上传torrent文件
+			String downloadLinkTemp = changeOption.getDownloadLinkTemp();
+			if(StringUtils.isNotBlank(downloadLinkTemp)){
+				String downloadLink = null;
+				if(Pattern.compile(RegexConstant.torrent).matcher(downloadLinkTemp).find()){
+					String torrentName = FetchUtils.getTorrentName(newResource);
+					downloadLink = FetchUtils.uploadTorrentFromUri(downloadLinkTemp, torrentName);
+				}else {
+					downloadLink = downloadLinkTemp;
+				}
+				changeOption.setDownloadLink(downloadLink);
+				BucketUtils.delete(oldResource.getDownloadLink());
+			}
+			
+			//上传shots图片
+			String shotTempUriStr = changeOption.getShotTempUriStr();
+			if(StringUtils.isNotBlank(shotTempUriStr)){
+				String shotUriJson = FetchUtils.uploadShotAndGetUriJsonFromTempUris(shotTempUriStr);
+				changeOption.setShotUriJson(shotUriJson);
+				//删除修改之前的文件
+				List<String> oldShotUriList = JSON.parseArray(oldResource.getShotUriJson(), String.class);
+				BucketUtils.deletes(oldShotUriList);
+			}
+			
+			int definitionScore = FetchUtils.translateDefinitionIntoScore(newResource.getQuality(), newResource.getResolution());
+			changeOption.setDefinition(definitionScore);
+			
+			changeOption.setPrn(oldResource.getPrn());
+			changeOption.setUpdateTime(new Date());
+			
+			ResourceInfoEntity newResourceEntity = VOUtils.po2vo(changeOption, ResourceInfoEntity.class);
+			
+			resourceInfoMapper.updateByPrn(newResourceEntity);
+			
+			if(isOptimal){
+				MovieInfoEntity toUpMovie = null;
+				Date now = new Date();
+				toUpMovie = new MovieInfoEntity();
+				toUpMovie.setOptimalResourcePrn(newResourceEntity.getPrn());
+				toUpMovie.setResourceWriteTime(now);
+				toUpMovie.setPrn(oldResource.getMoviePrn());
+				toUpMovie.setUpdateTime(now);
+				movieInfoMapper.updateByPrn(toUpMovie);
+			}
 		}
 	}
 	

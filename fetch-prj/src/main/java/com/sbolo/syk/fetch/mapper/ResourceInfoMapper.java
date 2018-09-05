@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 import com.sbolo.syk.common.mvc.mapper.BatchWriteMapper;
+import com.sbolo.syk.fetch.entity.MovieInfoEntity;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
 
 import tk.mybatis.mapper.common.Mapper;
@@ -27,6 +28,9 @@ public interface ResourceInfoMapper extends Mapper<ResourceInfoEntity>, BatchWri
 	@ResultMap("BaseResultMap")
 	@Select("SELECT * FROM resource_info WHERE movie_prn = #{moviePrn} and st = #{resourceStatus}")
 	List<ResourceInfoEntity> selectAllByMoviePrnAndStatus(Map<String, Object> params);
+	
+	@Select("select * from resource_info where prn=#{resourcePrn}")
+	ResourceInfoEntity selectByPrn(String resourcePrn);
 	
 	List<ResourceInfoEntity> selectByMoviePrnOrder(Map<String, Object> param);
 	

@@ -381,7 +381,7 @@ public class ProcessorHelper {
 		//获取有改变的属性项
 		List<MovieLabelEntity> dbLabels = movieLabelService.getListByMoviePrn(dbMovie.getPrn());
 		List<MovieLocationEntity> dbLocations = movieLocationService.getListByMoviePrn(dbMovie.getPrn());
-		MovieInfoVO changeOption = FetchUtils.changeOption(dbMovie, fetchMovie, dbLabels, dbLocations, thisTime);
+		MovieInfoVO changeOption = FetchUtils.movieChangeOption(dbMovie, fetchMovie, dbLabels, dbLocations, thisTime);
 		if(changeOption == null){
 			//如果没有改变，则new一个新的，用作放置optimalResourcePrn
 			changeOption = new MovieInfoVO();
@@ -705,8 +705,9 @@ public class ProcessorHelper {
     	String downloadLink = link.getDownloadLink();
     	String thunderDecoding = link.getLinkDecoding();
     	
+    	//从name中获取resource的相关信息
+    	ResourceInfoVO newResource = FetchUtils.getResouceInfoFromName(downloadLinkName, category, season, totalEpisode);
     	
-    	ResourceInfoVO newResource = new ResourceInfoVO();
     	newResource.setMoviePrn(moviePrn);
     	newResource.setPureName(pureName);
     	newResource.setReleaseTime(releaseTime);
@@ -718,104 +719,6 @@ public class ProcessorHelper {
     	newResource.setSpeed(5);
     	newResource.setSt(MovieStatusEnum.available.getCode());
     	
-    	//该网址符合获取“下载链接网址”的正则才进行操作
-    	Matcher m2 = Pattern.compile(RegexConstant.quality).matcher(downloadLinkName);
-    	String finalMatch = null;
-    	while(m2.find()){
-    		finalMatch = m2.group();
-    	}
-    	if(StringUtils.isNotBlank(finalMatch)){
-    		MovieQualityEnum movieQualityEnum = MovieQualityEnum.getEnumByName(StringUtil.replaceBlank2(finalMatch).toUpperCase());
-    		newResource.setQuality(movieQualityEnum.getQuality());
-    	}
-		
-		//从下载链接名字中获取片源分辨率
-		m2 = Pattern.compile(RegexConstant.resolution).matcher(downloadLinkName);
-		if(m2.find()){
-			newResource.setResolution(m2.group());
-		}
-		
-		//计算清晰度得分
-		Integer definitionScore = FetchUtils.translateDefinitionIntoScore(newResource.getQuality(), newResource.getResolution());
-		newResource.setDefinition(definitionScore);
-		
-		//从下载链接名字中获取字幕信息
-		m2 = Pattern.compile(RegexConstant.subtitle).matcher(downloadLinkName);
-		if(m2.find()){
-			newResource.setSubtitle(m2.group());
-		}else {
-			m2 = Pattern.compile(RegexConstant.subtitle_m_encn).matcher(downloadLinkName);
-			if(m2.find()){
-				newResource.setSubtitle("中英双字");
-			}else {
-				m2 = Pattern.compile(RegexConstant.subtitle_m_cn).matcher(downloadLinkName);
-				if(m2.find()){
-					newResource.setSubtitle("中文字幕");
-				}
-			}
-		}
-		
-		//若此处未获取到，则在处理链接的时候再次获取
-		m2 = Pattern.compile(RegexConstant.format).matcher(downloadLinkName);
-		if(m2.find()){
-			newResource.setFormat(m2.group());
-		}
-		
-		//若此处未获取到，则在处理链接的时候再次获取
-		m2 = Pattern.compile(RegexConstant.size).matcher(downloadLinkName);
-		if(m2.find()){
-			newResource.setSize(m2.group());
-		}
-		
-		//避免标题处没有写明第几季的情况，在资源name处再次获取
-		if(category == MovieCategoryEnum.tv.getCode() && season == null){
-			for(int i=0; i<RegexConstant.list_season.size(); i++){
-				m2 = RegexConstant.list_season.get(i).matcher(StringUtil.trimAll(downloadLinkName));
-				if(m2.find()){
-					season = Utils.chineseNumber2Int(m2.group(1));
-					break;
-				}
-			}
-		}
-		newResource.setSeason(season);
-		
-		//如果是连续剧则获取最新集数
-		if(category == MovieCategoryEnum.tv.getCode()){
-			List<Pattern> list_episode = RegexConstant.list_episode2;
-			if(fetchMovie.getTotalEpisode() != null && fetchMovie.getTotalEpisode().intValue() > 100){
-				list_episode = RegexConstant.list_episode3;
-			}
-			
-			for(int i=0; i<list_episode.size(); i++){
-	    		m2 = list_episode.get(i).matcher(downloadLinkName);
-	    		if(m2.find()){
-	    			String m2Grop1 = m2.group(1);
-	    			if(m2Grop1 == null){
-	    				m2Grop1 = "";
-	    			}
-					Matcher m3 = Pattern.compile(RegexConstant.cn_number).matcher(m2Grop1);
-					if(m3.find()){
-						//将中文数字转换为阿拉伯数字
-						newResource.setEpisodeEnd(Utils.chineseNumber2Int(m3.group()));
-					}else if(m2.group().equals("全集")){
-						newResource.setEpisodeStart(1);
-						newResource.setEpisodeEnd(totalEpisode);
-					}else if(m2Grop1.indexOf("-") != -1){
-						//如过集数的样式为40-50
-						String[] episodeArr = m2.group(1).split("-");
-						Integer startEpisode = Integer.valueOf(episodeArr[0]);
-						Integer endEpisode = Integer.valueOf(episodeArr[1]);
-						if(endEpisode.intValue()>startEpisode.intValue()){
-							newResource.setEpisodeStart(startEpisode);
-						}
-						newResource.setEpisodeEnd(endEpisode);
-					}else {
-						newResource.setEpisodeEnd(Integer.valueOf(m2Grop1));
-					}
-					break;
-	    		}
-	    	}
-		}
     	
     	if(Pattern.compile(RegexConstant.thunder).matcher(downloadLink).find()){
     		newResource.setThunderDecoding(thunderDecoding);

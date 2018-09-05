@@ -287,8 +287,11 @@ public class MovieInfoService {
 		return movieInfoMapper.selectByPureName(pureName);
 	}
 	
-	public MovieInfoEntity getMovieInfoByMoviePrn(String moviePrn){
-		return movieInfoMapper.selectByPrn(moviePrn);
+	public MovieInfoVO getMovieInfoByPrn(String moviePrn){
+		MovieInfoEntity movie = movieInfoMapper.selectByPrn(moviePrn);
+		MovieInfoVO movieVO = VOUtils.po2vo(movie, MovieInfoVO.class);
+		movieVO.parse();
+		return movieVO;
 	}
 	
 	@Transactional
@@ -299,7 +302,7 @@ public class MovieInfoService {
 		}
 		List<MovieLabelEntity> dbLabels = movieLabelMapper.selectListByMoviePrn(dbMovie.getPrn());
 		List<MovieLocationEntity> dbLocations = movieLocationMapper.selectListByMoviePrn(dbMovie.getPrn());
-		MovieInfoVO changeMovie = FetchUtils.changeOption(dbMovie, modiMovie, dbLabels, dbLocations, new Date());
+		MovieInfoVO changeMovie = FetchUtils.movieChangeOption(dbMovie, modiMovie, dbLabels, dbLocations, new Date());
 		
 		if(changeMovie == null){
 			return;

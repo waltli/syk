@@ -184,8 +184,8 @@ public class MovieController {
 	@RequestMapping("existed")
 	public String existed(Model model,
 			@RequestParam(value="mi", required=true) String moviePrn){
-		MovieInfoEntity movie = movieInfoService.getMovieInfoByMoviePrn(moviePrn);
-		model.addAttribute("movie", movie);
+		MovieInfoVO movieVO = movieInfoService.getMovieInfoByPrn(moviePrn);
+		model.addAttribute("movieVO", movieVO);
 		return existed;
 	}
 	
@@ -194,12 +194,10 @@ public class MovieController {
 			@RequestParam(value="mi", required=true) String moviePrn){
 		RequestResult<MovieInfoVO> result = null;
 		try {
-			MovieInfoEntity localMovie = movieInfoService.getMovieInfoByMoviePrn(moviePrn);
-			if(localMovie == null){
+			MovieInfoVO movieVO = movieInfoService.getMovieInfoByPrn(moviePrn);
+			if(movieVO == null){
 				throw new Exception("未查询到prn为"+moviePrn+"的影片信息！");
 			}
-			MovieInfoVO movieVO = VOUtils.po2vo(localMovie, MovieInfoVO.class);
-			movieVO.parse();
 			result = new RequestResult<>(movieVO);
 			model.addAttribute("result", result);
 		} catch (Exception e) {

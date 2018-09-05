@@ -48,14 +48,10 @@ public class ResourceController {
 		RequestResult<Map<String, Object>> result = null;
 		try {
 			Map<String, Object> map = new HashMap<>();
-			MovieInfoEntity movie = movieInfoService.getMovieInfoByMoviePrn(moviePrn);
-			MovieInfoVO movieVO = VOUtils.po2vo(movie, MovieInfoVO.class);
-			movieVO.parse();
-			List<ResourceInfoEntity> resources = resourceInfoService.getListByMoviePrnOrderNoStatus(moviePrn, movie.getCategory());
-			List<ResourceInfoVO> resourcesVO = VOUtils.po2vo(resources, ResourceInfoVO.class);
-			ResourceInfoVO.parse(resourcesVO);
+			MovieInfoVO movieVO = movieInfoService.getMovieInfoByPrn(moviePrn);
+			List<ResourceInfoVO> resourceVOList = resourceInfoService.getListByMoviePrnOrderNoStatus(moviePrn, movieVO.getCategory());
 			map.put("movie", movieVO);
-			map.put("resources", resources);
+			map.put("resources", resourceVOList);
 			result = new RequestResult<>(map);
 		} catch (Exception e) {
 			result = RequestResult.error(e);
@@ -98,9 +94,7 @@ public class ResourceController {
 			@RequestParam(value="mi", required=true) String moviePrn){
 		RequestResult<MovieInfoVO> result = null;
 		try {
-			MovieInfoEntity movie = movieInfoService.getMovieInfoByMoviePrn(moviePrn);
-			MovieInfoVO movieVO = VOUtils.po2vo(movie, MovieInfoVO.class);
-			movieVO.parse();
+			MovieInfoVO movieVO = movieInfoService.getMovieInfoByPrn(moviePrn);
 			result = new RequestResult<>(movieVO);
 		} catch (Exception e) {
 			result = RequestResult.error(e);
@@ -127,36 +121,40 @@ public class ResourceController {
 	
 	@RequestMapping("modi-page")
 	public String modiResourceHere(Model model, 
-			@RequestParam(value="ri", required=true) String resourceId){
+			@RequestParam(value="ri", required=true) String resourcePrn){
+		RequestResult<Map<String, Object>> result = null;
 		try {
-			ResourceInfoEntity resource = resourceService.getResourceByResourceId(resourceId);
-			if(resource == null){
+			ResourceInfoVO resourceVO = resourceInfoService.getResourceByPrn(resourcePrn);
+			if(resourceVO == null){
 				throw new Exception("该条资源不存在，请重试！");
 			}
-			resource.parse();
-			MovieInfoEntity movie = movieInfoBizService.getMovieInfoByMovieId(resource.getMovieId());
-			if(movie == null){
+			MovieInfoVO movieVO = movieInfoService.getMovieInfoByPrn(resourceVO.getMoviePrn());
+			if(movieVO == null){
 				throw new Exception("该条资源对应的Movie不存在！");
 			}
-			movie.parse();
-			model.addAttribute("resource", resource);
-			model.addAttribute("movie", movie);
+			Map<String, Object> map = new HashMap<>();
+			map.put("resource", resourceVO);
+			map.put("movie", movieVO);
+			result = new RequestResult<>(map);
+			model.addAttribute("result", result);
 		} catch (Exception e) {
-			model.addAttribute("error", e.getMessage());
+			result = RequestResult.error(e);
 			log.error("",e);
 		}
 		return modi_page;
 	}
 	
 	@RequestMapping(value="modi-work", method={RequestMethod.POST})
-	public String modiWork(Model model, HttpServletRequest request, ResourceInfoEntity modiResource, boolean isOptimal){
-		String tempRootPath = request.getSession().getServletContext().getRealPath("");
+	public String modiWork(Model model, ResourceInfoVO newResource, boolean isOptimal){
+		RequestResult<String> result = null;
 		try {
-			resourceService.modiResource(modiResource, tempRootPath, isOptimal);
+			resourceInfoService.modiResource(newResource, isOptimal);
+			result = new RequestResult<>("sucess");
 		} catch (Exception e) {
-			model.addAttribute("error", e.getMessage());
+			result = RequestResult.error(e);
 			log.error("",e);
 		}
+		model.addAttribute("result", result);
 		return add_result;
 	}
 }
