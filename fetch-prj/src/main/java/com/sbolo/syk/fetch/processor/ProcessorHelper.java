@@ -706,7 +706,7 @@ public class ProcessorHelper {
     	String thunderDecoding = link.getLinkDecoding();
     	
     	//从name中获取resource的相关信息
-    	ResourceInfoVO newResource = FetchUtils.getResouceInfoFromName(downloadLinkName, category, season, totalEpisode);
+    	ResourceInfoVO newResource = FetchUtils.buildResouceInfoFromName(downloadLinkName, category, season, totalEpisode);
     	
     	newResource.setMoviePrn(moviePrn);
     	newResource.setPureName(pureName);

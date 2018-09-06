@@ -1,0 +1,23 @@
+#fetch-result {
+	min-height: 170px;
+	margin-top: 10px;
+}
+
+#fetch-result .item {
+	margin-bottom: 20px;
+}
+
+.item img {
+	width: 65px;
+	height:89px;
+}
+
+.item .detail {
+	vertical-align: middle;
+	display: inline-block;
+	margin-left: 10px;
+}
+
+.detail div {
+	line-height: 2;
+}

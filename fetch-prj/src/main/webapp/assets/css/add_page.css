@@ -1,0 +1,80 @@
+#movieArea{
+	float: left;
+	width: 49%;
+}
+
+#resourceArea {
+	float: right;
+	width: 49%;
+}
+
+.panel-movie {
+	
+}
+
+.movie-body {
+	position: relative;
+}
+
+.movie-body .item {
+	margin: 5px 0px;
+}
+
+.movie-body .pureName {
+}
+
+.movie-body .anotherName {
+}
+
+.panel-resource {
+	position: relative;
+}
+
+a.add {
+	margin-left:30px;
+	vertical-align: text-bottom;
+	display: inline-block;
+	width:20px;
+	height:20px;
+}
+
+a.add > .activity-icon {
+    display: inline-block;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    border-radius: 30px;
+    width: 20px;
+    height: 20px;
+    background-color: #00AAFF;
+    font-size: 14px;
+    color: #fff;
+    line-height: 20px;
+    text-align: center;
+}
+
+table .title {
+	width: 130px;
+}
+
+table td{
+	padding-left: 8px !important;
+	vertical-align: middle !important;
+}
+
+table .tv {
+	display:none;
+}
+
+table input[type=text] {
+	width:225px;
+}
+
+.downloadLink {
+	display:inline-block;
+	margin-right:10px;
+}
+
+.required-start {
+	color:red; 
+	margin-left:3px;
+}

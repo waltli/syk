@@ -2,6 +2,8 @@ package com.sbolo.syk.fetch.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -18,8 +20,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
+import com.sbolo.syk.common.constants.MovieCategoryEnum;
 import com.sbolo.syk.common.ui.RequestResult;
 import com.sbolo.syk.fetch.tool.FetchUtils;
+import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 
 @Controller
 public class UploadController {
@@ -31,7 +35,7 @@ public class UploadController {
 			Integer fileType, 
 			HttpServletRequest request, 
 			HttpServletResponse response){
-		RequestResult<String> result = null;
+		RequestResult<Map<String, Object>> result = null;
 		InputStream is = null;
 		try {
 			if(myfile.isEmpty()){
@@ -45,6 +49,7 @@ public class UploadController {
         	String fileName = myfile.getOriginalFilename();
         	String suffix = fileName.substring(fileName.lastIndexOf(".")+1);
         	String uri = null;
+        	Map<String, Object> map = new HashMap<>();
         	if(fileType == CommonConstants.icon_v){
         		uri = FetchUtils.saveTempIcon(bytes, suffix);
         	}else if(fileType == CommonConstants.poster_v){
@@ -55,15 +60,21 @@ public class UploadController {
         		uri = FetchUtils.saveTempShot(bytes, suffix);
         	}else if(fileType == CommonConstants.torrent_v){
         		uri = FetchUtils.saveTempTorrent(bytes, suffix);
-        		FetchUtils.getResouceInfoFromName(fileName, category, season, totalEpisode);
-        		
+        		ResourceInfoVO resourceVO = FetchUtils.buildResouceInfoFromName(fileName, MovieCategoryEnum.tv.getCode(), null, null);
+        		map.put("resourceInfo", resourceVO);
         	}
+        	map.put("uri", uri);
+        	result = new RequestResult<>(map);
 		} catch (Exception e) {
-			result.setRequestResult(false);
-			result.setError(e.getMessage());
+			result = RequestResult.error(e);
+			log.error("",e);
 		} finally {
 			if(is != null) {
-				is.close();
+				try {
+					is.close();
+				} catch (IOException e) {
+					log.error("关闭流出错",e);
+				}
 			}
 		}
 		try {

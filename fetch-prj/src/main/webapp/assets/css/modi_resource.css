@@ -1,0 +1,31 @@
+.panel-resource {
+	width: 60%;
+    margin: 0 auto;
+}
+
+.downloadLink {
+	display:inline-block;
+	margin-right:10px;
+}
+
+table .title {
+	width: 130px;
+}
+
+table td{
+	padding-left: 8px !important;
+	vertical-align: middle !important;
+}
+
+table .tv {
+	display:none;
+}
+
+table input[type=text] {
+	width:315px;
+}
+
+.required-start {
+	color:red; 
+	margin-left:3px;
+}

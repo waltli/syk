@@ -1,0 +1,94 @@
+.replace {
+	display:inline-block; 
+	margin-right:10px; 
+	vertical-align: middle; 
+	position: relative;
+}
+
+.loading {
+	display: none;
+	position:absolute; 
+	top:0px; 
+	left:0px;
+	bottom:0px;
+	right:0px;
+	-webkit-align-items: center; 
+	align-items: center; 
+	-webkit-justify-content: center; 
+	justify-content: center;
+	z-index: 10;
+}
+
+.pic-preview {
+	background: #b3b3b0;
+    background: -webkit-linear-gradient(top, #b3b3b0 0%, #e3e2dd 200px);
+    background: linear-gradient(top, #b3b3b0 0%,#e3e2dd 200px);
+    background-color: #e3e2dd;
+    background-repeat: no-repeat;
+    text-align: center !important;
+    overflow: hidden;
+    display: -webkit-flex; 
+    display: flex; 
+    -webkit-align-items: center; 
+    align-items: center; 
+    -webkit-justify-content: center; 
+    justify-content: center;
+    cursor: pointer;
+}
+
+.pic-upload-del {
+	display: inline-block;
+    position: absolute;
+    cursor: pointer;
+    height: 12px;
+    width: 12px;
+    top: 2px;
+    right: 2px;
+    background: url(../images/del.png) no-repeat 0 -11px;
+    overflow: hidden;
+    z-index: 9;
+}
+
+.pic-upload-del:hover {
+	background-position: 0 0;
+}
+
+.file-upload-del {
+	display: inline-block;
+    position: relative;
+    cursor: pointer;
+    margin-left: 5px;
+    height: 12px;
+    width: 12px;
+    top: -5px;
+    right: 2px;
+    background: url(../images/del.png) no-repeat 0 -11px;
+    overflow: hidden;
+    z-index: 9;
+}
+
+.file-upload-del:hover {
+	background-position: 0 0;
+}
+
+.file-enter {
+	color: #FEA13D; 
+	cursor: pointer;
+}
+
+.file-again {
+	margin-left: 5px;
+    color: rgb(254, 161, 61);
+    cursor: pointer;
+    display:none;
+}
+
+.file-preview {
+    display:none;
+}
+
+.file {
+	position: absolute; 
+	top:-2000px;
+	left:-2000px;
+}

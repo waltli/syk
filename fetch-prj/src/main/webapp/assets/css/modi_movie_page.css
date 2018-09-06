@@ -1,0 +1,40 @@
+.panel-movie {
+	width: 60%;
+    margin: 0 auto;
+}
+
+.movie-body {
+	position: relative;
+}
+
+.movie-body .item {
+	margin: 5px 0px;
+}
+
+.movie-body .pureName {
+}
+
+.movie-body .anotherName {
+}
+
+table .title {
+	width: 130px;
+}
+
+table td{
+	padding-left: 8px !important;
+	vertical-align: middle !important;
+}
+
+table .tv {
+	display:none;
+}
+
+table input[type=text] {
+	width:315px;
+}
+
+.required-start {
+	color:red; 
+	margin-left:3px;
+}

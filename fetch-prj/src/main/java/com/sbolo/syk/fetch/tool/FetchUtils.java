@@ -595,7 +595,7 @@ public class FetchUtils {
     	
     }
 	
-	public static ResourceInfoVO getResouceInfoFromName(String downloadLinkName, Integer category, Integer season, Integer totalEpisode){
+	public static ResourceInfoVO buildResouceInfoFromName(String downloadLinkName, Integer category, Integer season, Integer totalEpisode){
 		ResourceInfoVO resourceVO = new ResourceInfoVO();
 		
 		Matcher m2 = Pattern.compile(RegexConstant.quality).matcher(downloadLinkName);

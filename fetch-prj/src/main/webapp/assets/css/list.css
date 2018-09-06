@@ -1,0 +1,43 @@
+.list-search {
+	width:470px !important;
+}
+
+.list {
+}
+
+.table-movie tr td, .table-movie tr th {
+	vertical-align: middle !important;
+	font-size: 13px;
+	
+}
+
+td .text-ellipsis {
+	overflow: hidden; 
+	white-space: nowrap; 
+	text-overflow: ellipsis;
+}
+
+.icon {
+	width:131px;
+}
+
+.icon img {
+	width: 89px;
+    height: 131px;
+}
+
+.pureName {
+	width: 300px;
+}
+
+.director {
+	width: 300px;
+}
+
+.cast {
+	width: 450px;
+}
+
+.paginator {
+    text-align: center;
+}
