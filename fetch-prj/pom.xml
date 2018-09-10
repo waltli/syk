@@ -29,14 +29,14 @@
 		<finalName>fetch-prj</finalName>
 		<resources>
 			<!-- 打包时将jsp文件拷贝到META-INF目录下 -->
-			<!-- <resource>
+			<resource>
 				<directory>src/main/webapp</directory>
-				<targetPath>META-INF/resources</targetPath>
+				<targetPath>webapp</targetPath>
 				<includes>
 					<include>**/**</include>
 				</includes>
 				<filtering>false</filtering>
-			</resource> -->
+			</resource>
 			<resource>
 				<directory>src/main/resources-${package.environment}</directory>
 				<includes>

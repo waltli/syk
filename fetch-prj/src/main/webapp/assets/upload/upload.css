@@ -44,7 +44,7 @@
     width: 12px;
     top: 2px;
     right: 2px;
-    background: url(../images/del.png) no-repeat 0 -11px;
+    background: url(../img/del.png) no-repeat 0 -11px;
     overflow: hidden;
     z-index: 9;
 }
@@ -62,7 +62,7 @@
     width: 12px;
     top: -5px;
     right: 2px;
-    background: url(../images/del.png) no-repeat 0 -11px;
+    background: url(../img/del.png) no-repeat 0 -11px;
     overflow: hidden;
     z-index: 9;
 }

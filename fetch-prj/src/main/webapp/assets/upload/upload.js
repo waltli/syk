@@ -82,7 +82,11 @@ function fileUpload(op){
 	if(!op || !op.placeId){
 		return;
 	}
-	op = extend(op);
+	op = $.extend({}, {
+		"url":ctx+"/upload",
+		"close":true,
+		"maxSize":5*1024*1024
+	}, op);
 	component_count++;
 	//位置标识者
 	var $place = $("#"+op.placeId);
@@ -105,8 +109,8 @@ function fileUpload(op){
 	var $enter = $('<span id="'+enterId+'" class="file-enter">点击上传</span>');
 	
 	//再次上传入口
-	var again = component_count+"_again_"+new Date().getTime();
-	var $again = $('<span id="'+enterId+'" class="file-again">重新上传</span>');
+	var againId = component_count+"_again_"+new Date().getTime();
+	var $again = $('<span id="'+againId+'" class="file-again">重新上传</span>');
 	
 	//预览区域
 	var $preview = $('<a class="file-preview" target="_blank" style="display:none;"></a>');
@@ -155,6 +159,7 @@ function fileUpload(op){
 		
 		
 		$("#"+loadingId).css({"display": "-webkit-flex", "display": "flex"});
+		
 		upload({
 			url:op.url,
 			data:op.data,
@@ -167,7 +172,6 @@ function fileUpload(op){
 				if(data.requestResult){
 					var val = data.uri;
 					var fileName = val.substring(val.lastIndexOf("/")+1);
-					
 					$preview.text(fileName);
 					$preview.attr("href",ctx+"/"+data.uri);
 					$enter.hide();
@@ -198,6 +202,9 @@ function fileUpload(op){
 }
 
 function picUpload(op){
+	if(!op || !op.placeId){
+		return;
+	}
 	op = $.extend({}, {
 		"url":ctx+"/upload",
 		"width": "89px",
@@ -205,9 +212,6 @@ function picUpload(op){
 		"close":true,
 		"maxSize":5*1024*1024
 	}, op);
-	if(!op || !op.placeId){
-		return;
-	}
 	
 	component_count++;
 	//位置标识者

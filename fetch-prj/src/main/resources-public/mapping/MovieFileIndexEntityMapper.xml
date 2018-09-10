@@ -12,12 +12,6 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>
-  <sql id="Base_Column_List">
-    <!--
-      WARNING - @mbg.generated
-    -->
-    id, source_url, fix_uri, file_v, create_time, update_time
-  </sql>
   <select id="selectBatchBySourceUrl" parameterType="java.util.Set" resultMap="BaseResultMap">
   	select * from movie_file_index where source_url in 
   	<foreach collection="set" open="(" close=")" item="item" separator=",">

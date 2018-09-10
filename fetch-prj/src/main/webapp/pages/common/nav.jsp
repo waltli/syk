@@ -3,7 +3,7 @@
 <!-- NAVBAR -->
 <nav class="navbar navbar-default navbar-fixed-top">
 	<div class="brand">
-		<a href="index.html"><img src="${ctxassets }/images/logo-dark.png" alt="Klorofil Logo" class="img-responsive logo"></a>
+		<a href="index.html"><img src="${ctxassets }/img/logo-dark.png" alt="Klorofil Logo" class="img-responsive logo"></a>
 	</div>
 	<div class="container-fluid">
 		<div class="navbar-btn">
@@ -42,7 +42,7 @@
 					</ul>
 				</li>
 				<li class="dropdown">
-					<a class="dropdown-toggle" data-toggle="dropdown"><img src="${ctxassets }/images/user.png" class="img-circle" alt="Avatar"> <span>Samuel</span> <i class="icon-submenu lnr lnr-chevron-down"></i></a>
+					<a class="dropdown-toggle" data-toggle="dropdown"><img src="${ctxassets }/img/user.png" class="img-circle" alt="Avatar"> <span>Samuel</span> <i class="icon-submenu lnr lnr-chevron-down"></i></a>
 					<ul class="dropdown-menu">
 						<li><a><i class="lnr lnr-user"></i> <span>My Profile</span></a></li>
 					</ul>

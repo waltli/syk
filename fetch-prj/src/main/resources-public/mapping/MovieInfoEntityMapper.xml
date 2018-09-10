@@ -40,7 +40,7 @@
     <result column="count_download" jdbcType="INTEGER" property="countDownload" />
   </resultMap>
   
-  <resultMap id="AssociationResourceMap" type="com.sbolo.syk.view.entity.MovieInfoEntity">
+  <resultMap id="AssociationResourceMap" type="com.sbolo.syk.fetch.entity.MovieInfoEntity">
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="prn" jdbcType="VARCHAR" property="prn" />
     <result column="icon_uri" jdbcType="VARCHAR" property="iconUri" />
@@ -74,7 +74,7 @@
     <result column="count_click" jdbcType="INTEGER" property="countClick" />
     <result column="count_comment" jdbcType="INTEGER" property="countComment" />
     <result column="count_download" jdbcType="INTEGER" property="countDownload" />
-    <association property="optimalResource" javaType="com.sbolo.syk.view.entity.ResourceInfoEntity">
+    <association property="optimalResource" javaType="com.sbolo.syk.fetch.entity.ResourceInfoEntity">
 		<id column="rid" jdbcType="BIGINT" property="id" />
 	    <result column="rprn" jdbcType="VARCHAR" property="prn" />
 	    <result column="movie_prn" jdbcType="VARCHAR" property="moviePrn" />

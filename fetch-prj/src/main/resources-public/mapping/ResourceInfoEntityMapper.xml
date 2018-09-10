@@ -46,8 +46,7 @@
   </select>
   
   <select id="selectByMoviePrnOrderNostatus" resultMap="BaseResultMap" parameterType="java.util.Map">
-  	SELECT
-		<include refid="Base_Column_List" />
+  	SELECT *
 	FROM
 		resource_info
 	WHERE
