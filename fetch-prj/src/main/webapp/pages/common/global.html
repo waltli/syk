@@ -1,0 +1,27 @@
+@var serverPort = ":"+request.serverPort;
+@if(request.serverPort == 80){
+	@serverPort = "";
+@}
+@var ctx = request.scheme+"://"+request.serverName+serverPort+ctxPath;
+@pageCtx("ctx", ctx);
+@pageCtx("ctxassets",ctx+"/assets");
+
+@if(isNotEmpty(params)){
+	@var availableParams = "";
+	@for(c in params){
+		@availableParams = availableParams+c.key+"="+c.value+"&";
+	@}
+	@availableParams = strutil.subStringTo(availableParams,0,strutil.length(availableParams)-1);
+	@pageCtx("availableParams",availableParams);
+@}
+
+<script>
+ var ctx="${pageCtx('ctx')}";
+ var ctxassets="${pageCtx('ctxassets')}";
+ var availableParams = "${pageCtx('availableParams')}";
+ var params = {};
+ var paramsJson = '${paramsJson!}';
+ if(paramsJson){
+	 params = JSON.parse(paramsJson);
+ }
+</script>

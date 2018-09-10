@@ -47,7 +47,7 @@
 									<tr>
 										<td class="icon">
 											<a>
-												<img alt="" src="${ctxassets }/images/movie_default_small.png" data-original="${entity.busIcon }">
+												<img alt="" src="${ctxassets }/img/movie_default_small.png" data-original="${entity.busIcon }">
 											</a>
 										</td>
 										<td class="pureName">

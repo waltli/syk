@@ -22,7 +22,7 @@
 <link rel="stylesheet" href="${ctxassets }/font-awesome/css/font-awesome.min.css">
 <link rel="stylesheet" href="${ctxassets }/linearicons/style.css">
 <link rel="stylesheet" href="${ctxassets }/css/main.css">
-<link rel="shortcut icon" href="${ctxassets }/images/favicon.ico">
+<link rel="shortcut icon" href="${ctxassets }/img/favicon.ico">
 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700" rel="stylesheet">
-<link rel="apple-touch-icon" sizes="76x76" href="${ctxassets }/images/apple-icon.png">
-<link rel="icon" type="image/png" sizes="96x96" href="${ctxassets }/images/favicon.png">
+<link rel="apple-touch-icon" sizes="76x76" href="${ctxassets }/img/apple-icon.png">
+<link rel="icon" type="image/png" sizes="96x96" href="${ctxassets }/img/favicon.png">

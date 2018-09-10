@@ -18,7 +18,7 @@
 					<div class="left">
 						<div class="content">
 							<div class="header">
-								<div class="logo text-center"><img src="${ctxassets }/images/logo-dark.png" alt="Klorofil Logo"></div>
+								<div class="logo text-center"><img src="${ctxassets }/img/logo-dark.png" alt="Klorofil Logo"></div>
 								<p class="lead">Login to your account</p>
 							</div>
 							<form class="form-auth-small" action="${ctx }/login-work" method="post">

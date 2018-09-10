@@ -41,7 +41,7 @@ public class MovieController {
 	
 	private static final String list = "movie/list.jsp";
 	private static final String search_from_douban = "movie/search_from_douban.jsp";
-	private static final String add_page = "movie/add_page.jsp";
+	private static final String add_page = "movie/add_page.html";
 	private static final String modi_movie_page = "movie/modi_movie_page.jsp";
 	private static final String add_result = "movie/add_result.jsp";
 	private static final String existed = "existed.jsp";
