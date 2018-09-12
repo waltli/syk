@@ -60,24 +60,6 @@ public class BucketUtils {
 		PutObjectResult putResult = cosClient.putObject(putObjectRequest);
 	}
 	
-	public static String upload2Subdir(byte[] bytes, String targetDir, String fileName, String suffix) throws Exception {
-		String subDir = FileUtils.getSubDir();
-		String saveDir = targetDir+subDir;
-		upload(bytes, saveDir, fileName, suffix);
-		String uri = saveDir + "/" + fileName + "." +suffix;
-		return uri;
-	}
-	
-	public static String upload2Subdir(File file, String targetDir, String fileName, String suffix) throws Exception {
-		if(!file.exists()) {
-			return null;
-		}
-		try(FileInputStream fis = new FileInputStream(file)){
-			byte[] bytes = IOUtils.toByteArray(fis);
-			return upload2Subdir(bytes, targetDir, fileName, suffix);
-		}
-	}
-	
 	public static void deletes(List<String> keys) throws Exception {
 		if(cosClient == null) {
 			throw new Exception("cosClient has not be opened yet!");

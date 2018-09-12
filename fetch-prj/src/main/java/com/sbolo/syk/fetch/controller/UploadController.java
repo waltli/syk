@@ -61,7 +61,7 @@ public class UploadController {
         	}else if(fileType == CommonConstants.torrent_v){
         		uri = FetchUtils.saveTempTorrent(bytes, suffix);
         		ResourceInfoVO resourceVO = FetchUtils.buildResouceInfoFromName(fileName, MovieCategoryEnum.tv.getCode(), null, null);
-        		map.put("resourceInfo", resourceVO);
+        		map.put("resource", resourceVO);
         	}
         	map.put("uri", uri);
         	result = new RequestResult<>(map);

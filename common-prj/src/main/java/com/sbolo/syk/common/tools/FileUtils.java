@@ -78,8 +78,23 @@ public class FileUtils {
 		}
 	}
 	
-	public static String getSubDir() {
-		String subDir = "/"+DateUtil.date2Str(new Date(), "yyyyMM");
+	public static String getTypeDir(String type) {
+		String subDir = null;
+		if("icon".equals(type)) {
+			subDir = "/icon";
+		}else if("poster".equals(type)) {
+			subDir = "/poster";
+		}else if("photo".equals(type)) {
+			subDir = "/photo";
+		}else if("shot".equals(type)) {
+			subDir = "/shot";
+		}else if("torrent".equals(type)) {
+			subDir = "/torrent";
+		}else if("date".equals(type)) {
+			subDir = "/"+DateUtil.date2Str(new Date(), "yyyyMM");
+		}else {
+			subDir = "/other";
+		}
 		return subDir;
 	}
 	
