@@ -39,12 +39,12 @@ import com.sbolo.syk.fetch.vo.ResourceInfosVO;
 public class MovieController {
 	private static final Logger log = LoggerFactory.getLogger(MovieController.class);
 	
-	private static final String list = "movie/list.jsp";
-	private static final String search_from_douban = "movie/search_from_douban.jsp";
+	private static final String list = "movie/list.html";
+	private static final String search_from_douban = "movie/search_from_douban.html";
 	private static final String add_page = "movie/add_page.html";
-	private static final String modi_movie_page = "movie/modi_movie_page.jsp";
-	private static final String add_result = "movie/add_result.jsp";
-	private static final String existed = "existed.jsp";
+	private static final String modi_movie_page = "movie/modi_movie_page.html";
+	private static final String add_result = "movie/add_result.html";
+	private static final String existed = "existed.html";
 	private static final Integer pageSize = 10;
 	
 	@Resource

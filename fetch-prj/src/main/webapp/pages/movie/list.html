@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+@include("../common/global.html"){}
+@include("../common/header.html"){}
+<title>蝉影后台管理系统</title>
+<link rel="stylesheet" type="text/css" href="${pageCtx('ctxassets')}/css/list.css" />
+<script type="text/javascript" src="${pageCtx('ctxassets')}/laypage/laypage.js"></script>
+</head>
+<body>
+	<div id="wrapper">
+		@include("../common/nav.html"){}
+		<div class="main">
+			<div class="main-content">
+				@include("../common/loading.html"){}
+				<div class="panel list">
+					<div class="panel-heading">
+						@if(isNotEmpty(params.l) || isNotEmpty(params.q)){
+							<div id="titleBar">
+								<h1 class="label_notice">
+									@if(isNotEmpty(params.l)){
+										电影标签：<span class="tags-name">${params.l!}</span><sup class="tags-del" belong="label"></sup>
+									@}
+									@if(isNotEmpty(params.q)){
+										搜索：<span class="tags-name">${params.q }</span><sup class="tags-del" belong="q"></sup>
+									@}
+								</h1>
+							</div>
+						@}
+					</div>
+					<div class="panel-body">
+						<table class="table table-striped table-movie">
+							<thead>
+								<tr>
+									<th>海报</th>
+									<th>名字</th>
+									<th>导演</th>
+									<th>演员</th>
+									<th>更新时间</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody>
+								@for(item in result.list!){
+									@var index = itemLP.index;
+									<tr>
+										<td class="icon">
+											<a>
+												<img alt="" src="${pageCtx('ctxassets')}/img/movie_default_small.png" data-original="${item.iconUrl! }">
+											</a>
+										</td>
+										<td class="pureName">
+											<div class="text-ellipsis pureName">
+												<a>
+													${item.pureName! }
+												</a>
+											</div>
+										</td>
+										<td class="director"><div class="text-ellipsis director">${item.directors! }</div></td>
+										<td class="cast"><div class="text-ellipsis cast">${item.casts! }</div></td>
+										<td class="">${entity.updateTimeStr! entity.createTimeStr }</td>
+										<td>
+											<a href="${pageCtx('ctxassets')}/movie/modi-movie-page?mi=${item.prn }">修改</a> |
+											<a href="${pageCtx('ctxassets')}/resource/list?mi=${item.prn}">资源列表</a>| 
+											<a class="toDelete" moviePrn="${item.prn}" style="cursor:pointer; ${item.st == 2 ? 'display:none;' : '' }">删除</a>
+											<a class="toRecovery" moviePrn="${item.prn}" style="color:red; cursor:pointer; ${item.st == 2 ? '' : 'display:none;' }">恢复</a>
+										</td>
+									</tr>
+								@}
+							</tbody>
+						</table>
+					</div>
+					@include("../common/paginator.html"){}
+				</div>
+			</div>
+		</div>
+		<div class="clearfix"></div>
+		<%@ include file="/pages/common/footer.jsp" %>
+	</div>
+</body>
+<script type="text/javascript">
+$("#list").addClass("active");
+
+$(".toDelete").click(function(){
+	var moviePrn = $(this).attr("moviePrn");
+	var $self = $(this);
+	
+	var M = jqueryAlert({
+		'title'   : '系统提示',
+		'content' : '确定删除该影片以及它的所有资源？',
+		'width'  :  '300px',
+		'height'  :  '130px',
+		'modal'   : true,
+		'buttons' :{
+			'确定' : function(){
+				M.close();
+				$(".cover").show();
+		    	$.ajax({
+		    		url:ctx+"/movie/signDelete",
+		    		data:{"moviePrn":moviePrn},
+		    		type:"post",
+		    		success:function(data){
+		    			$self.hide();
+		    			$self.parent().find(".toRecovery").show();
+		    			$(".cover").hide();
+		    			toastr.success('删除成功！');
+		    		},
+		    		error : function(data){
+		    			$(".cover").hide();
+		    			toastr.error('失败，请稍后再试！');
+		    		}
+		    	});
+			},
+			'取消' : function(){
+				M.close();
+			}
+		}
+	});
+});
+
+$(".toRecovery").click(function(){
+	var moviePrn = $(this).attr("moviePrn");
+	var $self = $(this);
+	
+	var M = jqueryAlert({
+		'title'   : '系统提示',
+		'content' : '确定恢复该影片以及它的所有资源？',
+		'width'  :  '300px',
+		'height'  :  '130px',
+		'modal'   : true,
+		'buttons' :{
+			'确定' : function(){
+				M.close();
+				$(".cover").show();
+		    	$.ajax({
+		    		url:ctx+"/movie/signAvailable",
+		    		data:{"moviePrn":moviePrn},
+		    		type:"post",
+		    		success:function(data){
+		    			$self.hide();
+		    			$self.parent().find(".toDelete").show();
+		    			$(".cover").hide();
+		    			toastr.success('恢复成功！');
+		    		},
+		    		error : function(data){
+		    			$(".cover").hide();
+		    			toastr.error('失败，请稍后再试！');
+		    		}
+		    	});
+			},
+			'取消' : function(){
+				M.close();
+			}
+		}
+	});
+});
+</script>
+</html>

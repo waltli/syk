@@ -40,7 +40,7 @@
 										</tr>
 										<tr>
 											<td class="title">主演</td>
-											<td><input type="text" name="cast" id="castVal" class="form-control" placeholder="多个用 ' / '分隔。例：张三 / 李四"></td>
+											<td><input type="text" name="casts" id="castsVal" class="form-control" placeholder="多个用 ' / '分隔。例：张三 / 李四"></td>
 											<td class="title">类型<span class="required-start">*</span></td>
 											<td><input type="text" name="labels" id="labelsVal" class="form-control" placeholder="多个用 ' / '分隔。例：科幻 / 动作"></td>
 										</tr>
@@ -48,7 +48,7 @@
 											<td class="title">制片国家/地区<span class="required-start">*</span></td>
 											<td><input type="text" name="locations" id="locationsVal" class="form-control" placeholder="多个用 ' / '分隔。例：中国大陆 / 美国"></td>
 											<td class="title">语言</td>
-											<td><input type="text" name="language" id="languageVal" class="form-control" placeholder="电影默认使用的语言"></td>
+											<td><input type="text" name="languages" id="languagesVal" class="form-control" placeholder="电影默认使用的语言"></td>
 										</tr>
 										<tr>
 											<td class="title">上映日期<span class="required-start">*</span></td>
@@ -93,7 +93,7 @@
 										<tr>
 											<td class="title">ICON</td>
 											<td colspan="3">
-												<input type="hidden" name="busIcon" id="iconVal">
+												<input type="hidden" name="iconTempUri" id="iconTempUriVal">
 												<a id="iconPlace"></a>
 												
 											</td>
@@ -101,7 +101,7 @@
 										<tr>
 											<td class="title">海报</td>
 											<td colspan="3">
-												<input type="hidden" name="busPoster" id="posterVal">
+												<input type="hidden" name="posterTempUriStr" id="posterTempUriStrVal">
 												<a id="posterPlace_1"></a>
 												<a id="posterPlace_2"></a>
 												<a id="posterPlace_3"></a>
@@ -111,7 +111,7 @@
 										<tr>
 											<td class="title">PHOTO</td>
 											<td colspan="3">
-												<input type="hidden" name="busPoster" id="photoVal">
+												<input type="hidden" name="photoTempUriStr" id="photoTempUriStrVal">
 												<a id="photoPlace_1"></a>
 												<a id="photoPlace_2"></a>
 												<a id="photoPlace_3"></a>
@@ -244,20 +244,20 @@ $("#addForm").validate({
 });
 
 //ICON上传组件
-picUploadAll("iconPlace", "iconVal", 1);
+picUploadAll("iconPlace", "iconTempUriVal", 1);
 //POSTER上传组件
-var posterValObj = {};
-picUploadAll("posterPlace_1", "posterVal", 2, posterValObj);
-picUploadAll("posterPlace_2", "posterVal", 2, posterValObj);
-picUploadAll("posterPlace_3", "posterVal", 2, posterValObj);
-picUploadAll("posterPlace_4", "posterVal", 2, posterValObj);
+var posterTempUriStrValObj = {};
+picUploadAll("posterPlace_1", "posterTempUriStrVal", 2, posterTempUriStrValObj);
+picUploadAll("posterPlace_2", "posterTempUriStrVal", 2, posterTempUriStrValObj);
+picUploadAll("posterPlace_3", "posterTempUriStrVal", 2, posterTempUriStrValObj);
+picUploadAll("posterPlace_4", "posterTempUriStrVal", 2, posterTempUriStrValObj);
 
 //PHOTO上传组件
-var photoValObj = {};
-picUploadAll("photoPlace_1", "photoVal", 3, photoValObj);
-picUploadAll("photoPlace_2", "photoVal", 3, photoValObj);
-picUploadAll("photoPlace_3", "photoVal", 3, photoValObj);
-picUploadAll("photoPlace_4", "photoVal", 3, photoValObj);
+var photoTempUriStrValObj = {};
+picUploadAll("photoPlace_1", "photoTempUriStrVal", 3, photoTempUriStrValObj);
+picUploadAll("photoPlace_2", "photoTempUriStrVal", 3, photoTempUriStrValObj);
+picUploadAll("photoPlace_3", "photoTempUriStrVal", 3, photoTempUriStrValObj);
+picUploadAll("photoPlace_4", "photoTempUriStrVal", 3, photoTempUriStrValObj);
 
 /**
  * 绑定select联动事件
@@ -319,7 +319,7 @@ $("#add-resource").click(function(){
 			   '				<tr>'+
 			   '					<td class="title">下载地址<span class="required-start">*</span></td>'+
 			   '					<td colspan="3">'+
-			   '						<input type="text" name="resources['+resource_count+'].busDownloadLink" id="'+downloadLinkValId+'" class="form-control downloadLink" placeholder="Torrent文件通过右侧上传获取。">'+
+			   '						<input type="text" name="resources['+resource_count+'].downloadLinkTemp" id="'+downloadLinkValId+'" class="form-control downloadLink" placeholder="Torrent文件通过右侧上传获取。">'+
 			   '						<a id="'+downloadLinkPlaceId+'"></a>'+
 			   '					</td>'+
 			   '				</tr>'+
@@ -350,7 +350,7 @@ $("#add-resource").click(function(){
 			   '				<tr>'+
 			   '					<td class="title">截图</td>'+
 			   '					<td colspan="3">'+
-			   '						<input type="hidden" name="resources['+resource_count+'].busShots" id="'+shotValId+'">'+
+			   '						<input type="hidden" name="resources['+resource_count+'].shotTempUriStr" id="'+shotValId+'">'+
 			   '						<a id="'+shotPlaceId1+'"></a>'+
 			   '						<a id="'+shotPlaceId2+'"></a>'+
 			   '						<a id="'+shotPlaceId3+'"></a>'+
@@ -402,7 +402,6 @@ $("#add-resource").click(function(){
 			uploadCount++;
 		},
 		success: function(data){
-			debugger;
 			if(!data.status){
 				return;
 			}
@@ -534,13 +533,13 @@ function assignMovieInfo(movie){
 		$("#anotherNameVal").val(movie.anotherName);
 	}
 	if(movie.director){
-		$("#directorsVal").val(movie.director);
+		$("#directorsVal").val(movie.directors);
 	}
 	if(movie.writers){
 		$("#writersVal").val(movie.writers);
 	}
 	if(movie.cast){
-		$("#castVal").val(movie.cast);
+		$("#castsVal").val(movie.casts);
 	}
 	if(movie.labels){
 		$("#labelsVal").val(movie.labels);
@@ -549,7 +548,7 @@ function assignMovieInfo(movie){
 		$("#locationsVal").val(movie.locations);
 	}
 	if(movie.language){
-		$("#languageVal").val(movie.language);
+		$("#languagesVal").val(movie.languages);
 	}
 	if(movie.releaseTimeStr){
 		$("#releaseTimeStrVal").val(movie.releaseTimeStr);
@@ -586,7 +585,7 @@ function assignMovieInfo(movie){
 		$("#summaryVal").val(movie.summary);
 	}
 	if(movie.iconUrl){
-		var $td = $("#iconVal").parents("td");
+		var $td = $("#iconTempUriVal").parents("td");
 		var $loading = $td.find(".loading");
 		var $preview_img = $td.find(".pic-preview img");
 		uploadCount++;
@@ -597,7 +596,7 @@ function assignMovieInfo(movie){
 			success:function(data){
 				if(data.status){
 					$preview_img.attr("src", ctx+"/"+data.obj.uri);
-					$("#iconVal").val(data.obj.uri);
+					$("#iconTempUriVal").val(data.obj.iconTempUri);
 				}
 				uploadCount--;
 				$loading.hide();
@@ -609,7 +608,7 @@ function assignMovieInfo(movie){
 		});
 	}
 	if(movie.posterPageUrl){
-	    var $td = $("#posterVal").parents("td");
+	    var $td = $("#posterTempUriStrVal").parents("td");
 		var $loadings = $td.find(".loading");
 		var $replaces = $td.find(".replace");
 		$loadings.css({"display": "-webkit-flex", "display": "flex"});
@@ -624,22 +623,22 @@ function assignMovieInfo(movie){
 			data:{"pageUrl":movie.posterPageUrl, "iconName":iconName},
 			success:function(data){
 				if(data.status){
-					var uris = data.obj.uris;
+					var uris = data.obj.posterTempUriList;
 					$replaces.each(function(i,o){
 						if(uris[i]){
 							var placeId = $(this).attr("id");
 							var $preview_img = $(this).find(".pic-preview img");
 							$preview_img.attr("src", ctx+"/"+uris[i]);
-							posterValObj[placeId] = uris[i];
+							posterTempUriStrValObj[placeId] = uris[i];
 						}
 					});
 				}
 				var disStr = "";
-				for(var i in posterValObj){
-					disStr += (","+posterValObj[i]);
+				for(var i in posterTempUriStrValObj){
+					disStr += (","+posterTempUriStrValObj[i]);
 				}
 				disStr = disStr.substring(1);
-				$("#posterVal").val(disStr);
+				$("#posterTempUriStrVal").val(disStr);
 				uploadCount--;
 				$loadings.hide();
 			},
@@ -660,7 +659,6 @@ function picUploadAll(placeId, valId, fileType, disObj){
 			uploadCount++;
 		},
 		success: function(data){
-			debugger;
 			if(!data.status){
 				return;
 			}
@@ -678,7 +676,6 @@ function picUploadAll(placeId, valId, fileType, disObj){
 			uploadCount--;
 		},
 		error: function(data, status, e){
-			debugger;
 			if(disObj){
 				delete disObj[placeId];
 				var disStr = "";
