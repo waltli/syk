@@ -1,0 +1,24 @@
+<div id="paginator-heavy" class="paginator"></div>
+<script type="text/javascript">
+layui.use('laypage', function(){
+	var laypage = layui.laypage;
+	  //执行一个laypage实例
+	  laypage.render({
+	    elem: 'paginator-heavy', 
+	    count: '${result.allRow!}', 
+	    curr: '${result.currentPage!}',
+	    theme: '#E3B81F',
+	    prev: '<', 
+		next: '>',
+		jump: function(e, first){
+			if(!first){
+				var url = "${pageCtx('ctxassets')}/movie/list?page="+e.curr;
+				if(availableParams){
+					url += ('&'+availableParams);
+				}
+				location.href = encodeURI(url);
+			}
+		}
+	});
+});
+</script>
