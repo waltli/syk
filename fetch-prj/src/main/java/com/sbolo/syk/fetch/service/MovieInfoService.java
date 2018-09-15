@@ -201,16 +201,22 @@ public class MovieInfoService {
 		}
 		
 		//上传ICON图片
-		String iconUri = FetchUtils.uploadIconFromUri(movie.getIconTempUri());
-		movie.setIconUri(iconUri);
+		if(StringUtils.isNotBlank(movie.getIconTempUri())) {
+			String iconUri = FetchUtils.uploadIconGetUriFromDir(movie.getIconTempUri());
+			movie.setIconUri(iconUri);
+		}
 		
 		//上传poster图片
-		String posterUriJson = FetchUtils.uploadPosterAndGetUriJsonFromTempUris(movie.getPosterTempUriStr());
-		movie.setPosterUriJson(posterUriJson);
+		if(StringUtils.isNotBlank(movie.getPosterTempUriStr())) {
+			String posterUriJson = FetchUtils.uploadPosterAndGetUriJsonFromDirs(movie.getPosterTempUriStr());
+			movie.setPosterUriJson(posterUriJson);
+		}
 		
 		//上传photo图片
-		String photoUriJson = FetchUtils.uploadPhotoAndGetUriJsonFromTempUris(movie.getPhotoTempUriStr());
-		movie.setPhotoUriJson(photoUriJson);
+		if(StringUtils.isNotBlank(movie.getPhotoTempUriStr())) {
+			String photoUriJson = FetchUtils.uploadPhotoAndGetUriJsonFromDirs(movie.getPhotoTempUriStr());
+			movie.setPhotoUriJson(photoUriJson);
+		}
 		
 		Integer optimalIdx = 0;
 		Integer maxDefinition = -1;
@@ -242,15 +248,17 @@ public class MovieInfoService {
 			String downloadLink = null;
 			if(Pattern.compile(RegexConstant.torrent).matcher(downloadLinkTemp).find()) {
 				String torrentName = FetchUtils.getTorrentName(resource);
-				downloadLink = FetchUtils.uploadTorrentFromUri(downloadLinkTemp, torrentName);
+				downloadLink = FetchUtils.uploadTorrentGetUriFromDir(downloadLinkTemp, torrentName);
 			}else {
 				downloadLink = downloadLinkTemp;
 			}
 			resource.setDownloadLink(downloadLink);
 			
 			//上传shot图片
-			String shotUriJson = FetchUtils.uploadShotAndGetUriJsonFromTempUris(resource.getShotTempUriStr());
-			resource.setShotUriJson(shotUriJson);
+			if(StringUtils.isNotBlank(resource.getShotTempUriStr())) {
+				String shotUriJson = FetchUtils.uploadShotAndGetUriJsonFromDirs(resource.getShotTempUriStr());
+				resource.setShotUriJson(shotUriJson);
+			}
 			
 			//资源清晰度得分
 			Integer definitionScore = FetchUtils.translateDefinitionIntoScore(resource.getQuality(), resource.getResolution());
@@ -309,19 +317,19 @@ public class MovieInfoService {
 		}
 		
 		//上传ICON图片
-		String iconUri = FetchUtils.uploadIconFromUri(changeMovie.getIconTempUri());
+		String iconUri = FetchUtils.uploadIconGetUriFromDir(changeMovie.getIconTempUri());
 		changeMovie.setIconUri(iconUri);
 		BucketUtils.delete(dbMovie.getIconUri());
 		
 		
 		//上传poster图片
-		String posterUriJson = FetchUtils.uploadPosterAndGetUriJsonFromTempUris(changeMovie.getPosterTempUriStr());
+		String posterUriJson = FetchUtils.uploadPosterAndGetUriJsonFromDirs(changeMovie.getPosterTempUriStr());
 		changeMovie.setPosterUriJson(posterUriJson);
 		List<String> oldPosterUriList = JSON.parseArray(dbMovie.getPosterUriJson(), String.class);
 		BucketUtils.deletes(oldPosterUriList);
 		
 		//上传photo图片
-		String photoUriJson = FetchUtils.uploadPhotoAndGetUriJsonFromTempUris(changeMovie.getPhotoTempUriStr());
+		String photoUriJson = FetchUtils.uploadPhotoAndGetUriJsonFromDirs(changeMovie.getPhotoTempUriStr());
 		changeMovie.setPhotoUriJson(photoUriJson);
 		List<String> oldPhotoUriList = JSON.parseArray(dbMovie.getPhotoUriJson(), String.class);
 		BucketUtils.deletes(oldPhotoUriList);

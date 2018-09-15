@@ -119,6 +119,10 @@ public class ResourceInfoService {
 			ResourceInfoEntity resource = VOUtils.po2vo(resourceVO, ResourceInfoEntity.class);
 			String resourcePrn = StringUtil.getId(CommonConstants.resource_s);
 			resource.setPrn(resourcePrn);
+			resource.setPureName(movieAround.getPureName());
+			resource.setReleaseTime(movieAround.getReleaseTime());
+			resource.setSpeed(5);
+			resource.setMoviePrn(moviePrn);
 			resource.setCreateTime(now);
 			resource.setSt(MovieStatusEnum.available.getCode());
 			
@@ -132,15 +136,22 @@ public class ResourceInfoService {
 			}
 			
 			//上传torrent文件
-			String torrentName = FetchUtils.getTorrentName(resourceVO);
-			String torrentTempUri = resourceVO.getDownloadLinkTemp();
-			String torrentUri = FetchUtils.uploadTorrentFromUri(torrentTempUri, torrentName);
-			resource.setDownloadLink(torrentUri);
+			String downloadLinkTemp = resourceVO.getDownloadLinkTemp();
+			String downloadLink = null;
+			if(Pattern.compile(RegexConstant.torrent).matcher(downloadLinkTemp).find()) {
+				String torrentName = FetchUtils.getTorrentName(resourceVO);
+				downloadLink = FetchUtils.uploadTorrentGetUriFromDir(downloadLinkTemp, torrentName);
+			}else {
+				downloadLink = downloadLinkTemp;
+			}
+			resource.setDownloadLink(downloadLink);
 			
 			//上传shots图片
 			String shotTempUriStr = resourceVO.getShotTempUriStr();
-			String shotUriJson = FetchUtils.uploadShotAndGetUriJsonFromTempUris(shotTempUriStr);
-			resource.setShotUriJson(shotUriJson);
+			if(StringUtils.isNotBlank(shotTempUriStr)) {
+				String shotUriJson = FetchUtils.uploadShotAndGetUriJsonFromDirs(shotTempUriStr);
+				resource.setShotUriJson(shotUriJson);
+			}
 			
 			//资源清晰度得分
 			Integer definitionScore = FetchUtils.translateDefinitionIntoScore(resourceVO.getQuality(), resourceVO.getResolution());
@@ -187,7 +198,7 @@ public class ResourceInfoService {
 				String downloadLink = null;
 				if(Pattern.compile(RegexConstant.torrent).matcher(downloadLinkTemp).find()){
 					String torrentName = FetchUtils.getTorrentName(newResource);
-					downloadLink = FetchUtils.uploadTorrentFromUri(downloadLinkTemp, torrentName);
+					downloadLink = FetchUtils.uploadTorrentGetUriFromDir(downloadLinkTemp, torrentName);
 				}else {
 					downloadLink = downloadLinkTemp;
 				}
@@ -198,7 +209,7 @@ public class ResourceInfoService {
 			//上传shots图片
 			String shotTempUriStr = changeOption.getShotTempUriStr();
 			if(StringUtils.isNotBlank(shotTempUriStr)){
-				String shotUriJson = FetchUtils.uploadShotAndGetUriJsonFromTempUris(shotTempUriStr);
+				String shotUriJson = FetchUtils.uploadShotAndGetUriJsonFromDirs(shotTempUriStr);
 				changeOption.setShotUriJson(shotUriJson);
 				//删除修改之前的文件
 				List<String> oldShotUriList = JSON.parseArray(oldResource.getShotUriJson(), String.class);

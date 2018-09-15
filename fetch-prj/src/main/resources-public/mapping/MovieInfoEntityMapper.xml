@@ -112,7 +112,7 @@
   </select>
   
   <select id="selectAssociationByMoviePrn" resultMap="AssociationResourceMap" parameterType="java.util.Map" >
-  	select select *, t1.id rid, t1.prn rprn, t1.pure_name rpure_name, 
+  	select *, t1.id rid, t1.prn rprn, t1.pure_name rpure_name, 
   		t1.release_time rrelease_time, t1.st rst, 
   		t1.create_time rcreate_time, t1.update_time rupdate_time
   	from movie_info t, resource_info t1

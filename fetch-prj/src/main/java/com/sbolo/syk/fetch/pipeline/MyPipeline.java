@@ -313,7 +313,7 @@ public class MyPipeline implements Pipeline {
 					if(movieFileIndexEntity != null) {
 						shotUri = movieFileIndexEntity.getFixUri();
 					}else {
-						shotUri = FetchUtils.uploadShot(shotUrl);
+						shotUri = FetchUtils.uploadShotGetUri(shotUrl);
 						MovieFileIndexEntity fileIdx = this.buildFileIndex(shotUrl.trim(), shotUri, CommonConstants.shot_v, thisTime);
 						newFileIdxList.add(fileIdx);
 					}
@@ -356,10 +356,10 @@ public class MyPipeline implements Pipeline {
 						torrentNameMapping.put(sb.toString(), 1);
 						
 						if(fetchResource.getTorrentBytes() == null) {
-							torrentUri = FetchUtils.uploadTorrent(fetchResource.getDownloadLink(), torrentName);
+							torrentUri = FetchUtils.uploadTorrentGetUri(fetchResource.getDownloadLink(), torrentName);
 						}else {
 							String suffix = fetchResource.getDownloadLink().substring(fetchResource.getDownloadLink().lastIndexOf(".")+1);
-							torrentUri = FetchUtils.uploadTorrent(fetchResource.getTorrentBytes(), torrentName, suffix);
+							torrentUri = FetchUtils.uploadTorrentGetUri(fetchResource.getTorrentBytes(), torrentName, suffix);
 						}
 						MovieFileIndexEntity fileIdx = this.buildFileIndex(fetchResource.getDownloadLink(), torrentUri, CommonConstants.torrent_v, thisTime);
 						newFileIdxList.add(fileIdx);
@@ -416,15 +416,15 @@ public class MyPipeline implements Pipeline {
 					}else {
 						switch (pic.getPicV()) {
 						case CommonConstants.icon_v:
-							picUri = FetchUtils.uploadIcon(pic.getFetchUrl());
+							picUri = FetchUtils.uploadIconGetUri(pic.getFetchUrl());
 							fetchMovie.setIconUri(picUri);
 							break;
 						case CommonConstants.poster_v:
-							picUri = FetchUtils.uploadPoster(pic.getFetchUrl());
+							picUri = FetchUtils.uploadPosterGetUri(pic.getFetchUrl());
 							posterUris.add(picUri);
 							break;
 						case CommonConstants.photo_v:
-							picUri = FetchUtils.uploadPhoto(pic.getFetchUrl());
+							picUri = FetchUtils.uploadPhotoGetUri(pic.getFetchUrl());
 							photoUris.add(picUri);
 							break;
 						default:
@@ -470,7 +470,7 @@ public class MyPipeline implements Pipeline {
 	public void before() {
 		shotUrlMapping = new ConcurrentHashMap<String, String>();
 		torrentNameMapping = new ConcurrentHashMap<String, Integer>();
-		BucketUtils.openBucket(ConfigUtil.getPropertyValue("bucket.name"));
+		BucketUtils.openBucket();
 	}
 	
 	

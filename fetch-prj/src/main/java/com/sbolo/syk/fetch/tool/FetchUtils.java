@@ -43,7 +43,7 @@ public class FetchUtils {
 	private static final Logger log = LoggerFactory.getLogger(FetchUtils.class);
 	
 	
-	public static String uploadIcon(byte[] bytes, String suffix) throws Exception {
+	public static String uploadIconGetUri(byte[] bytes, String suffix) throws Exception {
 		int fixWidth = CommonConstants.icon_width;
 		int fixHeight = CommonConstants.icon_height;
 		byte[] imageBytes = GrapicmagickUtils.descale(bytes, fixWidth, fixHeight);
@@ -53,29 +53,29 @@ public class FetchUtils {
 		String targetDir = root + typeDir + dateDir;
 		String fileName = StringUtil.getId(CommonConstants.pic_s);
 		BucketUtils.upload(imageBytes, targetDir, fileName, suffix);
-		return typeDir + dateDir + "/" + fileName + "." +suffix;
+		return ConfigUtil.getPropertyValue("bucket.formal") + typeDir + dateDir + "/" + fileName + "." +suffix;
 	}
 	
-	public static String uploadIcon(String iconUrl) throws Exception {
+	public static String uploadIconGetUri(String iconUrl) throws Exception {
 		byte[] bytes = HttpUtils.getBytes(iconUrl);
 		String suffix = iconUrl.substring(iconUrl.lastIndexOf(".")+1);
-		return uploadIcon(bytes, suffix);
+		return uploadIconGetUri(bytes, suffix);
 	}
 	
-	public static String uploadIcon(File file) throws Exception {
+	public static String uploadIconGetUri(File file) throws Exception {
 		byte[] bytes = FileUtils.getBytes(file);
 		String path = file.getPath();
 		String suffix = path.substring(path.lastIndexOf(".")+1);
-		return uploadIcon(bytes, suffix);
+		return uploadIconGetUri(bytes, suffix);
 	}
 	
-	public static String uploadIconFromUri(String iconTempUri) throws Exception {
+	public static String uploadIconGetUriFromDir(String iconSubDir) throws Exception {
 		String root = ConfigUtil.getPropertyValue("fs.temp.dir");
-		File iconFile = new File(root+iconTempUri);
-		return uploadIcon(iconFile);
+		File iconFile = new File(root+iconSubDir);
+		return uploadIconGetUri(iconFile);
 	}
 	
-	public static String uploadPoster(byte[] bytes, String suffix) throws Exception {
+	public static String uploadPosterGetUri(byte[] bytes, String suffix) throws Exception {
 		int fixWidth = CommonConstants.poster_width;
 		int fixHeight = CommonConstants.poster_height;
 		byte[] imageBytes = GrapicmagickUtils.descale(bytes, fixWidth, fixHeight);
@@ -85,33 +85,33 @@ public class FetchUtils {
 		String targetDir = root + typeDir + dateDir;
 		String fileName = StringUtil.getId(CommonConstants.pic_s);
 		BucketUtils.upload(imageBytes, targetDir, fileName, suffix);
-		return typeDir + dateDir + "/" + fileName + "." +suffix;
+		return ConfigUtil.getPropertyValue("bucket.formal") + typeDir + dateDir + "/" + fileName + "." +suffix;
 	}
 	
-	public static String uploadPoster(String posterUrl) throws Exception {
+	public static String uploadPosterGetUri(String posterUrl) throws Exception {
 		byte[] bytes = HttpUtils.getBytes(posterUrl);
 		String suffix = posterUrl.substring(posterUrl.lastIndexOf(".")+1);
-		return uploadPoster(bytes, suffix);
+		return uploadPosterGetUri(bytes, suffix);
 	}
 	
-	public static String uploadPoster(File file) throws Exception {
+	public static String uploadPosterGetUri(File file) throws Exception {
 		byte[] bytes = FileUtils.getBytes(file);
 		String path = file.getPath();
 		String suffix = path.substring(path.lastIndexOf(".")+1);
-		return uploadPoster(bytes, suffix);
+		return uploadPosterGetUri(bytes, suffix);
 	}
 	
-	public static String uploadPosterFromUri(String posterTempUri) throws Exception {
+	public static String uploadPosterGetUriFromDir(String posterSubDir) throws Exception {
 		String root = ConfigUtil.getPropertyValue("fs.temp.dir");
-		File posterFile = new File(root+posterTempUri);
-		return uploadPoster(posterFile);
+		File posterFile = new File(root+posterSubDir);
+		return uploadPosterGetUri(posterFile);
 	}
 	
-	public static String uploadPosterAndGetUriJsonFromTempUris(String posterTempUriStr) throws Exception {
-		String[] posterTempUriArr = posterTempUriStr.split(",");
+	public static String uploadPosterAndGetUriJsonFromDirs(String posterSubDirStr) throws Exception {
+		String[] posterSubDirArr = posterSubDirStr.split(",");
 		List<String> posterUriList = new ArrayList<>();
-		for(String posterTempUri : posterTempUriArr) {
-			String posterUri = uploadPosterFromUri(posterTempUri);
+		for(String posterSubDir : posterSubDirArr) {
+			String posterUri = uploadPosterGetUriFromDir(posterSubDir);
 			posterUriList.add(posterUri);
 		}
 		if(posterUriList.size() > 0) {
@@ -121,7 +121,7 @@ public class FetchUtils {
 		return null;
 	}
 	
-	public static String uploadPhoto(byte[] bytes, String suffix) throws Exception {
+	public static String uploadPhotoGetUri(byte[] bytes, String suffix) throws Exception {
 		int fixWidth = CommonConstants.photo_width;
 		int fixHeight = CommonConstants.photo_height;
 		byte[] imageBytes = GrapicmagickUtils.descale(bytes, fixWidth, fixHeight);
@@ -131,33 +131,33 @@ public class FetchUtils {
 		String targetDir = root + typeDir + dateDir;
 		String fileName = StringUtil.getId(CommonConstants.pic_s);
 		BucketUtils.upload(imageBytes, targetDir, fileName, suffix);
-		return typeDir + dateDir + "/" + fileName + "." +suffix;
+		return ConfigUtil.getPropertyValue("bucket.formal") + typeDir + dateDir + "/" + fileName + "." +suffix;
 	}
 	
-	public static String uploadPhoto(String photoUrl) throws Exception {
+	public static String uploadPhotoGetUri(String photoUrl) throws Exception {
 		byte[] bytes = HttpUtils.getBytes(photoUrl);
 		String suffix = photoUrl.substring(photoUrl.lastIndexOf(".")+1);
-		return uploadPhoto(bytes, suffix);
+		return uploadPhotoGetUri(bytes, suffix);
 	}
 	
-	public static String uploadPhoto(File file) throws Exception {
+	public static String uploadPhotoGetUri(File file) throws Exception {
 		byte[] bytes = FileUtils.getBytes(file);
 		String path = file.getPath();
 		String suffix = path.substring(path.lastIndexOf(".")+1);
-		return uploadPhoto(bytes, suffix);
+		return uploadPhotoGetUri(bytes, suffix);
 	}
 	
-	public static String uploadPhotoFromUri(String photoTempUri) throws Exception {
+	public static String uploadPhotoGetUriFromDir(String photoSubDir) throws Exception {
 		String root = ConfigUtil.getPropertyValue("fs.temp.dir");
-		File photoFile = new File(root+photoTempUri);
-		return uploadPhoto(photoFile);
+		File photoFile = new File(root+photoSubDir);
+		return uploadPhotoGetUri(photoFile);
 	}
 	
-	public static String uploadPhotoAndGetUriJsonFromTempUris(String photoTempUriStr) throws Exception {
-		String[] photoTempUriArr = photoTempUriStr.split(",");
+	public static String uploadPhotoAndGetUriJsonFromDirs(String photoSubDirStr) throws Exception {
+		String[] photoSubDirArr = photoSubDirStr.split(",");
 		List<String> photoUriList = new ArrayList<>();
-		for(String photoTempUri : photoTempUriArr) {
-			String photoUri = uploadPhotoFromUri(photoTempUri);
+		for(String photoSubDir : photoSubDirArr) {
+			String photoUri = uploadPhotoGetUriFromDir(photoSubDir);
 			photoUriList.add(photoUri);
 		}
 		if(photoUriList.size() > 0) {
@@ -167,7 +167,7 @@ public class FetchUtils {
 		return null;
 	}
 	
-	public static String uploadShot(byte[] bytes, String suffix) throws Exception {
+	public static String uploadShotGetUri(byte[] bytes, String suffix) throws Exception {
 		InputStream markStream = null;
 		try {
 			int fixWidth = CommonConstants.shot_width;
@@ -184,7 +184,7 @@ public class FetchUtils {
 			String targetDir = root + typeDir + dateDir;
 			String fileName = StringUtil.getId(CommonConstants.pic_s);
 			BucketUtils.upload(imageBytes, targetDir, fileName, suffix);
-			return typeDir + dateDir + "/" + fileName + "." +suffix;
+			return ConfigUtil.getPropertyValue("bucket.formal") + typeDir + dateDir + "/" + fileName + "." +suffix;
 		} finally {
 			if(markStream != null) {
 				markStream.close();
@@ -194,30 +194,30 @@ public class FetchUtils {
 		
 	}
 	
-	public static String uploadShot(String shotUrl) throws Exception {
+	public static String uploadShotGetUri(String shotUrl) throws Exception {
 		byte[] bytes = HttpUtils.getBytes(shotUrl);
 		String suffix = shotUrl.substring(shotUrl.lastIndexOf(".")+1);
-		return uploadShot(bytes, suffix);
+		return uploadShotGetUri(bytes, suffix);
 	}
 	
-	public static String uploadShot(File file) throws Exception {
+	public static String uploadShotGetUri(File file) throws Exception {
 		byte[] bytes = FileUtils.getBytes(file);
 		String path = file.getPath();
 		String suffix = path.substring(path.lastIndexOf(".")+1);
-		return uploadShot(bytes, suffix);
+		return uploadShotGetUri(bytes, suffix);
 	}
 	
-	public static String uploadShotFromUri(String shotTempUri) throws Exception {
+	public static String uploadShotGetUriFromDir(String shotSubDir) throws Exception {
 		String root = ConfigUtil.getPropertyValue("fs.temp.dir");
-		File shotFile = new File(root+shotTempUri);
-		return uploadShot(shotFile);
+		File shotFile = new File(root+shotSubDir);
+		return uploadShotGetUri(shotFile);
 	}
 	
-	public static String uploadShotAndGetUriJsonFromTempUris(String shotTempUriStr) throws Exception {
-		String[] shotTempUriArr = shotTempUriStr.split(",");
+	public static String uploadShotAndGetUriJsonFromDirs(String shotSubDirStr) throws Exception {
+		String[] shotSubDirArr = shotSubDirStr.split(",");
 		List<String> shotUriList = new ArrayList<>();
-		for(String shotTempUri : shotTempUriArr) {
-			String shotUri = uploadShotFromUri(shotTempUri);
+		for(String shotSubDir : shotSubDirArr) {
+			String shotUri = uploadShotGetUriFromDir(shotSubDir);
 			shotUriList.add(shotUri);
 		}
 		if(shotUriList.size() > 0) {
@@ -227,33 +227,33 @@ public class FetchUtils {
 		return null;
 	}
 	
-	public static String uploadTorrent(byte[] bytes, String torrentName, String suffix) throws Exception {
+	public static String uploadTorrentGetUri(byte[] bytes, String torrentName, String suffix) throws Exception {
 		String root = ConfigUtil.getPropertyValue("bucket.formal");
 		String typeDir = FileUtils.getTypeDir("torrent");
 		String dateDir = FileUtils.getTypeDir("date");
 		String targetDir = root + typeDir + dateDir;
 		String fileName = StringUtil.getId(CommonConstants.pic_s);
 		BucketUtils.upload(bytes, targetDir, fileName, suffix);
-		return typeDir + dateDir + "/" + fileName + "." +suffix;
+		return ConfigUtil.getPropertyValue("bucket.formal") + typeDir + dateDir + "/" + fileName + "." +suffix;
 	}
 	
-	public static String uploadTorrent(String torrentUrl, String torrentName) throws Exception {
+	public static String uploadTorrentGetUri(String torrentUrl, String torrentName) throws Exception {
 		byte[] bytes = HttpUtils.getBytes(torrentUrl);
 		String suffix = torrentUrl.substring(torrentUrl.lastIndexOf(".")+1);
-		return uploadTorrent(bytes, torrentName, suffix);
+		return uploadTorrentGetUri(bytes, torrentName, suffix);
 	}
 	
-	public static String uploadTorrent(File file, String torrentName) throws Exception {
+	public static String uploadTorrentGetUri(File file, String torrentName) throws Exception {
 		byte[] bytes = FileUtils.getBytes(file);
 		String path = file.getPath();
 		String suffix = path.substring(path.lastIndexOf(".")+1);
-		return uploadTorrent(bytes, torrentName, suffix);
+		return uploadTorrentGetUri(bytes, torrentName, suffix);
 	}
 	
-	public static String uploadTorrentFromUri(String torrentTempUri, String torrentName) throws Exception {
+	public static String uploadTorrentGetUriFromDir(String torrentSubDir, String torrentName) throws Exception {
 		String root = ConfigUtil.getPropertyValue("fs.temp.dir");
-		File torrentFile = new File(root+torrentTempUri);
-		return uploadTorrent(torrentFile, torrentName);
+		File torrentFile = new File(root+torrentSubDir);
+		return uploadTorrentGetUri(torrentFile, torrentName);
 	}
 	
 	/**
