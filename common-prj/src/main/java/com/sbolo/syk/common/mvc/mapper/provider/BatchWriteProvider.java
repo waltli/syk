@@ -64,13 +64,13 @@ public class BatchWriteProvider extends MapperTemplate {
         Set<EntityColumn> columnList = EntityHelper.getColumns(entityClass);
         for (EntityColumn column : columnList) {
             if (!column.isId() && !column.getEntityField().getName().equals("prn") && column.isUpdatable()) {
-            	String equalsHolder = SqlHelper.getIfNotNull("item", column, column.getColumnEqualsHolder("item") +",", true);
+            	String equalsHolder = SqlHelper.getIfNotNull(column, column.getColumnEqualsHolder() +",", true);
                 sql.append(equalsHolder);
             }
         }
         sql.append("</set>");
         sql.append("<where>");
-        sql.append("prn = #{item.prn}");
+        sql.append("prn = #{prn}");
         sql.append("</where>");
         return sql.toString();
 	}

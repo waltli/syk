@@ -125,6 +125,8 @@ public class ResourceInfoVO {
      */
     private List<String> shotUrlList;
     
+    private String shotUrlStr;
+    
     private List<String> shotUriList;
     
     private String shotTempUriStr;
@@ -170,6 +172,14 @@ public class ResourceInfoVO {
     private byte[] torrentBytes;
     
     private String linkType;
+
+	public String getShotUrlStr() {
+		return shotUrlStr;
+	}
+
+	public void setShotUrlStr(String shotUrlStr) {
+		this.shotUrlStr = shotUrlStr;
+	}
 
 	public String getShotTempUriStr() {
 		return shotTempUriStr;
@@ -655,14 +665,14 @@ public class ResourceInfoVO {
     	if(StringUtils.isNotBlank(this.getShotUriJson())){
     		JSONArray array = JSON.parseArray(this.getShotUriJson());
     		List<String> shotUrlList = new ArrayList<String>();
-//    		String busPhotosStr = "";
+    		String shotUrlStr = "";
     		for(int i=0; i<array.size(); i++){
     			String shotUri = array.getString(i);
-    			String shotUrl = bucketHost + "/" + shotUri;
+    			String shotUrl = bucketHost + shotUri;
     			shotUrlList.add(shotUrl);
-//    			busPhotosStr += (","+photoUrl);
+    			shotUrlStr += (","+shotUrl);
     		}
-//    		this.setBusPhotos(busPhotosStr.substring(1));
+    		this.setShotUrlStr(shotUrlStr.substring(1));
     		this.setShotUrlList(shotUrlList);
     	}
     	

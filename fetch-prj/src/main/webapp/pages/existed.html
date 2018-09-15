@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+@include("../common/global.html"){}
+@include("../common/header.html"){}
+<title>蝉影后台管理系统</title>
+<link rel="stylesheet" type="text/css" href="${pageCtx('ctxassets')}/css/add_resources.css" />
+<script type="text/javascript" src="${pageCtx('ctxassets')}/upload/upload.js"></script>
+</head>
+<body>
+	<div id="wrapper">
+		@include("../common/nav.html"){}
+		@var movie = result.obj;
+		<div class="main">
+			<div class="main-content">
+				<div class="resourceArea">
+					<div class="panel panel-resource">
+						<div class="panel-heading">
+							<div style="margin-bottom:20px;">影片 [${movie.pureName }] 已经存在，你可以..</div>
+							
+							<span style="margin-right:10px;"><a href="${pageCtx('ctx')}/movie/modi-movie-page?mi=${movie.prn}">修改影片信息</a></span>
+							<span style="margin-right:10px;"><a href="${pageCtx('ctx')}/resource/list?mi=${movie.prn}">查看资源列表</a></span>
+							<span style="margin-right:10px;"><a href="${pageCtx('ctx')}/resource/add-page?mi=${movie.prn}">添加资源</a></span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="clearfix"></div>
+		@include("../common/footer.html"){}
+	</div>
+</body>
+<script type="text/javascript">
+
+$("#add").addClass("active");
+
+</script>
+</html>

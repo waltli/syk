@@ -9,6 +9,7 @@
 <script type="text/javascript" src="${pageCtx('ctxassets')}/upload/upload.js"></script>
 </head>
 <body>
+	@var movie = result.obj;
 	<div id="wrapper">
 		@include("../common/nav.html"){}
 		<div class="main">
@@ -20,7 +21,7 @@
 						</div>
 						<div class="panel-body movie-body">
 							@include("../common/loading.html"){}
-							<input type="hidden" name="movieId" value="${movie.prn}">
+							<input type="hidden" name="prn" value="${movie.prn}">
 							<table class="table">
 								<tbody>
 									<tr>
@@ -104,6 +105,16 @@
 											<a id="posterPlace_2"></a>
 											<a id="posterPlace_3"></a>
 											<a id="posterPlace_4"></a>
+										</td>
+									</tr>
+									<tr id="photoTr">
+										<td class="title">PHOTO</td>
+										<td colspan="3">
+											<input type="hidden" name="photoTempUriStr" id="photoVal">
+											<a id="photoPlace_1"></a>
+											<a id="photoPlace_2"></a>
+											<a id="photoPlace_3"></a>
+											<a id="photoPlace_4"></a>
 										</td>
 									</tr>
 								</tbody>
@@ -197,21 +208,27 @@ picUploadAll("posterPlace_1", "posterVal", 2, posterValObj);
 picUploadAll("posterPlace_2", "posterVal", 2, posterValObj);
 picUploadAll("posterPlace_3", "posterVal", 2, posterValObj);
 picUploadAll("posterPlace_4", "posterVal", 2, posterValObj);
+//PHOTO上传组件
+var photoValObj = {};
+picUploadAll("photoPlace_1", "photoVal", 3, photoValObj);
+picUploadAll("photoPlace_2", "photoVal", 3, photoValObj);
+picUploadAll("photoPlace_3", "photoVal", 3, photoValObj);
+picUploadAll("photoPlace_4", "photoVal", 3, photoValObj);
 
 /**
  * 初始化poster显示
  */
-var uris = '${movie.posterTempUriStr}';
-if(uris){
-	uris = uris.split(",");
+var posterUrls = '${movie.posterUrlStr}';
+if(posterUrls){
+	posterUrls = posterUrls.split(",");
 }
-var $replaces = $("#posterTr").find(".replace");
-$replaces.each(function(i,o){
-	if(uris[i]){
+var $posterReplaces = $("#posterTr").find(".replace");
+$posterReplaces.each(function(i,o){
+	if(posterUrls[i]){
 		var placeId = $(this).attr("id");
 		var $preview_img = $(this).find(".pic-preview img");
-		$preview_img.attr("src", uris[i]);
-		posterValObj[placeId] = uris[i];
+		$preview_img.attr("src", posterUrls[i]);
+		posterValObj[placeId] = posterUrls[i];
 	}
 	var disStr = "";
 	for(var i in posterValObj){
@@ -220,6 +237,30 @@ $replaces.each(function(i,o){
 	disStr = disStr.substring(1);
 	$("#posterVal").val(disStr);
 });
+
+/**
+ * 初始化photo显示
+ */
+ var photoUrls = '${movie.photoUrlStr}';
+ if(photoUrls){
+	 photoUrls = photoUrls.split(",");
+ }
+ var $photoReplaces = $("#photoTr").find(".replace");
+ $photoReplaces.each(function(i,o){
+ 	if(photoUrls[i]){
+ 		var placeId = $(this).attr("id");
+ 		var $preview_img = $(this).find(".pic-preview img");
+ 		$preview_img.attr("src", photoUrls[i]);
+ 		photoValObj[placeId] = photoUrls[i];
+ 	}
+ 	var disStr = "";
+ 	for(var i in photoValObj){
+ 		disStr += (","+photoValObj[i]);
+ 	}
+ 	disStr = disStr.substring(1);
+ 	$("#photoVal").val(disStr);
+ });
+
 
 /**
  * 绑定select联动事件
@@ -261,7 +302,7 @@ function picUploadAll(placeId, valId, fileType, disObj){
 				return;
 			}
 			if(disObj){
-				disObj[placeId] = data.obj.uri;
+				disObj[placeId] = data.obj.subDir;
 				var disStr = "";
 				for(var i in disObj){
 					disStr += (","+disObj[i]);
@@ -269,7 +310,7 @@ function picUploadAll(placeId, valId, fileType, disObj){
 				disStr = disStr.substring(1);
 				$("#"+valId).val(disStr);
 			}else {
-				$("#"+valId).val(data.obj.uri);
+				$("#"+valId).val(data.obj.subDir);
 			}
 			uploadCount--;
 		},

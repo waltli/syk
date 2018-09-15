@@ -405,8 +405,8 @@ $("#add-resource").click(function(){
 			if(!data.status){
 				return;
 			}
-			if(data.obj.uri){
-				$("#"+downloadLinkValId).val(data.obj.uri);
+			if(data.obj.subDir){
+				$("#"+downloadLinkValId).val(data.obj.subDir);
 			}else {
 				$("#"+downloadLinkValId).val("");
 			}
@@ -532,13 +532,13 @@ function assignMovieInfo(movie){
 	if(movie.anotherName){
 		$("#anotherNameVal").val(movie.anotherName);
 	}
-	if(movie.director){
+	if(movie.directors){
 		$("#directorsVal").val(movie.directors);
 	}
 	if(movie.writers){
 		$("#writersVal").val(movie.writers);
 	}
-	if(movie.cast){
+	if(movie.casts){
 		$("#castsVal").val(movie.casts);
 	}
 	if(movie.labels){
@@ -547,7 +547,7 @@ function assignMovieInfo(movie){
 	if(movie.locations){
 		$("#locationsVal").val(movie.locations);
 	}
-	if(movie.language){
+	if(movie.languages){
 		$("#languagesVal").val(movie.languages);
 	}
 	if(movie.releaseTimeStr){
@@ -595,8 +595,8 @@ function assignMovieInfo(movie){
 			data:{"url":movie.iconUrl},
 			success:function(data){
 				if(data.status){
-					$preview_img.attr("src", ctx+"/"+data.obj.uri);
-					$("#iconTempUriVal").val(data.obj.iconTempUri);
+					$preview_img.attr("src", ctx+data.obj.uri);
+					$("#iconTempUriVal").val(data.obj.subDir);
 				}
 				uploadCount--;
 				$loading.hide();
@@ -610,7 +610,7 @@ function assignMovieInfo(movie){
 	if(movie.posterPageUrl){
 	    var $td = $("#posterTempUriStrVal").parents("td");
 		var $loadings = $td.find(".loading");
-		var $replaces = $td.find(".replace");
+		var $posterReplaces = $td.find(".replace");
 		$loadings.css({"display": "-webkit-flex", "display": "flex"});
 		var iconName = "";
 		uploadCount++;
@@ -624,12 +624,13 @@ function assignMovieInfo(movie){
 			success:function(data){
 				if(data.status){
 					var uris = data.obj.posterTempUriList;
-					$replaces.each(function(i,o){
+					var subDirs = data.obj.subDirList;
+					$posterReplaces.each(function(i,o){
 						if(uris[i]){
 							var placeId = $(this).attr("id");
 							var $preview_img = $(this).find(".pic-preview img");
-							$preview_img.attr("src", ctx+"/"+uris[i]);
-							posterTempUriStrValObj[placeId] = uris[i];
+							$preview_img.attr("src", ctx+uris[i]);
+							posterTempUriStrValObj[placeId] = subDirs[i];
 						}
 					});
 				}
@@ -663,7 +664,7 @@ function picUploadAll(placeId, valId, fileType, disObj){
 				return;
 			}
 			if(disObj){
-				disObj[placeId] = data.obj.uri;
+				disObj[placeId] = data.obj.subDir;
 				var disStr = "";
 				for(var i in disObj){
 					disStr += (","+disObj[i]);
@@ -671,7 +672,7 @@ function picUploadAll(placeId, valId, fileType, disObj){
 				disStr = disStr.substring(1);
 				$("#"+valId).val(disStr);
 			}else {
-				$("#"+valId).val(data.obj.uri);
+				$("#"+valId).val(data.obj.subDir);
 			}
 			uploadCount--;
 		},

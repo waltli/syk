@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sbolo.syk.common.annotation.Paginator;
 import com.sbolo.syk.common.exception.BusinessException;
+import com.sbolo.syk.common.tools.ConfigUtil;
 import com.sbolo.syk.common.tools.DateUtil;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.VOUtils;
@@ -61,7 +62,7 @@ public class MovieController {
 		RequestResult<MovieInfoVO> result = null;
 		try {
 			result = movieInfoService.getAroundList(pageNum, pageSize, null, keyword);
-			model.addAttribute("requestResult", result);
+			model.addAttribute("result", result);
 		} catch (Exception e) {
 			result = RequestResult.error(e);
 			log.error("", e);
@@ -250,9 +251,11 @@ public class MovieController {
 	public RequestResult<Map<String, Object>> downloadIcon(HttpServletRequest request, String url){
 		RequestResult<Map<String, Object>> result = null;
 		try {
-			String uri = FetchUtils.saveTempIcon(url);
+			String subDir = FetchUtils.saveTempIcon(url);
 			Map<String, Object> map = new HashMap<>();
-			map.put("iconTempUri", uri);
+			map.put("subDir", subDir);
+			String root = ConfigUtil.getPropertyValue("fs.temp.mapping");
+			map.put("uri", root+subDir);
 			result = new RequestResult<>(map);
 		} catch (Exception e) {
 			result = RequestResult.error(e);
@@ -274,11 +277,15 @@ public class MovieController {
 			}
 			
 			List<String> posterTempUriList = new ArrayList<>();
+			List<String> subDirList = new ArrayList<>();
+			String root = ConfigUtil.getPropertyValue("fs.temp.mapping");
 			for(String posterUrl : posterUrlList) {
-				String uri = FetchUtils.saveTempPoster(posterUrl);
-				posterTempUriList.add(uri);
+				String subDir = FetchUtils.saveTempPoster(posterUrl);
+				subDirList.add(subDir);
+				posterTempUriList.add(root+subDir);
 			}
 			Map<String, Object> map = new HashMap<>();
+			map.put("subDirList", subDirList);
 			map.put("posterTempUriList", posterTempUriList);
 			if(posterTempUriList.size() > 0){
 				result = new RequestResult<>(map);

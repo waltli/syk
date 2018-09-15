@@ -59,10 +59,10 @@
 										</td>
 										<td class="director"><div class="text-ellipsis director">${item.directors! }</div></td>
 										<td class="cast"><div class="text-ellipsis cast">${item.casts! }</div></td>
-										<td class="">${entity.updateTimeStr! entity.createTimeStr }</td>
+										<td class="">${item.updateTimeStr! item.createTimeStr }</td>
 										<td>
-											<a href="${pageCtx('ctxassets')}/movie/modi-movie-page?mi=${item.prn }">修改</a> |
-											<a href="${pageCtx('ctxassets')}/resource/list?mi=${item.prn}">资源列表</a>| 
+											<a href="${pageCtx('ctx')}/movie/modi-movie-page?mi=${item.prn }">修改</a> |
+											<a href="${pageCtx('ctx')}/resource/list?mi=${item.prn}">资源列表</a>| 
 											<a class="toDelete" moviePrn="${item.prn}" style="cursor:pointer; ${item.st == 2 ? 'display:none;' : '' }">删除</a>
 											<a class="toRecovery" moviePrn="${item.prn}" style="color:red; cursor:pointer; ${item.st == 2 ? '' : 'display:none;' }">恢复</a>
 										</td>
@@ -94,6 +94,7 @@ $(".toDelete").click(function(){
 		'modal'   : true,
 		'buttons' :{
 			'确定' : function(){
+				debugger;
 				M.close();
 				$(".cover").show();
 		    	$.ajax({

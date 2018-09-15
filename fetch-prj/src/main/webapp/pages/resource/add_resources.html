@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 @include("../common/global.html"){}
 @include("../common/header.html"){}
-<title>Insert title here</title>
+<title>蝉影后台管理系统</title>
 <link rel="stylesheet" type="text/css" href="${pageCtx('ctxassets')}/css/add_resources.css" />
 <script type="text/javascript" src="${pageCtx('ctxassets')}/upload/upload.js"></script>
 </head>
@@ -66,16 +66,13 @@ $("#addResourceForm").submit(function(e){
 	}
 });
 
-/**
- * 初始化resouceInfo
- */
 var resource_count = 0;
 $("#add-resource").click(function(){
 	var downloadLinkPlaceId = resource_count+'_downloadLinkPlace';
-	var photoPlaceId1 = resource_count+'_photoPlace_1';
-	var photoPlaceId2 = resource_count+'_photoPlace_2';
-	var photoPlaceId3 = resource_count+'_photoPlace_3';
-	var photoPlaceId4 = resource_count+'_photoPlace_4';
+	var shotPlaceId1 = resource_count+'_shotPlace_1';
+	var shotPlaceId2 = resource_count+'_shotPlace_2';
+	var shotPlaceId3 = resource_count+'_shotPlace_3';
+	var shotPlaceId4 = resource_count+'_shotPlace_4';
 	
 	var downloadLinkValId = resource_count+'_downloadLinkVal';
 	var sizeValId = resource_count+'_sizeVal';
@@ -85,7 +82,7 @@ $("#add-resource").click(function(){
 	var episodeStartValId = resource_count+'_episodeStartVal';
 	var episodeEndValId = resource_count+'_episodeEndVal';
 	var subtitleValId = resource_count+'_subtitleVal';
-	var photoValId = resource_count+'_photoVal';
+	var shotValId = resource_count+'_shotVal';
 	
 	var closeId = resource_count+'_close';
 	
@@ -102,7 +99,7 @@ $("#add-resource").click(function(){
 			   '				<tr>'+
 			   '					<td class="title">下载地址<span class="required-start">*</span></td>'+
 			   '					<td colspan="3">'+
-			   '						<input type="text" name="resources['+resource_count+'].busDownloadLink" id="'+downloadLinkValId+'" class="form-control downloadLink" placeholder="Torrent文件通过右侧上传获取。">'+
+			   '						<input type="text" name="resources['+resource_count+'].downloadLinkTemp" id="'+downloadLinkValId+'" class="form-control downloadLink" placeholder="Torrent文件通过右侧上传获取。">'+
 			   '						<a id="'+downloadLinkPlaceId+'"></a>'+
 			   '					</td>'+
 			   '				</tr>'+
@@ -133,11 +130,11 @@ $("#add-resource").click(function(){
 			   '				<tr>'+
 			   '					<td class="title">截图</td>'+
 			   '					<td colspan="3">'+
-			   '						<input type="hidden" name="resources['+resource_count+'].busPhotos" id="'+photoValId+'">'+
-			   '						<a id="'+photoPlaceId1+'"></a>'+
-			   '						<a id="'+photoPlaceId2+'"></a>'+
-			   '						<a id="'+photoPlaceId3+'"></a>'+
-			   '						<a id="'+photoPlaceId4+'"></a>'+
+			   '						<input type="hidden" name="resources['+resource_count+'].shotTempUriStr" id="'+shotValId+'">'+
+			   '						<a id="'+shotPlaceId1+'"></a>'+
+			   '						<a id="'+shotPlaceId2+'"></a>'+
+			   '						<a id="'+shotPlaceId3+'"></a>'+
+			   '						<a id="'+shotPlaceId4+'"></a>'+
 			   '					</td>'+
 			   '				</tr>'+
 			   '			</tbody>'+
@@ -179,52 +176,66 @@ $("#add-resource").click(function(){
 
 	fileUpload({
 		placeId:downloadLinkPlaceId,
-		data:{"fileType":4},
+		data:{"fileType":5},
 		close:false,
 		before: function(){
 			uploadCount++;
 		},
 		success: function(data){
-			if(!data.requestResult){
+			if(!data.status){
 				return;
 			}
-			if(data.uri){
-				$("#"+downloadLinkValId).val(data.uri);
+			if(data.obj.subDir){
+				$("#"+downloadLinkValId).val(data.obj.subDir);
 			}else {
 				$("#"+downloadLinkValId).val("");
 			}
-			if(data.size){
-				$("#"+sizeValId).val(data.size);
+			var resource = data.obj.resource;
+			
+			if(!resource){
+				$("#"+downloadLinkValId).val("");
+				$("#"+sizeValId).val("");
+				$("#"+formatValId).val("");
+				$("#"+qualityValId).val("");
+				$("#"+resolutionValId).val("");
+				$("#"+episodeStartValId).val("");
+				$("#"+episodeEndValId).val("");
+				$("#"+subtitleValId).val("");
+				return;
+			}
+			
+			if(resource.size){
+				$("#"+sizeValId).val(resource.size);
 			}else {
 				$("#"+sizeValId).val("");
 			}
-			if(data.format){
-				$("#"+formatValId).val(data.format);
+			if(resource.format){
+				$("#"+formatValId).val(resource.format);
 			}else {
 				$("#"+formatValId).val("");
 			}
-			if(data.quality){
-				$("#"+qualityValId).val(data.quality);
+			if(resource.quality){
+				$("#"+qualityValId).val(resource.quality);
 			}else {
 				$("#"+qualityValId).val("");
 			}
-			if(data.resolution){
-				$("#"+resolutionValId).val(data.resolution);
+			if(resource.resolution){
+				$("#"+resolutionValId).val(resource.resolution);
 			}else {
 				$("#"+resolutionValId).val("");
 			}
-			if(data.episodeStart){
-				$("#"+episodeStartValId).val(data.episodeStart);
+			if(resource.episodeStart){
+				$("#"+episodeStartValId).val(resource.episodeStart);
 			}else {
 				$("#"+episodeStartValId).val("");
 			}
-			if(data.episodeEnd){
-				$("#"+episodeEndValId).val(data.episodeEnd);
+			if(resource.episodeEnd){
+				$("#"+episodeEndValId).val(resource.episodeEnd);
 			}else {
 				$("#"+episodeEndValId).val("");
 			}
-			if(data.subtitle){
-				$("#"+subtitleValId).val(data.subtitle);
+			if(resource.subtitle){
+				$("#"+subtitleValId).val(resource.subtitle);
 			}else {
 				$("#"+subtitleValId).val("");
 			}
@@ -245,11 +256,11 @@ $("#add-resource").click(function(){
 	});
 	
 	
-	var photoValObj = {};
-	picUploadAll(photoPlaceId1, photoValId, 3, photoValObj);
-	picUploadAll(photoPlaceId2, photoValId, 3, photoValObj);
-	picUploadAll(photoPlaceId3, photoValId, 3, photoValObj);
-	picUploadAll(photoPlaceId4, photoValId, 3, photoValObj);
+	var shotValObj = {};
+	picUploadAll(shotPlaceId1, shotValId, 4, shotValObj);
+	picUploadAll(shotPlaceId2, shotValId, 4, shotValObj);
+	picUploadAll(shotPlaceId3, shotValId, 4, shotValObj);
+	picUploadAll(shotPlaceId4, shotValId, 4, shotValObj);
 	
 	$("#"+closeId).unbind("click").bind("click", function(){
 		var $panelResource = $(this).parents(".panel-resource");
@@ -281,11 +292,11 @@ function picUploadAll(placeId, valId, fileType, disObj){
 			uploadCount++;
 		},
 		success: function(data){
-			if(!data.requestResult){
+			if(!data.status){
 				return;
 			}
 			if(disObj){
-				disObj[placeId] = data.uri;
+				disObj[placeId] = data.obj.subDir;
 				var disStr = "";
 				for(var i in disObj){
 					disStr += (","+disObj[i]);
@@ -293,7 +304,7 @@ function picUploadAll(placeId, valId, fileType, disObj){
 				disStr = disStr.substring(1);
 				$("#"+valId).val(disStr);
 			}else {
-				$("#"+valId).val(data.uri);
+				$("#"+valId).val(data.obj.subDir);
 			}
 			uploadCount--;
 		},
@@ -311,7 +322,7 @@ function picUploadAll(placeId, valId, fileType, disObj){
 			}
 			toastr.error(e);
 			uploadCount--
-		},
+		}
 	});
 }
 

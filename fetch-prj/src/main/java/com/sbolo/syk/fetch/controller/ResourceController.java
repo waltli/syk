@@ -31,10 +31,10 @@ import com.sbolo.syk.fetch.vo.ResourceInfosVO;
 @RequestMapping("resource")
 public class ResourceController {
 	private static final Logger log = LoggerFactory.getLogger(ResourceController.class);
-	private static final String list = "resource/list.jsp";
-	private static final String modi_page = "resource/modi_resource.jsp";
-	private static final String add_page = "resource/add_resources.jsp";
-	private static final String add_result = "movie/add_result.jsp";
+	private static final String list = "resource/list.html";
+	private static final String modi_page = "resource/modi_resource.html";
+	private static final String add_page = "resource/add_resources.html";
+	private static final String add_result = "movie/add_result.html";
 	
 	@Resource
 	private MovieInfoService movieInfoService;

@@ -113,7 +113,7 @@ public class MovieInfoService {
 	public void signDeleteable(String moviePrn){
 		
 		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("prn", moviePrn);
+		params.put("moviePrn", moviePrn);
 		params.put("movieStatus", MovieStatusEnum.deletable.getCode());
 		movieInfoMapper.signStatusByPrn(params);
 		
@@ -123,7 +123,7 @@ public class MovieInfoService {
 	@Transactional
 	public void signAvailable(String moviePrn){
 		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("prn", moviePrn);
+		params.put("moviePrn", moviePrn);
 		params.put("movieStatus", MovieStatusEnum.available.getCode());
 		movieInfoMapper.signStatusByPrn(params);
 		

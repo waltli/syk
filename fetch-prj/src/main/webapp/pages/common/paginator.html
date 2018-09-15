@@ -12,7 +12,7 @@ layui.use('laypage', function(){
 		next: '>',
 		jump: function(e, first){
 			if(!first){
-				var url = "${pageCtx('ctxassets')}/movie/list?page="+e.curr;
+				var url = "${pageCtx('ctx')}/movie/list?page="+e.curr;
 				if(availableParams){
 					url += ('&'+availableParams);
 				}

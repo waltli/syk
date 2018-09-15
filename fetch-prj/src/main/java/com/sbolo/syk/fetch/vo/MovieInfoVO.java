@@ -216,17 +216,37 @@ public class MovieInfoVO {
     
     private List<String> photoUrlList;
     
+    private String photoUrlStr;
+    
     private List<String> photoUriList;
     
     private String photoTempUriStr;
     
     private List<String> posterUrlList;
     
+    private String posterUrlStr;
+    
     private List<String> posterUriList;
     
     private String posterTempUriStr;
-    
-    public String getPhotoTempUriStr() {
+
+	public String getPhotoUrlStr() {
+		return photoUrlStr;
+	}
+
+	public void setPhotoUrlStr(String photoUrlStr) {
+		this.photoUrlStr = photoUrlStr;
+	}
+
+	public String getPosterUrlStr() {
+		return posterUrlStr;
+	}
+
+	public void setPosterUrlStr(String posterUrlStr) {
+		this.posterUrlStr = posterUrlStr;
+	}
+
+	public String getPhotoTempUriStr() {
 		return photoTempUriStr;
 	}
 
@@ -999,23 +1019,27 @@ public class MovieInfoVO {
     	if(StringUtils.isNotBlank(this.getPosterUriJson())){
     		List<String> posterUris = JSON.parseArray(this.getPosterUriJson(), String.class);
     		List<String> posterUrlList = new ArrayList<String>();
-//    		String posterUrlStr = "";
+    		String posterUrlStr = "";
     		for(String posterUri : posterUris){
     			String posterUrl = bucketHost + posterUri;
     			posterUrlList.add(posterUrl);
-//    			posterUrlStr += ","+posterUrl;
+    			posterUrlStr += ","+posterUrl;
     		}
     		this.setPosterUrlList(posterUrlList);
+    		this.setPosterUrlStr(posterUrlStr.substring(1));
     	}
     	
     	if(StringUtils.isNotBlank(this.getPhotoUriJson())){
     		List<String> photoUris = JSON.parseArray(this.getPhotoUriJson(), String.class);
     		List<String> photoUrlList = new ArrayList<String>();
+    		String photoUrlStr = "";
     		for(String photoUri : photoUris){
     			String photoUrl = bucketHost + photoUri;
     			photoUrlList.add(photoUrl);
+    			photoUrlStr += ","+photoUrl;
     		}
     		this.setPhotoUrlList(photoUrlList);
+    		this.setPhotoUrlStr(photoUrlStr.substring(1));
     	}
     	
     	if(StringUtils.isNotBlank(this.getAnotherName())){

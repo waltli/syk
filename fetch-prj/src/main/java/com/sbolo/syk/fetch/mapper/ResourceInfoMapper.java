@@ -29,6 +29,7 @@ public interface ResourceInfoMapper extends Mapper<ResourceInfoEntity>, BatchWri
 	@Select("SELECT * FROM resource_info WHERE movie_prn = #{moviePrn} and st = #{resourceStatus}")
 	List<ResourceInfoEntity> selectAllByMoviePrnAndStatus(Map<String, Object> params);
 	
+	@ResultMap("BaseResultMap")
 	@Select("select * from resource_info where prn=#{resourcePrn}")
 	ResourceInfoEntity selectByPrn(String resourcePrn);
 	

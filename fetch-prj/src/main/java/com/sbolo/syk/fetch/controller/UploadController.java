@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.MovieCategoryEnum;
+import com.sbolo.syk.common.tools.ConfigUtil;
 import com.sbolo.syk.common.ui.RequestResult;
 import com.sbolo.syk.fetch.tool.FetchUtils;
 import com.sbolo.syk.fetch.vo.ResourceInfoVO;
@@ -48,21 +49,24 @@ public class UploadController {
         	byte[] bytes = IOUtils.toByteArray(is);
         	String fileName = myfile.getOriginalFilename();
         	String suffix = fileName.substring(fileName.lastIndexOf(".")+1);
+        	String subDir = null;
         	String uri = null;
         	Map<String, Object> map = new HashMap<>();
         	if(fileType == CommonConstants.icon_v){
-        		uri = FetchUtils.saveTempIcon(bytes, suffix);
+        		subDir = FetchUtils.saveTempIcon(bytes, suffix);
         	}else if(fileType == CommonConstants.poster_v){
-        		uri = FetchUtils.saveTempPoster(bytes, suffix);
+        		subDir = FetchUtils.saveTempPoster(bytes, suffix);
         	}else if(fileType == CommonConstants.photo_v){
-        		uri = FetchUtils.saveTempPhoto(bytes, suffix);
+        		subDir = FetchUtils.saveTempPhoto(bytes, suffix);
         	}else if(fileType == CommonConstants.shot_v){
-        		uri = FetchUtils.saveTempShot(bytes, suffix);
+        		subDir = FetchUtils.saveTempShot(bytes, suffix);
         	}else if(fileType == CommonConstants.torrent_v){
-        		uri = FetchUtils.saveTempTorrent(bytes, suffix);
+        		subDir = FetchUtils.saveTempTorrent(bytes, suffix);
         		ResourceInfoVO resourceVO = FetchUtils.buildResouceInfoFromName(fileName, MovieCategoryEnum.tv.getCode(), null, null);
         		map.put("resource", resourceVO);
         	}
+        	map.put("subDir", subDir);
+        	uri = ConfigUtil.getPropertyValue("fs.temp.mapping")+subDir;
         	map.put("uri", uri);
         	result = new RequestResult<>(map);
 		} catch (Exception e) {

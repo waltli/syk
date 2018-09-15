@@ -373,7 +373,7 @@ public class DoubanUtils {
 							}
 							
 							MovieInfoVO movie = new MovieInfoVO();
-							movie.setIconUri(icon);
+							movie.setIconUrl(icon);
 							movie.setPureName(realPureName);
 							movie.setAnotherName(originalName);
 							movie.setYear(year);

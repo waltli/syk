@@ -105,7 +105,7 @@
   		t1.create_time rcreate_time, t1.update_time rupdate_time
     from movie_info t, resource_info t1
 	WHERE 
-		t.optimal_resource_prn = t1.prn and t.st = 1
+		t.optimal_resource_prn = t1.prn
 		<if test="keyword != null">
     		and (LOCATE(#{keyword}, t.pure_name)>0 or LOCATE(#{keyword}, t.another_name)>0 or LOCATE(#{keyword}, t.casts)>0)
     	</if>
@@ -127,7 +127,7 @@
   		t1.create_time rcreate_time, t1.update_time rupdate_time
   	FROM 
   		(select b.movie_prn from movie_label b where b.label_name = #{label}) a, movie_info t, resource_info t1
-  	WHERE t.prn = a.movie_prn and t.optimal_resource_prn = t1.prn and t.st = 1
+  	WHERE t.prn = a.movie_prn and t.optimal_resource_prn = t1.prn
   </select>
   
   <select id="selectByPureNameAndPrecision" resultMap="BaseResultMap" parameterType="java.util.Map">
