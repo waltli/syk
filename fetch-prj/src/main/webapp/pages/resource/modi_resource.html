@@ -63,7 +63,7 @@
 					   				<tr id="shotsTr">
 					   					<td class="title">截图</td>
 					   					<td colspan="3">
-					   						<input type="hidden" name="shotTempUriStr" id="shotVal">
+					   						<input type="hidden" name="shotSubDirStr" id="shotVal">
 					   						<a id="shotPlace1"></a>
 					   						<a id="shotPlace2"></a>
 					   						<a id="shotPlace3"></a>
@@ -258,7 +258,6 @@ if(urls){
 	urls = urls.split(",");
 }
 var $replaces = $("#shotsTr").find(".replace");
-debugger;
 $replaces.each(function(i,o){
 	if(urls[i]){
 		var placeId = $(this).attr("id");

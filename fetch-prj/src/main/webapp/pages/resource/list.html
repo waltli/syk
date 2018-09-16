@@ -124,7 +124,6 @@ $(".setOptimal").click(function(){
 
 
 $(".toDelete").click(function(){
-	debugger;
 	var resourcePrn = $(this).attr("resourcePrn");
 	var moviePrn = $(this).attr("moviePrn");
 	var $self = $(this);
@@ -136,7 +135,6 @@ $(".toDelete").click(function(){
 		'modal'   : true,
 		'buttons' :{
 			'确定' : function(){
-				debugger;
 				M.close();
 				$(".cover").show();
 		    	$.ajax({

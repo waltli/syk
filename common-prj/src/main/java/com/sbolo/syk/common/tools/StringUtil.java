@@ -123,4 +123,11 @@ public class StringUtil {
 	public static String getId(String sign){
 		return sign + UIDGenerator.getUID();
 	}
+	
+	public static Boolean isHttp(String str) {
+		if(str.startsWith("http://") || str.startsWith("https://")) {
+			return true;
+		}
+		return false;
+	}
 }

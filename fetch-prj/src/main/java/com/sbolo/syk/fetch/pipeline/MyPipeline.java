@@ -246,31 +246,31 @@ public class MyPipeline implements Pipeline {
 		Set<String> urls = new HashSet<>();
 		
 		for(MovieInfoVO fetchMovie : fetchMovies) {
-			String iconUrl = fetchMovie.getIconUrl();
-			List<String> posterUrlList = fetchMovie.getPosterUrlList();
-			List<String> photoUrlList = fetchMovie.getPhotoUrlList();
+			String iconOutUrl = fetchMovie.getIconOutUrl();
+			List<String> posterOutUrlList = fetchMovie.getPosterOutUrlList();
+			List<String> photoOutUrlList = fetchMovie.getPhotoOutUrlList();
 			
-			if(StringUtils.isNotBlank(iconUrl)) {
-				urls.add(iconUrl);
+			if(StringUtils.isNotBlank(iconOutUrl)) {
+				urls.add(iconOutUrl);
 			}
 			
-			if(posterUrlList != null && posterUrlList.size() > 0) {
-				urls.addAll(posterUrlList);
+			if(posterOutUrlList != null && posterOutUrlList.size() > 0) {
+				urls.addAll(posterOutUrlList);
 			}
 			
-			if(photoUrlList != null && photoUrlList.size() > 0) {
-				urls.addAll(photoUrlList);
+			if(photoOutUrlList != null && photoOutUrlList.size() > 0) {
+				urls.addAll(photoOutUrlList);
 			}
 		}
 		
 		for(ResourceInfoVO fetchResource : filter2) {
 			String downLink = fetchResource.getDownloadLink();
-			List<String> shotUrlList = fetchResource.getShotUrlList();
+			List<String> shotOutUrlList = fetchResource.getShotOutUrlList();
 			if(Pattern.compile(RegexConstant.torrent).matcher(downLink).find()) {
 				urls.add(downLink);
 			}
-			if(shotUrlList != null && shotUrlList.size() > 0) {
-				urls.addAll(shotUrlList);
+			if(shotOutUrlList != null && shotOutUrlList.size() > 0) {
+				urls.addAll(shotOutUrlList);
 			}
 		}
 		
@@ -295,30 +295,30 @@ public class MyPipeline implements Pipeline {
 			Date thisTime) {
 		
 		for(ResourceInfoVO fetchResource : filter2) {
-			List<String> shotUrlList = fetchResource.getShotUrlList();
-			if(shotUrlList == null){
+			List<String> shotOutUrlList = fetchResource.getShotOutUrlList();
+			if(shotOutUrlList == null){
 				return;
 			}
 			List<String> shotUriList = new ArrayList<>();
-			for(String shotUrl : shotUrlList){
+			for(String shotOutUrl : shotOutUrlList){
 				try {
-					String repeatedShotUri = shotUrlMapping.get(shotUrl);
+					String repeatedShotUri = shotUrlMapping.get(shotOutUrl);
 					if(repeatedShotUri != null) {
 						shotUriList.add(repeatedShotUri);
 						continue;
 					}
 					
 					String shotUri = "";
-					MovieFileIndexEntity movieFileIndexEntity = pioneer.get(shotUrl.trim());
+					MovieFileIndexEntity movieFileIndexEntity = pioneer.get(shotOutUrl.trim());
 					if(movieFileIndexEntity != null) {
 						shotUri = movieFileIndexEntity.getFixUri();
 					}else {
-						shotUri = FetchUtils.uploadShotGetUri(shotUrl);
-						MovieFileIndexEntity fileIdx = this.buildFileIndex(shotUrl.trim(), shotUri, CommonConstants.shot_v, thisTime);
+						shotUri = FetchUtils.uploadShotGetUri(shotOutUrl);
+						MovieFileIndexEntity fileIdx = this.buildFileIndex(shotOutUrl.trim(), shotUri, CommonConstants.shot_v, thisTime);
 						newFileIdxList.add(fileIdx);
 					}
 					
-					shotUrlMapping.put(shotUrl, shotUri);
+					shotUrlMapping.put(shotOutUrl, shotUri);
 					shotUriList.add(shotUri);
 				} catch (Exception e) {
 					log.error(fetchResource.getComeFromUrl(),e);
@@ -394,14 +394,14 @@ public class MyPipeline implements Pipeline {
 		for(MovieInfoVO fetchMovie : fetchMovies) {
 			List<PicVO> picList = new ArrayList<>();
 			//获取icon
-			picList.add(new PicVO(fetchMovie.getIconUrl(), CommonConstants.icon_v));
+			picList.add(new PicVO(fetchMovie.getIconOutUrl(), CommonConstants.icon_v));
 			//获取poster
-			List<String> posterUrlList = fetchMovie.getPosterUrlList();
-			for(String posterUrl : posterUrlList) {
-				picList.add(new PicVO(posterUrl, CommonConstants.poster_v));
+			List<String> posterOutUrlList = fetchMovie.getPosterOutUrlList();
+			for(String posterOutUrl : posterOutUrlList) {
+				picList.add(new PicVO(posterOutUrl, CommonConstants.poster_v));
 			}
 			//获取photo
-			List<String> photoUrlList = fetchMovie.getPhotoUrlList();
+			List<String> photoUrlList = fetchMovie.getPhotoOutUrlList();
 			for(String photoUrl : photoUrlList) {
 				picList.add(new PicVO(photoUrl, CommonConstants.photo_v));
 			}
@@ -413,6 +413,19 @@ public class MyPipeline implements Pipeline {
 					MovieFileIndexEntity movieFileIndexEntity = pioneer.get(pic.getFetchUrl().trim());
 					if(movieFileIndexEntity != null) {
 						picUri = movieFileIndexEntity.getFixUri();
+						switch (pic.getPicV()) {
+						case CommonConstants.icon_v:
+							fetchMovie.setIconUri(picUri);
+							break;
+						case CommonConstants.poster_v:
+							posterUris.add(picUri);
+							break;
+						case CommonConstants.photo_v:
+							photoUris.add(picUri);
+							break;
+						default:
+							break;
+						}
 					}else {
 						switch (pic.getPicV()) {
 						case CommonConstants.icon_v:

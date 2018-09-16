@@ -44,6 +44,7 @@ public class IndexController {
 	private static final String disclaimer = "disclaimer.html";
 	private static final String about = "about.html";
 	private static final String reference = "reference.html";
+	private static final String error = "error.html";
 	private static final Integer pageSize = 10;
 	
 	@Autowired
@@ -119,35 +120,51 @@ public class IndexController {
 	@RequestMapping("detail")
 	public String detail(Model model,
             @RequestParam(value="mi", required=true) final String moviePrn){
-		if(StringUtils.isBlank(moviePrn) || moviePrn.equals("null")) {
-			throw new BusinessException("prn不能为空");
-		}
-		threadPool.execute(new Runnable() {
-			@Override
-			public void run() {
-				movieInfoService.modifyCountClick(moviePrn);
+		RequestResult<Map<String, Object>> result = null;
+		try {
+			if(StringUtils.isBlank(moviePrn) || moviePrn.equals("null")) {
+				throw new BusinessException("prn不能为空");
 			}
-		});
-		
-		MovieInfoEntity movie = movieInfoService.getMovieByPrn(moviePrn);
-		List<ResourceInfoEntity> resources = resourceInfoService.getListByMoviePrnOrder(moviePrn, movie.getCategory());
-		MovieInfoVO movieVO = VOUtils.po2vo(movie, MovieInfoVO.class);
-		movieVO.parse();
-		String optimalResourcePrn = movieVO.getOptimalResourcePrn();
-		List<ResourceInfoVO> reosurcesVO = VOUtils.po2vo(resources, ResourceInfoVO.class);
-		ResourceInfoVO.parse(reosurcesVO);
-		for(ResourceInfoVO resourceVO:reosurcesVO){
-			if(optimalResourcePrn.equals(resourceVO.getPrn())){
-				List<String> shotUrlList = resourceVO.getShotUrlList();
-				if(shotUrlList != null && shotUrlList.size() > 0){
-					movieVO.setShotUrlList(shotUrlList);
+			
+			MovieInfoEntity movie = movieInfoService.getMovieByPrn(moviePrn);
+			if(movie == null) {
+				throw new BusinessException("該影片已失效！");
+			}
+			List<ResourceInfoEntity> resources = resourceInfoService.getListByMoviePrnOrder(moviePrn, movie.getCategory());
+			MovieInfoVO movieVO = VOUtils.po2vo(movie, MovieInfoVO.class);
+			movieVO.parse();
+			String optimalResourcePrn = movieVO.getOptimalResourcePrn();
+			List<ResourceInfoVO> reosurcesVO = VOUtils.po2vo(resources, ResourceInfoVO.class);
+			ResourceInfoVO.parse(reosurcesVO);
+			for(ResourceInfoVO resourceVO:reosurcesVO){
+				if(optimalResourcePrn.equals(resourceVO.getPrn())){
+					List<String> shotUrlList = resourceVO.getShotUrlList();
+					if(shotUrlList != null && shotUrlList.size() > 0){
+						movieVO.setShotUrlList(shotUrlList);
+					}
+					break;
 				}
-				break;
 			}
+			Map<String, Object> map = new HashMap<>();
+			map.put("movie", movieVO);
+			map.put("resources", reosurcesVO);
+			result = new RequestResult<>(map);
+			model.addAttribute("result", result);
+			
+			threadPool.execute(new Runnable() {
+				@Override
+				public void run() {
+					movieInfoService.modifyCountClick(moviePrn);
+				}
+			});
+			
+			return detail;
+		} catch (Exception e) {
+			result = RequestResult.error(e);
+			log.error("", e);
+			model.addAttribute("result", result);
+			return error;
 		}
-		model.addAttribute("movie", movieVO);
-		model.addAttribute("resources", reosurcesVO);
-		return detail;
 	}
 	
 	@RequestMapping("disclaimer")

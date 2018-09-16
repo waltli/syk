@@ -120,6 +120,7 @@ public class ResourceInfoVO {
      */
     private String shotUriJson;
     
+    private List<String> shotUriList;
     /**
      * 多个资源截图url组成的List
      */
@@ -127,9 +128,13 @@ public class ResourceInfoVO {
     
     private String shotUrlStr;
     
-    private List<String> shotUriList;
+    private List<String> shotOutUrlList;
     
-    private String shotTempUriStr;
+    private String shotOutUrlStr;
+    
+    private List<String> shotSubDirList;
+    
+    private String shotSubDirStr;
     
     /**
      * 采集自哪个网站
@@ -173,6 +178,14 @@ public class ResourceInfoVO {
     
     private String linkType;
 
+	public List<String> getShotUrlList() {
+		return shotUrlList;
+	}
+
+	public void setShotUrlList(List<String> shotUrlList) {
+		this.shotUrlList = shotUrlList;
+	}
+
 	public String getShotUrlStr() {
 		return shotUrlStr;
 	}
@@ -181,12 +194,36 @@ public class ResourceInfoVO {
 		this.shotUrlStr = shotUrlStr;
 	}
 
-	public String getShotTempUriStr() {
-		return shotTempUriStr;
+	public List<String> getShotOutUrlList() {
+		return shotOutUrlList;
 	}
 
-	public void setShotTempUriStr(String shotTempUriStr) {
-		this.shotTempUriStr = shotTempUriStr;
+	public void setShotOutUrlList(List<String> shotOutUrlList) {
+		this.shotOutUrlList = shotOutUrlList;
+	}
+
+	public String getShotOutUrlStr() {
+		return shotOutUrlStr;
+	}
+
+	public void setShotOutUrlStr(String shotOutUrlStr) {
+		this.shotOutUrlStr = shotOutUrlStr;
+	}
+
+	public List<String> getShotSubDirList() {
+		return shotSubDirList;
+	}
+
+	public void setShotSubDirList(List<String> shotSubDirList) {
+		this.shotSubDirList = shotSubDirList;
+	}
+
+	public String getShotSubDirStr() {
+		return shotSubDirStr;
+	}
+
+	public void setShotSubDirStr(String shotSubDirStr) {
+		this.shotSubDirStr = shotSubDirStr;
 	}
 
 	public String getDownloadLinkTemp() {
@@ -259,14 +296,6 @@ public class ResourceInfoVO {
 
 	public void setShotUriJson(String shotUriJson) {
 		this.shotUriJson = shotUriJson;
-	}
-
-	public List<String> getShotUrlList() {
-		return shotUrlList;
-	}
-
-	public void setShotUrlList(List<String> shotUrlList) {
-		this.shotUrlList = shotUrlList;
 	}
 
 	public String getThunderDecoding() {
@@ -641,7 +670,6 @@ public class ResourceInfoVO {
     		String downloadLinkUrl = "";
     		if(StringUtil.isLocalLink(this.getDownloadLink())){
     			downloadLinkUrl = bucketHost + this.getDownloadLink();
-//    			this.setIsLocalLink(true);
     		}else {
     			downloadLinkUrl = this.getDownloadLink();
     		}

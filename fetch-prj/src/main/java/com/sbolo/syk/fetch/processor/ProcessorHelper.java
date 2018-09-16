@@ -169,8 +169,8 @@ public class ProcessorHelper {
 		}
 		
 		//精选过后获取posterUrlList
-		List<String> posterUrlList = DoubanUtils.getPosterUrlList(finalMovie.getPosterPageUrl(), finalMovie.getIconUrl());
-		finalMovie.setPosterUrlList(posterUrlList);
+		List<String> posterOutUrlList = DoubanUtils.getPosterUrlList(finalMovie.getPosterPageUrl(), finalMovie.getIconOutUrl());
+		finalMovie.setPosterOutUrlList(posterOutUrlList);
 		
 		//既然走到这里，证明缓存中的resource比数据库存在更佳的resource
 		ResourceInfoVO fetchOptimalResource = this.getOptimalResource(fetchMovie.getCategory(), filter2);
@@ -413,7 +413,7 @@ public class ProcessorHelper {
 			}
 			link.setName(stripEngName(link.getName(), anotherName));
 			ResourceInfoVO fetchResource = buildResourceInfoFromLinkName(fetchMovie, link, comeFromUrl, thisTime);
-			fetchResource.setShotUrlList(shots);
+			fetchResource.setShotOutUrlList(shots);
 			resources.add(fetchResource);
 		}
 		return resources;

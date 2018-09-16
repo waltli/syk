@@ -65,7 +65,7 @@ public class TestController {
 	@GetMapping("test222")
 	@ResponseBody
 	public RequestResult<String> test222() throws Exception{
-		String url = "https://syk-1253786918.cos.ap-chengdu.myqcloud.com/2/shot/201807/p179766854696.jpg";
+		String url = "https://tu.66vod.net/2018/3503.jpg";
     	byte[] bytes = HttpUtils.getBytes(url);
     	InputStream resourceAsStream = this.getClass().getResourceAsStream("/img/mark.png");
     	byte[] byteArray = IOUtils.toByteArray(resourceAsStream);

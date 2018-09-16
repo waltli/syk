@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 @include("common/global.html"){}
 @include("common/header.html"){}
+	@var movie = result.obj.movie;
+	@var resources = result.obj.resources;
 <title>${movie.pureName }（蝉影）</title>
 <link rel="stylesheet" type="text/css" href="${pageCtx('ctxassets')}/css/detail.css" />
 <script src="${pageCtx('ctxassets')}/js/easySlider.js"></script>

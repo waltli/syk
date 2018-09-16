@@ -35,6 +35,7 @@ import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.MovieCategoryEnum;
 import com.sbolo.syk.common.constants.MovieStatusEnum;
 import com.sbolo.syk.common.constants.RegexConstant;
+import com.sbolo.syk.common.exception.BusinessException;
 import com.sbolo.syk.common.tools.BucketUtils;
 import com.sbolo.syk.common.tools.ConfigUtil;
 import com.sbolo.syk.common.tools.StringUtil;
@@ -201,20 +202,20 @@ public class MovieInfoService {
 		}
 		
 		//上传ICON图片
-		if(StringUtils.isNotBlank(movie.getIconTempUri())) {
-			String iconUri = FetchUtils.uploadIconGetUriFromDir(movie.getIconTempUri());
+		if(StringUtils.isNotBlank(movie.getIconSubDir())) {
+			String iconUri = FetchUtils.uploadIconGetUriFromDir(movie.getIconSubDir());
 			movie.setIconUri(iconUri);
 		}
 		
 		//上传poster图片
-		if(StringUtils.isNotBlank(movie.getPosterTempUriStr())) {
-			String posterUriJson = FetchUtils.uploadPosterAndGetUriJsonFromDirs(movie.getPosterTempUriStr());
+		if(StringUtils.isNotBlank(movie.getPosterSubDirStr())) {
+			String posterUriJson = FetchUtils.uploadPosterAndGetUriJsonFromDirs(movie.getPosterSubDirStr());
 			movie.setPosterUriJson(posterUriJson);
 		}
 		
 		//上传photo图片
-		if(StringUtils.isNotBlank(movie.getPhotoTempUriStr())) {
-			String photoUriJson = FetchUtils.uploadPhotoAndGetUriJsonFromDirs(movie.getPhotoTempUriStr());
+		if(StringUtils.isNotBlank(movie.getPhotoSubDirStr())) {
+			String photoUriJson = FetchUtils.uploadPhotoAndGetUriJsonFromDirs(movie.getPhotoSubDirStr());
 			movie.setPhotoUriJson(photoUriJson);
 		}
 		
@@ -255,8 +256,8 @@ public class MovieInfoService {
 			resource.setDownloadLink(downloadLink);
 			
 			//上传shot图片
-			if(StringUtils.isNotBlank(resource.getShotTempUriStr())) {
-				String shotUriJson = FetchUtils.uploadShotAndGetUriJsonFromDirs(resource.getShotTempUriStr());
+			if(StringUtils.isNotBlank(resource.getShotSubDirStr())) {
+				String shotUriJson = FetchUtils.uploadShotAndGetUriJsonFromDirs(resource.getShotSubDirStr());
 				resource.setShotUriJson(shotUriJson);
 			}
 			
@@ -315,24 +316,27 @@ public class MovieInfoService {
 		if(changeMovie == null){
 			return;
 		}
+		changeMovie.setPrn(dbMovie.getPrn());
 		
 		//上传ICON图片
-		String iconUri = FetchUtils.uploadIconGetUriFromDir(changeMovie.getIconTempUri());
-		changeMovie.setIconUri(iconUri);
-		BucketUtils.delete(dbMovie.getIconUri());
+		if(StringUtils.isNotBlank(changeMovie.getIconSubDir()) && !StringUtil.isHttp(changeMovie.getIconSubDir())) {
+			String iconUri = FetchUtils.uploadIconGetUriFromDir(changeMovie.getIconSubDir());
+			changeMovie.setIconUri(iconUri);
+			BucketUtils.delete(dbMovie.getIconUri());
+		}
 		
 		
 		//上传poster图片
-		String posterUriJson = FetchUtils.uploadPosterAndGetUriJsonFromDirs(changeMovie.getPosterTempUriStr());
-		changeMovie.setPosterUriJson(posterUriJson);
-		List<String> oldPosterUriList = JSON.parseArray(dbMovie.getPosterUriJson(), String.class);
-		BucketUtils.deletes(oldPosterUriList);
+		if(StringUtils.isNotBlank(changeMovie.getPosterSubDirStr())) {
+			String uriJson = FetchUtils.compareUploadGetJsonAndDelOld(dbMovie.getPosterUriJson(), changeMovie.getPosterSubDirStr(), CommonConstants.poster_v);
+			changeMovie.setPosterUriJson(uriJson);
+		}
 		
 		//上传photo图片
-		String photoUriJson = FetchUtils.uploadPhotoAndGetUriJsonFromDirs(changeMovie.getPhotoTempUriStr());
-		changeMovie.setPhotoUriJson(photoUriJson);
-		List<String> oldPhotoUriList = JSON.parseArray(dbMovie.getPhotoUriJson(), String.class);
-		BucketUtils.deletes(oldPhotoUriList);
+		if(StringUtils.isNotBlank(changeMovie.getPhotoSubDirStr())) {
+			String uriJson = FetchUtils.compareUploadGetJsonAndDelOld(dbMovie.getPhotoUriJson(), changeMovie.getPhotoSubDirStr(), CommonConstants.photo_v);
+			changeMovie.setPhotoUriJson(uriJson);
+		}
 		
 		
 		List<MovieLabelVO> labelList = changeMovie.getLabelList();
@@ -341,9 +345,15 @@ public class MovieInfoService {
 		List<MovieLabelEntity> labelEntities = VOUtils.po2vo(labelList, MovieLabelEntity.class);
 		List<MovieLocationEntity> locationEntities = VOUtils.po2vo(locationList, MovieLocationEntity.class);
 		MovieInfoEntity movieInfoEntity = VOUtils.po2vo(changeMovie, MovieInfoEntity.class);
-		movieLabelMapper.insertList(labelEntities);
-		movieLocationMapper.insertList(locationEntities);
-		movieInfoMapper.updateByPrn(movieInfoEntity);
+		if(labelEntities != null && labelEntities.size() > 0) {
+			movieLabelMapper.insertList(labelEntities);
+		}
+		if(locationEntities != null && locationEntities.size() > 0) {
+			movieLocationMapper.insertList(locationEntities);
+		}
+		if(movieInfoEntity != null) {
+			movieInfoMapper.updateByPrn(movieInfoEntity);
+		}
 	}
 	
 	public void updateByPrn(MovieInfoEntity entity) {

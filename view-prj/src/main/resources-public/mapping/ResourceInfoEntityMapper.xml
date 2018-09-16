@@ -21,7 +21,7 @@
     <result column="episode_start" jdbcType="INTEGER" property="episodeStart" />
     <result column="episode_end" jdbcType="INTEGER" property="episodeEnd" />
     <result column="subtitle" jdbcType="VARCHAR" property="subtitle" />
-    <result column="printscreen_uri_json" jdbcType="VARCHAR" property="printscreenUriJson" />
+    <result column="shot_uri_json" jdbcType="VARCHAR" property="shotUriJson" />
     <result column="come_from_url" jdbcType="VARCHAR" property="comeFromUrl" />
     <result column="st" jdbcType="INTEGER" property="st" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />

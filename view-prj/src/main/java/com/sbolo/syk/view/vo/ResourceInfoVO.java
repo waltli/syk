@@ -599,14 +599,11 @@ public class ResourceInfoVO {
     	if(StringUtils.isNotBlank(this.getShotUriJson())){
     		JSONArray array = JSON.parseArray(this.getShotUriJson());
     		List<String> shotUrlList = new ArrayList<String>();
-//    		String busPhotosStr = "";
     		for(int i=0; i<array.size(); i++){
     			String shotUri = array.getString(i);
-    			String shotUrl = bucketHost + "/" + shotUri;
+    			String shotUrl = bucketHost + shotUri;
     			shotUrlList.add(shotUrl);
-//    			busPhotosStr += (","+photoUrl);
     		}
-//    		this.setBusPhotos(busPhotosStr.substring(1));
     		this.setShotUrlList(shotUrlList);
     	}
     	

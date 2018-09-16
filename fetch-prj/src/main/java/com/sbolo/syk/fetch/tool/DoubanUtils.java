@@ -183,24 +183,24 @@ public class DoubanUtils {
 				newMovie.setDoubanId(doubanId);
 				String posterPageUrl = doc.select("#mainpic > a").first().attr("href");
 				newMovie.setPosterPageUrl(posterPageUrl);
-				String iconUrl = doc.select("#mainpic > a > img").first().attr("src");
-				newMovie.setIconUrl(iconUrl);
+				String iconOutUrl = doc.select("#mainpic > a > img").first().attr("src");
+				newMovie.setIconOutUrl(iconOutUrl);
 				
 				Elements photoElements = doc.select("#related-pic li img");
 				if(photoElements != null && photoElements.size() > 0) {
-					List<String> thumPhotoUrlList = photoElements.eachAttr("src");
-					List<String> photoUrlList = new ArrayList<>();
-					for(String photoUrl : thumPhotoUrlList) {
-						Matcher matcher = Pattern.compile("(?<=/photo/)(sqxs)").matcher(photoUrl);
+					List<String> thumPhotoOutUrlList = photoElements.eachAttr("src");
+					List<String> photoOutUrlList = new ArrayList<>();
+					for(String photoOutUrl : thumPhotoOutUrlList) {
+						Matcher matcher = Pattern.compile("(?<=/photo/)(sqxs)").matcher(photoOutUrl);
 						if(matcher.find()) {
-							photoUrl = matcher.replaceAll("l");
+							photoOutUrl = matcher.replaceAll("l");
 						}else {
-							log.warn("豆瓣电影的photo缩略图中没有发现sqxs, photoUrl: {}", photoUrl);
+							log.warn("豆瓣电影的photo缩略图中没有发现sqxs, photoOutUrl: {}", photoOutUrl);
 						}
-						photoUrlList.add(photoUrl);
+						photoOutUrlList.add(photoOutUrl);
 					}
-					if(photoUrlList.size() > 0) {
-						newMovie.setPhotoUrlList(photoUrlList);
+					if(photoOutUrlList.size() > 0) {
+						newMovie.setPhotoOutUrlList(photoOutUrlList);
 					}
 				}
 				Element movieInfoElement = doc.select("#info").first();
@@ -373,7 +373,7 @@ public class DoubanUtils {
 							}
 							
 							MovieInfoVO movie = new MovieInfoVO();
-							movie.setIconUrl(icon);
+							movie.setIconOutUrl(icon);
 							movie.setPureName(realPureName);
 							movie.setAnotherName(originalName);
 							movie.setYear(year);
@@ -401,11 +401,11 @@ public class DoubanUtils {
 	 * @param iconName 过滤掉icon的图片
 	 * @return
 	 */
-	public static List<String> getPosterUrlList(String posterPageUrl, String iconUrl) {
+	public static List<String> getPosterUrlList(String posterPageUrl, String iconOutUrl) {
 		if(StringUtils.isBlank(posterPageUrl)) {
 			return null;
 		}
-		String iconName = StringUtils.isNotBlank(iconUrl) ? iconUrl.substring(iconUrl.lastIndexOf("/")+1) : "";
+		String iconName = StringUtils.isNotBlank(iconOutUrl) ? iconOutUrl.substring(iconOutUrl.lastIndexOf("/")+1) : "";
 		List<String> posterUrlList = new ArrayList<>();
 		try {
 			HttpUtils.httpGet(posterPageUrl, new HttpSendCallbackPure() {

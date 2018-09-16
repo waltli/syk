@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ import com.sbolo.syk.common.constants.MovieCategoryEnum;
 import com.sbolo.syk.common.constants.MovieQualityEnum;
 import com.sbolo.syk.common.constants.MovieResolutionConstant;
 import com.sbolo.syk.common.constants.RegexConstant;
+import com.sbolo.syk.common.exception.BusinessException;
 import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.tools.BucketUtils;
 import com.sbolo.syk.common.tools.ConfigUtil;
@@ -434,17 +436,71 @@ public class FetchUtils {
     		}
     	}
     	
-    	
-    	
-    	
-    	if(StringUtils.isBlank(dbMovie.getIconUri()) && StringUtils.isNotBlank(fetchMovie.getIconUri())){
-    		changeOption.setIconUri(fetchMovie.getIconUri());
+    	if(StringUtils.isBlank(dbMovie.getIconUri()) && StringUtils.isNotBlank(fetchMovie.getIconOutUrl())){
+    		changeOption.setIconOutUrl(fetchMovie.getIconOutUrl());
     		hasChange = true;
+    	}else if(StringUtils.isNotBlank(fetchMovie.getIconSubDir()) && !StringUtil.isHttp(fetchMovie.getIconSubDir())) {
+    		changeOption.setIconSubDir(fetchMovie.getIconSubDir());
+    		hasChange = true;
+    	}
+    	
+    	if(StringUtils.isBlank(dbMovie.getPosterUriJson()) && CollectionUtils.isNotEmpty(fetchMovie.getPosterOutUrlList())) {
+    		//到此方法时posterOutUrlList属性还未赋值，故暂无逻辑
+    	}else if(StringUtils.isNotBlank(fetchMovie.getPosterSubDirStr())) {
+    		String[] posterSubDirArr = fetchMovie.getPosterSubDirStr().split(",");
+    		for(String str : posterSubDirArr) {
+    			if(!StringUtil.isHttp(str)) {
+    				changeOption.setPosterSubDirStr(fetchMovie.getPosterSubDirStr());
+    				hasChange = true;
+    				break;
+    			}
+    		}
+    	}
+    	
+    	if(StringUtils.isBlank(dbMovie.getPhotoUriJson()) && CollectionUtils.isNotEmpty(fetchMovie.getPhotoOutUrlList())) {
+    		//到此方法时photoOutUrlList属性还未赋值，故暂无逻辑
+    	}else if(StringUtils.isNotBlank(fetchMovie.getPhotoSubDirStr())) {
+    		String[] photoSubDirArr = fetchMovie.getPhotoSubDirStr().split(",");
+    		for(String str : photoSubDirArr) {
+    			if(!StringUtil.isHttp(str)) {
+    				changeOption.setPhotoSubDirStr(fetchMovie.getPhotoSubDirStr());
+    				hasChange = true;
+    				break;
+    			}
+    		}
+    	}
+    	
+    	if(StringUtils.isNotBlank(fetchMovie.getPureName())){
+    		if(StringUtils.isBlank(dbMovie.getPureName()) || !dbMovie.getPureName().equals(fetchMovie.getPureName())){
+    			changeOption.setPureName(fetchMovie.getPureName());
+    			hasChange = true;
+    		}
     	}
     	
     	if(StringUtils.isNotBlank(fetchMovie.getAnotherName())){
     		if(StringUtils.isBlank(dbMovie.getAnotherName()) || !dbMovie.getAnotherName().equals(fetchMovie.getAnotherName())){
     			changeOption.setAnotherName(fetchMovie.getAnotherName());
+    			hasChange = true;
+    		}
+    	}
+    	
+    	if(StringUtils.isNotBlank(fetchMovie.getDirectors())){
+    		if(StringUtils.isBlank(dbMovie.getDirectors()) || !dbMovie.getDirectors().equals(fetchMovie.getDirectors())){
+    			changeOption.setDirectors(fetchMovie.getDirectors());
+    			hasChange = true;
+    		}
+    	}
+    	
+    	if(StringUtils.isNotBlank(fetchMovie.getCasts())){
+    		if(StringUtils.isBlank(dbMovie.getCasts()) || !dbMovie.getCasts().equals(fetchMovie.getCasts())){
+    			changeOption.setCasts(fetchMovie.getCasts());
+    			hasChange = true;
+    		}
+    	}
+    	
+    	if(StringUtils.isNotBlank(fetchMovie.getWriters())){
+    		if(StringUtils.isBlank(dbMovie.getWriters()) || !dbMovie.getWriters().equals(fetchMovie.getWriters())){
+    			changeOption.setWriters(fetchMovie.getWriters());
     			hasChange = true;
     		}
     	}
@@ -515,14 +571,14 @@ public class FetchUtils {
     	}
     	
     	if(fetchMovie.getDoubanScore() != null){
-    		if(dbMovie.getDoubanScore() == null || dbMovie.getDoubanScore().intValue() != fetchMovie.getDoubanScore().intValue()){
+    		if(dbMovie.getDoubanScore() == null || dbMovie.getDoubanScore().doubleValue() != fetchMovie.getDoubanScore().doubleValue()){
     			changeOption.setDoubanScore(fetchMovie.getDoubanScore());
     			hasChange = true;
     		}
     	}
     	
     	if(fetchMovie.getImdbScore() != null){
-    		if(dbMovie.getImdbScore() == null || dbMovie.getImdbScore().intValue() != fetchMovie.getImdbScore().intValue()){
+    		if(dbMovie.getImdbScore() == null || dbMovie.getImdbScore().doubleValue() != fetchMovie.getImdbScore().doubleValue()){
     			changeOption.setImdbScore(fetchMovie.getImdbScore());
     			hasChange = true;
     		}
@@ -599,9 +655,24 @@ public class FetchUtils {
     		}
     	}
     	
-    	if(StringUtils.isNotBlank(fetchResource.getShotTempUriStr())){
-    		changeOption.setShotTempUriStr(fetchResource.getShotTempUriStr());
-			hasChange = true;
+    	if(StringUtils.isNotBlank(fetchResource.getComeFromUrl())){
+    		if(StringUtils.isBlank(dbResource.getComeFromUrl()) || !dbResource.getComeFromUrl().equals(fetchResource.getComeFromUrl())){
+    			changeOption.setComeFromUrl(fetchResource.getComeFromUrl());
+    			hasChange = true;
+    		}
+    	}
+    	
+    	if(StringUtils.isBlank(fetchResource.getShotUriJson()) && CollectionUtils.isNotEmpty(fetchResource.getShotOutUrlList())) {
+    		//到此方法时shotOutUrlList属性还未赋值，故暂无逻辑
+    	}else if(StringUtils.isNotBlank(fetchResource.getShotSubDirStr())) {
+    		String[] shotSubDirArr = fetchResource.getShotSubDirStr().split(",");
+    		for(String str : shotSubDirArr) {
+    			if(!StringUtil.isHttp(str)) {
+    				changeOption.setShotSubDirStr(fetchResource.getShotSubDirStr());
+    				hasChange = true;
+    				break;
+    			}
+    		}
     	}
     	
     	if(hasChange){
@@ -709,6 +780,43 @@ public class FetchUtils {
 	    	}
 		}
 		return resourceVO;
+	}
+	
+	public static String compareUploadGetJsonAndDelOld(String dbUriJosn, String newSubDirStr, int fileType) throws Exception {
+		if(StringUtils.isBlank(dbUriJosn) && StringUtils.isBlank(newSubDirStr)) {
+			throw new BusinessException("老版圖片和新版圖片皆為空！");
+		}
+		
+		List<String> dbUriList = JSON.parseArray(dbUriJosn, String.class);
+		String[] newSubDirArr = newSubDirStr.split(",");
+		List<String> newUriList = new ArrayList<>();
+		for(int i=0; i<newSubDirArr.length; i++) {
+			String newSubDir = newSubDirArr[i];
+			if(StringUtil.isHttp(newSubDir)) {
+				newUriList.add(dbUriList.get(i));
+				continue;
+			}
+			String uri = null;
+			if(fileType == CommonConstants.poster_v) {
+				uri = FetchUtils.uploadPosterGetUriFromDir(newSubDir);
+			}else if(fileType == CommonConstants.photo_v) {
+				uri = FetchUtils.uploadPhotoGetUriFromDir(newSubDir);
+			}else if(fileType == CommonConstants.shot_v) {
+				uri = FetchUtils.uploadShotGetUriFromDir(newSubDir);
+			}else {
+				throw new BusinessException("文件類型錯誤");
+			}
+			newUriList.add(uri);
+			//如果沒有超出原List的長度，則刪除原來的。
+			if(dbUriList != null && dbUriList.size() >= newSubDirArr.length) {
+				BucketUtils.delete(dbUriList.get(i));
+			}
+			
+		}
+		if(newUriList.size() > 0) {
+			return JSON.toJSONString(newUriList);
+		}
+		return null;
 	}
 	
 	public static String saveTempIcon(byte[] bytes, String suffix) throws IOException {

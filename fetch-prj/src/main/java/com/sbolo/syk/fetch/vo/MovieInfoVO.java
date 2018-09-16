@@ -208,27 +208,47 @@ public class MovieInfoVO {
     
     private ResourceInfoVO optimalResource;
     
+    private Integer action;  //Business property, that will direct 'insert' or 'update' or 'abandon'.
+    
     private String posterPageUrl;  //待去下载poster的网址
     
-    private String iconUrl; //待下载的ICON链接
+    private String iconUrl; //自己服务器拼装后的url
     
-    private String iconTempUri; //上传后的临时uri
+    private String iconOutUrl; //待下载的ICON链接
+    
+    private String iconSubDir; //上传后的子路径
+    
+    private List<String> photoOutUrlList;
+    
+    private String photoOutUrlStr;
+    
+    private List<String> photoUriList;
+    
+    private String photoSubDirStr;
     
     private List<String> photoUrlList;
     
     private String photoUrlStr;
     
-    private List<String> photoUriList;
+    private List<String> posterOutUrlList;
     
-    private String photoTempUriStr;
+    private String posterOutUrlStr;
+    
+    private List<String> posterUriList;
+    
+    private String posterSubDirStr;
     
     private List<String> posterUrlList;
     
     private String posterUrlStr;
     
-    private List<String> posterUriList;
-    
-    private String posterTempUriStr;
+	public List<String> getPhotoUrlList() {
+		return photoUrlList;
+	}
+
+	public void setPhotoUrlList(List<String> photoUrlList) {
+		this.photoUrlList = photoUrlList;
+	}
 
 	public String getPhotoUrlStr() {
 		return photoUrlStr;
@@ -236,6 +256,14 @@ public class MovieInfoVO {
 
 	public void setPhotoUrlStr(String photoUrlStr) {
 		this.photoUrlStr = photoUrlStr;
+	}
+
+	public List<String> getPosterUrlList() {
+		return posterUrlList;
+	}
+
+	public void setPosterUrlList(List<String> posterUrlList) {
+		this.posterUrlList = posterUrlList;
 	}
 
 	public String getPosterUrlStr() {
@@ -246,32 +274,78 @@ public class MovieInfoVO {
 		this.posterUrlStr = posterUrlStr;
 	}
 
-	public String getPhotoTempUriStr() {
-		return photoTempUriStr;
+	public String getIconSubDir() {
+		return iconSubDir;
 	}
 
-	public void setPhotoTempUriStr(String photoTempUriStr) {
-		this.photoTempUriStr = photoTempUriStr;
+	public void setIconSubDir(String iconSubDir) {
+		this.iconSubDir = iconSubDir;
 	}
 
-	public String getPosterTempUriStr() {
-		return posterTempUriStr;
+	public List<String> getPhotoOutUrlList() {
+		return photoOutUrlList;
 	}
 
-	public void setPosterTempUriStr(String posterTempUriStr) {
-		this.posterTempUriStr = posterTempUriStr;
+	public void setPhotoOutUrlList(List<String> photoOutUrlList) {
+		this.photoOutUrlList = photoOutUrlList;
 	}
 
-	private Integer action;  //Business property, that will direct 'insert' or 'update' or 'abandon'.
+	public String getPhotoOutUrlStr() {
+		return photoOutUrlStr;
+	}
+
+	public void setPhotoOutUrlStr(String photoOutUrlStr) {
+		this.photoOutUrlStr = photoOutUrlStr;
+	}
+
+	public String getPhotoSubDirStr() {
+		return photoSubDirStr;
+	}
+
+	public void setPhotoSubDirStr(String photoSubDirStr) {
+		this.photoSubDirStr = photoSubDirStr;
+	}
+
+	public List<String> getPosterOutUrlList() {
+		return posterOutUrlList;
+	}
+
+	public void setPosterOutUrlList(List<String> posterOutUrlList) {
+		this.posterOutUrlList = posterOutUrlList;
+	}
+
+	public String getPosterOutUrlStr() {
+		return posterOutUrlStr;
+	}
+
+	public void setPosterOutUrlStr(String posterOutUrlStr) {
+		this.posterOutUrlStr = posterOutUrlStr;
+	}
+
+	public String getPosterSubDirStr() {
+		return posterSubDirStr;
+	}
+
+	public void setPosterSubDirStr(String posterSubDirStr) {
+		this.posterSubDirStr = posterSubDirStr;
+	}
+
+	public String getIconUrl() {
+		return iconUrl;
+	}
+
+	public void setIconUrl(String iconUrl) {
+		this.iconUrl = iconUrl;
+	}
+
+	public String getIconOutUrl() {
+		return iconOutUrl;
+	}
+
+	public void setIconOutUrl(String iconOutUrl) {
+		this.iconOutUrl = iconOutUrl;
+	}
     
-	public String getIconTempUri() {
-		return iconTempUri;
-	}
-
-	public void setIconTempUri(String iconTempUri) {
-		this.iconTempUri = iconTempUri;
-	}
-
 	public ResourceInfoVO getOptimalResource() {
 		return optimalResource;
 	}
@@ -368,28 +442,12 @@ public class MovieInfoVO {
 		this.posterUriList = posterUriList;
 	}
 
-	public List<String> getPosterUrlList() {
-		return posterUrlList;
-	}
-
-	public void setPosterUrlList(List<String> posterUrlList) {
-		this.posterUrlList = posterUrlList;
-	}
-
 	public String getPhotoUriJson() {
 		return photoUriJson;
 	}
 
 	public void setPhotoUriJson(String photoUriJson) {
 		this.photoUriJson = photoUriJson;
-	}
-
-	public List<String> getPhotoUrlList() {
-		return photoUrlList;
-	}
-
-	public void setPhotoUrlList(List<String> photoUrlList) {
-		this.photoUrlList = photoUrlList;
 	}
 
 	public List<MovieLabelVO> getLabelList() {
@@ -430,14 +488,6 @@ public class MovieInfoVO {
 
 	public void setPosterPageUrl(String posterPageUrl) {
 		this.posterPageUrl = posterPageUrl;
-	}
-
-	public String getIconUrl() {
-		return iconUrl;
-	}
-
-	public void setIconUrl(String iconUrl) {
-		this.iconUrl = iconUrl;
 	}
 
     /**

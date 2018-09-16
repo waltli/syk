@@ -93,7 +93,7 @@
 										<tr>
 											<td class="title">ICON</td>
 											<td colspan="3">
-												<input type="hidden" name="iconTempUri" id="iconTempUriVal">
+												<input type="hidden" name="iconSubDir" id="iconSubDirVal">
 												<a id="iconPlace"></a>
 												
 											</td>
@@ -101,7 +101,7 @@
 										<tr>
 											<td class="title">海报</td>
 											<td colspan="3">
-												<input type="hidden" name="posterTempUriStr" id="posterTempUriStrVal">
+												<input type="hidden" name="posterSubDirStr" id="posterSubDirStrVal">
 												<a id="posterPlace_1"></a>
 												<a id="posterPlace_2"></a>
 												<a id="posterPlace_3"></a>
@@ -111,7 +111,7 @@
 										<tr>
 											<td class="title">PHOTO</td>
 											<td colspan="3">
-												<input type="hidden" name="photoTempUriStr" id="photoTempUriStrVal">
+												<input type="hidden" name="photoSubDirStr" id="photoSubDirStrVal">
 												<a id="photoPlace_1"></a>
 												<a id="photoPlace_2"></a>
 												<a id="photoPlace_3"></a>
@@ -244,20 +244,20 @@ $("#addForm").validate({
 });
 
 //ICON上传组件
-picUploadAll("iconPlace", "iconTempUriVal", 1);
+picUploadAll("iconPlace", "iconSubDirVal", 1);
 //POSTER上传组件
-var posterTempUriStrValObj = {};
-picUploadAll("posterPlace_1", "posterTempUriStrVal", 2, posterTempUriStrValObj);
-picUploadAll("posterPlace_2", "posterTempUriStrVal", 2, posterTempUriStrValObj);
-picUploadAll("posterPlace_3", "posterTempUriStrVal", 2, posterTempUriStrValObj);
-picUploadAll("posterPlace_4", "posterTempUriStrVal", 2, posterTempUriStrValObj);
+var posterValObj = {};
+picUploadAll("posterPlace_1", "posterSubDirStrVal", 2, posterValObj);
+picUploadAll("posterPlace_2", "posterSubDirStrVal", 2, posterValObj);
+picUploadAll("posterPlace_3", "posterSubDirStrVal", 2, posterValObj);
+picUploadAll("posterPlace_4", "posterSubDirStrVal", 2, posterValObj);
 
 //PHOTO上传组件
-var photoTempUriStrValObj = {};
-picUploadAll("photoPlace_1", "photoTempUriStrVal", 3, photoTempUriStrValObj);
-picUploadAll("photoPlace_2", "photoTempUriStrVal", 3, photoTempUriStrValObj);
-picUploadAll("photoPlace_3", "photoTempUriStrVal", 3, photoTempUriStrValObj);
-picUploadAll("photoPlace_4", "photoTempUriStrVal", 3, photoTempUriStrValObj);
+var photoValObj = {};
+picUploadAll("photoPlace_1", "photoSubDirStrVal", 3, photoValObj);
+picUploadAll("photoPlace_2", "photoSubDirStrVal", 3, photoValObj);
+picUploadAll("photoPlace_3", "photoSubDirStrVal", 3, photoValObj);
+picUploadAll("photoPlace_4", "photoSubDirStrVal", 3, photoValObj);
 
 /**
  * 绑定select联动事件
@@ -350,7 +350,7 @@ $("#add-resource").click(function(){
 			   '				<tr>'+
 			   '					<td class="title">截图</td>'+
 			   '					<td colspan="3">'+
-			   '						<input type="hidden" name="resources['+resource_count+'].shotTempUriStr" id="'+shotValId+'">'+
+			   '						<input type="hidden" name="resources['+resource_count+'].shotSubDirStr" id="'+shotValId+'">'+
 			   '						<a id="'+shotPlaceId1+'"></a>'+
 			   '						<a id="'+shotPlaceId2+'"></a>'+
 			   '						<a id="'+shotPlaceId3+'"></a>'+
@@ -584,19 +584,19 @@ function assignMovieInfo(movie){
 	if(movie.summary){
 		$("#summaryVal").val(movie.summary);
 	}
-	if(movie.iconUrl){
-		var $td = $("#iconTempUriVal").parents("td");
+	if(movie.iconOutUrl){
+		var $td = $("#iconSubDirVal").parents("td");
 		var $loading = $td.find(".loading");
 		var $preview_img = $td.find(".pic-preview img");
 		uploadCount++;
 		$loading.css({"display": "-webkit-flex", "display": "flex"});
 		$.ajax({
 			url:ctx+"/movie/download-icon",
-			data:{"url":movie.iconUrl},
+			data:{"url":movie.iconOutUrl},
 			success:function(data){
 				if(data.status){
 					$preview_img.attr("src", ctx+data.obj.uri);
-					$("#iconTempUriVal").val(data.obj.subDir);
+					$("#iconSubDirVal").val(data.obj.subDir);
 				}
 				uploadCount--;
 				$loading.hide();
@@ -608,7 +608,7 @@ function assignMovieInfo(movie){
 		});
 	}
 	if(movie.posterPageUrl){
-	    var $td = $("#posterTempUriStrVal").parents("td");
+	    var $td = $("#posterSubDirStrVal").parents("td");
 		var $loadings = $td.find(".loading");
 		var $posterReplaces = $td.find(".replace");
 		$loadings.css({"display": "-webkit-flex", "display": "flex"});
@@ -630,16 +630,16 @@ function assignMovieInfo(movie){
 							var placeId = $(this).attr("id");
 							var $preview_img = $(this).find(".pic-preview img");
 							$preview_img.attr("src", ctx+uris[i]);
-							posterTempUriStrValObj[placeId] = subDirs[i];
+							posterValObj[placeId] = subDirs[i];
 						}
 					});
 				}
 				var disStr = "";
-				for(var i in posterTempUriStrValObj){
-					disStr += (","+posterTempUriStrValObj[i]);
+				for(var i in posterValObj){
+					disStr += (","+posterValObj[i]);
 				}
 				disStr = disStr.substring(1);
-				$("#posterTempUriStrVal").val(disStr);
+				$("#posterSubDirStrVal").val(disStr);
 				uploadCount--;
 				$loadings.hide();
 			},

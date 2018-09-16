@@ -147,9 +147,9 @@ public class ResourceInfoService {
 			resource.setDownloadLink(downloadLink);
 			
 			//上传shots图片
-			String shotTempUriStr = resourceVO.getShotTempUriStr();
-			if(StringUtils.isNotBlank(shotTempUriStr)) {
-				String shotUriJson = FetchUtils.uploadShotAndGetUriJsonFromDirs(shotTempUriStr);
+			String shotSubDirStr = resourceVO.getShotSubDirStr();
+			if(StringUtils.isNotBlank(shotSubDirStr)) {
+				String shotUriJson = FetchUtils.uploadShotAndGetUriJsonFromDirs(shotSubDirStr);
 				resource.setShotUriJson(shotUriJson);
 			}
 			
@@ -184,42 +184,38 @@ public class ResourceInfoService {
 	
 	@Transactional
 	public void modiResource(ResourceInfoVO newResource, boolean isOptimal) throws Exception{
-		ResourceInfoEntity oldResource = resourceInfoMapper.selectByPrn(newResource.getPrn());
-		if(oldResource == null){
+		ResourceInfoEntity dbResource = resourceInfoMapper.selectByPrn(newResource.getPrn());
+		if(dbResource == null){
 			throw new Exception("该资源信息不存在，修改失败！");
 		}
 		
-		ResourceInfoVO changeOption = FetchUtils.resourceChangeOption(oldResource, newResource);
+		ResourceInfoVO changeOption = FetchUtils.resourceChangeOption(dbResource, newResource);
 		
 		if(changeOption != null){
-			//上传torrent文件
 			String downloadLinkTemp = changeOption.getDownloadLinkTemp();
 			if(StringUtils.isNotBlank(downloadLinkTemp)){
 				String downloadLink = null;
 				if(Pattern.compile(RegexConstant.torrent).matcher(downloadLinkTemp).find()){
+					//上传torrent文件
 					String torrentName = FetchUtils.getTorrentName(newResource);
 					downloadLink = FetchUtils.uploadTorrentGetUriFromDir(downloadLinkTemp, torrentName);
 				}else {
 					downloadLink = downloadLinkTemp;
 				}
 				changeOption.setDownloadLink(downloadLink);
-				BucketUtils.delete(oldResource.getDownloadLink());
+				BucketUtils.delete(dbResource.getDownloadLink());
 			}
 			
 			//上传shots图片
-			String shotTempUriStr = changeOption.getShotTempUriStr();
-			if(StringUtils.isNotBlank(shotTempUriStr)){
-				String shotUriJson = FetchUtils.uploadShotAndGetUriJsonFromDirs(shotTempUriStr);
-				changeOption.setShotUriJson(shotUriJson);
-				//删除修改之前的文件
-				List<String> oldShotUriList = JSON.parseArray(oldResource.getShotUriJson(), String.class);
-				BucketUtils.deletes(oldShotUriList);
+			if(StringUtils.isNotBlank(changeOption.getShotSubDirStr())) {
+				String uriJson = FetchUtils.compareUploadGetJsonAndDelOld(dbResource.getShotUriJson(), changeOption.getShotSubDirStr(), CommonConstants.shot_v);
+				changeOption.setShotUriJson(uriJson);
 			}
 			
 			int definitionScore = FetchUtils.translateDefinitionIntoScore(newResource.getQuality(), newResource.getResolution());
 			changeOption.setDefinition(definitionScore);
 			
-			changeOption.setPrn(oldResource.getPrn());
+			changeOption.setPrn(dbResource.getPrn());
 			changeOption.setUpdateTime(new Date());
 			
 			ResourceInfoEntity newResourceEntity = VOUtils.po2vo(changeOption, ResourceInfoEntity.class);
@@ -232,7 +228,7 @@ public class ResourceInfoService {
 				toUpMovie = new MovieInfoEntity();
 				toUpMovie.setOptimalResourcePrn(newResourceEntity.getPrn());
 				toUpMovie.setResourceWriteTime(now);
-				toUpMovie.setPrn(oldResource.getMoviePrn());
+				toUpMovie.setPrn(dbResource.getMoviePrn());
 				toUpMovie.setUpdateTime(now);
 				movieInfoMapper.updateByPrn(toUpMovie);
 			}
