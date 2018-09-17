@@ -13,7 +13,7 @@
 		@include("../common/nav.html"){}
 		<div class="main">
 			<div class="main-content">
-				<form action="${pageCtx('ctx')}/movie/add-work" id="addForm" method="post">
+				<form action="${pageCtx('ctx')}/add-work" id="addForm" method="post">
 					<div id="movieArea">
 						<div class="panel panel-movie">
 							<div class="panel-heading">
@@ -160,7 +160,7 @@ $("#pureNameVal").blur(function(){
 	}
 	oldPureName = pureName;
 	$.ajax({
-		url:ctx+"/movie/exists",
+		url:ctx+"/exists",
 		data:{"pureName":pureName},
 		success:function(data){
 			if(data.status){
@@ -508,7 +508,7 @@ var doubanId = '${doubanId!}';
 if(doubanId){
 	$(".cover").show();
 	$.ajax({
-		url:ctx+"/movie/fetch-detail",
+		url:ctx+"/fetch-detail",
 		data:{"doubanId" : doubanId},
 		success:function(data){
 			if(!data.status){
@@ -591,7 +591,7 @@ function assignMovieInfo(movie){
 		uploadCount++;
 		$loading.css({"display": "-webkit-flex", "display": "flex"});
 		$.ajax({
-			url:ctx+"/movie/download-icon",
+			url:ctx+"/download-icon",
 			data:{"url":movie.iconOutUrl},
 			success:function(data){
 				if(data.status){
@@ -619,7 +619,7 @@ function assignMovieInfo(movie){
 			iconName = movie.iconUrl.substring(i);
 		}
 		$.ajax({
-			url:ctx+"/movie/download-posters",
+			url:ctx+"/download-posters",
 			data:{"pageUrl":movie.posterPageUrl, "iconName":iconName},
 			success:function(data){
 				if(data.status){

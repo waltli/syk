@@ -7,7 +7,7 @@
 		<div class="navbar-btn">
 			<button type="button" class="btn-toggle-fullwidth"><i class="lnr lnr-arrow-left-circle"></i></button>
 		</div>
-		<form class="navbar-form navbar-left" action="${pageCtx('ctx')}/movie/list" method="get">
+		<form class="navbar-form navbar-left" action="${pageCtx('ctx')}" method="get">
 			<div class="input-group">
 				<input type="text" name="q" value="${params.q! }" class="form-control" placeholder="Search dashboard..." style="width:300px;">
 				<span class="input-group-btn"><button type="submit" class="btn btn-primary">Go</button></span>
@@ -55,13 +55,13 @@
 	<div class="sidebar-scroll">
 		<nav>
 			<ul class="nav">
-				<li><a href="${pageCtx('ctx')}/movie/list" class="" id="list"><i class="lnr lnr-home"></i> <span>Dashboard</span></a></li>
+				<li><a href="${pageCtx('ctx')}" class="" id="list"><i class="lnr lnr-home"></i> <span>Dashboard</span></a></li>
 				<li>
 					<a href="#subPages" data-toggle="collapse" class="collapsed" id="add"><i class="lnr lnr-file-empty"></i> <span>Add Movie Around</span> <i class="icon-submenu lnr lnr-chevron-left"></i></a>
 					<div id="subPages" class="collapse ">
 						<ul class="nav">
-							<li><a href="${pageCtx('ctx')}/movie/search-from-douban">From Douban.com</a></li>
-							<li><a href="${pageCtx('ctx')}/movie/add-page">Normal</a></li>
+							<li><a href="${pageCtx('ctx')}/search-from-douban">From Douban.com</a></li>
+							<li><a href="${pageCtx('ctx')}/add-page">Normal</a></li>
 						</ul>
 					</div>
 				</li>
