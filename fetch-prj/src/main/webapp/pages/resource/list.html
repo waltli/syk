@@ -98,7 +98,7 @@ $(".setOptimal").click(function(){
 				M.close();
 				$(".cover").show();
 		    	$.ajax({
-		    		url:ctx+"/set-optimal",
+		    		url:ctx+"/movie/set-optimal",
 		    		data:{"moviePrn":moviePrn,"optimalResourcePrn" : resourcePrn},
 		    		type:"post",
 		    		success:function(data){

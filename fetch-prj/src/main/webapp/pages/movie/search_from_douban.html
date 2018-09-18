@@ -45,7 +45,7 @@
 		$("#fetch-result").empty();
 		$(".cover").show();
 		$.ajax({
-			url:ctx+"/fetch-list",
+			url:ctx+"/movie/fetch-list",
 			data:{"q":query},
 			success : function(data){
 				if(!data.status){
@@ -73,12 +73,12 @@
 			for(var idx in list){
 				var movie = list[idx];
 				html += '<div class="item">'+
-						'	<a href="'+ctx+'/add-page?doubanId='+movie.doubanId+'">'+
+						'	<a href="'+ctx+'/movie/add-page?doubanId='+movie.doubanId+'">'+
 						'		<img src="'+movie.iconOutUrl+'">'+
 						'	</a>'+
 						'	<div class="detail">'+
 						'		<div class="title">'+
-						'			<a href="'+ctx+'/add-page?doubanId='+movie.doubanId+'">'+movie.pureName;
+						'			<a href="'+ctx+'/movie/add-page?doubanId='+movie.doubanId+'">'+movie.pureName;
 				if(movie.anotherName){
 					html += ' / '+movie.anotherName;
 				}

@@ -36,6 +36,7 @@ import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 import com.sbolo.syk.fetch.vo.ResourceInfosVO;
 
 @Controller
+@RequestMapping("movie")
 public class MovieController {
 	private static final Logger log = LoggerFactory.getLogger(MovieController.class);
 	
@@ -53,7 +54,7 @@ public class MovieController {
 	@Resource
 	private ThreadPoolTaskExecutor threadPool;
 	
-	@RequestMapping("")
+	@RequestMapping("list")
 	@Paginator
 	public String go(Model model, HttpServletRequest request, 
 			@RequestParam(value="page",defaultValue="1", required=false) Integer pageNum,

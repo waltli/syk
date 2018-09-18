@@ -61,7 +61,7 @@
 										<td class="cast"><div class="text-ellipsis cast">${item.casts! }</div></td>
 										<td class="">${item.updateTimeStr! item.createTimeStr }</td>
 										<td>
-											<a href="${pageCtx('ctx')}/modi-movie-page?mi=${item.prn }">修改</a> |
+											<a href="${pageCtx('ctx')}/movie/modi-movie-page?mi=${item.prn }">修改</a> |
 											<a href="${pageCtx('ctx')}/resource/list?mi=${item.prn}">资源列表</a>| 
 											<a class="toDelete" moviePrn="${item.prn}" style="cursor:pointer; ${item.st == 2 ? 'display:none;' : '' }">删除</a>
 											<a class="toRecovery" moviePrn="${item.prn}" style="color:red; cursor:pointer; ${item.st == 2 ? '' : 'display:none;' }">恢复</a>
@@ -97,7 +97,7 @@ $(".toDelete").click(function(){
 				M.close();
 				$(".cover").show();
 		    	$.ajax({
-		    		url:ctx+"/signDelete",
+		    		url:ctx+"/movie/signDelete",
 		    		data:{"moviePrn":moviePrn},
 		    		type:"post",
 		    		success:function(data){
@@ -134,7 +134,7 @@ $(".toRecovery").click(function(){
 				M.close();
 				$(".cover").show();
 		    	$.ajax({
-		    		url:ctx+"/signAvailable",
+		    		url:ctx+"/movie/signAvailable",
 		    		data:{"moviePrn":moviePrn},
 		    		type:"post",
 		    		success:function(data){

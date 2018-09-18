@@ -14,6 +14,11 @@ public class LoginController {
 	
 	private static final String login = "login.html";
 	
+	@RequestMapping("")
+	public String go(){
+		return "redirect:/movie/list";
+	}
+	
 	@RequestMapping(value="login")
 	public String login(Model model, 
 			@RequestParam(value="cb", required=false)String cbUrl){
