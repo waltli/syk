@@ -3,6 +3,7 @@ package com.sbolo.syk.common.tools;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +36,18 @@ public class GrapicmagickUtils {
  
     private static boolean IS_WINDOWS = SystemUtils.IS_OS_WINDOWS;
     
+    public static void main(String[] args) throws Exception {
+    	File file = new File("E:\\11111.jpg");
+    	InputStream is = new FileInputStream(file);
+    	byte[] bytes = IOUtils.toByteArray(is);
+    	File file2 = new File("E:\\mark.png");
+    	InputStream is2 = new FileInputStream(file2);
+    	byte[] markBytes = IOUtils.toByteArray(is2);
+		byte[] finalBytes = watermark(bytes, markBytes);
+//    	byte[] finalBytes = descale(bytes, 500, 500);
+		FileUtils.saveFile(finalBytes, "D:/", "test", "png");
+	}
+    
     /**
      * 给图片加水印
      * @param srcPath  源图片路径
@@ -43,8 +56,9 @@ public class GrapicmagickUtils {
     public static byte[] watermark(byte[] srcBytes, byte[] markBytes) throws Exception {
     	IMOperation op = new IMOperation();
     	op.addImage("-"); // 输入或输出图片占位，表示此处的图片以流的方式获取（通过下面的setInputProvider(pipeIn)方法传入）
-    	op.addRawArgs("-gravity", "southeast"); //设置插入事物的位置，west, east, north, south, .......
     	op.addImage(); // 图片占位，表示此处的图片在下面run方法中以参数的形式传入（参数要么是String类型的path，要么是BufferedImage）
+    	op.addRawArgs("-gravity", "southeast"); //设置插入事物的位置，west, east, north, south, .......
+    	op.addRawArgs("-dissolve", "0");
     	op.addRawArgs("+profile", "*");// 去除Exif信息，减小图片大小
     	// 此处可设置图片输出的压缩方式：
     	// 假设文件的contentType为：image/jpeg
@@ -72,7 +86,7 @@ public class GrapicmagickUtils {
 	    	pipeOut = new Pipe(null, os);
 	    	
 	    	// set up command
-	    	ConvertCmd convert = new ConvertCmd(true);
+	    	CompositeCmd convert = new CompositeCmd(true);
 	    	if (IS_WINDOWS) {
         		// linux下不要设置此值，不然会报错
         		convert.setSearchPath(GRAPHICS_MAGICK_PATH);
