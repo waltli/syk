@@ -36,18 +36,6 @@ public class GrapicmagickUtils {
  
     private static boolean IS_WINDOWS = SystemUtils.IS_OS_WINDOWS;
     
-    public static void main(String[] args) throws Exception {
-    	File file = new File("E:\\11111.jpg");
-    	InputStream is = new FileInputStream(file);
-    	byte[] bytes = IOUtils.toByteArray(is);
-    	File file2 = new File("E:\\mark.png");
-    	InputStream is2 = new FileInputStream(file2);
-    	byte[] markBytes = IOUtils.toByteArray(is2);
-		byte[] finalBytes = watermark(bytes, markBytes);
-//    	byte[] finalBytes = descale(bytes, 500, 500);
-		FileUtils.saveFile(finalBytes, "D:/", "test", "png");
-	}
-    
     /**
      * 给图片加水印
      * @param srcPath  源图片路径
@@ -55,15 +43,14 @@ public class GrapicmagickUtils {
      */
     public static byte[] watermark(byte[] srcBytes, byte[] markBytes) throws Exception {
     	IMOperation op = new IMOperation();
-    	op.addImage("-"); // 输入或输出图片占位，表示此处的图片以流的方式获取（通过下面的setInputProvider(pipeIn)方法传入）
-    	op.addImage(); // 图片占位，表示此处的图片在下面run方法中以参数的形式传入（参数要么是String类型的path，要么是BufferedImage）
     	op.addRawArgs("-gravity", "southeast"); //设置插入事物的位置，west, east, north, south, .......
-    	op.addRawArgs("-dissolve", "0");
+//    	op.addRawArgs("-dissolve", "100");  //透明度，0-100，0为完全透明，不写默认为100
     	op.addRawArgs("+profile", "*");// 去除Exif信息，减小图片大小
-    	// 此处可设置图片输出的压缩方式：
-    	// 假设文件的contentType为：image/jpeg
-    	// 则传入"jpeg:-"。
-	    op.addImage("-"); // 输入或输出图片占位，表示此处的图片以流的方式获取（通过下面的setOutputConsumer(pipeOut)方法传入）
+    	//图片顺序很重要，此处是加水印，第一张图片为水印图片，第二张为输入图片，第三张为输出
+    	op.addImage(); // 图片占位，表示此处的图片在下面run方法中以参数的形式传入（参数要么是String类型的path，要么是BufferedImage）
+    	op.addImage("-"); // 输入图片占位，表示此处的图片以流的方式获取（通过下面的setInputProvider(pipeIn)方法传入）
+    	//此处可设置图片输出的压缩方式：假设文件的contentType为：image/jpeg 则传入"jpeg:-"。
+	    op.addImage("-"); // 输出图片占位，表示此处的图片以流的方式获取（通过下面的setOutputConsumer(pipeOut)方法传入）
 	    //输入
 	    InputStream is = null;
 	    Pipe pipeIn = null;
@@ -135,11 +122,12 @@ public class GrapicmagickUtils {
     	}
     	resize.append(">"); //加了>,表示只有当图片的宽与高，大于给定的宽与高时，才进行“缩小”操作。 
     	IMOperation op = new IMOperation();
-        op.addImage("-"); // 命令：从输入流中读取图片
         op.addRawArgs("-resize", resize.toString());// 按照给定比例缩放图片
         op.addRawArgs("-gravity", "center"); // 缩放参考位置 对图像进行定位
 //        op.addRawArgs("-extent", width + "x" + height); // 限制JPEG文件的最大尺寸，会留白边
         op.addRawArgs("+profile", "*");// 去除Exif信息，减小图片大小
+        //图片顺序很重要，第一张为输入图片，第二张为输出
+        op.addImage("-"); // 命令：从输入流中读取图片
         op.addImage("-");
         InputStream is = null;
         ByteArrayOutputStream os = null;
