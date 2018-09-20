@@ -39,9 +39,9 @@
 								<img alt="" src="${pageCtx('ctxassets')}/img/movie_default_large.png" data-original="${movie.iconUrl!}">
 							</div>
 							<div id="slider" style="visibility: hidden;">
-								@if(isNotEmpty(movie.posterUrlList)){
+								@if(isNotEmpty(movie.photoUrlList)){
 									<ul class="slides clearfix">
-										@for(item in movie.posterUrlList){
+										@for(item in movie.photoUrlList){
 											<li><img class="responsive" src="${item }" ></li>
 										@}
 									</ul>
@@ -50,7 +50,7 @@
 										<li><img src="${pageCtx('ctxassets')}/img/detail/next.png" alt="next"></li>
 									</ul>
 									<ul class="pagination">
-										@for(item in movie.posterUrlList){
+										@for(item in movie.photoUrlList){
 											<li class="${itemLP.index == 1 ? 'active' : '' }"></li>
 										@}
 									</ul>
@@ -161,26 +161,33 @@
                         </div>
 					</div>
 					
-					@if(isNotEmpty(photoUrlList)){
+					@/*
+					@var shotUrlList = movie.shotUrlList;
+					@if(isEmpty(shotUrlList)){
+					@shotUrlList = movie.posterUrlList;
+					@}
+					
+					@if(isNotEmpty(shotUrlList)){
 						<div id="shot">
-							@for(shot in photoUrlList){
+							@for(shot in shotUrlList){
 								<div style="margin-top:10px;    text-align: center !important;">
 									<img src="${pageCtx('ctxassets')}/img/movie_default_cross_big.png" data-original="${shot}">
 								</div>
 							@}
 						</div>
 					@}
+					@*/
 					
 					<div id="links">
 						<table>
-							<tr class="theme">
-								<!-- <td class="title">名字</td>
+							<!-- <tr class="theme">
+								<td class="title">名字</td>
 								<td class="center">字幕</td>
 								<td class="center">制式</td>
 								<td class="center">大小</td>
 								<td class="center">下载</td>
-								<td class="center updateTime">更新时间</td> -->
-							</tr>
+								<td class="center updateTime">更新时间</td>
+							</tr> -->
 							@for(item in resources){
 								<tr class="${itemLP.index % 2 != 0 ? 'backgray':'' }">
 									@var pureName = item.pureName;
