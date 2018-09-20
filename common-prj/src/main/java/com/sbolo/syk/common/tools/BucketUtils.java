@@ -45,11 +45,12 @@ public class BucketUtils {
 	
 	public static void upload(byte[] bytes, String targetDir, String fileName, String suffix) throws Exception {
 		bucketAlive.incrementAndGet();
+		InputStream sbs = null;
 		try {
 			if(!hasOpened) {
 				limitOpen();
 			}
-			InputStream sbs = new ByteArrayInputStream(bytes);
+			sbs = new ByteArrayInputStream(bytes);
 			ObjectMetadata metadata = new ObjectMetadata();
 			metadata.setContentLength(bytes.length);
 			String key = targetDir+"/"+fileName+"."+suffix;
@@ -57,6 +58,9 @@ public class BucketUtils {
 			cosClient.putObject(putObjectRequest);
 		} finally {
 			bucketAlive.decrementAndGet();
+			if(sbs != null) {
+				sbs.close();
+			}
 		}
 		
 	}
