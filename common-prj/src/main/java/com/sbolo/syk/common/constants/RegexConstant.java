@@ -39,7 +39,7 @@ public class RegexConstant {
 	public static final String slash = "^/|/$";
 	public static final String types = "\\(?(韩版|美版|剧场版|完整版|真人版|加长版)\\)?";
 	public static final String getan = "(?<=^哥谭)市";
-	public static final String slashSep = "\\s*/\\s*";
+	public static final String slashSep = "\\s*(/|,)\\s*";
 	public static final String colonSep = "\\s*[:：]\\s*";
 	public static final String blank = "\\s|\\t|\\r|\\n| |　|(&nbsp;)";
 	public static final String DYtitle = ".*?导(\\s|\\t|\\r|\\n| |　|(&nbsp;))*?演.*?(?=[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FA5\uac00-\ud7ffa-zA-Z0-9])";

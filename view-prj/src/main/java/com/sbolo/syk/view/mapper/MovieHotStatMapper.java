@@ -19,6 +19,7 @@ public interface MovieHotStatMapper {
 			"t.create_time > #{timeStart} " + 
 			"AND t.create_time < #{timeEnd} " + 
 			"GROUP BY t.movie_prn " +
+			"ORDER BY hot_count DESC " + 
 			"LIMIT #{limitNum}) b " + 
 			"left join movie_info a " + 
 			"on a.prn = b.movie_prn " + 

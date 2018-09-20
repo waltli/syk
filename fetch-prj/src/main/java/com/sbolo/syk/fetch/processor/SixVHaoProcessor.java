@@ -1,6 +1,7 @@
 package com.sbolo.syk.fetch.processor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -13,8 +14,10 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.RegexConstant;
 import com.sbolo.syk.common.exception.AnalystException;
+import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.fetch.spider.Page;
 import com.sbolo.syk.fetch.spider.PageProcessor;
 import com.sbolo.syk.fetch.vo.ConcludeVO;
@@ -48,8 +51,7 @@ public class SixVHaoProcessor extends ProcessorHelper implements PageProcessor {
 			Element infoElement = document.select("#text > p:matches("+RegexConstant.DYtitle+"|"+RegexConstant.YYtitle+"|"+RegexConstant.ZYtitle+")").first();
 			List<String> precisions = null;
 			if(infoElement != null){
-				List<TextNode> textNodes = infoElement.textNodes();
-				precisions = getPrecisionsByInfo(textNodes);
+				precisions = getPrecisionsByInfo(infoElement.html(), "<br>");
 			}
 			
 			Elements tableElements = document.select("#text > table");

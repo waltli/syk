@@ -275,11 +275,14 @@ public class ProcessorHelper {
     	cacheDist = new ConcurrentHashMap<String, String>();
     }
     
-    protected List<String> getPrecisionsByInfo(List<TextNode> textNodes) {
+    protected List<String> getPrecisionsByInfo(String infos, String separator) {
+    	if(StringUtils.isBlank(infos)) {
+    		return null;
+    	}
+		String[] texts = StringUtil.trimAll(infos.replaceAll(separator, CommonConstants.SEPARATOR).replaceAll("<.*?>", "")).split(CommonConstants.SEPARATOR);
 		String directDesc = "";
 		String castDesc = "";
-		for(TextNode textNode : textNodes) {
-			String text = textNode.text();
+		for(String text : texts) {
 			if(Pattern.compile(RegexConstant.DYtitle).matcher(text).find() && StringUtils.isBlank(directDesc)){
 				directDesc = text;
 			}else if(Pattern.compile(RegexConstant.YYtitle+"|"+RegexConstant.ZYtitle).matcher(text).find() && StringUtils.isBlank(castDesc)){
@@ -292,6 +295,24 @@ public class ProcessorHelper {
 		List<String> precisions = getPrecisions(directDesc, castDesc);
 		return precisions;
 	}
+    
+//    protected List<String> getPrecisionsByInfo(List<TextNode> textNodes) {
+//		String directDesc = "";
+//		String castDesc = "";
+//		for(TextNode textNode : textNodes) {
+//			String text = textNode.text();
+//			if(Pattern.compile(RegexConstant.DYtitle).matcher(text).find() && StringUtils.isBlank(directDesc)){
+//				directDesc = text;
+//			}else if(Pattern.compile(RegexConstant.YYtitle+"|"+RegexConstant.ZYtitle).matcher(text).find() && StringUtils.isBlank(castDesc)){
+//				castDesc = text;
+//			}
+//			if(StringUtils.isNotBlank(directDesc) && StringUtils.isNotBlank(castDesc)){
+//				break;
+//			}
+//		}
+//		List<String> precisions = getPrecisions(directDesc, castDesc);
+//		return precisions;
+//	}
     
     protected List<String> getPrecisions(String directDesc, String castDesc){
     	List<String> precisions = new ArrayList<String>();
