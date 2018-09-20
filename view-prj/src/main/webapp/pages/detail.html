@@ -39,9 +39,9 @@
 								<img alt="" src="${pageCtx('ctxassets')}/img/movie_default_large.png" data-original="${movie.iconUrl!}">
 							</div>
 							<div id="slider" style="visibility: hidden;">
-								@if(isNotEmpty(movie.photoUrlList)){
+								@if(isNotEmpty(movie.posterUrlList)){
 									<ul class="slides clearfix">
-										@for(item in movie.photoUrlList){
+										@for(item in movie.posterUrlList){
 											<li><img class="responsive" src="${item }" ></li>
 										@}
 									</ul>
@@ -50,7 +50,7 @@
 										<li><img src="${pageCtx('ctxassets')}/img/detail/next.png" alt="next"></li>
 									</ul>
 									<ul class="pagination">
-										@for(item in movie.photoUrlList){
+										@for(item in movie.posterUrlList){
 											<li class="${itemLP.index == 1 ? 'active' : '' }"></li>
 										@}
 									</ul>
@@ -161,14 +161,14 @@
                         </div>
 					</div>
 					
-					@var shotUrlList = movie.shotUrlList;
+					<!-- @var shotUrlList = movie.shotUrlList;
 					@if(isEmpty(shotUrlList)){
 						@shotUrlList = movie.posterUrlList;
-					@}
+					@} -->
 					
-					@if(isNotEmpty(shotUrlList)){
+					@if(isNotEmpty(photoUrlList)){
 						<div id="shot">
-							@for(shot in shotUrlList){
+							@for(shot in photoUrlList){
 								<div style="margin-top:10px;    text-align: center !important;">
 									<img src="${pageCtx('ctxassets')}/img/movie_default_cross_big.png" data-original="${shot}">
 								</div>

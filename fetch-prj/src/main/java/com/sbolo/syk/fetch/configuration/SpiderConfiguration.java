@@ -48,7 +48,7 @@ public class SpiderConfiguration {
 	@Bean
 	public Spider spider() {
 		List<PageProcessor> listProcessor = new ArrayList<>();
-//		listProcessor.add(sixVHaoProcessor());
+		listProcessor.add(sixVHaoProcessor());
 		listProcessor.add(meiJuTTProcessor());
 		Spider spider = new Spider(listProcessor, myPipeline(), downloader());
 		return spider;
