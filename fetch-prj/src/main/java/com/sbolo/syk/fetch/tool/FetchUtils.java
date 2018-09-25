@@ -796,19 +796,21 @@ public class FetchUtils {
 				newUriList.add(dbUriList.get(i));
 				continue;
 			}
-			String uri = null;
-			if(fileType == CommonConstants.poster_v) {
-				uri = FetchUtils.uploadPosterGetUriFromDir(newSubDir);
-			}else if(fileType == CommonConstants.photo_v) {
-				uri = FetchUtils.uploadPhotoGetUriFromDir(newSubDir);
-			}else if(fileType == CommonConstants.shot_v) {
-				uri = FetchUtils.uploadShotGetUriFromDir(newSubDir);
-			}else {
-				throw new BusinessException("文件類型錯誤");
+			if(StringUtils.isNotBlank(newSubDir)) {
+				String uri = null;
+				if(fileType == CommonConstants.poster_v) {
+					uri = FetchUtils.uploadPosterGetUriFromDir(newSubDir);
+				}else if(fileType == CommonConstants.photo_v) {
+					uri = FetchUtils.uploadPhotoGetUriFromDir(newSubDir);
+				}else if(fileType == CommonConstants.shot_v) {
+					uri = FetchUtils.uploadShotGetUriFromDir(newSubDir);
+				}else {
+					throw new BusinessException("文件類型錯誤");
+				}
+				newUriList.add(uri);
 			}
-			newUriList.add(uri);
 			//如果沒有超出原List的長度，則刪除原來的。
-			if(dbUriList != null && dbUriList.size() >= newSubDirArr.length) {
+			if(dbUriList != null && dbUriList.size() > i) {
 				BucketUtils.delete(dbUriList.get(i));
 			}
 			

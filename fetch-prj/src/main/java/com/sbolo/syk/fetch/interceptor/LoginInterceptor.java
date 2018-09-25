@@ -1,9 +1,12 @@
 package com.sbolo.syk.fetch.interceptor;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -40,6 +43,20 @@ public class LoginInterceptor implements HandlerInterceptor {
 		String url = request.getRequestURI();
 		String contextPath = request.getContextPath();
 		String uri = url.replace(contextPath, "");
+		
+		Map<String, String[]> parameterMap = request.getParameterMap();
+		if(parameterMap != null && parameterMap.size() > 0) {
+			String params = "";
+			for(String key : parameterMap.keySet()) {
+				String[] strings = parameterMap.get(key);
+				params  = params + key + "=" + strings[0] + "&";
+			}
+			if(StringUtils.isNotBlank(params)) {
+				params = "?"+params.substring(0, params.length()-1);
+				uri += params;
+			}
+		}
+		
 		
 		//不符合条件的，跳转到登录界面
 		response.sendRedirect(contextPath+"/login?cb="+uri);

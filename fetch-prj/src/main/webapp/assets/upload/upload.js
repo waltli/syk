@@ -210,6 +210,7 @@ function picUpload(op){
 		"width": "89px",
 		"height": "89px",
 		"close":true,
+		"clear":true,
 		"maxSize":5*1024*1024
 	}, op);
 	
@@ -229,6 +230,10 @@ function picUpload(op){
 	//关闭者
 	var closeId = component_count+"_close_"+new Date().getTime();
 	var $close = $('<sup id="'+closeId+'" class="pic-upload-del"></sup>');
+	
+	var clearId = component_count+"_clear_"+new Date().getTime();
+	var $clear = $('<sup id="'+clearId+'" class="pic-upload-clear"></sup>');
+	
 	//预览区域
 	var $preview = $('<div class="pic-preview" style="height:'+op.height+';width:'+op.width+';">'+
 					 '    <img style="max-height:'+op.height+'; max-width:'+op.width+';" src="'+previewUri+'">'+
@@ -238,7 +243,7 @@ function picUpload(op){
 	var $typeFile = $('<input type="file" class="file" name="file" id="'+fileId+'">');
 	
 	//加入新组件并删除标识者
-	$replace.append($loading).append($close).append($preview).append($typeFile);
+	$replace.append($loading).append($clear).append($close).append($preview).append($typeFile);
 	$place.remove();
 	if($prev.length == 0){
 		$parent.append($replace)
@@ -300,6 +305,14 @@ function picUpload(op){
 			op.del();
 		}
 		$replace.remove();
+	});
+	
+	$clear.unbind("click").bind("click", function(){
+		debugger;
+		if(typeof op.clear == "function"){
+			op.clear();
+		}
+		$preview.find("img").attr("src","");
 	});
 	
 	if(!op.close){

@@ -53,6 +53,23 @@
 	background-position: 0 0;
 }
 
+.pic-upload-clear {
+	display: inline-block;
+    position: absolute;
+    cursor: pointer;
+    height: 12px;
+    width: 12px;
+    top: 2px;
+    left: 2px;
+    background: url(../img/clear.png) no-repeat 0 -11px;
+    overflow: hidden;
+    z-index: 9;
+}
+
+.pic-upload-clear:hover {
+	background-position: 0 0;
+}
+
 .file-upload-del {
 	display: inline-block;
     position: relative;

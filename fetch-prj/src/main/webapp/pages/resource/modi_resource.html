@@ -6,21 +6,26 @@
 @include("../common/header.html"){}
 <title>蝉影后台管理系统</title>
 <link rel="stylesheet" type="text/css" href="${pageCtx('ctxassets')}/css/modi_resource.css" />
-<script type="text/javascript" src="${pageCtx('ctxassets')}/upload/upload.js"></script>
 </head>
 <body>
 	@include("../common/loading.html"){}
+	@var resource = result.obj.resource;
+	@var movie = result.obj.movie;
 	<div id="wrapper">
 		@include("../common/nav.html"){}
 		<div class="main">
 			<div class="main-content">
 				<form action="${pageCtx('ctx')}/resource/modi-work" id="modiResourceForm" method="post">
 					<div class="panel panel-resource">
+						<div class="panel-heading">
+							<span class="panel-title">修改 [${movie.pureName }] 资源</span>
+						</div>
+					</div>
+				
+					<div class="panel panel-resource">
 			   			<div class="panel-heading">
 			   				<span class="resourceCount"></span>
 						</div>
-						@var resource = result.obj.resource;
-						@var movie = result.obj.movie;
 			   			<div class="panel-body">
 			   				<input type="hidden" name="prn" value="${resource.prn }">
 			   				<input type="hidden" name="moviePrn" value="${resource.moviePrn }">
@@ -63,11 +68,15 @@
 					   				<tr id="shotsTr">
 					   					<td class="title">截图</td>
 					   					<td colspan="3">
-					   						<input type="hidden" name="shotSubDirStr" id="shotVal">
+					   						<input type="hidden" name="shotSubDirStr" id="shotSubDirStrId">
 					   						<a id="shotPlace1"></a>
+					   						<input type="hidden" name="shotSubDir" id="shotSubDirId_1">
 					   						<a id="shotPlace2"></a>
+					   						<input type="hidden" name="shotSubDir" id="shotSubDirId_2">
 					   						<a id="shotPlace3"></a>
+					   						<input type="hidden" name="shotSubDir" id="shotSubDirId_3">
 					   						<a id="shotPlace4"></a>
+					   						<input type="hidden" name="shotSubDir" id="shotSubDirId_4">
 					   					</td>
 					   				</tr>
 					   				<tr>
@@ -243,12 +252,10 @@ fileUpload({
 	}
 });
 
-
-var shotValObj = {};
-picUploadAll("shotPlace1", "shotVal", 3, shotValObj);
-picUploadAll("shotPlace2", "shotVal", 3, shotValObj);
-picUploadAll("shotPlace3", "shotVal", 3, shotValObj);
-picUploadAll("shotPlace4", "shotVal", 3, shotValObj);
+picUploadAll("shotPlace1", 4, "shotSubDirId_1", "shotSubDir", "shotSubDirStrId");
+picUploadAll("shotPlace2", 4, "shotSubDirId_2", "shotSubDir", "shotSubDirStrId");
+picUploadAll("shotPlace3", 4, "shotSubDirId_3", "shotSubDir", "shotSubDirStrId");
+picUploadAll("shotPlace4", 4, "shotSubDirId_4", "shotSubDir", "shotSubDirStrId");
 
 /**
  * 初始化shot显示
@@ -256,22 +263,18 @@ picUploadAll("shotPlace4", "shotVal", 3, shotValObj);
 var urls = '${resource.shotUrlStr}';
 if(urls){
 	urls = urls.split(",");
-}
-var $replaces = $("#shotsTr").find(".replace");
-$replaces.each(function(i,o){
-	if(urls[i]){
-		var placeId = $(this).attr("id");
-		var $preview_img = $(this).find(".pic-preview img");
-		$preview_img.attr("src", urls[i]);
-		shotValObj[placeId] = urls[i];
-	}
+	var $replaces = $("#shotsTr").find(".replace");
 	var disStr = "";
-	for(var i in shotValObj){
-		disStr += (","+shotValObj[i]);
-	}
-	disStr = disStr.substring(1);
-	$("#shotVal").val(disStr);
-});
+	$replaces.each(function(i,o){
+		if(urls[i]){
+			var $preview_img = $(this).find(".pic-preview img");
+			$preview_img.attr("src", urls[i]);
+			$("[name=shotSubDir]").eq(i).val(urls[i]);
+			disStr += (","+urls[i]);
+		}
+	});
+	$("#shotVal").val(disStr.substring(1));
+}
 
 var movieCategory = '${movie.category}';
 $("#modiResourceForm").submit(function(e){
@@ -283,49 +286,5 @@ $("#modiResourceForm").submit(function(e){
 		$(".tv input[type=text]").val("");
 	}
 });
-
-
-function picUploadAll(placeId, valId, fileType, disObj){
-	picUpload({
-		placeId:placeId,
-		data:{"fileType":fileType},
-		close:false,
-		before: function(){
-			uploadCount++;
-		},
-		success: function(data){
-			if(!data.status){
-				return;
-			}
-			if(disObj){
-				disObj[placeId] = data.obj.subDir;
-				var disStr = "";
-				for(var i in disObj){
-					disStr += (","+disObj[i]);
-				}
-				disStr = disStr.substring(1);
-				$("#"+valId).val(disStr);
-			}else {
-				$("#"+valId).val(data.obj.subDir);
-			}
-			uploadCount--;
-		},
-		error: function(data, status, e){
-			if(disObj){
-				delete disObj[placeId];
-				var disStr = "";
-				for(var i in disObj){
-					disStr += (","+disObj[i]);
-				}
-				disStr = disStr.substring(1);
-				$("#"+valId).val(disStr);
-			}else {
-				$("#"+valId).val("");
-			}
-			toastr.error(e);
-			uploadCount--
-		},
-	});
-}
 </script>
 </html>

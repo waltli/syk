@@ -6,7 +6,6 @@
 @include("../common/header.html"){}
 <title>蝉影后台管理系统</title>
 <link rel="stylesheet" type="text/css" href="${pageCtx('ctxassets')}/css/modi_movie_page.css" />
-<script type="text/javascript" src="${pageCtx('ctxassets')}/upload/upload.js"></script>
 </head>
 <body>
 	@var movie = result.obj;
@@ -100,21 +99,31 @@
 									<tr id="posterTr">
 										<td class="title">海报</td>
 										<td colspan="3">
-											<input type="hidden" name="posterSubDirStr" id="posterVal" value="">
+											<input type="hidden" name="posterSubDirStr" id="posterSubDirStrVal">
 											<a id="posterPlace_1"></a>
+											<input type="hidden" name="posterSubDir" id="posterSubDir_1">
 											<a id="posterPlace_2"></a>
+											<input type="hidden" name="posterSubDir" id="posterSubDir_2">
 											<a id="posterPlace_3"></a>
+											<input type="hidden" name="posterSubDir" id="posterSubDir_3">
 											<a id="posterPlace_4"></a>
+											<input type="hidden" name="posterSubDir" id="posterSubDir_4">
+											
+											
 										</td>
 									</tr>
 									<tr id="photoTr">
 										<td class="title">PHOTO</td>
 										<td colspan="3">
-											<input type="hidden" name="photoSubDirStr" id="photoVal">
+											<input type="hidden" name="photoSubDirStr" id="photoSubDirStrVal">
 											<a id="photoPlace_1"></a>
+											<input type="hidden" name="photoSubDir" id="photoSubDir_1">
 											<a id="photoPlace_2"></a>
+											<input type="hidden" name="photoSubDir" id="photoSubDir_2">
 											<a id="photoPlace_3"></a>
+											<input type="hidden" name="photoSubDir" id="photoSubDir_3">
 											<a id="photoPlace_4"></a>
+											<input type="hidden" name="photoSubDir" id="photoSubDir_4">
 										</td>
 									</tr>
 								</tbody>
@@ -201,19 +210,18 @@ $("#modiMovieForm").validate({
 });
 
 //ICON上传组件
-picUploadAll("iconPlace", "iconVal", 1);
+picUploadAll("iconPlace", 1, "iconSubDirVal");
 //POSTER上传组件
-var posterValObj = {};
-picUploadAll("posterPlace_1", "posterVal", 2, posterValObj);
-picUploadAll("posterPlace_2", "posterVal", 2, posterValObj);
-picUploadAll("posterPlace_3", "posterVal", 2, posterValObj);
-picUploadAll("posterPlace_4", "posterVal", 2, posterValObj);
+picUploadAll("posterPlace_1", 2, "posterSubDir_1", "posterSubDir", "posterSubDirStrVal");
+picUploadAll("posterPlace_2", 2, "posterSubDir_2", "posterSubDir", "posterSubDirStrVal");
+picUploadAll("posterPlace_3", 2, "posterSubDir_3", "posterSubDir", "posterSubDirStrVal");
+picUploadAll("posterPlace_4", 2, "posterSubDir_4", "posterSubDir", "posterSubDirStrVal");
+
 //PHOTO上传组件
-var photoValObj = {};
-picUploadAll("photoPlace_1", "photoVal", 3, photoValObj);
-picUploadAll("photoPlace_2", "photoVal", 3, photoValObj);
-picUploadAll("photoPlace_3", "photoVal", 3, photoValObj);
-picUploadAll("photoPlace_4", "photoVal", 3, photoValObj);
+picUploadAll("photoPlace_1", 3, "photoSubDir_1", "photoSubDir", "photoSubDirStrVal");
+picUploadAll("photoPlace_2", 3, "photoSubDir_2", "photoSubDir", "photoSubDirStrVal");
+picUploadAll("photoPlace_3", 3, "photoSubDir_3", "photoSubDir", "photoSubDirStrVal");
+picUploadAll("photoPlace_4", 3, "photoSubDir_4", "photoSubDir", "photoSubDirStrVal");
 
 /**
  * 初始化poster显示
@@ -221,45 +229,37 @@ picUploadAll("photoPlace_4", "photoVal", 3, photoValObj);
 var posterUrls = '${movie.posterUrlStr}';
 if(posterUrls){
 	posterUrls = posterUrls.split(",");
-}
-var $posterReplaces = $("#posterTr").find(".replace");
-$posterReplaces.each(function(i,o){
-	if(posterUrls[i]){
-		var placeId = $(this).attr("id");
-		var $preview_img = $(this).find(".pic-preview img");
-		$preview_img.attr("src", posterUrls[i]);
-		posterValObj[placeId] = posterUrls[i];
-	}
+	var $posterReplaces = $("#posterTr").find(".replace");
 	var disStr = "";
-	for(var i in posterValObj){
-		disStr += (","+posterValObj[i]);
-	}
-	disStr = disStr.substring(1);
-	$("#posterVal").val(disStr);
-});
+	$posterReplaces.each(function(i,o){
+		if(posterUrls[i]){
+			var $preview_img = $(this).find(".pic-preview img");
+			$preview_img.attr("src", posterUrls[i]);
+			$("[name=posterSubDir]").eq(i).val(posterUrls[i]);
+			disStr += (","+posterUrls[i]);
+		}
+	});
+	$("#posterSubDirStrVal").val(disStr.substring(1));
+}
 
 /**
  * 初始化photo显示
  */
- var photoUrls = '${movie.photoUrlStr}';
- if(photoUrls){
-	 photoUrls = photoUrls.split(",");
- }
- var $photoReplaces = $("#photoTr").find(".replace");
- $photoReplaces.each(function(i,o){
- 	if(photoUrls[i]){
- 		var placeId = $(this).attr("id");
- 		var $preview_img = $(this).find(".pic-preview img");
- 		$preview_img.attr("src", photoUrls[i]);
- 		photoValObj[placeId] = photoUrls[i];
- 	}
- 	var disStr = "";
- 	for(var i in photoValObj){
- 		disStr += (","+photoValObj[i]);
- 	}
- 	disStr = disStr.substring(1);
- 	$("#photoVal").val(disStr);
- });
+var photoUrls = '${movie.photoUrlStr}';
+if(photoUrls){
+	photoUrls = photoUrls.split(",");
+	var $photoReplaces = $("#photoTr").find(".replace");
+	var disStr = "";
+	$photoReplaces.each(function(i,o){
+		if(photoUrls[i]){
+			var $preview_img = $(this).find(".pic-preview img");
+			$preview_img.attr("src", photoUrls[i]);
+			$("[name=photoSubDir]").eq(i).val(photoUrls[i]);
+			disStr += (","+photoUrls[i]);
+		}
+	});
+	$("#photoSubDirStrVal").val(disStr.substring(1));
+}
 
 
 /**
@@ -288,48 +288,5 @@ $("#modiMovieForm").submit(function(e){
 		$(".tv input[type=text]").val("");
 	}
 });
-
-function picUploadAll(placeId, valId, fileType, disObj){
-	picUpload({
-		placeId:placeId,
-		data:{"fileType":fileType},
-		close:false,
-		before: function(){
-			uploadCount++;
-		},
-		success: function(data){
-			if(!data.status){
-				return;
-			}
-			if(disObj){
-				disObj[placeId] = data.obj.subDir;
-				var disStr = "";
-				for(var i in disObj){
-					disStr += (","+disObj[i]);
-				}
-				disStr = disStr.substring(1);
-				$("#"+valId).val(disStr);
-			}else {
-				$("#"+valId).val(data.obj.subDir);
-			}
-			uploadCount--;
-		},
-		error: function(data, status, e){
-			if(disObj){
-				delete disObj[placeId];
-				var disStr = "";
-				for(var i in disObj){
-					disStr += (","+disObj[i]);
-				}
-				disStr = disStr.substring(1);
-				$("#"+valId).val(disStr);
-			}else {
-				$("#"+valId).val("");
-			}
-			toastr.error(e);
-			uploadCount--
-		},
-	});
-}
 </script>
 </html>

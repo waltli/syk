@@ -394,16 +394,25 @@ public class MyPipeline implements Pipeline {
 		for(MovieInfoVO fetchMovie : fetchMovies) {
 			List<PicVO> picList = new ArrayList<>();
 			//获取icon
-			picList.add(new PicVO(fetchMovie.getIconOutUrl(), CommonConstants.icon_v));
+			if(StringUtils.isNotBlank(fetchMovie.getIconOutUrl())) {
+				picList.add(new PicVO(fetchMovie.getIconOutUrl(), CommonConstants.icon_v));
+			}
 			//获取poster
 			List<String> posterOutUrlList = fetchMovie.getPosterOutUrlList();
-			for(String posterOutUrl : posterOutUrlList) {
-				picList.add(new PicVO(posterOutUrl, CommonConstants.poster_v));
+			if(posterOutUrlList != null && posterOutUrlList.size() > 0) {
+				for(String posterOutUrl : posterOutUrlList) {
+					picList.add(new PicVO(posterOutUrl, CommonConstants.poster_v));
+				}
 			}
 			//获取photo
 			List<String> photoUrlList = fetchMovie.getPhotoOutUrlList();
-			for(String photoUrl : photoUrlList) {
-				picList.add(new PicVO(photoUrl, CommonConstants.photo_v));
+			if(photoUrlList != null && photoUrlList.size() > 0) {
+				for(String photoUrl : photoUrlList) {
+					picList.add(new PicVO(photoUrl, CommonConstants.photo_v));
+				}
+			}
+			if(picList.size() == 0) {
+				continue;
 			}
 			List<String> posterUris = new ArrayList<String>();
 			List<String> photoUris = new ArrayList<String>();

@@ -6,7 +6,6 @@
 @include("../common/header.html"){}
 <title>蝉影后台管理系统</title>
 <link rel="stylesheet" type="text/css" href="${pageCtx('ctxassets')}/css/add_resources.css" />
-<script type="text/javascript" src="${pageCtx('ctxassets')}/upload/upload.js"></script>
 </head>
 <body>
 	@var movie = result.obj;
@@ -75,6 +74,14 @@ $("#add-resource").click(function(){
 	var shotPlaceId3 = resource_count+'_shotPlace_3';
 	var shotPlaceId4 = resource_count+'_shotPlace_4';
 	
+	var shotVal1 = resource_count+'_shot_1';
+	var shotVal2 = resource_count+'_shot_2';
+	var shotVal3 = resource_count+'_shot_3';
+	var shotVal4 = resource_count+'_shot_4';
+	
+	var shotName = resource_count+'_shot';
+	var shotValStrId = resource_count+'_shotVal';
+	
 	var downloadLinkValId = resource_count+'_downloadLinkVal';
 	var sizeValId = resource_count+'_sizeVal';
 	var formatValId = resource_count+'_formatVal';
@@ -83,7 +90,6 @@ $("#add-resource").click(function(){
 	var episodeStartValId = resource_count+'_episodeStartVal';
 	var episodeEndValId = resource_count+'_episodeEndVal';
 	var subtitleValId = resource_count+'_subtitleVal';
-	var shotValId = resource_count+'_shotVal';
 	
 	var closeId = resource_count+'_close';
 	
@@ -131,11 +137,15 @@ $("#add-resource").click(function(){
 			   '				<tr>'+
 			   '					<td class="title">截图</td>'+
 			   '					<td colspan="3">'+
-			   '						<input type="hidden" name="resources['+resource_count+'].shotSubDirStr" id="'+shotValId+'">'+
+			   '						<input type="hidden" name="resources['+resource_count+'].shotSubDirStr" id="'+shotValStrId+'">'+
 			   '						<a id="'+shotPlaceId1+'"></a>'+
+			   '						<input type="hidden" name="'+shotName+'" id="'+shotVal1+'" />'+
 			   '						<a id="'+shotPlaceId2+'"></a>'+
+			   '						<input type="hidden" name="'+shotName+'" id="'+shotVal2+'" />'+
 			   '						<a id="'+shotPlaceId3+'"></a>'+
+			   '						<input type="hidden" name="'+shotName+'" id="'+shotVal3+'" />'+
 			   '						<a id="'+shotPlaceId4+'"></a>'+
+			   '						<input type="hidden" name="'+shotName+'" id="'+shotVal4+'" />'+
 			   '					</td>'+
 			   '				</tr>'+
 			   '			</tbody>'+
@@ -256,12 +266,10 @@ $("#add-resource").click(function(){
 		}
 	});
 	
-	
-	var shotValObj = {};
-	picUploadAll(shotPlaceId1, shotValId, 4, shotValObj);
-	picUploadAll(shotPlaceId2, shotValId, 4, shotValObj);
-	picUploadAll(shotPlaceId3, shotValId, 4, shotValObj);
-	picUploadAll(shotPlaceId4, shotValId, 4, shotValObj);
+	picUploadAll(shotPlaceId1, 4, shotVal1, shotName, shotValStrId);
+	picUploadAll(shotPlaceId2, 4, shotVal2, shotName, shotValStrId);
+	picUploadAll(shotPlaceId3, 4, shotVal3, shotName, shotValStrId);
+	picUploadAll(shotPlaceId4, 4, shotVal4, shotName, shotValStrId);
 	
 	$("#"+closeId).unbind("click").bind("click", function(){
 		var $panelResource = $(this).parents(".panel-resource");
@@ -283,49 +291,6 @@ $("#add-resource").click(function(){
 });
 //触发上述事件创建第一个resourceInfo
 $("#add-resource").trigger("click");
-
-function picUploadAll(placeId, valId, fileType, disObj){
-	picUpload({
-		placeId:placeId,
-		data:{"fileType":fileType},
-		close:false,
-		before: function(){
-			uploadCount++;
-		},
-		success: function(data){
-			if(!data.status){
-				return;
-			}
-			if(disObj){
-				disObj[placeId] = data.obj.subDir;
-				var disStr = "";
-				for(var i in disObj){
-					disStr += (","+disObj[i]);
-				}
-				disStr = disStr.substring(1);
-				$("#"+valId).val(disStr);
-			}else {
-				$("#"+valId).val(data.obj.subDir);
-			}
-			uploadCount--;
-		},
-		error: function(data, status, e){
-			if(disObj){
-				delete disObj[placeId];
-				var disStr = "";
-				for(var i in disObj){
-					disStr += (","+disObj[i]);
-				}
-				disStr = disStr.substring(1);
-				$("#"+valId).val(disStr);
-			}else {
-				$("#"+valId).val("");
-			}
-			toastr.error(e);
-			uploadCount--
-		}
-	});
-}
 
 </script>
 </html>

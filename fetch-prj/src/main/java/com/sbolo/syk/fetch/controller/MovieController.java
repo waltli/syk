@@ -185,8 +185,15 @@ public class MovieController {
 	@RequestMapping("existed")
 	public String existed(Model model,
 			@RequestParam(value="mi", required=true) String moviePrn){
-		MovieInfoVO movieVO = movieInfoService.getMovieInfoByPrn(moviePrn);
-		model.addAttribute("movieVO", movieVO);
+		RequestResult<MovieInfoVO> result = null;
+		try {
+			MovieInfoVO movieVO = movieInfoService.getMovieInfoByPrn(moviePrn);
+			result = new RequestResult<>(movieVO);
+		} catch (Exception e) {
+			result = RequestResult.error(e);
+			log.error("",e);
+		}
+		model.addAttribute("result", result);
 		return existed;
 	}
 	
