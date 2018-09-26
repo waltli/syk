@@ -292,6 +292,17 @@ function picUploadAll(placeId, valId, fileType, disObj){
 		before: function(){
 			uploadCount++;
 		},
+		clear: function(data){
+			if(disObj){
+				delete disObj[placeId];
+				var disStr = "";
+				for(var i in disObj){
+					disStr += (","+disObj[i]);
+				}
+				disStr = disStr.substring(1);
+				$("#"+valId).val(disStr);
+			}
+		},
 		success: function(data){
 			if(!data.status){
 				return;

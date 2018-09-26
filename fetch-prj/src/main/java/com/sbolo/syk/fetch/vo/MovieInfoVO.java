@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
+import com.sbolo.syk.common.constants.MovieCategoryEnum;
 import com.sbolo.syk.common.constants.RegexConstant;
 import com.sbolo.syk.common.tools.ConfigUtil;
 import com.sbolo.syk.common.tools.StringUtil;
@@ -49,6 +50,8 @@ public class MovieInfoVO {
     
     private String[] anotherNameArr;
 
+    private String showName;
+    
     /**
      * 多个label，逗号间隔
      */
@@ -242,6 +245,14 @@ public class MovieInfoVO {
     
     private String posterUrlStr;
     
+	public String getShowName() {
+		return showName;
+	}
+
+	public void setShowName(String showName) {
+		this.showName = showName;
+	}
+
 	public List<String> getPhotoUrlList() {
 		return photoUrlList;
 	}
@@ -1042,6 +1053,15 @@ public class MovieInfoVO {
     public void parse(){
     	SimpleDateFormat sdf = new SimpleDateFormat(CommonConstants.timeFormat.get(10));
     	String bucketHost = ConfigUtil.getPropertyValue("bucket.host");
+    	
+//    	if(this.getCategory() == MovieCategoryEnum.tv.getCode() || this.getCategory() == MovieCategoryEnum.variety.getCode()) {
+//    		if(this.getOptimalResource() != null && this.getOptimalResource().getEpisodeEnd() != null) {
+//    			this.setShowName(this.getPureName() + " 更新至" + this.getOptimalResource().getEpisodeEnd() + "集");
+//    		}
+//    	}else {
+//    		this.setShowName(this.getPureName());
+//    	}
+    	
     	if(this.getCreateTime() != null){
     		this.setCreateTimeStr(sdf.format(this.getCreateTime()));
     	}
