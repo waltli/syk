@@ -288,5 +288,62 @@ $("#modiMovieForm").submit(function(e){
 		$(".tv input[type=text]").val("");
 	}
 });
+<<<<<<< HEAD
+=======
+
+function picUploadAll(placeId, valId, fileType, disObj){
+	picUpload({
+		placeId:placeId,
+		data:{"fileType":fileType},
+		close:false,
+		before: function(){
+			uploadCount++;
+		},
+		clear: function(data){
+			if(disObj){
+				delete disObj[placeId];
+				var disStr = "";
+				for(var i in disObj){
+					disStr += (","+disObj[i]);
+				}
+				disStr = disStr.substring(1);
+				$("#"+valId).val(disStr);
+			}
+		},
+		success: function(data){
+			if(!data.status){
+				return;
+			}
+			if(disObj){
+				disObj[placeId] = data.obj.subDir;
+				var disStr = "";
+				for(var i in disObj){
+					disStr += (","+disObj[i]);
+				}
+				disStr = disStr.substring(1);
+				$("#"+valId).val(disStr);
+			}else {
+				$("#"+valId).val(data.obj.subDir);
+			}
+			uploadCount--;
+		},
+		error: function(data, status, e){
+			if(disObj){
+				delete disObj[placeId];
+				var disStr = "";
+				for(var i in disObj){
+					disStr += (","+disObj[i]);
+				}
+				disStr = disStr.substring(1);
+				$("#"+valId).val(disStr);
+			}else {
+				$("#"+valId).val("");
+			}
+			toastr.error(e);
+			uploadCount--
+		},
+	});
+}
+>>>>>>> branch 'master' of https://github.com/waltli/syk.git
 </script>
 </html>
