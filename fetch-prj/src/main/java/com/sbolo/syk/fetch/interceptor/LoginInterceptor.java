@@ -49,7 +49,12 @@ public class LoginInterceptor implements HandlerInterceptor {
 			String params = "";
 			for(String key : parameterMap.keySet()) {
 				String[] strings = parameterMap.get(key);
-				params  = params + key + "=" + strings[0] + "&";
+				String val = "";
+				for(String str :strings) {
+					val += ("," + str);
+				}
+				val = val.substring(1);
+				params  = params + key + "=" + val + "&";
 			}
 			if(StringUtils.isNotBlank(params)) {
 				params = "?"+params.substring(0, params.length()-1);

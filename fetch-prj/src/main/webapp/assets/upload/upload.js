@@ -308,7 +308,6 @@ function picUpload(op){
 	});
 	
 	$clear.unbind("click").bind("click", function(){
-		debugger;
 		if(typeof op.clear == "function"){
 			op.clear();
 		}
