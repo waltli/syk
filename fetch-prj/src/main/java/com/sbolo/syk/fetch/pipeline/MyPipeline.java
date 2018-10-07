@@ -182,7 +182,7 @@ public class MyPipeline implements Pipeline {
 		if(fileIdxs.size() > 0) {
 			insertFileIdxsSize = movieFileIndexMapper.insertList(fileIdxs);
 		}
-		
+		log.info("===================================================================================");
 		log.info("新增movieInfo条数："+insertMovieSize);
 		log.info("修改movieInfo条数："+updateMovieSize);
 		log.info("labels条数："+insertLabelSize);
