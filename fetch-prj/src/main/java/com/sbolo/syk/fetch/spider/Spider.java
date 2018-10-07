@@ -22,6 +22,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
+import com.sbolo.syk.fetch.spider.exception.SpiderException;
+
 public class Spider {
 	private static final Logger log = LoggerFactory.getLogger(Spider.class);
 	
@@ -138,6 +140,8 @@ public class Spider {
 										toProcess(curProcessor, url);
 									} catch (UnknownHostException | SocketTimeoutException | SocketException e){
 										//the exception of time out that do nothing
+									} catch (SpiderException e) {
+										log.warn(e.getMessage());
 									} catch (Exception e) {
 										log.error(url,e);
 									} finally{

@@ -1054,13 +1054,13 @@ public class MovieInfoVO {
     	SimpleDateFormat sdf = new SimpleDateFormat(CommonConstants.timeFormat.get(10));
     	String bucketHost = ConfigUtil.getPropertyValue("bucket.host");
     	
-//    	if(this.getCategory() == MovieCategoryEnum.tv.getCode() || this.getCategory() == MovieCategoryEnum.variety.getCode()) {
-//    		if(this.getOptimalResource() != null && this.getOptimalResource().getEpisodeEnd() != null) {
-//    			this.setShowName(this.getPureName() + " 更新至" + this.getOptimalResource().getEpisodeEnd() + "集");
-//    		}
-//    	}else {
-//    		this.setShowName(this.getPureName());
-//    	}
+    	if(this.getCategory() == MovieCategoryEnum.tv.getCode() || this.getCategory() == MovieCategoryEnum.variety.getCode()) {
+    		if(this.getOptimalResource() != null && this.getOptimalResource().getEpisodeEnd() != null) {
+    			this.setShowName(this.getPureName() + " 更新至" + this.getOptimalResource().getEpisodeEnd() + "集");
+    		}
+    	}else {
+    		this.setShowName(this.getPureName());
+    	}
     	
     	if(this.getCreateTime() != null){
     		this.setCreateTimeStr(sdf.format(this.getCreateTime()));

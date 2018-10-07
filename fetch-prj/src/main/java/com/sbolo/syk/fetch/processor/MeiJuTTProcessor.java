@@ -15,10 +15,10 @@ import org.slf4j.LoggerFactory;
 
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.RegexConstant;
-import com.sbolo.syk.common.exception.AnalystException;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.fetch.spider.Page;
 import com.sbolo.syk.fetch.spider.PageProcessor;
+import com.sbolo.syk.fetch.spider.exception.AnalystException;
 import com.sbolo.syk.fetch.vo.ConcludeVO;
 import com.sbolo.syk.fetch.vo.LinkInfoVO;
 import com.sbolo.syk.fetch.vo.PureNameAndSeasonVO;
@@ -58,7 +58,7 @@ private static final Logger log = LoggerFactory.getLogger(MeiJuTTProcessor.class
 			Element infoElement = document.select("div.o_r_contact > ul").first();
 			List<String> precisions = null;
 			if(infoElement != null){
-				precisions = getPrecisionsByInfo(infoElement.html(), "<li>");
+				precisions = getPrecisionsByInfo(infoElement.html(), "<li>", "更多&gt;&gt;");
 			}
 			
 			Elements resourceElements = document.select("div.current-tab > .down_list > ul > li > p > strong > a");
@@ -84,7 +84,7 @@ private static final Logger log = LoggerFactory.getLogger(MeiJuTTProcessor.class
 				linkInfos.add(linkInfo);
 			}
 			
-			ConcludeVO conclude = this.resolve(pureNameAndSeason.getPureName(), precisions, linkInfos, null, url, null);
+			ConcludeVO conclude = this.resolve(pureNameAndSeason, precisions, linkInfos, null, url, null);
 			if(conclude != null) {
 				fields.put(url, conclude);
 			}

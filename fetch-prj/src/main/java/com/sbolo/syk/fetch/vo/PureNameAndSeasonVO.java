@@ -2,13 +2,23 @@ package com.sbolo.syk.fetch.vo;
 
 public class PureNameAndSeasonVO {
 	private String pureName;
+	private String noSeasonName;
 	private Integer season;
 	private String cnSeason;
 	
-	public PureNameAndSeasonVO(String pureName, Integer season, String cnSeason) {
+	public PureNameAndSeasonVO(String pureName, String noSeasonName, Integer season, String cnSeason) {
 		this.pureName = pureName;
+		this.noSeasonName = noSeasonName;
 		this.season = season;
 		this.cnSeason = cnSeason;
+	}
+
+	public String getNoSeasonName() {
+		return noSeasonName;
+	}
+
+	public void setNoSeasonName(String noSeasonName) {
+		this.noSeasonName = noSeasonName;
 	}
 
 	public String getCnSeason() {

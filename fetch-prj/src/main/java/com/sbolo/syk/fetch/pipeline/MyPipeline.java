@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.RegexConstant;
-import com.sbolo.syk.common.exception.AnalystException;
 import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.tools.BucketUtils;
 import com.sbolo.syk.common.tools.ConfigUtil;
@@ -44,6 +43,7 @@ import com.sbolo.syk.fetch.mapper.MovieLabelMapper;
 import com.sbolo.syk.fetch.mapper.MovieLocationMapper;
 import com.sbolo.syk.fetch.mapper.ResourceInfoMapper;
 import com.sbolo.syk.fetch.spider.Pipeline;
+import com.sbolo.syk.fetch.spider.exception.AnalystException;
 import com.sbolo.syk.fetch.tool.FetchUtils;
 import com.sbolo.syk.fetch.vo.ConcludeVO;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
@@ -56,8 +56,6 @@ import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 public class MyPipeline implements Pipeline {
 	
 	private static final Logger log = LoggerFactory.getLogger(MyPipeline.class);
-	
-	private String doubanDefaultIcon = "movie_default_large.png";
 	
 	private ConcurrentMap<String, String> shotUrlMapping;
 	
@@ -264,7 +262,7 @@ public class MyPipeline implements Pipeline {
 		}
 		
 		for(ResourceInfoVO fetchResource : filter2) {
-			String downLink = fetchResource.getDownloadLink();
+			String downLink = fetchResource.getDownloadLinkTemp();
 			List<String> shotOutUrlList = fetchResource.getShotOutUrlList();
 			if(Pattern.compile(RegexConstant.torrent).matcher(downLink).find()) {
 				urls.add(downLink);
@@ -295,47 +293,47 @@ public class MyPipeline implements Pipeline {
 			Date thisTime) {
 		
 		for(ResourceInfoVO fetchResource : filter2) {
+			//处理shot
 			List<String> shotOutUrlList = fetchResource.getShotOutUrlList();
-			if(shotOutUrlList == null){
-				return;
-			}
-			List<String> shotUriList = new ArrayList<>();
-			for(String shotOutUrl : shotOutUrlList){
-				try {
-					String repeatedShotUri = shotUrlMapping.get(shotOutUrl);
-					if(repeatedShotUri != null) {
-						shotUriList.add(repeatedShotUri);
-						continue;
+			if(shotOutUrlList != null && shotOutUrlList.size() > 0){
+				List<String> shotUriList = new ArrayList<>();
+				for(String shotOutUrl : shotOutUrlList){
+					try {
+						String repeatedShotUri = shotUrlMapping.get(shotOutUrl);
+						if(repeatedShotUri != null) {
+							shotUriList.add(repeatedShotUri);
+							continue;
+						}
+						
+						String shotUri = "";
+						MovieFileIndexEntity movieFileIndexEntity = pioneer.get(shotOutUrl.trim());
+						if(movieFileIndexEntity != null) {
+							shotUri = movieFileIndexEntity.getFixUri();
+						}else {
+							shotUri = FetchUtils.uploadShotGetUri(shotOutUrl);
+							MovieFileIndexEntity fileIdx = this.buildFileIndex(shotOutUrl.trim(), shotUri, CommonConstants.shot_v, thisTime);
+							newFileIdxList.add(fileIdx);
+						}
+						
+						shotUrlMapping.put(shotOutUrl, shotUri);
+						shotUriList.add(shotUri);
+					} catch (Exception e) {
+						log.error(fetchResource.getComeFromUrl(),e);
 					}
-					
-					String shotUri = "";
-					MovieFileIndexEntity movieFileIndexEntity = pioneer.get(shotOutUrl.trim());
-					if(movieFileIndexEntity != null) {
-						shotUri = movieFileIndexEntity.getFixUri();
-					}else {
-						shotUri = FetchUtils.uploadShotGetUri(shotOutUrl);
-						MovieFileIndexEntity fileIdx = this.buildFileIndex(shotOutUrl.trim(), shotUri, CommonConstants.shot_v, thisTime);
-						newFileIdxList.add(fileIdx);
-					}
-					
-					shotUrlMapping.put(shotOutUrl, shotUri);
-					shotUriList.add(shotUri);
-				} catch (Exception e) {
-					log.error(fetchResource.getComeFromUrl(),e);
+				}
+				
+				if(shotUriList.size() > 0){
+					String shotUriJson = JSON.toJSONString(shotUriList);
+					fetchResource.setShotUriJson(shotUriJson);
+					fetchResource.setShotUriList(shotUriList);
 				}
 			}
 			
-			if(shotUriList.size() > 0){
-				String shotUriJson = JSON.toJSONString(shotUriList);
-				fetchResource.setShotUriJson(shotUriJson);
-				fetchResource.setShotUriList(shotUriList);
-			}
-			
 			try {
+				String torrentUri = fetchResource.getDownloadLinkTemp();
 				//如果是種子文件則需要下載到服務器
-				if(Pattern.compile(RegexConstant.torrent).matcher(fetchResource.getDownloadLink()).find()){
-					String torrentUri = "";
-					MovieFileIndexEntity movieFileIndexEntity = pioneer.get(fetchResource.getDownloadLink().trim());
+				if(Pattern.compile(RegexConstant.torrent).matcher(torrentUri).find()){
+					MovieFileIndexEntity movieFileIndexEntity = pioneer.get(torrentUri.trim());
 					if(movieFileIndexEntity != null) {
 						torrentUri = movieFileIndexEntity.getFixUri();
 					}else {
@@ -356,19 +354,19 @@ public class MyPipeline implements Pipeline {
 						torrentNameMapping.put(sb.toString(), 1);
 						
 						if(fetchResource.getTorrentBytes() == null) {
-							torrentUri = FetchUtils.uploadTorrentGetUri(fetchResource.getDownloadLink(), torrentName);
+							torrentUri = FetchUtils.uploadTorrentGetUri(torrentUri, torrentName);
 						}else {
-							String suffix = fetchResource.getDownloadLink().substring(fetchResource.getDownloadLink().lastIndexOf(".")+1);
+							String suffix = torrentUri.substring(torrentUri.lastIndexOf(".")+1);
 							torrentUri = FetchUtils.uploadTorrentGetUri(fetchResource.getTorrentBytes(), torrentName, suffix);
 						}
-						MovieFileIndexEntity fileIdx = this.buildFileIndex(fetchResource.getDownloadLink(), torrentUri, CommonConstants.torrent_v, thisTime);
+						MovieFileIndexEntity fileIdx = this.buildFileIndex(fetchResource.getDownloadLinkTemp(), torrentUri, CommonConstants.torrent_v, thisTime);
 						newFileIdxList.add(fileIdx);
 					}
-					fetchResource.setDownloadLink(torrentUri);
 				}
+				fetchResource.setDownloadLink(torrentUri);
 			} catch (Throwable e) {
 				//假若失败，则resource还是存的原始的地址，所以不用删除
-				log.error("下载种子文件失败！ url: "+ fetchResource.getDownloadLink(), e);
+				log.error("下载种子文件失败！ url: "+ fetchResource.getDownloadLinkTemp(), e);
 			}
 		}
 	}

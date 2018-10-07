@@ -1,4 +1,4 @@
-package com.sbolo.syk.common.exception;
+package com.sbolo.syk.fetch.spider.exception;
 
 public class DownloadException extends Exception {
     private static final long serialVersionUID = 775477636706597359L;

@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.exception.BusinessException;
-import com.sbolo.syk.common.exception.DownloadException;
 import com.sbolo.syk.common.http.callback.HttpSendCallback;
 import com.sbolo.syk.common.http.callback.HttpSendCallbackPure;
 import com.sbolo.syk.common.tools.FileUtils;
@@ -256,7 +255,7 @@ public class HttpUtils {
 			@Override
 			public byte[] onResponse(Response response) throws Exception{
 				if(!response.isSuccessful()){
-					throw new DownloadException("下载文件失败："+url+"响应码："+response.code());
+					throw new Exception("下载文件失败："+url+"响应码："+response.code());
 				}
 				byte[] bodyBytes = response.body().bytes();
 				return bodyBytes;

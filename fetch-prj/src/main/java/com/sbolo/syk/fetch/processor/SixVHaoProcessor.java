@@ -1,11 +1,14 @@
 package com.sbolo.syk.fetch.processor;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -16,10 +19,10 @@ import org.slf4j.LoggerFactory;
 
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.RegexConstant;
-import com.sbolo.syk.common.exception.AnalystException;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.fetch.spider.Page;
 import com.sbolo.syk.fetch.spider.PageProcessor;
+import com.sbolo.syk.fetch.spider.exception.AnalystException;
 import com.sbolo.syk.fetch.vo.ConcludeVO;
 import com.sbolo.syk.fetch.vo.LinkInfoVO;
 import com.sbolo.syk.fetch.vo.PureNameAndSeasonVO;
@@ -122,7 +125,7 @@ public class SixVHaoProcessor extends ProcessorHelper implements PageProcessor {
 				}
 			}
 			
-			ConcludeVO conclude = this.resolve(pureNameAndSeason.getPureName(), precisions, linkInfos, shots, url, null);
+			ConcludeVO conclude = this.resolve(pureNameAndSeason, precisions, linkInfos, shots, url, null);
 			if(conclude != null) {
 				fields.put(url, conclude);
 			}
@@ -131,6 +134,11 @@ public class SixVHaoProcessor extends ProcessorHelper implements PageProcessor {
 		}
 	}
 
+	public static void main(String[] args) throws UnsupportedEncodingException {
+		String decode = URLDecoder.decode("摩天营救.720p.国英双语.BD中英双字[最新电影www.66ys.tv] .mp4", "utf-8");
+		System.out.println(decode);
+	}
+	
 	@Override
 	public void after() {
 		this.destroy();

@@ -1,12 +1,8 @@
 package com.sbolo.syk.common.tools;
 
-import java.math.BigDecimal;
-import java.util.List;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.springframework.util.StringUtils;
 
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.RegexConstant;
@@ -17,6 +13,21 @@ public class StringUtil {
 			return "";
 		else
 			return o.toString();
+	}
+	
+	/**
+	 * 去除html的特殊符号 如：&nbsp; &gt;等
+	 * @param str
+	 * @return
+	 */
+	public static String replaceHTML(String str) {
+		String dest = "";
+		if(str != null) {
+			Pattern p = Pattern.compile(RegexConstant.html);
+			Matcher m = p.matcher(str);
+			dest = m.replaceAll("");
+		}
+		return dest;
 	}
 
 	/**

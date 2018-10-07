@@ -1,4 +1,4 @@
-package com.sbolo.syk.common.exception;
+package com.sbolo.syk.fetch.spider.exception;
 
 import org.slf4j.Logger;
 

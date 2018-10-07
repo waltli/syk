@@ -60,6 +60,9 @@ public class CommonConstants {
 	public static final String OTH_S = "o";
 	public static final String INST_S = "i";
 	
+	public static final String movie_default_icon = "movie_default_large.png";
+	public static final String tv_default_icon = "tv_default_large.png";
+	
 	/**
 	 * 乐观锁数据库列名
 	 */
