@@ -42,20 +42,23 @@ public class RegexConstant {
 	public static final String slashSep = "\\s*(/|,)\\s*";
 	public static final String colonSep = "\\s*[:：]\\s*";
 	public static final String blank = "\\s|\\t|\\r|\\n| |　|(&nbsp;)";
+	public static final String html = "\\&[a-zA-Z]{1,10};";
 	public static final String DYtitle = ".*?导(\\s|\\t|\\r|\\n| |　|(&nbsp;))*?演.*?(?=[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FA5\uac00-\ud7ffa-zA-Z0-9])";
 	public static final String YYtitle = ".*?演(\\s|\\t|\\r|\\n| |　|(&nbsp;))*?员.*?(?=[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FA5\uac00-\ud7ffa-zA-Z0-9])";
 	public static final String ZYtitle = ".*?主(\\s|\\t|\\r|\\n| |　|(&nbsp;))*?演.*?(?=[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FA5\uac00-\ud7ffa-zA-Z0-9])";
+	public static final String magnet_name = "(?i)(?<=dn\\=).*?(?=&)";  //代码解释：?<= 反向（即需要获取的内容在？右边）获取   ?= 正向（即需要获取的内容在？左边）获取
+	public static final String magnet_size = "(?i)(?<=xl\\=).*?(?=&)";
 	
 	public static void main(String[] args) {
 		String d = "】おっぱいバレー";
-		Matcher m = Pattern.compile("[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FA5\uac00-\ud7ff]+").matcher(d);
+		Matcher m = Pattern.compile(magnet_size).matcher("magnet:?xt=urn:btih:UM6BOBWQ67QIWQYKOQBWXWJQWFR4CO5L&dn=%e6%91%a9%e5%a4%a9%e8%90%a5%e6%95%91%2e1080p%2e%e5%9b%bd%e8%8b%b1%e5%8f%8c%e8%af%ad%2eBD%e4%b8%ad%e8%8b%b1%e5%8f%8c%e5%ad%97%5b%e6%9c%80%e6%96%b0%e7%94%b5%e5%bd%b1www%2e66ys%2etv%5d%20%2emp4&tr=udp%3a%2f%2f9%2erarbg%2eto%3a2710%2fannounce&tr=udp%3a%2f%2f9%2erarbg%2eme%3a2710%2fannounce&tr=http%3a%2f%2ftr%2ecili001%2ecom%3a8070%2fannounce&tr=http%3a%2f%2ftracker%2etrackerfix%2ecom%3a80%2fannounce&tr=udp%3a%2f%2fopen%2edemonii%2ecom%3a1337&tr=udp%3a%2f%2ftracker%2eopentrackr%2eorg%3a1337%2fannounce&tr=udp%3a%2f%2fp4p%2earenabg%2ecom%3a1337");
 		if(m.find()){
 			System.out.println(m.group());
 		}
 	}
 
 	static {
-		list_release_time.add(Pattern.compile("\\d{4}-\\d{1,2}-\\d{1,2}(?=\\([\u4E00-\u9FA5|/]*中[\u4E00-\u9FA5|/]*\\))"));//代码解释：正向（即需要获取的内容在？前边）获取
+		list_release_time.add(Pattern.compile("\\d{4}-\\d{1,2}-\\d{1,2}(?=\\([\u4E00-\u9FA5|/]*中[\u4E00-\u9FA5|/]*\\))"));//代码解释：正向（即需要获取的内容在？左边）获取
 		list_release_time.add(Pattern.compile("\\d{4}-\\d{1,2}-\\d{1,2}(?=\\([\u4E00-\u9FA5|/]*美[\u4E00-\u9FA5|/]*\\))"));
 		list_release_time.add(Pattern.compile("\\d{4}-\\d{1,2}-\\d{1,2}(?=\\([\u4E00-\u9FA5|/]*韩[\u4E00-\u9FA5|/]*\\))"));
 		list_release_time.add(Pattern.compile("\\d{4}-\\d{1,2}-\\d{1,2}(?=\\([\u4E00-\u9FA5|/]*日[\u4E00-\u9FA5|/]*\\))"));
@@ -72,7 +75,7 @@ public class RegexConstant {
 		list_episode3.add(Pattern.compile("(?i)E(\\d{1,3}\\-\\d{1,3}|\\d{1,3})"));
 		list_episode3.add(Pattern.compile("(?i)Episode(\\d{1,3}\\-\\d{1,3}|\\d{1,3})"));
 		list_episode3.add(Pattern.compile("(全集)"));
-		list_episode3.add(Pattern.compile("(?i)(?<=\\d{1,3}x)(\\d{1,3})"));   //代码解释：反向（即需要获取的内容在？后边）获取
+		list_episode3.add(Pattern.compile("(?i)(?<=\\d{1,3}x)(\\d{1,3})"));   //代码解释：反向（即需要获取的内容在？右边）获取
 		list_episode3.add(Pattern.compile("(\\d{1,3}\\-\\d{1,3})")); 
 		list_episode3.add(Pattern.compile("(\\d{1,3})\\.")); //优先级最低
 		
@@ -81,7 +84,7 @@ public class RegexConstant {
 		list_episode2.add(Pattern.compile("(?i)E(\\d{1,2}\\-\\d{1,2}|\\d{1,2})"));
 		list_episode2.add(Pattern.compile("(?i)Episode(\\d{1,2}\\-\\d{1,2}|\\d{1,2})"));
 		list_episode2.add(Pattern.compile("(全集)"));
-		list_episode2.add(Pattern.compile("(?i)(?<=\\d{1,2}x)(\\d{1,2})"));   //代码解释：反向（即需要获取的内容在？后边）获取
+		list_episode2.add(Pattern.compile("(?i)(?<=\\d{1,2}x)(\\d{1,2})"));   //代码解释：反向（即需要获取的内容在？右边）获取
 		list_episode2.add(Pattern.compile("(\\d{1,2}\\-\\d{1,2})")); 
 		list_episode2.add(Pattern.compile("(\\d{1,2})\\.")); //优先级最低
 //		

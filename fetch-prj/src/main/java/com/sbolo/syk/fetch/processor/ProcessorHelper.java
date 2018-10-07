@@ -23,6 +23,7 @@ import javax.annotation.Resource;
 
 import okhttp3.Response;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -42,8 +43,6 @@ import com.sbolo.syk.common.constants.MovieQualityEnum;
 import com.sbolo.syk.common.constants.MovieResolutionConstant;
 import com.sbolo.syk.common.constants.MovieStatusEnum;
 import com.sbolo.syk.common.constants.RegexConstant;
-import com.sbolo.syk.common.exception.AnalystException;
-import com.sbolo.syk.common.exception.MovieInfoFetchException;
 import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.http.HttpUtils.HttpResult;
 import com.sbolo.syk.common.http.callback.HttpSendCallback;
@@ -67,6 +66,8 @@ import com.sbolo.syk.fetch.service.MovieInfoService;
 import com.sbolo.syk.fetch.service.MovieLabelService;
 import com.sbolo.syk.fetch.service.MovieLocationService;
 import com.sbolo.syk.fetch.service.ResourceInfoService;
+import com.sbolo.syk.fetch.spider.exception.AnalystException;
+import com.sbolo.syk.fetch.spider.exception.SpiderException;
 import com.sbolo.syk.fetch.tool.DoubanUtils;
 import com.sbolo.syk.fetch.tool.FetchUtils;
 import com.sbolo.syk.fetch.tool.LinkAnalyst;
@@ -110,7 +111,7 @@ public class ProcessorHelper {
 	private MovieFileIndexMapper movieFileIndexMapper;
 	
 	
-	protected ConcludeVO resolve(String pureName, List<String> precisions, List<LinkInfoVO> links, List<String> shots, String comeFromUrl, String doubanUrl) throws MovieInfoFetchException, AnalystException, ParseException {
+	protected ConcludeVO resolve(PureNameAndSeasonVO pureNameAndSeanson, List<String> precisions, List<LinkInfoVO> links, List<String> shots, String comeFromUrl, String doubanUrl) throws SpiderException, AnalystException, ParseException {
 		if(links == null || links.size() == 0) {
 			log.info("No donload link url: {}", comeFromUrl);
 			return null;
@@ -120,7 +121,7 @@ public class ProcessorHelper {
 		
 		//判断豆瓣URL是否为空，因为有些网站已经将豆瓣URL贴上了
 		if(StringUtils.isBlank(doubanUrl)){
-			doubanUrl = DoubanUtils.getDoubanUrl(pureName, precisions);
+			doubanUrl = DoubanUtils.getDoubanUrl(pureNameAndSeanson, precisions);
 		}
 		
 		//从豆瓣中获取到准确的movie信息
@@ -179,7 +180,7 @@ public class ProcessorHelper {
 		this.setOptimalResource(finalMovie, fetchOptimalResource);
 		
 		//从下载连接中分析资源信息
-		this.analyzeDownloadLink(fetchResources, thisTime);
+		this.analyzeDownloadLink(filter2, thisTime);
 		
 		return new ConcludeVO(finalMovie, filter2);
 	}
@@ -192,7 +193,7 @@ public class ProcessorHelper {
 	 */
 	private List<ResourceInfoVO> setAndGetInsertResource(List<ResourceInfoVO> fetchResources, String moviePrn, Date thisTime) {
 		for(ResourceInfoVO fetchResource : fetchResources) {
-			if(Pattern.compile(RegexConstant.baiduNet).matcher(fetchResource.getDownloadLink()).find()) {
+			if(Pattern.compile(RegexConstant.baiduNet).matcher(fetchResource.getDownloadLinkTemp()).find()) {
 				fetchResource.setAction(CommonConstants.abandon);
 				continue;
 			}
@@ -203,10 +204,10 @@ public class ProcessorHelper {
 		return fetchResources;
 	}
 	
-    public PureNameAndSeasonVO getPureNameAndSeason(String pureName, String fullName) throws MovieInfoFetchException{
+    public PureNameAndSeasonVO getPureNameAndSeason(String pureName, String fullName) throws SpiderException{
     	
     	if(pureName == null && fullName == null){
-    		throw new MovieInfoFetchException("pureName and fullName all are null!");
+    		throw new SpiderException("pureName and fullName all are null!");
     	}
 
     	if(fullName == null){
@@ -216,7 +217,7 @@ public class ProcessorHelper {
     	if(pureName == null){
     		Matcher m = Pattern.compile(RegexConstant.pure_name).matcher(fullName);
     		if(!m.find()){
-    			throw new MovieInfoFetchException("Failure to fetch pureName from \""+fullName+"\", so jump out of the page!");
+    			throw new SpiderException("Failure to fetch pureName from \""+fullName+"\", so jump out of the page!");
     		}
     		pureName = m.group();
     	}else {
@@ -237,7 +238,7 @@ public class ProcessorHelper {
     	String name = pureName;
     	pureName = Pattern.compile(RegexConstant.types).matcher(name).replaceAll("").trim();
 		if(StringUtils.isBlank(pureName)){
-			throw new MovieInfoFetchException("The pureName is null after delete types. from \""+name+"\"");
+			throw new SpiderException("The pureName is null after delete types. from \""+name+"\"");
 		}
     	
     	String desc = fullName;
@@ -247,21 +248,22 @@ public class ProcessorHelper {
     	
 		Integer season = null;
 		String cnSeason = null;
+		String noSeasonName = pureName;
 		for(int i=0; i<RegexConstant.list_season.size(); i++){
 			Matcher m2 = RegexConstant.list_season.get(i).matcher(StringUtil.trimAll(desc));
 			if(m2.find()){
 				//防止名称和季数中间没有任何间隔 例：越狱第五季
 				int seasonIdx = pureName.indexOf(m2.group());
 				if(seasonIdx != -1){
-					pureName = pureName.substring(0, seasonIdx).trim();
+					noSeasonName = pureName.substring(0, seasonIdx).trim();
 				}
 				season = Utils.chineseNumber2Int(m2.group(1));
 				cnSeason = "第"+Utils.int2ChineseNumber(m2.group(1))+"季";
-				pureName = pureName +" "+cnSeason;
+				pureName = noSeasonName +" "+cnSeason;
 				break;
 			}
 		}
-		return new PureNameAndSeasonVO(pureName, season, cnSeason);
+		return new PureNameAndSeasonVO(pureName, noSeasonName, season, cnSeason);
     }
     
     protected void destroy(){
@@ -275,18 +277,33 @@ public class ProcessorHelper {
     	cacheDist = new ConcurrentHashMap<String, String>();
     }
     
+    protected List<String> getPrecisionsByInfo(String infos, String separator, String filter) {
+    	String[] filters = new String[] {filter};
+    	return getPrecisionsByInfo(infos, separator, filters);
+    }
+    
     protected List<String> getPrecisionsByInfo(String infos, String separator) {
+    	return getPrecisionsByInfo(infos, separator, new String[] {});
+    }
+    
+    protected List<String> getPrecisionsByInfo(String infos, String separator, String[] filters) {
     	if(StringUtils.isBlank(infos)) {
     		return null;
+    	}
+    	
+    	if(filters != null && filters.length > 0) {
+    		for(String filter : filters) {
+    			infos = infos.replace(filter, "");
+    		}
     	}
 		String[] texts = StringUtil.trimAll(infos.replaceAll(separator, CommonConstants.SEPARATOR).replaceAll("<.*?>", "")).split(CommonConstants.SEPARATOR);
 		String directDesc = "";
 		String castDesc = "";
 		for(String text : texts) {
 			if(Pattern.compile(RegexConstant.DYtitle).matcher(text).find() && StringUtils.isBlank(directDesc)){
-				directDesc = text;
+				directDesc = StringUtil.replaceHTML(text);
 			}else if(Pattern.compile(RegexConstant.YYtitle+"|"+RegexConstant.ZYtitle).matcher(text).find() && StringUtils.isBlank(castDesc)){
-				castDesc = text;
+				castDesc = StringUtil.replaceHTML(text);
 			}
 			if(StringUtils.isNotBlank(directDesc) && StringUtils.isNotBlank(castDesc)){
 				break;
@@ -361,9 +378,9 @@ public class ProcessorHelper {
 	 * 避免出现一个网站两个相同影片，fetchPureName+fetchReleaseTimeStr做为key来过滤
 	 * @param fetchMovie
 	 * @param comeFromUrl
-	 * @throws MovieInfoFetchException
+	 * @throws SpiderException
 	 */
-	private boolean isRepeatedMovieInCache(MovieInfoVO fetchMovie, String comeFromUrl) throws MovieInfoFetchException {
+	private boolean isRepeatedMovieInCache(MovieInfoVO fetchMovie, String comeFromUrl) throws SpiderException {
 		String fetchPureName = fetchMovie.getPureName();
 		String fetchReleaseTimeStr = fetchMovie.getReleaseTimeStr();
 		String repeatedUrl = cacheDist.get(fetchPureName+fetchReleaseTimeStr);
@@ -454,11 +471,11 @@ public class ProcessorHelper {
 		
 		for(ResourceInfoVO fetchResource:fetchResources){
 			//是否是可支持的下载链接
-			if(!this.isCanableLink(fetchResource.getDownloadLink())) {
+			if(!this.isCanableLink(fetchResource.getDownloadLinkTemp())) {
 				continue;
 			}
 			
-			String filterKey = fetchResource.getDownloadLink();
+			String filterKey = fetchResource.getDownloadLinkTemp();
 			if(category == MovieCategoryEnum.movie.getCode()){
 				ResourceInfoVO filterResource = filterMap.get(filterKey);
 				if(filterResource != null){
@@ -503,7 +520,7 @@ public class ProcessorHelper {
 		ResourceInfoVO dbOptimalResourceVO = VOUtils.po2vo(dbOptimalResource, ResourceInfoVO.class);
 		
 		for(ResourceInfoVO fetchResource : fetchResources){
-			if(Pattern.compile(RegexConstant.baiduNet).matcher(fetchResource.getDownloadLink()).find()) {
+			if(Pattern.compile(RegexConstant.baiduNet).matcher(fetchResource.getDownloadLinkTemp()).find()) {
 				fetchResource.setAction(CommonConstants.abandon);
 				continue;
 			}
@@ -519,6 +536,8 @@ public class ProcessorHelper {
 				fetchResource.setCreateTime(thisTime);
 				fetchResource.setMoviePrn(moviePrn);
 			}else if(action == CommonConstants.update){
+				fetchResource = FetchUtils.resourceChangeOption(dbOptimalResource, fetchResource);
+				fetchResource.setPureName(dbOptimalResource.getPureName());
 				fetchResource.setAction(CommonConstants.update);
 				fetchResource.setUpdateTime(thisTime);
 				fetchResource.setPrn(dbOptimalResource.getPrn());
@@ -559,7 +578,7 @@ public class ProcessorHelper {
 	 */
 	private void analyzeDownloadLink(List<ResourceInfoVO> fetchResources, Date thisTime){
 		for(ResourceInfoVO fetchResource : fetchResources) {
-			String link = fetchResource.getDownloadLink();
+			String link = fetchResource.getDownloadLinkTemp();
 			try {
 				if(StringUtils.isBlank(link)){
 					log.info("The download link of \"["+fetchResource.getPureName()+"]\" is null");
@@ -579,7 +598,7 @@ public class ProcessorHelper {
 						}
 						if(analyzeResult.getTorrentBytes() != null) {
 							fetchResource.setTorrentBytes(analyzeResult.getTorrentBytes());
-							fetchResource.setDownloadLink(analyzeResult.getDownloadLink());
+							fetchResource.setDownloadLinkTemp(analyzeResult.getDownloadLink());
 							link = analyzeResult.getDownloadLink();
 						}
 					}
@@ -733,7 +752,7 @@ public class ProcessorHelper {
     	newResource.setPureName(pureName);
     	newResource.setReleaseTime(releaseTime);
     	newResource.setComeFromUrl(comeFromUrl);
-    	newResource.setDownloadLink(downloadLink);
+    	newResource.setDownloadLinkTemp(downloadLink);
     	
     	String resourcePrn = StringUtil.getId(CommonConstants.resource_s);
     	newResource.setPrn(resourcePrn);

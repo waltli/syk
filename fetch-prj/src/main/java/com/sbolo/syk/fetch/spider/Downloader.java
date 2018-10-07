@@ -15,12 +15,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.sbolo.syk.common.exception.DownloadException;
 import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.http.HttpUtils.HttpResult;
 import com.sbolo.syk.common.http.callback.HttpSendCallback;
 import com.sbolo.syk.common.http.callback.HttpSendCallbackPure;
 import com.sbolo.syk.common.tools.Utils;
+import com.sbolo.syk.fetch.spider.exception.DownloadException;
 
 @Component
 public class Downloader {

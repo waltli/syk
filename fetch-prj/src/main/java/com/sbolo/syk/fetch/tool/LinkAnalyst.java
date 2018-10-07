@@ -20,13 +20,14 @@ import com.frostwire.jlibtorrent.FileStorage;
 import com.frostwire.jlibtorrent.SessionManager;
 import com.frostwire.jlibtorrent.TorrentInfo;
 import com.sbolo.syk.common.constants.RegexConstant;
-import com.sbolo.syk.common.exception.AnalystException;
 import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.tools.ConfigUtil;
 import com.sbolo.syk.common.tools.FileUtils;
 import com.sbolo.syk.common.tools.FtpUtils;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.vo.LinkAnalyzeResultVO;
+import com.sbolo.syk.fetch.spider.exception.AnalystException;
+import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
@@ -46,10 +47,9 @@ public class LinkAnalyst {
 			return analyseThunder(downloadLink, decoding);
 		}else if(Pattern.compile(RegexConstant.torrent).matcher(downloadLink).find()){
 			return analyseTorrent(downloadLink);
+		}else if(Pattern.compile(RegexConstant.magnet).matcher(downloadLink).find()){
+			return analyseMagnet2(downloadLink);
 		}
-//		else if(Pattern.compile(RegexConstant.magnet).matcher(downloadLink).find()){
-//			return analyseMagnet(downloadLink);
-//		}
 		else {
 			return null;
 		}
@@ -100,6 +100,36 @@ public class LinkAnalyst {
 		}
 		return mri;
 	}
+	
+	private static LinkAnalyzeResultVO analyseMagnet2(String magnetLink){
+		String movieFormat = null;
+		String movieSize = null;
+		Matcher m = Pattern.compile(RegexConstant.magnet_name).matcher(magnetLink);
+		if(m.find()) {
+			String movieName = m.group();
+			m = Pattern.compile(RegexConstant.format).matcher(movieName);
+			if(m.find()){
+				movieFormat = m.group();
+			}
+		}
+		
+		Matcher m2 = Pattern.compile(RegexConstant.magnet_size).matcher(magnetLink);
+		if(m2.find()) {
+			//若此处未获取到，则在处理链接的时候再次获取
+			String magenetSize = m2.group();
+			movieSize = FileUtils.unitUp(magenetSize);
+		}
+		
+		if(StringUtils.isNotBlank(movieFormat) || StringUtils.isNotBlank(movieSize)) {
+			LinkAnalyzeResultVO mri = new LinkAnalyzeResultVO();
+			mri.setDownloadLink(magnetLink);
+			mri.setMovieFormat(movieFormat);
+			mri.setMovieSize(movieSize);
+			return mri;
+		}
+		return null;
+	}
+	
 	
 	private static LinkAnalyzeResultVO analyseMagnet(String magnetLink) throws InterruptedException, IOException{
 		final SessionManager s = new SessionManager();

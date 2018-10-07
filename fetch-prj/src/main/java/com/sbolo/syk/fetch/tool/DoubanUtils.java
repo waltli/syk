@@ -24,7 +24,6 @@ import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.MovieCategoryEnum;
 import com.sbolo.syk.common.constants.MovieStatusEnum;
 import com.sbolo.syk.common.constants.RegexConstant;
-import com.sbolo.syk.common.exception.MovieInfoFetchException;
 import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.http.HttpUtils.HttpResult;
 import com.sbolo.syk.common.http.callback.HttpSendCallback;
@@ -32,7 +31,9 @@ import com.sbolo.syk.common.http.callback.HttpSendCallbackPure;
 import com.sbolo.syk.common.tools.DateUtil;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.Utils;
+import com.sbolo.syk.fetch.spider.exception.SpiderException;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
+import com.sbolo.syk.fetch.vo.PureNameAndSeasonVO;
 
 import okhttp3.Response;
 
@@ -47,18 +48,18 @@ public class DoubanUtils {
 	 * @param releaseTimeStr
 	 * @return
 	 * @throws Exception 
-	 * @throws MovieInfoFetchException 
+	 * @throws SpiderException 
 	 * @throws IOException 
 	 * @throws IllegalStateException 
 	 */
-	public static String getDoubanUrl(final String pureName, final List<String> precisions) throws MovieInfoFetchException{
-		HttpResult<String> result = HttpUtils.httpGet("https://api.douban.com/v2/movie/search?q="+Utils.encode(pureName, "UTF-8"), 
+	public static String getDoubanUrl(final PureNameAndSeasonVO pureNameAndSeason, final List<String> precisions) throws SpiderException{
+		HttpResult<String> result = HttpUtils.httpGet("https://api.douban.com/v2/movie/search?q="+Utils.encode(pureNameAndSeason.getPureName(), "UTF-8"), 
 				new HttpSendCallback<String>() {
 			@Override
 			public String onResponse(Response response) throws Exception{
 				if(!response.isSuccessful()){
 					String responseStr = response.body().string();
-					throw new MovieInfoFetchException("在豆瓣中搜索影片["+pureName+"]失败，返回响应码："+response.code()+", response: "+responseStr);
+					throw new SpiderException("在豆瓣中搜索影片["+pureNameAndSeason.getPureName()+"]失败，返回响应码："+response.code()+", response: "+responseStr);
 				}
 				
 				String contentJson = response.body().string();
@@ -93,32 +94,25 @@ public class DoubanUtils {
 						names.add(name);
 					}
 					
-					String TVPureNameTOBE = pureName+" 第一季"; //有些网站美剧第一季通常不会把“第一季”写上，所以增加这个搜寻条件
+					String pureName = pureNameAndSeason.getPureName();
+					String noSeasonName = pureNameAndSeason.getNoSeasonName();
+					String name_s1 = noSeasonName+" 第一季"; //有些网站美剧第一季通常不会把“第一季”写上，所以增加这个搜寻条件
 					
-					if(precisions != null && precisions.size() > 0){
-						if((realPureName.equals(pureName) || originalName.equals(pureName) || 
-								realPureName.equals(TVPureNameTOBE) || originalName.equals(TVPureNameTOBE))
-				    			&& Utils.containsOne(names, precisions)){
-							doubanDetailUrl = subject.getString("alt");
+					if(realPureName.equals(pureName) || originalName.equals(pureName) ||
+							realPureName.equals(noSeasonName) || originalName.equals(noSeasonName) || 
+								realPureName.equals(name_s1) || originalName.equals(name_s1)) {
+						if(precisions != null && precisions.size() > 0 && Utils.containsOne(names, precisions)) {
 							precision = 2;
-				    		break;
-				    	}else if(Utils.containsOne(names, precisions)){
-				    		if(precision <= 0){
-				    			precision = 1;
-				    			doubanDetailUrl = subject.getString("alt");
-				    		}
-				    	}
-					}
-					if(realPureName.equals(pureName) || originalName.equals(pureName) || 
-								realPureName.equals(TVPureNameTOBE) || originalName.equals(TVPureNameTOBE)){
-						if(precision == -1){
+							doubanDetailUrl = subject.getString("alt");
+							break;
+						}else if(precision == -1) {
 							precision = 0;
 							doubanDetailUrl = subject.getString("alt");
 						}
 					}
 				}
 			    if(precision == -1){
-			    	throw new MovieInfoFetchException("It's doesn't dovetailed with the result of douban search for ["+pureName+"]");
+			    	throw new SpiderException("It's doesn't dovetailed with the result of douban search for ["+pureNameAndSeason.getPureName()+"]");
 			    }
 				return doubanDetailUrl;
 				
@@ -128,10 +122,10 @@ public class DoubanUtils {
 		try {
 			return result.getValue();
 		} catch (Exception e) {
-			if(e instanceof MovieInfoFetchException){
-				throw (MovieInfoFetchException) e;
+			if(e instanceof SpiderException){
+				throw (SpiderException) e;
 			}
-			throw new MovieInfoFetchException(e);
+			throw new SpiderException(e);
 		}
 	}
 	
@@ -144,20 +138,20 @@ public class DoubanUtils {
      * @param url
      * @param fields
      * @return
-     * @throws MovieInfoFetchException 
+     * @throws SpiderException 
      */
-	public static MovieInfoVO fetchMovieFromDouban(String url, Date thisTime) throws MovieInfoFetchException{
+	public static MovieInfoVO fetchMovieFromDouban(String url, Date thisTime) throws SpiderException{
 		HttpResult<MovieInfoVO> result = HttpUtils.httpGet(url, new HttpSendCallback<MovieInfoVO>() {
 
 			@Override
 			public MovieInfoVO onResponse(Response response)
 					throws Exception {
 				if(!response.isSuccessful()){
-					throw new MovieInfoFetchException("Get movie detail failed from douban, code:"+response.code()+", url:"+url);
+					throw new SpiderException("Get movie detail failed from douban, code:"+response.code()+", url:"+url);
 				}
 				String finalUrl = response.request().url().toString();
 				if(!finalUrl.equals(url)){
-					throw new MovieInfoFetchException("Requested url: "+url+" that was redirected to "+finalUrl);
+					throw new SpiderException("Requested url: "+url+" that was redirected to "+finalUrl);
 				}
 				MovieInfoVO newMovie = new MovieInfoVO();
 				String moviePrn = StringUtil.getId(CommonConstants.movie_s);
@@ -184,7 +178,10 @@ public class DoubanUtils {
 				String posterPageUrl = doc.select("#mainpic > a").first().attr("href");
 				newMovie.setPosterPageUrl(posterPageUrl);
 				String iconOutUrl = doc.select("#mainpic > a > img").first().attr("src");
-				newMovie.setIconOutUrl(iconOutUrl);
+				String iconName = iconOutUrl.substring(iconOutUrl.lastIndexOf("/")+1);
+				if(!iconName.equals(CommonConstants.movie_default_icon) && !iconName.equals(CommonConstants.tv_default_icon)) {
+					newMovie.setIconOutUrl(iconOutUrl);
+				}
 				
 				Elements photoElements = doc.select("#related-pic li img");
 				if(photoElements != null && photoElements.size() > 0) {
@@ -297,10 +294,10 @@ public class DoubanUtils {
 		try {
 			return result.getValue();
 		} catch (Exception e) {
-			if(e instanceof MovieInfoFetchException){
-				throw (MovieInfoFetchException) e;
+			if(e instanceof SpiderException){
+				throw (SpiderException) e;
 			}
-			throw new MovieInfoFetchException(e);
+			throw new SpiderException(e);
 		}
 	}
 	
@@ -316,7 +313,7 @@ public class DoubanUtils {
 							throws Exception {
 						if(!response.isSuccessful()){
 							String responseStr = response.body().string();
-							throw new MovieInfoFetchException("在豆瓣中搜索影片["+query+"]失败，返回响应码："+response.code()+", response: "+responseStr);
+							throw new SpiderException("在豆瓣中搜索影片["+query+"]失败，返回响应码："+response.code()+", response: "+responseStr);
 						}
 						
 						String contentJson = response.body().string();
@@ -388,8 +385,8 @@ public class DoubanUtils {
 		return fetchMovies;
 	}
 	
-	public static MovieInfoVO fetchMovieFromDouban(String pureName, List<String> precisions, Date thisTime) throws MovieInfoFetchException {
-		String doubanUrl = getDoubanUrl(pureName, precisions);
+	public static MovieInfoVO fetchMovieFromDouban(PureNameAndSeasonVO pureNameAndSeason, List<String> precisions, Date thisTime) throws SpiderException {
+		String doubanUrl = getDoubanUrl(pureNameAndSeason, precisions);
 		MovieInfoVO movieInfo = fetchMovieFromDouban(doubanUrl, thisTime);
 		return movieInfo;
 	}
@@ -413,7 +410,7 @@ public class DoubanUtils {
 				@Override
 				public void onResponse(Response response) throws Exception {
 					if(!response.isSuccessful()){
-						throw new MovieInfoFetchException("Get movie poster failed from douban, code:"+response.code()+", url:"+posterPageUrl);
+						throw new SpiderException("Get movie poster failed from douban, code:"+response.code()+", url:"+posterPageUrl);
 					}
 					Document doc = Jsoup.parse(new String(response.body().bytes(), "utf-8"));
 					Elements lis = doc.select("#content > div > div.article > ul > li[data-id]");
