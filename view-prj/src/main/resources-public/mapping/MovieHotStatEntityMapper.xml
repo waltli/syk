@@ -10,6 +10,7 @@
     <result column="movie_prn" jdbcType="VARCHAR" property="moviePrn" />
     <result column="pure_name" jdbcType="VARCHAR" property="pureName" />
     <result column="release_time" jdbcType="TIMESTAMP" property="releaseTime" />
+    <result column="category" jdbcType="INTEGER" property="category" />
     <result column="douban_score" jdbcType="DECIMAL" property="doubanScore" />
     <result column="imdb_score" jdbcType="DECIMAL" property="imdbScore" />
     <result column="trigger_type" jdbcType="INTEGER" property="triggerType" />
@@ -32,6 +33,9 @@
       </if>
       <if test="releaseTime != null" >
         release_time,
+      </if>
+      <if test="category != null" >
+        category,
       </if>
       <if test="doubanScore != null" >
         douban_score,
@@ -61,6 +65,9 @@
       </if>
       <if test="releaseTime != null" >
         #{releaseTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="category != null" >
+        #{category},
       </if>
       <if test="doubanScore != null" >
         #{doubanScore},

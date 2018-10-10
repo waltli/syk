@@ -193,6 +193,7 @@ public class MovieInfoService {
 		hot.setImdbScore(movie.getImdbScore());
 		hot.setPureName(movie.getPureName());
 		hot.setReleaseTime(movie.getReleaseTime());
+		hot.setCategory(movie.getCategory());
 		hot.setTriggerType(trigger);
 		hot.setCreateTime(new Date());
 		return hot;

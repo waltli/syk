@@ -19,6 +19,7 @@ import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.fetch.spider.Page;
 import com.sbolo.syk.fetch.spider.PageProcessor;
 import com.sbolo.syk.fetch.spider.exception.AnalystException;
+import com.sbolo.syk.fetch.spider.exception.SpiderException;
 import com.sbolo.syk.fetch.vo.ConcludeVO;
 import com.sbolo.syk.fetch.vo.LinkInfoVO;
 import com.sbolo.syk.fetch.vo.PureNameAndSeasonVO;
@@ -56,6 +57,9 @@ private static final Logger log = LoggerFactory.getLogger(MeiJuTTProcessor.class
 			String pureName = Pattern.compile("【.*?】").matcher(fullName).replaceAll("");
 			if(pureName.contains("绝命律师")) {
 				pureName = pureName.replace("绝命律师", "风骚律师");
+			}
+			if(pureName.contains("鲁保罗变装皇后秀")) {
+				throw new SpiderException("跳过-"+pureName);
 			}
 			PureNameAndSeasonVO pureNameAndSeason = getPureNameAndSeason(pureName, fullName);
 			Element infoElement = document.select("div.o_r_contact > ul").first();

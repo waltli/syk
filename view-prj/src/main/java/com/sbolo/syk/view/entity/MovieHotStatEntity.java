@@ -37,6 +37,9 @@ public class MovieHotStatEntity {
      */
     @Column(name = "`release_time`")
     private Date releaseTime;
+    
+    @Column(name = "`category`")
+    private Integer category;
 
     /**
      * 豆瓣分数
@@ -70,7 +73,15 @@ public class MovieHotStatEntity {
     
     private Integer hotCount;
 
-    public Integer getHotCount() {
+    public Integer getCategory() {
+		return category;
+	}
+
+	public void setCategory(Integer category) {
+		this.category = category;
+	}
+
+	public Integer getHotCount() {
 		return hotCount;
 	}
 
