@@ -54,6 +54,9 @@ private static final Logger log = LoggerFactory.getLogger(MeiJuTTProcessor.class
 		}else if(Pattern.compile(detailUrlReg).matcher(url).find()){
 			String fullName = document.select("div.info-title > h1").first().text();
 			String pureName = Pattern.compile("【.*?】").matcher(fullName).replaceAll("");
+			if(pureName.contains("绝命律师")) {
+				pureName = pureName.replace("绝命律师", "风骚律师");
+			}
 			PureNameAndSeasonVO pureNameAndSeason = getPureNameAndSeason(pureName, fullName);
 			Element infoElement = document.select("div.o_r_contact > ul").first();
 			List<String> precisions = null;
