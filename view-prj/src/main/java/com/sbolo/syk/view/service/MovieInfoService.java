@@ -84,12 +84,17 @@ public class MovieInfoService {
 	
 	public Map<String, List<MovieHotStatEntity>> getCurrMonthTop(){
 		Map<String, List<MovieHotStatEntity>> tops = null;
-		SimpleDateFormat sdf = new SimpleDateFormat("MM月dd日");
+//		SimpleDateFormat sdf = new SimpleDateFormat("MM月dd日");
 		Calendar calendar = Calendar.getInstance();
 		
-		//获取本月当前日
+		//获取当前日
+//		Date timeCurr = calendar.getTime();
+//		String curr = sdf.format(timeCurr);
+		
+		//获取本月当前日的前一天  为了不将实时的点击结果表示出来，故此做
+		calendar.add(Calendar.DATE,-1);
 		Date timeEnd = calendar.getTime();
-		String end = sdf.format(timeEnd);
+//		String end = sdf.format(timeEnd);
 		
 		//获取本月第一天
 		calendar.set(Calendar.DAY_OF_MONTH, 1);
@@ -97,7 +102,7 @@ public class MovieInfoService {
 		calendar.set(Calendar.MINUTE,0); 
 		calendar.set(Calendar.SECOND,0);
 		Date timeStart = calendar.getTime();
-		String start = sdf.format(timeStart);
+//		String start = sdf.format(timeStart);
 		
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("limitNum", 10);
@@ -108,7 +113,7 @@ public class MovieInfoService {
 		
 		if(entities.size() != 0){
 			tops = new HashMap<String, List<MovieHotStatEntity>>();
-			String topKey = start+"-"+end;
+			String topKey = "本月";
 			tops.put(topKey, entities);
 		}
 		return tops;
@@ -117,7 +122,7 @@ public class MovieInfoService {
 	
 	public Map<String, List<MovieHotStatEntity>> getLastMonthTop(){
 		Map<String, List<MovieHotStatEntity>> tops = null;
-		SimpleDateFormat sdf = new SimpleDateFormat("MM曰dd日");
+//		SimpleDateFormat sdf = new SimpleDateFormat("MM曰dd日");
 		
 		Calendar calendar = Calendar.getInstance();
 		//获取上月最后一天
@@ -127,7 +132,7 @@ public class MovieInfoService {
 		calendar.set(Calendar.MINUTE,59); 
 		calendar.set(Calendar.SECOND,59); 
 		Date timeEnd = calendar.getTime();
-		String end = sdf.format(timeEnd);
+//		String end = sdf.format(timeEnd);
 		
 		//获取上月第一天
 		calendar.set(Calendar.DAY_OF_MONTH, 1);
@@ -135,7 +140,7 @@ public class MovieInfoService {
 		calendar.set(Calendar.MINUTE,0); 
 		calendar.set(Calendar.SECOND,0);
 		Date timeStart = calendar.getTime();
-		String start = sdf.format(timeStart);
+//		String start = sdf.format(timeStart);
 		
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("limitNum", 10);
@@ -145,7 +150,7 @@ public class MovieInfoService {
 		List<MovieHotStatEntity> entities = movieHotStatMapper.selectHotByTime(params);
 		if(entities.size() != 0){
 			tops = new HashMap<String, List<MovieHotStatEntity>>();
-			String topKey = start+"-"+end;
+			String topKey = "上月";
 			tops.put(topKey, entities);
 		}
 		return tops;

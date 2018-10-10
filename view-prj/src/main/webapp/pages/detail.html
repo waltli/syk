@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 @include("common/global.html"){}
 @include("common/header.html"){}
-	@var movie = result.obj.movie;
-	@var resources = result.obj.resources;
+@var movie = result.obj.movie;
+@var resources = result.obj.resources;
 <title>${movie.pureName }（蝉影）</title>
 <link rel="stylesheet" type="text/css" href="${pageCtx('ctxassets')}/css/detail.css" />
 <script src="${pageCtx('ctxassets')}/js/easySlider.js"></script>
@@ -230,7 +230,6 @@
 				</div>
 			</div>
 			<div id="sidebar" style="width:325px; margin-right:0px;">
-				@include("common/sidebar.html"){}
 				<div id="SOHUCS" sid="${movie.prn }"></div>
 				<script charset="utf-8" type="text/javascript" src="http://changyan.sohu.com/upload/changyan.js" ></script>
 				<script type="text/javascript">
