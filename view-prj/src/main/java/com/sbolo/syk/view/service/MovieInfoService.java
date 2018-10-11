@@ -93,6 +93,9 @@ public class MovieInfoService {
 		
 		//获取本月当前日的前一天  为了不将实时的点击结果表示出来，故此做
 		calendar.add(Calendar.DATE,-1);
+		calendar.set(Calendar.HOUR_OF_DAY, 23); 
+		calendar.set(Calendar.MINUTE,59); 
+		calendar.set(Calendar.SECOND,59); 
 		Date timeEnd = calendar.getTime();
 //		String end = sdf.format(timeEnd);
 		
