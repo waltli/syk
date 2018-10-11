@@ -82,11 +82,9 @@ private static final Logger log = LoggerFactory.getLogger(MeiJuTTProcessor.class
 			
 			Elements tabList = document.select("div.tabs-list");
 			Element resourceParent = tabList.get(seq);
-			
 			if(resourceParent == null) {
 				throw new SpiderException("该资源中没有对应seq, seq: "+seq+"，url: "+url);
 			}
-			
 			Elements resourceElements = resourceParent.select("div.down_list > ul > li > p > strong > a");
 
 			List<LinkInfoVO> linkInfos = new ArrayList<LinkInfoVO>();
