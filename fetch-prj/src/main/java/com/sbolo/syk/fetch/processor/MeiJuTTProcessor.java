@@ -1,6 +1,7 @@
 package com.sbolo.syk.fetch.processor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -55,12 +56,7 @@ private static final Logger log = LoggerFactory.getLogger(MeiJuTTProcessor.class
 		}else if(Pattern.compile(detailUrlReg).matcher(url).find()){
 			String fullName = document.select("div.info-title > h1").first().text();
 			String pureName = Pattern.compile("【.*?】").matcher(fullName).replaceAll("");
-			if(pureName.contains("绝命律师")) {
-				pureName = pureName.replace("绝命律师", "风骚律师");
-			}
-			if(pureName.contains("鲁保罗变装皇后秀")) {
-				throw new SpiderException("跳过-"+pureName);
-			}
+			pureName = pureNameFilter(pureName);
 			PureNameAndSeasonVO pureNameAndSeason = getPureNameAndSeason(pureName, fullName);
 			Element infoElement = document.select("div.o_r_contact > ul").first();
 			List<String> precisions = null;
@@ -68,7 +64,30 @@ private static final Logger log = LoggerFactory.getLogger(MeiJuTTProcessor.class
 				precisions = getPrecisionsByInfo(infoElement.html(), "<li>", "更多&gt;&gt;");
 			}
 			
-			Elements resourceElements = document.select("div.current-tab > .down_list > ul > li > p > strong > a");
+			Elements labels = document.select("div.from-tabs > label");
+			int seq = -1;
+			if(labels != null && labels.size() > 0) {
+				for(int i=0; i<labels.size(); i++) {
+					Element label = labels.get(i);
+					if(label.hasClass("down-ico")) {
+						seq = i;
+						break;
+					}
+				}
+			}
+			
+			if(seq == -1) {
+				throw new SpiderException("该资源没有找到含有中文字幕的资源，url: "+url);
+			}
+			
+			Elements tabList = document.select("div.tabs-list");
+			Element resourceParent = tabList.get(seq);
+			
+			if(resourceParent == null) {
+				throw new SpiderException("该资源中没有对应seq, seq: "+seq+"，url: "+url);
+			}
+			
+			Elements resourceElements = resourceParent.select("div.down_list > ul > li > p > strong > a");
 
 			List<LinkInfoVO> linkInfos = new ArrayList<LinkInfoVO>();
 			for(int i=0; i<resourceElements.size(); i++){
@@ -98,6 +117,31 @@ private static final Logger log = LoggerFactory.getLogger(MeiJuTTProcessor.class
 		}else {
 			log.warn(url+" 不符合6vhao的正则表达式，首页："+pageUrlReg+",详情页："+detailUrlReg);
 		}
+	}
+	
+	private String pureNameFilter(String pureName) throws SpiderException {
+		Map<String, String> replaceMapping = new HashMap<>();
+		replaceMapping.put("绝命律师", "风骚律师");
+		replaceMapping.put("杀手中间人", "中间人先生");
+		
+		List<String> skipMapping = new ArrayList<>();
+		skipMapping.add("鲁保罗变装皇后秀");
+		
+		
+		for(String skip : skipMapping) {
+			if(pureName.contains(skip)) {
+				throw new SpiderException("跳过-"+pureName);
+			}
+		}
+		
+		for(String key : replaceMapping.keySet()) {
+			if(pureName.contains(key)) {
+				String value = replaceMapping.get(key);
+				pureName = pureName.replace(key, value);
+				break;
+			}
+		}
+		return pureName;
 	}
 
 	@Override
