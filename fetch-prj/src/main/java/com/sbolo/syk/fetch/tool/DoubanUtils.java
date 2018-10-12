@@ -48,11 +48,10 @@ public class DoubanUtils {
 	 * @param releaseTimeStr
 	 * @return
 	 * @throws Exception 
-	 * @throws SpiderException 
 	 * @throws IOException 
 	 * @throws IllegalStateException 
 	 */
-	public static String getDoubanUrl(final PureNameAndSeasonVO pureNameAndSeason, final List<String> precisions) throws SpiderException{
+	public static String getDoubanUrl(final PureNameAndSeasonVO pureNameAndSeason, final List<String> precisions) throws Exception{
 		HttpResult<String> result = HttpUtils.httpGet("https://api.douban.com/v2/movie/search?q="+Utils.encode(pureNameAndSeason.getPureName(), "UTF-8"), 
 				new HttpSendCallback<String>() {
 			@Override
@@ -95,18 +94,20 @@ public class DoubanUtils {
 					}
 					
 					String pureName = pureNameAndSeason.getPureName();
-					String noSeasonName = pureNameAndSeason.getNoSeasonName();
-					String name_s1 = noSeasonName+" 第一季"; //有些网站美剧第一季通常不会把“第一季”写上，所以增加这个搜寻条件
+					String noSeasonName = pureNameAndSeason.getNoSeasonName(); //因为豆瓣会存在少数电视剧资源在名字上没有加上第一季，故此做
+					String name_s1 = pureName+" 第一季"; //有些网站美剧第一季通常不会把“第一季”写上，所以增加这个搜寻条件
 					
-					if(realPureName.equals(pureName) || originalName.equals(pureName) ||
-							realPureName.equals(noSeasonName) || originalName.equals(noSeasonName) || 
+					if(realPureName.equals(pureName) || originalName.equals(pureName) || 
 								realPureName.equals(name_s1) || originalName.equals(name_s1)) {
 						if(precisions != null && precisions.size() > 0 && Utils.containsOne(names, precisions)) {
 							precision = 2;
 							doubanDetailUrl = subject.getString("alt");
 							break;
-						}else if(precision == -1) {
-							precision = 0;
+						}
+					}else if((realPureName.equals(noSeasonName) || originalName.equals(noSeasonName)) && 
+							precision < 1) {
+						if(precisions != null && precisions.size() > 0 && Utils.containsOne(names, precisions)) {
+							precision = 1;
 							doubanDetailUrl = subject.getString("alt");
 						}
 					}
@@ -125,7 +126,7 @@ public class DoubanUtils {
 			if(e instanceof SpiderException){
 				throw (SpiderException) e;
 			}
-			throw new SpiderException(e);
+			throw e;
 		}
 	}
 	
@@ -138,9 +139,9 @@ public class DoubanUtils {
      * @param url
      * @param fields
      * @return
-     * @throws SpiderException 
+	 * @throws Exception 
      */
-	public static MovieInfoVO fetchMovieFromDouban(String url, Date thisTime) throws SpiderException{
+	public static MovieInfoVO fetchMovieFromDouban(String url, Date thisTime) throws Exception{
 		HttpResult<MovieInfoVO> result = HttpUtils.httpGet(url, new HttpSendCallback<MovieInfoVO>() {
 
 			@Override
@@ -248,10 +249,14 @@ public class DoubanUtils {
 				if(StringUtils.isNotBlank(anotherName)){
 					newMovie.setAnotherName(anotherName);
 				}
-				String year = doc.select("#content > h1 > span.year").first().text();
-				year = Utils.getTimeStr(year);
-				if(StringUtils.isBlank(releaseTimeStr)){
-					releaseTimeStr = year;
+				String year = null;
+				Element yearElement = doc.select("#content > h1 > span.year").first();
+				if (yearElement != null) {
+					year = doc.select("#content > h1 > span.year").first().text();
+					year = Utils.getTimeStr(year);
+					if(StringUtils.isBlank(releaseTimeStr)){
+						releaseTimeStr = year;
+					}
 				}
 				newMovie.setYear(year);
 				newMovie.setReleaseTimeStr(releaseTimeStr);
@@ -297,7 +302,7 @@ public class DoubanUtils {
 			if(e instanceof SpiderException){
 				throw (SpiderException) e;
 			}
-			throw new SpiderException(e);
+			throw e;
 		}
 	}
 	
@@ -385,7 +390,7 @@ public class DoubanUtils {
 		return fetchMovies;
 	}
 	
-	public static MovieInfoVO fetchMovieFromDouban(PureNameAndSeasonVO pureNameAndSeason, List<String> precisions, Date thisTime) throws SpiderException {
+	public static MovieInfoVO fetchMovieFromDouban(PureNameAndSeasonVO pureNameAndSeason, List<String> precisions, Date thisTime) throws Exception {
 		String doubanUrl = getDoubanUrl(pureNameAndSeason, precisions);
 		MovieInfoVO movieInfo = fetchMovieFromDouban(doubanUrl, thisTime);
 		return movieInfo;

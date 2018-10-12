@@ -111,7 +111,7 @@ public class ProcessorHelper {
 	private MovieFileIndexMapper movieFileIndexMapper;
 	
 	
-	protected ConcludeVO resolve(PureNameAndSeasonVO pureNameAndSeanson, List<String> precisions, List<LinkInfoVO> links, List<String> shots, String comeFromUrl, String doubanUrl) throws SpiderException, AnalystException, ParseException {
+	protected ConcludeVO resolve(PureNameAndSeasonVO pureNameAndSeanson, List<String> precisions, List<LinkInfoVO> links, List<String> shots, String comeFromUrl, String doubanUrl) throws Exception {
 		if(links == null || links.size() == 0) {
 			log.info("No donload link url: {}", comeFromUrl);
 			return null;
@@ -362,7 +362,10 @@ public class ProcessorHelper {
     private void getPrecisions(List<String> precisions, String[] namesArr, int count){
     	for(String name : namesArr){
     		if(Pattern.compile("^"+RegexConstant.chinese).matcher(name).find()){
-    			name = name.split(" ")[0].replace("・", "·");
+    			name = name.replaceAll("[a-zA-Z]*・?[a-zA-Z]*", "");    //某些网站将中文名和英文名一并写上了，所以去掉英文名
+    			name = name.split(" ")[0].replace("・", "·");  //豆瓣采用的是中文点
+    		}else {
+    			name = name.replace("・", " ");  //如果是英文，豆瓣没有点
     		}
     		precisions.add(name);
     		if(precisions.size() >= count){
