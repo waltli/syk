@@ -362,10 +362,10 @@ public class ProcessorHelper {
     private void getPrecisions(List<String> precisions, String[] namesArr, int count){
     	for(String name : namesArr){
     		if(Pattern.compile("^"+RegexConstant.chinese).matcher(name).find()){
-    			name = name.replaceAll("[a-zA-Z]*・?[a-zA-Z]*", "");    //某些网站将中文名和英文名一并写上了，所以去掉英文名
+    			name = name.replaceAll("[a-zA-Z]+・?[a-zA-Z]+", "");    //某些网站将中文名和英文名一并写上了，所以去掉英文名
     			name = name.split(" ")[0].replace("・", "·");  //豆瓣采用的是中文点
     		}else {
-    			name = name.replace("・", " ");  //如果是英文，豆瓣没有点
+    			name = name.replaceAll("・|·", " ");  //如果是英文，豆瓣没有点，所以更换为空格
     		}
     		precisions.add(name);
     		if(precisions.size() >= count){

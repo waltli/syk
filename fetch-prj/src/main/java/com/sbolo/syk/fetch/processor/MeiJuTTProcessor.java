@@ -122,6 +122,7 @@ private static final Logger log = LoggerFactory.getLogger(MeiJuTTProcessor.class
 		replaceMapping.put("绝命律师", "风骚律师");
 		replaceMapping.put("杀手中间人", "中间人先生");
 		replaceMapping.put("碟中谍", "虎胆妙算");
+		replaceMapping.put("新闻之争", "报社");
 		
 		List<String> skipMapping = new ArrayList<>();
 		skipMapping.add("鲁保罗变装皇后秀");
