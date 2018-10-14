@@ -30,7 +30,7 @@ public @interface CacheAvl {
 	 * 
 	 * @return
 	 */
-	long timeout() default -1;
+	long timeout() default 7;
 
 	/**
 	 * 超时时长所用到的单位，默认为天
@@ -52,4 +52,10 @@ public @interface CacheAvl {
 	 * @return
 	 */
 	String format() default "";
+	
+	/**
+	 * 每次调用后是否自动刷新有效期
+	 * @return
+	 */
+	boolean freshExpire() default false;
 }
