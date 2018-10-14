@@ -296,7 +296,9 @@ public class ProcessorHelper {
     			infos = infos.replace(filter, "");
     		}
     	}
-		String[] texts = StringUtil.trimAll(infos.replaceAll(separator, CommonConstants.SEPARATOR).replaceAll("<.*?>", "")).split(CommonConstants.SEPARATOR);
+		String[] texts = StringUtil.trimAll(infos.replaceAll(separator, CommonConstants.SEPARATOR)   //将separator更换为自定义的区别符
+				.replaceAll("<.*?>", ""))   //去除所有的html标签
+				.split(CommonConstants.SEPARATOR);
 		String directDesc = "";
 		String castDesc = "";
 		for(String text : texts) {
