@@ -31,6 +31,7 @@ import com.sbolo.syk.view.mapper.ResourceInfoMapper;
 import com.sbolo.syk.view.service.MovieInfoService;
 import com.sbolo.syk.view.service.MovieLabelService;
 import com.sbolo.syk.view.service.ResourceInfoService;
+import com.sbolo.syk.view.vo.MovieHotStatVO;
 import com.sbolo.syk.view.vo.MovieInfoVO;
 import com.sbolo.syk.view.vo.ResourceInfoVO;
 
@@ -82,8 +83,8 @@ public class IndexController {
 		RequestResult<Map<String, Object>> result = null;
 		try {
 			List<String> labels = movieLabelService.getLabels();
-			Map<String, List<MovieHotStatEntity>> currMonthTop = movieInfoService.getCurrMonthTop();
-			Map<String, List<MovieHotStatEntity>> lastMonthTop = movieInfoService.getLastMonthTop();
+			Map<String, List<MovieHotStatVO>> currMonthTop = movieInfoService.getCurrMonthTop();
+			Map<String, List<MovieHotStatVO>> lastMonthTop = movieInfoService.getLastMonthTop();
 			Map<String, Object> m = new HashMap<>();
 			if(labels.size() > 0){
 				m.put("labels", labels);

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
@@ -28,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.sbolo.syk.common.annotation.CacheAvl;
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.TriggerEnum;
 import com.sbolo.syk.common.tools.StringUtil;
@@ -38,6 +40,7 @@ import com.sbolo.syk.view.entity.MovieInfoEntity;
 import com.sbolo.syk.view.entity.ResourceInfoEntity;
 import com.sbolo.syk.view.mapper.MovieHotStatMapper;
 import com.sbolo.syk.view.mapper.MovieInfoMapper;
+import com.sbolo.syk.view.vo.MovieHotStatVO;
 import com.sbolo.syk.view.vo.MovieInfoVO;
 import com.sbolo.syk.view.vo.ResourceInfoVO;
 
@@ -82,8 +85,9 @@ public class MovieInfoService {
 		return new RequestResult<>(movieVOList, pageInfo.getTotal(), pageNum, pageSize);
 	}
 	
-	public Map<String, List<MovieHotStatEntity>> getCurrMonthTop(){
-		Map<String, List<MovieHotStatEntity>> tops = null;
+	@CacheAvl(key="sidebar", hKey="currMonthTop", timeout=30, timeUnit=TimeUnit.MINUTES)
+	public Map<String, List<MovieHotStatVO>> getCurrMonthTop(){
+		Map<String, List<MovieHotStatVO>> tops = null;
 //		SimpleDateFormat sdf = new SimpleDateFormat("MM月dd日");
 		Calendar calendar = Calendar.getInstance();
 		
@@ -91,11 +95,8 @@ public class MovieInfoService {
 //		Date timeCurr = calendar.getTime();
 //		String curr = sdf.format(timeCurr);
 		
-		//获取本月当前日的前一天  为了不将实时的点击结果表示出来，故此做
-		calendar.add(Calendar.DATE,-1);
-		calendar.set(Calendar.HOUR_OF_DAY, 23); 
-		calendar.set(Calendar.MINUTE,59); 
-		calendar.set(Calendar.SECOND,59); 
+		//后去30分钟前的时间  为了不将实时的点击结果表示出来，故此做
+		calendar.add(Calendar.MINUTE,-30);
 		Date timeEnd = calendar.getTime();
 //		String end = sdf.format(timeEnd);
 		
@@ -113,18 +114,20 @@ public class MovieInfoService {
 		params.put("timeEnd", timeEnd);
 		
 		List<MovieHotStatEntity> entities = movieHotStatMapper.selectHotByTime(params);
+		List<MovieHotStatVO> vos = VOUtils.po2vo(entities, MovieHotStatVO.class);
 		
 		if(entities.size() != 0){
-			tops = new HashMap<String, List<MovieHotStatEntity>>();
+			tops = new HashMap<String, List<MovieHotStatVO>>();
 			String topKey = "本月";
-			tops.put(topKey, entities);
+			tops.put(topKey, vos);
 		}
 		return tops;
 		
 	}
 	
-	public Map<String, List<MovieHotStatEntity>> getLastMonthTop(){
-		Map<String, List<MovieHotStatEntity>> tops = null;
+	@CacheAvl(key="sidebar", hKey="lastMonthTop", timeout=30, timeUnit=TimeUnit.MINUTES)
+	public Map<String, List<MovieHotStatVO>> getLastMonthTop(){
+		Map<String, List<MovieHotStatVO>> tops = null;
 //		SimpleDateFormat sdf = new SimpleDateFormat("MM曰dd日");
 		
 		Calendar calendar = Calendar.getInstance();
@@ -151,10 +154,12 @@ public class MovieInfoService {
 		params.put("timeEnd", timeEnd);
 		
 		List<MovieHotStatEntity> entities = movieHotStatMapper.selectHotByTime(params);
+		List<MovieHotStatVO> vos = VOUtils.po2vo(entities, MovieHotStatVO.class);
+		
 		if(entities.size() != 0){
-			tops = new HashMap<String, List<MovieHotStatEntity>>();
+			tops = new HashMap<String, List<MovieHotStatVO>>();
 			String topKey = "上月";
-			tops.put(topKey, entities);
+			tops.put(topKey, vos);
 		}
 		return tops;
 	}

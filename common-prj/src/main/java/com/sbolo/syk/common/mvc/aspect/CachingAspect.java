@@ -49,11 +49,12 @@ public class CachingAspect {
 					hKey = String.valueOf(params[1]);
 				}
 			}
-			long timeout = cacheAvl.timeout();
-			TimeUnit unit = cacheAvl.timeUnit();
+			long timeout = cacheAvl.timeout();  //默认为7
+			TimeUnit unit = cacheAvl.timeUnit();   //默认为天
 			String dateStr = cacheAvl.expireAt();
 			String format = cacheAvl.format();
-			if (timeout > -1 && StringUtils.isBlank(key)) {
+			boolean freshExpire = cacheAvl.freshExpire();
+			if (timeout > 0 && StringUtils.isBlank(key)) {
 				throw new Exception("key, timeout必须同时设置。");
 			}
 			if (StringUtils.isNotBlank(dateStr) && StringUtils.isBlank(key)) {
@@ -76,7 +77,7 @@ public class CachingAspect {
 				obj = point.proceed();
 				boundHashOps.put(hKey, obj);
 
-				if (timeout > -1) {
+				if (timeout > 0) {
 					boundHashOps.expire(timeout, unit);
 				}
 				if (StringUtils.isNotBlank(dateStr)) {
@@ -85,11 +86,8 @@ public class CachingAspect {
 				}
 			}
 
-			// 默认情况下每调用一次后，更新有效期。
-			if (timeout <= -1) {
-				// 默认有效期，7天。
-				timeout = 7;
-				unit = TimeUnit.DAYS;
+			//更新有效期。
+			if (freshExpire) {
 				boundHashOps.expire(timeout, unit);
 			}
 		} else if (cacheDel != null) {

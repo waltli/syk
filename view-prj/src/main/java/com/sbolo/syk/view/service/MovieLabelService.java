@@ -3,11 +3,13 @@ package com.sbolo.syk.view.service;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 
+import com.sbolo.syk.common.annotation.CacheAvl;
 import com.sbolo.syk.view.entity.MovieLabelEntity;
 import com.sbolo.syk.view.mapper.MovieLabelMapper;
 
@@ -20,6 +22,7 @@ public class MovieLabelService {
 		return movieLabelMapper.selectListByMoviePrn(moviePrn);
 	}
 	
+	@CacheAvl(key="sidebar", hKey="labels", timeout=30, timeUnit=TimeUnit.MINUTES)
 	public List<String> getLabels(){
 		List<String> labels = movieLabelMapper.selectLabelsGroupLabel();
 		Collections.sort(labels, new Comparator<String>() {
