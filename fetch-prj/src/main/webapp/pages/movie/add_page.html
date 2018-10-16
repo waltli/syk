@@ -599,10 +599,10 @@ function assignMovieInfo(movie){
 	}
 	if(movie.iconOutUrl){
 		var $td = $("#iconSubDirVal").parents("td");
-		var $loading = $td.find(".loading");
+		var $iconLoading = $td.find(".loading");
 		var $preview_img = $td.find(".pic-preview img");
 		uploadCount++;
-		$loading.css({"display": "-webkit-flex", "display": "flex"});
+		$iconLoading.css({"display": "-webkit-flex", "display": "flex"});
 		$.ajax({
 			url:ctx+"/movie/download-icon",
 			data:{"url":movie.iconOutUrl},
@@ -612,19 +612,54 @@ function assignMovieInfo(movie){
 					$("#iconSubDirVal").val(data.obj.subDir);
 				}
 				uploadCount--;
-				$loading.hide();
+				$iconLoading.hide();
 			},
 			error:function(data){
 				uploadCount--
-				$loading.hide();
+				$iconLoading.hide();
+			}
+		});
+	}
+	if(movie.photoOutUrlList){
+		var $td = $("#photoSubDirStrVal").parents("td");
+		var $photoLoadings = $td.find(".loading");
+		var $photoReplaces = $td.find(".replace");
+		var urlStr = movie.photoOutUrlList.join(",");
+		uploadCount++;
+		$photoLoadings.css({"display": "-webkit-flex", "display": "flex"});
+		$.ajax({
+			url:ctx+"/movie/download-photo",
+			data:{"urlStr":urlStr},
+			success:function(data){
+				if(data.status){
+					var uris = data.obj.tempUriList;
+					var subDirs = data.obj.subDirList;
+					var disStr = "";
+					$photoReplaces.each(function(i,o){
+						if(uris[i]){
+							var $preview_img = $(this).find(".pic-preview img");
+							$preview_img.attr("src", ctx+uris[i]);
+							$("[name=photoSubDir]").eq(i).val(subDirs[i]);
+							disStr += (","+subDirs[i]);
+						}
+					});
+					$("#photoSubDirStrVal").val(disStr.substring(1));
+				}
+				uploadCount--;
+				debugger;
+				$photoLoadings.hide();
+			},
+			error:function(data){
+				uploadCount--
+				$photoLoadings.hide();
 			}
 		});
 	}
 	if(movie.posterPageUrl){
 	    var $td = $("#posterSubDirStrVal").parents("td");
-		var $loadings = $td.find(".loading");
+		var $posterLoadings = $td.find(".loading");
 		var $posterReplaces = $td.find(".replace");
-		$loadings.css({"display": "-webkit-flex", "display": "flex"});
+		$posterLoadings.css({"display": "-webkit-flex", "display": "flex"});
 		var iconName = "";
 		uploadCount++;
 		if(movie.iconUrl){
@@ -650,11 +685,12 @@ function assignMovieInfo(movie){
 					$("#posterSubDirStrVal").val(disStr.substring(1));
 				}
 				uploadCount--;
-				$loadings.hide();
+				debugger;
+				$posterLoadings.hide();
 			},
 			error:function(data){
 				uploadCount--;
-				$loadings.hide();
+				$posterLoadings.hide();
 			}
 		});
 	}

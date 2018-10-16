@@ -49,8 +49,6 @@ function picUploadAll(placeId, fileType, valId, valName, valStrId){
 			uploadCount--;
 		},
 		error: function(data, status, e){
-			$("#"+valId).val("");
-			finalVal(valName, valStrId);
 			toastr.error(e);
 			uploadCount--
 		}

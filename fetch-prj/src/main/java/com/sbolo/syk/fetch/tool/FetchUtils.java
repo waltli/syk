@@ -234,9 +234,8 @@ public class FetchUtils {
 		String typeDir = FileUtils.getTypeDir("torrent");
 		String dateDir = FileUtils.getTypeDir("date");
 		String targetDir = root + typeDir + dateDir;
-		String fileName = StringUtil.getId(CommonConstants.pic_s);
-		BucketUtils.upload(bytes, targetDir, fileName, suffix);
-		return ConfigUtil.getPropertyValue("bucket.formal") + typeDir + dateDir + "/" + fileName + "." +suffix;
+		BucketUtils.upload(bytes, targetDir, torrentName, suffix);
+		return ConfigUtil.getPropertyValue("bucket.formal") + typeDir + dateDir + "/" + torrentName + "." +suffix;
 	}
 	
 	public static String uploadTorrentGetUri(String torrentUrl, String torrentName) throws Exception {
@@ -389,7 +388,7 @@ public class FetchUtils {
     		
     		for(String fetchLabelName : fetchLabelNames) {
     			for(MovieLabelEntity dbLabel : dbLabels) {
-    				if(dbLabel.getLabelName().equals(fetchLabelName)) {
+    				if(fetchLabelName.equals(dbLabel.getLabelName())) {
     					//如果有相同的，证明之前已经有了，直接break，循环下一个被fetch到的
     					break;
     				}
@@ -421,7 +420,7 @@ public class FetchUtils {
     			}
     			String fetchLocationName = m.group();
     			for(MovieLocationEntity dbLocation : dbLocations) {
-    				if(dbLocation.getLocationName().equals(fetchLocationName)) {
+    				if(fetchLocationName.equals(dbLocation.getLocationName())) {
     					//如果有相同的，证明之前已经有了，直接break，循环下一个被fetch到的
     					break;
     				}

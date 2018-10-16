@@ -63,21 +63,6 @@ function upload(op){
 	});
 }
 
-function extend(op, type){
-	var file = {
-			"url":ctx+"/upload",
-			"close":true,
-			"maxSize":5*1024*1024
-	}
-	if(type == "pic"){
-		file.width = "89px";
-		file.height = "89px";
-	}
-	op = $.extend({}, file, op);
-	return op;
-}
-
-
 function fileUpload(op){
 	if(!op || !op.placeId){
 		return;
@@ -85,7 +70,8 @@ function fileUpload(op){
 	op = $.extend({}, {
 		"url":ctx+"/upload",
 		"close":true,
-		"maxSize":5*1024*1024
+		"maxSize":5*1024*1024,
+		"suffixes":["torrent"]
 	}, op);
 	component_count++;
 	//位置标识者
@@ -128,7 +114,6 @@ function fileUpload(op){
 		$prev.after($replace);
 	}
 	
-	
 	//对入口绑定点击时间触发上传者的点击事件
 	$enter.unbind("click").bind("click", function(){
 		$("#"+fileId).trigger("click");
@@ -143,9 +128,14 @@ function fileUpload(op){
 		if(!$(this).val()){
 			return;
 		}
-		//上传
-		if(typeof op.before == "function"){
-			op.before();
+		
+		var fileName = $typeFile[0].files[0].name;
+		var suffix = fileName.substring(fileName.lastIndexOf(".")+1);
+		if(op.suffixes && op.suffixes.indexOf(suffix) == -1){
+			if(typeof op.error == 'function'){
+        		op.error(null, "error", "支持的文件格式："+ op.suffixes.join(","));
+        	}
+			return;
 		}
 		
 		var fileSize = $typeFile[0].files[0].size;
@@ -157,6 +147,10 @@ function fileUpload(op){
 			return;
 		}
 		
+		//上传
+		if(typeof op.before == "function"){
+			op.before();
+		}
 		
 		$("#"+loadingId).css({"display": "-webkit-flex", "display": "flex"});
 		
@@ -211,7 +205,8 @@ function picUpload(op){
 		"height": "89px",
 		"close":true,
 		"clear":true,
-		"maxSize":5*1024*1024
+		"maxSize":5*1024*1024,
+		"suffixes":["jpg","png","gif"]
 	}, op);
 	
 	component_count++;
@@ -261,21 +256,30 @@ function picUpload(op){
 		if(!$(this).val()){
 			return;
 		}
+		
+		var fileName = $("#"+fileId)[0].files[0].name;
+		var suffix = fileName.substring(fileName.lastIndexOf(".")+1);
+		if(op.suffixes && op.suffixes.indexOf(suffix) == -1){
+			if(typeof op.error == 'function'){
+        		op.error(null, "error", "支持的图片格式："+ op.suffixes.join(","));
+        	}
+			return;
+		}
+		
+		var fileSize = $("#"+fileId)[0].files[0].size;
+		if(fileSize > op.maxSize){
+			if(typeof op.error == 'function'){
+				var size = op.maxSize/1024/1024;
+				op.error(null, "error", "文件大小不得超过"+size+"M！");
+			}
+			return;
+		}
+		
 		//上传前的预览
 		preview(op, this, $preview[0]);
 		
 		if(typeof op.before == "function"){
 			op.before();
-		}
-		
-		
-		var fileSize = $typeFile[0].files[0].size;
-		if(fileSize > op.maxSize){
-			if(typeof op.error == 'function'){
-				var size = op.maxSize/1024/1024;
-        		op.error(null, "error", "文件大小不得超过"+size+"M！");
-        	}
-			return;
 		}
 		
 		//上传
