@@ -45,7 +45,6 @@ public class IndexController {
 	private static final String disclaimer = "disclaimer.html";
 	private static final String about = "about.html";
 	private static final String reference = "reference.html";
-	private static final String error = "error.html";
 	private static final Integer pageSize = 10;
 	
 	@Autowired
@@ -65,107 +64,81 @@ public class IndexController {
 	public String go(Model model,
 			@RequestParam(value="page",defaultValue="1", required=false) Integer pageNum,
             @RequestParam(value="l", required=false) String label,
-            @RequestParam(value="q", required=false) String keyword){
-		RequestResult<MovieInfoVO> result = null;
-		try {
-			result = movieInfoService.getAroundList(pageNum, pageSize, label, keyword);
-			model.addAttribute("requestResult", result);
-		} catch (Exception e) {
-			result = RequestResult.error(e);
-			log.error("", e);
-		}
+            @RequestParam(value="q", required=false) String keyword) throws Exception{
+		
+		RequestResult<MovieInfoVO> result = movieInfoService.getAroundList(pageNum, pageSize, label, keyword);
+		model.addAttribute("requestResult", result);
 		return index;
 	}
 	
 	@RequestMapping("sidebar")
 	@ResponseBody
-	public RequestResult<Map<String, Object>> sidebar(){
-		RequestResult<Map<String, Object>> result = null;
-		try {
-			List<String> labels = movieLabelService.getLabels();
-			Map<String, List<MovieHotStatVO>> currMonthTop = movieInfoService.getCurrMonthTop();
-			Map<String, List<MovieHotStatVO>> lastMonthTop = movieInfoService.getLastMonthTop();
-			Map<String, Object> m = new HashMap<>();
-			if(labels.size() > 0){
-				m.put("labels", labels);
-			}
-			if(currMonthTop != null && currMonthTop.size() > 0){
-				m.put("currMonthTop", currMonthTop);
-			}
-			if(lastMonthTop != null && lastMonthTop.size() > 0){
-				m.put("lastMonthTop", lastMonthTop);
-			}
-			result = new RequestResult<Map<String,Object>>(m);
-		} catch (Exception e) {
-			result = RequestResult.error(e);
-			log.error("",e);
+	public RequestResult<Map<String, Object>> sidebar() throws Exception{
+		List<String> labels = movieLabelService.getLabels();
+		Map<String, List<MovieHotStatVO>> currMonthTop = movieInfoService.getCurrMonthTop();
+		Map<String, List<MovieHotStatVO>> lastMonthTop = movieInfoService.getLastMonthTop();
+		Map<String, Object> m = new HashMap<>();
+		if(labels.size() > 0){
+			m.put("labels", labels);
 		}
-		
+		if(currMonthTop != null && currMonthTop.size() > 0){
+			m.put("currMonthTop", currMonthTop);
+		}
+		if(lastMonthTop != null && lastMonthTop.size() > 0){
+			m.put("lastMonthTop", lastMonthTop);
+		}
+		RequestResult<Map<String, Object>> result = new RequestResult<Map<String,Object>>(m);
 		return result;
 	}
 	
 	@RequestMapping("hotDownload")
 	@ResponseBody
 	public RequestResult<String> hotDownload(@RequestParam(value="mi", required=true) String moviePrn){
-		RequestResult<String> result = null;
-		try {
-			movieInfoService.modifyCountDownload(moviePrn);
-		} catch (Exception e) {
-			result = RequestResult.error(e);
-			log.error("",e);
-		}
-		
+		movieInfoService.modifyCountDownload(moviePrn);
+		RequestResult<String> result = new RequestResult<>("success");
 		return result;
 	}
 	
 	@RequestMapping("detail")
 	public String detail(Model model,
             @RequestParam(value="mi", required=true) final String moviePrn){
-		RequestResult<Map<String, Object>> result = null;
-		try {
-			if(StringUtils.isBlank(moviePrn) || moviePrn.equals("null")) {
-				throw new BusinessException("prn不能为空");
-			}
-			
-			MovieInfoEntity movie = movieInfoService.getMovieByPrn(moviePrn);
-			if(movie == null) {
-				throw new BusinessException("該影片已失效！");
-			}
-			List<ResourceInfoEntity> resources = resourceInfoService.getListByMoviePrnOrder(moviePrn, movie.getCategory());
-			MovieInfoVO movieVO = VOUtils.po2vo(movie, MovieInfoVO.class);
-			movieVO.parse();
-			String optimalResourcePrn = movieVO.getOptimalResourcePrn();
-			List<ResourceInfoVO> reosurcesVO = VOUtils.po2vo(resources, ResourceInfoVO.class);
-			ResourceInfoVO.parse(reosurcesVO);
-			for(ResourceInfoVO resourceVO:reosurcesVO){
-				if(optimalResourcePrn.equals(resourceVO.getPrn())){
-					List<String> shotUrlList = resourceVO.getShotUrlList();
-					if(shotUrlList != null && shotUrlList.size() > 0){
-						movieVO.setShotUrlList(shotUrlList);
-					}
-					break;
-				}
-			}
-			Map<String, Object> map = new HashMap<>();
-			map.put("movie", movieVO);
-			map.put("resources", reosurcesVO);
-			result = new RequestResult<>(map);
-			model.addAttribute("result", result);
-			
-			threadPool.execute(new Runnable() {
-				@Override
-				public void run() {
-					movieInfoService.modifyCountClick(moviePrn);
-				}
-			});
-			
-			return detail;
-		} catch (Exception e) {
-			result = RequestResult.error(e);
-			log.error("", e);
-			model.addAttribute("result", result);
-			return error;
+		if(StringUtils.isBlank(moviePrn) || moviePrn.equals("null")) {
+			throw new BusinessException("prn不能为空");
 		}
+		
+		MovieInfoEntity movie = movieInfoService.getMovieByPrn(moviePrn);
+		if(movie == null) {
+			throw new BusinessException("該影片已失效！");
+		}
+		List<ResourceInfoEntity> resources = resourceInfoService.getListByMoviePrnOrder(moviePrn, movie.getCategory());
+		MovieInfoVO movieVO = VOUtils.po2vo(movie, MovieInfoVO.class);
+		movieVO.parse();
+		String optimalResourcePrn = movieVO.getOptimalResourcePrn();
+		List<ResourceInfoVO> reosurcesVO = VOUtils.po2vo(resources, ResourceInfoVO.class);
+		ResourceInfoVO.parse(reosurcesVO);
+		for(ResourceInfoVO resourceVO:reosurcesVO){
+			if(optimalResourcePrn.equals(resourceVO.getPrn())){
+				List<String> shotUrlList = resourceVO.getShotUrlList();
+				if(shotUrlList != null && shotUrlList.size() > 0){
+					movieVO.setShotUrlList(shotUrlList);
+				}
+				break;
+			}
+		}
+		Map<String, Object> map = new HashMap<>();
+		map.put("movie", movieVO);
+		map.put("resources", reosurcesVO);
+		RequestResult<Map<String, Object>> result = new RequestResult<>(map);
+		model.addAttribute("result", result);
+		
+		threadPool.execute(new Runnable() {
+			@Override
+			public void run() {
+				movieInfoService.modifyCountClick(moviePrn);
+			}
+		});
+		
+		return detail;
 	}
 	
 	@RequestMapping("disclaimer")

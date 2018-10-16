@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+@include("common/global.html"){}
+@include("common/header.html"){}
+<title>Error</title>
+</head>
+<body>
+	@for(item in result.error!){
+		<div>${item}</div>
+	@}
+</body>
+</html>

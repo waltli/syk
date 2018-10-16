@@ -59,43 +59,25 @@ public class MovieController {
 	public String go(Model model, HttpServletRequest request, 
 			@RequestParam(value="page",defaultValue="1", required=false) Integer pageNum,
             @RequestParam(value="q", required=false) String keyword){
-		RequestResult<MovieInfoVO> result = null;
-		try {
-			result = movieInfoService.getAroundList(pageNum, pageSize, null, keyword);
-			model.addAttribute("result", result);
-		} catch (Exception e) {
-			result = RequestResult.error(e);
-			log.error("", e);
-		}
+		RequestResult<MovieInfoVO> result = movieInfoService.getAroundList(pageNum, pageSize, null, keyword);
+		model.addAttribute("result", result);
 		return list;
 	}
 	
 	@RequestMapping("fetch-list")
 	@ResponseBody
-	public RequestResult<MovieInfoVO> doubanResult(@RequestParam(value="q", required=true) String query){
-		RequestResult<MovieInfoVO> result = null;
-		try {
-			List<MovieInfoVO> fetchMovies = DoubanUtils.fetchListFromDouban(query);
-			result = new RequestResult<>(fetchMovies);
-		} catch (Exception e) {
-			result = RequestResult.error(e);
-			log.error("",e);
-		}
+	public RequestResult<MovieInfoVO> doubanResult(@RequestParam(value="q", required=true) String query) throws Exception{
+		List<MovieInfoVO> fetchMovies = DoubanUtils.fetchListFromDouban(query);
+		RequestResult<MovieInfoVO> result = new RequestResult<>(fetchMovies);
 		return result;
 	}
 	
 	@RequestMapping("fetch-detail")
 	@ResponseBody
-	public RequestResult<MovieInfoVO> doubanDetail(@RequestParam(value="doubanId", required=true) String doubanId){
-		RequestResult<MovieInfoVO> result = null;
-		try {
-			String doubanUrl = StringUtil.jointDoubanUrl(doubanId);
-			MovieInfoVO fetchMovie = DoubanUtils.fetchMovieFromDouban(doubanUrl, new Date());
-			result = new RequestResult<>(fetchMovie);
-		} catch (Exception e) {
-			result = RequestResult.error(e);
-			log.error("",e);
-		}
+	public RequestResult<MovieInfoVO> doubanDetail(@RequestParam(value="doubanId", required=true) String doubanId) throws Exception{
+		String doubanUrl = StringUtil.jointDoubanUrl(doubanId);
+		MovieInfoVO fetchMovie = DoubanUtils.fetchMovieFromDouban(doubanUrl, new Date());
+		RequestResult<MovieInfoVO> result = new RequestResult<>(fetchMovie);
 		return result;
 		
 	}
@@ -103,28 +85,16 @@ public class MovieController {
 	@RequestMapping(value="signDelete", method=RequestMethod.POST)
 	@ResponseBody
 	public RequestResult<String> signDelete(String moviePrn){
-		RequestResult<String> result = null;
-		try {
-			movieInfoService.signDeleteable(moviePrn);
-			result = new RequestResult<>("success");
-		} catch (Exception e) {
-			result = RequestResult.error(e);
-			log.error("",e);
-		}
+		movieInfoService.signDeleteable(moviePrn);
+		RequestResult<String> result = new RequestResult<>("success");
 		return result;
 	}
 	
 	@RequestMapping(value="signAvailable", method=RequestMethod.POST)
 	@ResponseBody
 	public RequestResult<String> signAvailable(String moviePrn){
-		RequestResult<String> result = null;
-		try {
-			movieInfoService.signAvailable(moviePrn);
-			result = new RequestResult<>("success");
-		} catch (Exception e) {
-			result = RequestResult.error(e);
-			log.error("",e);
-		}
+		movieInfoService.signAvailable(moviePrn);
+		RequestResult<String> result = new RequestResult<>("success");
 		return result;
 	}
 	
@@ -144,22 +114,16 @@ public class MovieController {
 	}
 	
 	@RequestMapping(value="add-work", method={RequestMethod.POST})
-	public String addWork(Model model, HttpServletRequest request, MovieInfoVO movie, ResourceInfosVO resourceModel) {
-		RequestResult<String> result = null;
-		try {
-			Date releaseTime = DateUtil.str2Date(movie.getReleaseTimeStr());
-			MovieInfoEntity existMovie = movieInfoService.getMovieInfoByPureNameAndReleaseTime(movie.getPureName(), releaseTime);
-			if(existMovie != null){
-				return "redirect:existed?mi="+movie.getPrn();
-			}
-			List<ResourceInfoVO> resources = resourceModel.getResources();
-			movieInfoService.manualAddAround(movie, resources);
-			result = new RequestResult<>("success");
-			model.addAttribute("result", result);
-		} catch (Exception e) {
-			result = RequestResult.error(e);
-			log.error("",e);
+	public String addWork(Model model, HttpServletRequest request, MovieInfoVO movie, ResourceInfosVO resourceModel) throws Exception {
+		Date releaseTime = DateUtil.str2Date(movie.getReleaseTimeStr());
+		MovieInfoEntity existMovie = movieInfoService.getMovieInfoByPureNameAndReleaseTime(movie.getPureName(), releaseTime);
+		if(existMovie != null){
+			return "redirect:existed?mi="+existMovie.getPrn();
 		}
+		List<ResourceInfoVO> resources = resourceModel.getResources();
+		movieInfoService.manualAddAround(movie, resources);
+		RequestResult<MovieInfoVO> result = new RequestResult<>(movie);
+		model.addAttribute("result", result);
 		return add_result;
 	}
 	
@@ -167,16 +131,11 @@ public class MovieController {
 	@ResponseBody
 	public RequestResult<Boolean> exists(String pureName){
 		RequestResult<Boolean> result = null;
-		try {
-			MovieInfoEntity movie = movieInfoService.getMovieInfoByPureName(pureName);
-			if(movie == null){
-				result = new RequestResult<>(false);
-			}else {
-				result = new RequestResult<>(true);
-			}
-		} catch (Exception e) {
-			result = RequestResult.error(e);
-			log.error("", e);
+		MovieInfoEntity movie = movieInfoService.getMovieInfoByPureName(pureName);
+		if(movie == null){
+			result = new RequestResult<>(false);
+		}else {
+			result = new RequestResult<>(true);
 		}
 		return result;
 	}
@@ -184,49 +143,34 @@ public class MovieController {
 
 	@RequestMapping("existed")
 	public String existed(Model model,
-			@RequestParam(value="mi", required=true) String moviePrn){
-		RequestResult<MovieInfoVO> result = null;
-		try {
-			MovieInfoVO movieVO = movieInfoService.getMovieInfoByPrn(moviePrn);
-			result = new RequestResult<>(movieVO);
-		} catch (Exception e) {
-			result = RequestResult.error(e);
-			log.error("",e);
+			@RequestParam(value="mi", required=true) String moviePrn) throws Exception{
+		if(StringUtils.isNotBlank(moviePrn)) {
+			throw new BusinessException("moviePrn为空！");
 		}
+		MovieInfoVO movieVO = movieInfoService.getMovieInfoByPrn(moviePrn);
+		RequestResult<MovieInfoVO> result = new RequestResult<>(movieVO);
 		model.addAttribute("result", result);
 		return existed;
 	}
 	
 	@RequestMapping("modi-movie-page")
 	public String updateHere(Model model,
-			@RequestParam(value="mi", required=true) String moviePrn){
-		RequestResult<MovieInfoVO> result = null;
-		try {
-			MovieInfoVO movieVO = movieInfoService.getMovieInfoByPrn(moviePrn);
-			if(movieVO == null){
-				throw new Exception("未查询到prn为"+moviePrn+"的影片信息！");
-			}
-			result = new RequestResult<>(movieVO);
-			model.addAttribute("result", result);
-		} catch (Exception e) {
-			result = RequestResult.error(e);
-			log.error("",e);
+			@RequestParam(value="mi", required=true) String moviePrn) throws Exception{
+		MovieInfoVO movieVO = movieInfoService.getMovieInfoByPrn(moviePrn);
+		if(movieVO == null){
+			throw new Exception("未查询到prn为"+moviePrn+"的影片信息！");
 		}
+		RequestResult<MovieInfoVO> result = new RequestResult<>(movieVO);
+		model.addAttribute("result", result);
 		
 		return modi_movie_page;
 	}
 	
 	@RequestMapping(value="modi-movie-work", method={RequestMethod.POST})
-	public String updateWork(Model model, HttpServletRequest request, MovieInfoVO movie){
-		RequestResult<String> result = null;
-		try {
-			movieInfoService.modiMovieInfoManual(movie);
-			result = new RequestResult<>("success");
-			model.addAttribute("result", result);
-		} catch (Exception e) {
-			result = RequestResult.error(e);
-			log.error("",e);
-		}
+	public String updateWork(Model model, HttpServletRequest request, MovieInfoVO movie) throws Exception{
+		movieInfoService.modiMovieInfoManual(movie);
+		RequestResult<String> result = new RequestResult<>("success");
+		model.addAttribute("result", result);
 		return add_result;
 	}
 	
@@ -239,69 +183,52 @@ public class MovieController {
 	@RequestMapping(value="set-optimal", method=RequestMethod.POST)
 	@ResponseBody
 	public RequestResult<String> setOptimal(String moviePrn, String optimalResourcePrn){
-		RequestResult<String> result = null;
-		try {
-			MovieInfoEntity toUpMovie = new MovieInfoEntity();
-			toUpMovie.setOptimalResourcePrn(optimalResourcePrn);
-			toUpMovie.setPrn(moviePrn);
-			movieInfoService.updateByPrn(toUpMovie);
-			result = new RequestResult<>("success");
-		} catch (Exception e) {
-			result = RequestResult.error(e);
-			log.error("", e);
-		}
+		MovieInfoEntity toUpMovie = new MovieInfoEntity();
+		toUpMovie.setOptimalResourcePrn(optimalResourcePrn);
+		toUpMovie.setPrn(moviePrn);
+		movieInfoService.updateByPrn(toUpMovie);
+		RequestResult<String> result = new RequestResult<>("success");
 		return result;
 	}
 	
 	@RequestMapping("download-icon")
 	@ResponseBody
-	public RequestResult<Map<String, Object>> downloadIcon(HttpServletRequest request, String url){
-		RequestResult<Map<String, Object>> result = null;
-		try {
-			String subDir = FetchUtils.saveTempIcon(url);
-			Map<String, Object> map = new HashMap<>();
-			map.put("subDir", subDir);
-			String root = ConfigUtil.getPropertyValue("fs.temp.mapping");
-			map.put("uri", root+subDir);
-			result = new RequestResult<>(map);
-		} catch (Exception e) {
-			result = RequestResult.error(e);
-			log.error("下载出错："+url, e);
-		}
+	public RequestResult<Map<String, Object>> downloadIcon(HttpServletRequest request, String url) throws Exception{
+		String subDir = FetchUtils.saveTempIcon(url);
+		Map<String, Object> map = new HashMap<>();
+		map.put("subDir", subDir);
+		String root = ConfigUtil.getPropertyValue("fs.temp.mapping");
+		map.put("uri", root+subDir);
+		RequestResult<Map<String, Object>> result = new RequestResult<>(map);
 		return result;
 	}
 	
 	
 	@RequestMapping("download-posters")
 	@ResponseBody
-	public RequestResult<Map<String, Object>> downloadPosters(HttpServletRequest request, final String pageUrl, final String iconName){
+	public RequestResult<Map<String, Object>> downloadPosters(HttpServletRequest request, final String pageUrl, final String iconName) throws Exception{
+		List<String> posterUrlList = DoubanUtils.getPosterUrlList(pageUrl, iconName);
+		
+		if(posterUrlList == null || posterUrlList.size() <= 0){
+			throw new BusinessException("在"+pageUrl+"中没有获取到poster");
+		}
+		
+		List<String> posterTempUriList = new ArrayList<>();
+		List<String> subDirList = new ArrayList<>();
+		String root = ConfigUtil.getPropertyValue("fs.temp.mapping");
+		for(String posterUrl : posterUrlList) {
+			String subDir = FetchUtils.saveTempPoster(posterUrl);
+			subDirList.add(subDir);
+			posterTempUriList.add(root+subDir);
+		}
+		Map<String, Object> map = new HashMap<>();
+		map.put("subDirList", subDirList);
+		map.put("posterTempUriList", posterTempUriList);
 		RequestResult<Map<String, Object>> result = null;
-		try {
-			List<String> posterUrlList = DoubanUtils.getPosterUrlList(pageUrl, iconName);
-			
-			if(posterUrlList == null || posterUrlList.size() <= 0){
-				throw new BusinessException("在"+pageUrl+"中没有获取到poster");
-			}
-			
-			List<String> posterTempUriList = new ArrayList<>();
-			List<String> subDirList = new ArrayList<>();
-			String root = ConfigUtil.getPropertyValue("fs.temp.mapping");
-			for(String posterUrl : posterUrlList) {
-				String subDir = FetchUtils.saveTempPoster(posterUrl);
-				subDirList.add(subDir);
-				posterTempUriList.add(root+subDir);
-			}
-			Map<String, Object> map = new HashMap<>();
-			map.put("subDirList", subDirList);
-			map.put("posterTempUriList", posterTempUriList);
-			if(posterTempUriList.size() > 0){
-				result = new RequestResult<>(map);
-			}else {
-				throw new BusinessException("下载poster计数为零");
-			}
-		} catch (Exception e) {
-			result = RequestResult.error(e);
-			log.error("下载poster出错："+pageUrl, e);
+		if(posterTempUriList.size() > 0){
+			result = new RequestResult<>(map);
+		}else {
+			throw new BusinessException("下载poster计数为零");
 		}
 		return result;
 	}

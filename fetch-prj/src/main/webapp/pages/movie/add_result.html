@@ -7,6 +7,8 @@
 <title>蝉影后台管理系统</title>
 </head>
 <body>
-	Success!
+	@var movie = result.obj;
+	<div>Success!</div>
+	<div>你可以<a target="_blank" href="http://www.chanying.cc/detail?mi=${movie.prn }">查看《${movie.pureName}》</a>，<a href="${pageCtx('ctx')}/movie/modi-movie-page?mi=${movie.prn }">修改《${movie.pureName}》</a>，<a href="${pageCtx('ctx')}/resource/list?mi=${movie.prn}">修改《${movie.pureName}》资源</a>，<a href="${pageCtx('ctx')}/movie/search-from-douban">继续添加</a>，<a href="${pageCtx('ctx')}/movie/list">查看所有电影</a></div>
 </body>
 </html>

@@ -44,19 +44,13 @@ public class ResourceController {
 	
 	@RequestMapping("list")
 	public String list(Model model,
-			@RequestParam(value="mi", required=true) String moviePrn){
-		RequestResult<Map<String, Object>> result = null;
-		try {
-			Map<String, Object> map = new HashMap<>();
-			MovieInfoVO movieVO = movieInfoService.getMovieInfoByPrn(moviePrn);
-			List<ResourceInfoVO> resourceVOList = resourceInfoService.getListByMoviePrnOrderNoStatus(moviePrn, movieVO.getCategory());
-			map.put("movie", movieVO);
-			map.put("resources", resourceVOList);
-			result = new RequestResult<>(map);
-		} catch (Exception e) {
-			result = RequestResult.error(e);
-			log.error("", e);
-		}
+			@RequestParam(value="mi", required=true) String moviePrn) throws Exception{
+		Map<String, Object> map = new HashMap<>();
+		MovieInfoVO movieVO = movieInfoService.getMovieInfoByPrn(moviePrn);
+		List<ResourceInfoVO> resourceVOList = resourceInfoService.getListByMoviePrnOrderNoStatus(moviePrn, movieVO.getCategory());
+		map.put("movie", movieVO);
+		map.put("resources", resourceVOList);
+		RequestResult<Map<String, Object>> result = new RequestResult<>(map);
 		model.addAttribute("result", result);
 		return list;
 	}
@@ -64,96 +58,60 @@ public class ResourceController {
 	@RequestMapping(value="signDelete", method=RequestMethod.POST)
 	@ResponseBody
 	public RequestResult<String> signDelete(String moviePrn, String resourcePrn){
-		RequestResult<String> result = null;
-		try {
-			resourceInfoService.signDeleteable(moviePrn, resourcePrn);
-			result = new RequestResult<>("success");
-		} catch (Exception e) {
-			result = RequestResult.error(e);
-			log.error("",e);
-		}
+		resourceInfoService.signDeleteable(moviePrn, resourcePrn);
+		RequestResult<String> result = new RequestResult<>("success");
 		return result;
 	}
 	
 	@RequestMapping(value="signAvailable", method=RequestMethod.POST)
 	@ResponseBody
 	public RequestResult<String> signAvailable(String moviePrn, String resourcePrn){
-		RequestResult<String> result = null;
-		try {
-			resourceInfoService.signAvailable(moviePrn, resourcePrn);
-			result = new RequestResult<>("success");
-		} catch (Exception e) {
-			result = RequestResult.error(e);
-			log.error("",e);
-		}
+		resourceInfoService.signAvailable(moviePrn, resourcePrn);
+		RequestResult<String> result = new RequestResult<>("success");
 		return result;
 	}
 	
 	@RequestMapping("add-page")
 	public String addResourceHere(Model model, HttpServletRequest request, 
-			@RequestParam(value="mi", required=true) String moviePrn){
-		RequestResult<MovieInfoVO> result = null;
-		try {
-			MovieInfoVO movieVO = movieInfoService.getMovieInfoByPrn(moviePrn);
-			result = new RequestResult<>(movieVO);
-		} catch (Exception e) {
-			result = RequestResult.error(e);
-			log.error("",e);
-		}
+			@RequestParam(value="mi", required=true) String moviePrn) throws Exception{
+		MovieInfoVO movieVO = movieInfoService.getMovieInfoByPrn(moviePrn);
+		RequestResult<MovieInfoVO> result = new RequestResult<>(movieVO);
 		model.addAttribute("result", result);
 		return add_page;
 	}
 	
 	@RequestMapping(value="add-work", method=RequestMethod.POST)
-	public String addResourceHere(Model model, HttpServletRequest request, String moviePrn, ResourceInfosVO resourceModel){
-		RequestResult<String> result = null;
-		try {
-			List<ResourceInfoVO> resourcesVO = resourceModel.getResources();
-			resourceInfoService.manualAddResources(moviePrn, resourcesVO);
-			result = new RequestResult<>("success");
-		} catch (Exception e) {
-			result = RequestResult.error(e);
-			log.error("",e);
-		}
+	public String addResourceHere(Model model, HttpServletRequest request, String moviePrn, ResourceInfosVO resourceModel) throws Exception{
+		List<ResourceInfoVO> resourcesVO = resourceModel.getResources();
+		resourceInfoService.manualAddResources(moviePrn, resourcesVO);
+		RequestResult<String> result = new RequestResult<>("success");
 		model.addAttribute("result", result);
 		return add_result;
 	}
 	
 	@RequestMapping("modi-page")
 	public String modiResourceHere(Model model, 
-			@RequestParam(value="ri", required=true) String resourcePrn){
-		RequestResult<Map<String, Object>> result = null;
-		try {
-			ResourceInfoVO resourceVO = resourceInfoService.getResourceByPrn(resourcePrn);
-			if(resourceVO == null){
-				throw new Exception("该条资源不存在，请重试！");
-			}
-			MovieInfoVO movieVO = movieInfoService.getMovieInfoByPrn(resourceVO.getMoviePrn());
-			if(movieVO == null){
-				throw new Exception("该条资源对应的Movie不存在！");
-			}
-			Map<String, Object> map = new HashMap<>();
-			map.put("resource", resourceVO);
-			map.put("movie", movieVO);
-			result = new RequestResult<>(map);
-			model.addAttribute("result", result);
-		} catch (Exception e) {
-			result = RequestResult.error(e);
-			log.error("",e);
+			@RequestParam(value="ri", required=true) String resourcePrn) throws Exception{
+		ResourceInfoVO resourceVO = resourceInfoService.getResourceByPrn(resourcePrn);
+		if(resourceVO == null){
+			throw new Exception("该条资源不存在，请重试！");
 		}
+		MovieInfoVO movieVO = movieInfoService.getMovieInfoByPrn(resourceVO.getMoviePrn());
+		if(movieVO == null){
+			throw new Exception("该条资源对应的Movie不存在！");
+		}
+		Map<String, Object> map = new HashMap<>();
+		map.put("resource", resourceVO);
+		map.put("movie", movieVO);
+		RequestResult<Map<String, Object>> result = new RequestResult<>(map);
+		model.addAttribute("result", result);
 		return modi_page;
 	}
 	
 	@RequestMapping(value="modi-work", method={RequestMethod.POST})
-	public String modiWork(Model model, ResourceInfoVO newResource, boolean isOptimal){
-		RequestResult<String> result = null;
-		try {
-			resourceInfoService.modiResource(newResource, isOptimal);
-			result = new RequestResult<>("sucess");
-		} catch (Exception e) {
-			result = RequestResult.error(e);
-			log.error("",e);
-		}
+	public String modiWork(Model model, ResourceInfoVO newResource, boolean isOptimal) throws Exception{
+		resourceInfoService.modiResource(newResource, isOptimal);
+		RequestResult<String> result = new RequestResult<>("sucess");
 		model.addAttribute("result", result);
 		return add_result;
 	}

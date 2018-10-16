@@ -296,8 +296,11 @@ public class MovieInfoService {
 		return movieInfoMapper.selectByPureName(pureName);
 	}
 	
-	public MovieInfoVO getMovieInfoByPrn(String moviePrn){
+	public MovieInfoVO getMovieInfoByPrn(String moviePrn) throws Exception{
 		MovieInfoEntity movie = movieInfoMapper.selectByPrn(moviePrn);
+		if(movie == null){
+			throw new Exception("未查询到prn为"+moviePrn+"的影片信息！");
+		}
 		MovieInfoVO movieVO = VOUtils.po2vo(movie, MovieInfoVO.class);
 		movieVO.parse();
 		return movieVO;
