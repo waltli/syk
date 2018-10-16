@@ -183,13 +183,14 @@ fileUpload({
 		if(!data.status){
 			return;
 		}
-		var resource = data.obj.resource;
 		
 		if(data.obj.subDir){
 			$("#downloadLinkVal").val(data.obj.subDir);
 		}else {
 			$("#downloadLinkVal").val("");
 		}
+		
+		var resource = data.obj.resource;
 		
 		if(!resource){
 			$("#sizeVal").val("");

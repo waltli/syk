@@ -119,7 +119,11 @@
 																<div>
 																	@if(isNotEmpty(item.doubanScore)){
 																		<span class="score">${item.doubanScore!}</span>
-																		<span>(${item.attentionRate!}人参与)</span>
+																		<span>
+																			@if(isNotEmpty(item.attentionRate)){
+																				(${item.attentionRate}人参与)
+																			@}
+																		</span>
 																	@}else {
 																		暂无
 																	@}

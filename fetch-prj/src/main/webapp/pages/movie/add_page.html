@@ -429,7 +429,6 @@ $("#add-resource").click(function(){
 			var resource = data.obj.resource;
 			
 			if(!resource){
-				$("#"+downloadLinkValId).val("");
 				$("#"+sizeValId).val("");
 				$("#"+formatValId).val("");
 				$("#"+qualityValId).val("");
@@ -646,7 +645,6 @@ function assignMovieInfo(movie){
 					$("#photoSubDirStrVal").val(disStr.substring(1));
 				}
 				uploadCount--;
-				debugger;
 				$photoLoadings.hide();
 			},
 			error:function(data){
@@ -685,7 +683,6 @@ function assignMovieInfo(movie){
 					$("#posterSubDirStrVal").val(disStr.substring(1));
 				}
 				uploadCount--;
-				debugger;
 				$posterLoadings.hide();
 			},
 			error:function(data){
