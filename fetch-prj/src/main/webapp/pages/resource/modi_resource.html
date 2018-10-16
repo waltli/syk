@@ -174,7 +174,7 @@ $("#modiResourceForm").validate({
 
 fileUpload({
 	placeId:"downloadLinkPlace",
-	data:{"fileType":4},
+	data:{"fileType":5},
 	close:false,
 	before: function(){
 		uploadCount++;
@@ -185,8 +185,13 @@ fileUpload({
 		}
 		var resource = data.obj.resource;
 		
-		if(!resource){
+		if(data.obj.subDir){
+			$("#downloadLinkVal").val(data.obj.subDir);
+		}else {
 			$("#downloadLinkVal").val("");
+		}
+		
+		if(!resource){
 			$("#sizeVal").val("");
 			$("#formatVal").val("");
 			$("#qualityVal").val("");
@@ -196,11 +201,7 @@ fileUpload({
 			$("#subtitleVal").val("");
 			return;
 		}
-		if(data.obj.subDir){
-			$("#downloadLinkVal").val(data.obj.subDir);
-		}else {
-			$("#downloadLinkVal").val("");
-		}
+		
 		if(resource.size){
 			$("#sizeVal").val(resource.size);
 		}else {

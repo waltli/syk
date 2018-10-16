@@ -169,7 +169,7 @@ public class MovieController {
 	@RequestMapping(value="modi-movie-work", method={RequestMethod.POST})
 	public String updateWork(Model model, HttpServletRequest request, MovieInfoVO movie) throws Exception{
 		movieInfoService.modiMovieInfoManual(movie);
-		RequestResult<String> result = new RequestResult<>("success");
+		RequestResult<MovieInfoVO> result = new RequestResult<>(movie);
 		model.addAttribute("result", result);
 		return add_result;
 	}
@@ -203,6 +203,29 @@ public class MovieController {
 		return result;
 	}
 	
+	@RequestMapping("download-photo")
+	@ResponseBody
+	public RequestResult<Map<String, Object>> downloadPhoto(HttpServletRequest request, String urlStr) throws Exception{
+		String[] urlArr = urlStr.split(",");
+		List<String> subDirList = new ArrayList<>();
+		List<String> tempUriList = new ArrayList<>();
+		for(String url : urlArr) {
+			String subDir = FetchUtils.saveTempPhoto(url);
+			String root = ConfigUtil.getPropertyValue("fs.temp.mapping");
+			subDirList.add(subDir);
+			tempUriList.add(root+subDir);
+		}
+		
+		if(tempUriList.size() > 0){
+			Map<String, Object> map = new HashMap<>();
+			map.put("subDirList", subDirList);
+			map.put("tempUriList", tempUriList);
+			return new RequestResult<Map<String, Object>>(map);
+		}else {
+			throw new BusinessException("下载photo计数为零");
+		}
+	}
+	
 	
 	@RequestMapping("download-posters")
 	@ResponseBody
@@ -221,15 +244,14 @@ public class MovieController {
 			subDirList.add(subDir);
 			posterTempUriList.add(root+subDir);
 		}
-		Map<String, Object> map = new HashMap<>();
-		map.put("subDirList", subDirList);
-		map.put("posterTempUriList", posterTempUriList);
-		RequestResult<Map<String, Object>> result = null;
+		
 		if(posterTempUriList.size() > 0){
-			result = new RequestResult<>(map);
+			Map<String, Object> map = new HashMap<>();
+			map.put("subDirList", subDirList);
+			map.put("posterTempUriList", posterTempUriList);
+			return new RequestResult<>(map);
 		}else {
 			throw new BusinessException("下载poster计数为零");
 		}
-		return result;
 	}
 }
