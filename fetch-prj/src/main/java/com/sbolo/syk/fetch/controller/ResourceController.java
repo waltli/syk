@@ -34,7 +34,7 @@ public class ResourceController {
 	private static final String list = "resource/list.html";
 	private static final String modi_page = "resource/modi_resource.html";
 	private static final String add_page = "resource/add_resources.html";
-	private static final String add_result = "movie/add_result.html";
+	private static final String add_result = "resource/add_result.html";
 	
 	@Resource
 	private MovieInfoService movieInfoService;
