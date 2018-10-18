@@ -29,6 +29,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.fetchApplication;
 import com.sbolo.syk.common.tools.ConfigUtil;
+import com.sbolo.syk.common.tools.ThreeDESUtils;
 
 @AutoConfigureMockMvc
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -61,28 +62,10 @@ public class TestJunit {
         }
 	}
 	
-	@Autowired
-	private ThreadPoolTaskExecutor threadPool;
-	
 	@Test
-	public void test() throws Exception{
-		for(int i=0; i<10; i++) {
-			threadPool.execute(new Runnable() {
-				@Override
-				public void run() {
-					System.out.println("a");
-				}
-			});
-		}
-		threadPool.shutdown();
-		for(int i=0; i<10; i++) {
-			threadPool.execute(new Runnable() {
-				@Override
-				public void run() {
-					System.out.println("b");
-				}
-			});
-		}
+	public void encode3des() throws Exception{
+		String encode3Des = ThreeDESUtils.encode3Des("moming30613");
+		System.out.println(encode3Des);
 	}
 	
 	

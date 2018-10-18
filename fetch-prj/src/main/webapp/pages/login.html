@@ -18,15 +18,15 @@
 								<div class="logo text-center"><img src="${pageCtx('ctxassets')}/img/logo-dark.png" alt="Klorofil Logo"></div>
 								<p class="lead">Login to your account</p>
 							</div>
-							<form class="form-auth-small" action="${pageCtx('ctx')}/login-work" method="post">
+							<form id="login-work" class="form-auth-small" action="${pageCtx('ctx')}/login-work" method="post">
 								<input type="hidden" name="cb" value="${cb! }">
 								<div class="form-group">
-									<label for="signin-email" class="control-label sr-only">Email</label>
-									<input type="text" class="form-control" id="signin-email" name="user" value="" placeholder="Username">
+									<label for="signin-email" class="control-label sr-only">Username</label>
+									<input type="text" class="form-control" id="signin-username" name="username" value="" placeholder="Username">
 								</div>
 								<div class="form-group">
 									<label for="signin-password" class="control-label sr-only">Password</label>
-									<input type="password" class="form-control" id="signin-password" name="pwd" value="" placeholder="Password">
+									<input type="password" class="form-control" id="signin-password" name="password" value="" placeholder="Password">
 								</div>
 								<div class="form-group clearfix">
 									<label class="fancy-checkbox element-left">
@@ -55,4 +55,79 @@
 	</div>
 	<!-- END WRAPPER -->
 </body>
+<script type="text/javascript">
+debugger;
+$("#login-work").validate({
+    debug: false, 
+    onfocusout: function (element) {
+        $(element).valid();
+    },
+    ignore: ":hidden",
+    submitHandler: function (form) {
+        var url = $(form).attr("action");
+        var data = serializeForm(form);
+        debugger;
+		$.ajax({
+			"url": url,
+			"data":data,
+			"type":"post",
+			"success":function(data){
+				debugger;
+				if(!data.status){
+					toastr.error(data.error);
+					return;
+				}
+				
+				if(data.obj.cbUrl){
+					location.href = ctx+"/"+data.obj.cbUrl;
+				}else {
+					location.href = ctx;
+				}
+			},
+			"error" : function(data){
+				
+			}
+		});
+    },
+    errorPlacement: function ($error, $element) {
+        $error.addClass("errorTip");
+        $error.css({
+            "position": "absolute",
+            "color": "red",
+            "width": "auto",
+            "left": 6 + 'px',
+            "bottom": -26 + 'px'
+        })
+        if ($element.is(":hidden")) {
+            $error.appendTo($($element.data("error-view")).parent());
+        } else {
+            $error.appendTo($element.parent());
+        }
+    },
+    rules: {
+    	"username":{
+    		required:true
+    	},
+    	"password":{
+    		required:true
+    	}
+    },
+    messages: {
+    	"username":{
+    		required:"请填写用户名"
+    	},
+    	"password":{
+    		required:"请填写密码"
+    	}
+    }
+});
+
+
+
+
+	$("#submit").click(function(){
+		var username = $("#signin-username").val();
+	});
+</script>
+
 </html>

@@ -6,6 +6,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 3des 测试
@@ -70,6 +71,14 @@ public class ThreeDESUtils {
 		return pwd;
 
 	}
+	
+	public static String encode3Des(String srcStr) throws Exception {
+		String key = ConfigUtil.getPropertyValue("3des.key");
+		if(StringUtils.isBlank(key)) {
+			throw new Exception("3des key is null");
+		}
+		return encode3Des(key, srcStr);
+	}
 
 	/**
 	 * 3DES解密
@@ -93,6 +102,14 @@ public class ThreeDESUtils {
 		String pwd = new String(c1.doFinal(src));
 //            return c1.doFinal(src);  
 		return pwd;
+	}
+	
+	public static String decode3Des(String desStr) throws Exception {
+		String key = ConfigUtil.getPropertyValue("3des.key");
+		if(StringUtils.isBlank(key)) {
+			throw new Exception("3des key is null");
+		}
+		return decode3Des(key, desStr);
 	}
 
 }
