@@ -144,7 +144,7 @@ public class MovieController {
 	@RequestMapping("existed")
 	public String existed(Model model,
 			@RequestParam(value="mi", required=true) String moviePrn) throws Exception{
-		if(StringUtils.isNotBlank(moviePrn)) {
+		if(StringUtils.isBlank(moviePrn)) {
 			throw new BusinessException("moviePrn为空！");
 		}
 		MovieInfoVO movieVO = movieInfoService.getMovieInfoByPrn(moviePrn);
