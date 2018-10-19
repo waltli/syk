@@ -32,12 +32,10 @@ public class LoginInterceptor implements HandlerInterceptor {
 			Object arg2) throws Exception {
 		//获取Session
 		HttpSession session = request.getSession();
-		Object isLogin = session.getAttribute("isLogin");
+		Object user = session.getAttribute("user");
 		
-		if(isLogin != null){
-			if((boolean) isLogin){
-				return true;
-			}
+		if(user != null){
+			return true;
 		}
 		//获取请求的URL
 		String url = request.getRequestURI();
