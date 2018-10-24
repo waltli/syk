@@ -80,9 +80,12 @@ public class BucketUtils {
 				KeyVersion kv = new KeyVersion(key);
 				keyVers.add(kv);
 			}
-			DeleteObjectsRequest d = new DeleteObjectsRequest(bucketName);
-			d.setKeys(keyVers);
-			cosClient.deleteObjects(d);
+			if(keyVers.size() > 0) {
+				DeleteObjectsRequest d = new DeleteObjectsRequest(bucketName);
+				d.setKeys(keyVers);
+				cosClient.deleteObjects(d);
+			}
+			
 		} finally {
 			bucketAlive.decrementAndGet();
 		}
