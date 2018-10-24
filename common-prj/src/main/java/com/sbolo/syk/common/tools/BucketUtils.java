@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,6 +74,9 @@ public class BucketUtils {
 			}
 			List<KeyVersion> keyVers = new ArrayList<>();
 			for(String key : keys) {
+				if(StringUtils.isBlank(key)) {
+					continue;
+				}
 				KeyVersion kv = new KeyVersion(key);
 				keyVers.add(kv);
 			}
