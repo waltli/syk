@@ -325,7 +325,10 @@ public class MovieInfoService {
 		if(StringUtils.isNotBlank(changeMovie.getIconSubDir()) && !StringUtil.isHttp(changeMovie.getIconSubDir())) {
 			String iconUri = FetchUtils.uploadIconGetUriFromDir(changeMovie.getIconSubDir());
 			changeMovie.setIconUri(iconUri);
-			BucketUtils.delete(dbMovie.getIconUri());
+			if(StringUtils.isNotBlank(dbMovie.getIconUri())) {
+				BucketUtils.delete(dbMovie.getIconUri());
+			}
+			
 		}
 		
 		

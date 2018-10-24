@@ -30,12 +30,10 @@ import com.sbolo.syk.common.tools.FileUtils;
 import com.sbolo.syk.common.tools.GrapicmagickUtils;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.Utils;
-import com.sbolo.syk.common.vo.LinkAnalyzeResultVO;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
 import com.sbolo.syk.fetch.entity.MovieLabelEntity;
 import com.sbolo.syk.fetch.entity.MovieLocationEntity;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
-import com.sbolo.syk.fetch.pipeline.MyPipeline;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
 import com.sbolo.syk.fetch.vo.MovieLabelVO;
 import com.sbolo.syk.fetch.vo.MovieLocationVO;
@@ -810,7 +808,9 @@ public class FetchUtils {
 			}
 			//如果沒有超出原List的長度，則刪除原來的。
 			if(dbUriList != null && dbUriList.size() > i) {
-				BucketUtils.delete(dbUriList.get(i));
+				if(StringUtils.isNotBlank(dbUriList.get(i))) {
+					BucketUtils.delete(dbUriList.get(i));
+				}
 			}
 			
 		}

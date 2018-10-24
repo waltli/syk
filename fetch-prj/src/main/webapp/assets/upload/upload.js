@@ -130,12 +130,16 @@ function fileUpload(op){
 		}
 		
 		var fileName = $typeFile[0].files[0].name;
-		var suffix = fileName.substring(fileName.lastIndexOf(".")+1);
-		if(op.suffixes && op.suffixes.indexOf(suffix) == -1){
-			if(typeof op.error == 'function'){
-        		op.error(null, "error", "支持的文件格式："+ op.suffixes.join(","));
-        	}
-			return;
+		var suffixFix = fileName.substring(fileName.lastIndexOf(".")+1).toLowerCase();
+		if(op.suffixes){
+			var suffixeFixStr = op.suffixes.join(",").toLowerCase();
+			var suffixeFixArr = suffixeFixStr.split(",");
+			if(suffixeFixArr.indexOf(suffixFix) == -1){
+				if(typeof op.error == 'function'){
+	        		op.error(null, "error", "支持的文件格式："+ suffixeFixStr);
+	        	}
+				return;
+			}
 		}
 		
 		var fileSize = $typeFile[0].files[0].size;
@@ -258,12 +262,16 @@ function picUpload(op){
 		}
 		
 		var fileName = $("#"+fileId)[0].files[0].name;
-		var suffix = fileName.substring(fileName.lastIndexOf(".")+1);
-		if(op.suffixes && op.suffixes.indexOf(suffix) == -1){
-			if(typeof op.error == 'function'){
-        		op.error(null, "error", "支持的图片格式："+ op.suffixes.join(","));
-        	}
-			return;
+		var suffixFix = fileName.substring(fileName.lastIndexOf(".")+1).toLowerCase();
+		if(op.suffixes){
+			var suffixeFixStr = op.suffixes.join(",").toLowerCase();
+			var suffixeFixArr = suffixeFixStr.split(",");
+			if(suffixeFixArr.indexOf(suffixFix) == -1){
+				if(typeof op.error == 'function'){
+	        		op.error(null, "error", "支持的文件格式："+ suffixeFixStr);
+	        	}
+				return;
+			}
 		}
 		
 		var fileSize = $("#"+fileId)[0].files[0].size;

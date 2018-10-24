@@ -113,7 +113,7 @@ public class ProcessorHelper {
 	
 	protected ConcludeVO resolve(PureNameAndSeasonVO pureNameAndSeanson, List<String> precisions, List<LinkInfoVO> links, List<String> shots, String comeFromUrl, String doubanUrl) throws Exception {
 		if(links == null || links.size() == 0) {
-			log.info("No donload link url: {}", comeFromUrl);
+			log.info("No donload link! movie: [{}] url: {}", pureNameAndSeanson.getPureName(), comeFromUrl);
 			return null;
 		}
 		
@@ -143,7 +143,7 @@ public class ProcessorHelper {
 		List<ResourceInfoVO> filter1 = this.filterResourceInCache(fetchMovie.getCategory(), fetchResources);
 		
 		if(filter1 == null || filter1.size() == 0) {
-			log.info("No canable resource after fileter in cache! url: {}", comeFromUrl);
+			log.info("No canable resource after fileter in cache! movie: [{}] url: {}", finalMovie.getPureName(), comeFromUrl);
 			return null;
 		}
 		
@@ -165,7 +165,7 @@ public class ProcessorHelper {
 		}
 		
 		if(filter2 == null || filter2.size() == 0) {
-			log.info("No canable resource after filter in db! url: {}", comeFromUrl);
+			log.info("No canable resource after filter in db! movie: [{}] url: {}", finalMovie.getPureName(), comeFromUrl);
 			return null;
 		}
 		
@@ -488,7 +488,7 @@ public class ProcessorHelper {
 				}
 			}else {
 				if(fetchResource.getEpisodeEnd() == null){
-	    			log.info("url:{}, 电影在豆瓣中被标记为电视剧，但是资源[{}]却未获得第几集，跳过该资源！",fetchResource.getComeFromUrl(), fetchResource.getPureName());
+	    			log.warn("url:{}, 电影在豆瓣中被标记为电视剧，但是资源[{}]却未获得第几集，跳过该资源！",fetchResource.getComeFromUrl(), fetchResource.getPureName());
 					continue;
 	    		}
 				//根据Map的key来过滤
@@ -611,7 +611,7 @@ public class ProcessorHelper {
 				
 			} catch (Throwable e) {
 				//假若失败，则resource还是存的原始的地址，所以不用删除
-				log.error("解析下载链接失败！ url: "+ link, e);
+				log.error("解析下载链接失败！movie: ["+ fetchResource.getPureName() +"] url: "+ link, e);
 			}
 			
 		}
@@ -657,6 +657,7 @@ public class ProcessorHelper {
 					optimalResource = resource;
 				}
 			}else {
+				log.warn("========测试：resource.getEpisodeEnd(): {}, optimalResource.getEpisodeEnd(): {}========", resource.getEpisodeEnd(), optimalResource.getEpisodeEnd());
 				if(resource.getEpisodeEnd().intValue() > optimalResource.getEpisodeEnd().intValue()){
 					optimalResource = resource;
 				}
