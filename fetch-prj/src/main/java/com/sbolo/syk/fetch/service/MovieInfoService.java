@@ -326,7 +326,6 @@ public class MovieInfoService {
 			String iconUri = FetchUtils.uploadIconGetUriFromDir(changeMovie.getIconSubDir());
 			changeMovie.setIconUri(iconUri);
 			BucketUtils.delete(dbMovie.getIconUri());
-			
 		}
 		
 		
