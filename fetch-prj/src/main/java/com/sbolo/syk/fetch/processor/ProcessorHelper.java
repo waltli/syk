@@ -649,6 +649,7 @@ public class ProcessorHelper {
 		for(ResourceInfoVO resource:resources){
 			if(optimalResource == null){
 				optimalResource = resource;
+				log.warn("========测试：第一次进来，resource是否为空: {} resource的episode: {}。赋值后，optimal是否为空: {} optimal的episode: {}========", resource == null, resource.getEpisodeEnd(), optimalResource == null, optimalResource.getEpisodeEnd());
 				continue;
 			}
 			
@@ -657,7 +658,7 @@ public class ProcessorHelper {
 					optimalResource = resource;
 				}
 			}else {
-				log.warn("========测试：resource.getEpisodeEnd(): {}, optimalResource.getEpisodeEnd(): {}========", resource.getEpisodeEnd(), optimalResource.getEpisodeEnd());
+				log.warn("========测试：后面的判断，resource是否为空：{}，resource.getEpisodeEnd(): {}, optimalResource是否为空： {}, optimalResource.getEpisodeEnd(): {}========", resource == null, resource.getEpisodeEnd(), optimalResource == null, optimalResource.getEpisodeEnd());
 				if(resource.getEpisodeEnd().intValue() > optimalResource.getEpisodeEnd().intValue()){
 					optimalResource = resource;
 				}
