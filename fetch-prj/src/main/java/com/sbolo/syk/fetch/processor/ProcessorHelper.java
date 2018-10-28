@@ -154,10 +154,11 @@ public class ProcessorHelper {
 			filter2 = this.setAndGetInsertResource(filter1, finalMovie.getPrn(), thisTime);
 		}else {
 			//获取到数据库中该影片质量最好的resource
+			//此处因为是修改，所以dbMovie的prn已经设置到finalMovie中了
 			dbOptimalResource = resourceInfoService.getOptimalResource(finalMovie.getPrn());
 			
 			if(dbOptimalResource == null) {
-				filter2 = this.setAndGetInsertResource(filter1, finalMovie.getPrn(), thisTime);
+				throw new SpiderException("该影片的最佳resource丢失，请检查！影片prn: "+finalMovie.getPrn()+" 影片名称: ["+fetchMovie.getPureName()+"], url: "+comeFromUrl);
 			}else {
 				//在数据库中过滤一批reousrce
 				filter2 = this.filterResourceInDB(fetchMovie.getCategory(), finalMovie.getPrn(), filter1, dbOptimalResource, thisTime);

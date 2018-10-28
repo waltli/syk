@@ -380,19 +380,23 @@ public class FetchUtils {
     			StringUtils.isNotBlank(fetchMovie.getLabels()) &&
     			!dbMovie.getLabels().equals(fetchMovie.getLabels())) {
     		//从数据库中查询出的labels
-    		String[] fetchLabelNames = fetchMovie.getLabels().split(",");
+    		String[] fetchLabelNames = fetchMovie.getLabels().split(RegexConstant.slashSep);
     		
     		List<MovieLabelVO> newLabels = new ArrayList<>();
     		
     		for(String fetchLabelName : fetchLabelNames) {
+    			boolean hasExists = false;
     			for(MovieLabelEntity dbLabel : dbLabels) {
     				if(fetchLabelName.equals(dbLabel.getLabelName())) {
     					//如果有相同的，证明之前已经有了，直接break，循环下一个被fetch到的
+    					hasExists = true;
     					break;
     				}
     			}
-    			MovieLabelVO newLabel = MovieLabelVO.buildLabel(fetchLabelName, dbMovie.getPrn(), dbMovie.getPureName(), dbMovie.getReleaseTime(), thisTime);
-    			newLabels.add(newLabel);
+    			if(!hasExists) {
+    				MovieLabelVO newLabel = MovieLabelVO.buildLabel(fetchLabelName, dbMovie.getPrn(), dbMovie.getPureName(), dbMovie.getReleaseTime(), thisTime);
+    				newLabels.add(newLabel);
+    			}
     		}
     		if(newLabels.size() != 0) {
     			hasChange = true;
@@ -416,15 +420,19 @@ public class FetchUtils {
     			if(!m.find()){
     				continue;
     			}
+    			boolean hasExists = false;
     			String fetchLocationName = m.group();
     			for(MovieLocationEntity dbLocation : dbLocations) {
     				if(fetchLocationName.equals(dbLocation.getLocationName())) {
     					//如果有相同的，证明之前已经有了，直接break，循环下一个被fetch到的
+    					hasExists = true;
     					break;
     				}
     			}
-    			MovieLocationVO newLocation = MovieLocationVO.buildLocation(fetchLocationName, dbMovie.getPrn(), dbMovie.getPureName(), dbMovie.getReleaseTime(), thisTime);
-    			newLocations.add(newLocation);
+    			if(!hasExists) {
+    				MovieLocationVO newLocation = MovieLocationVO.buildLocation(fetchLocationName, dbMovie.getPrn(), dbMovie.getPureName(), dbMovie.getReleaseTime(), thisTime);
+    				newLocations.add(newLocation);
+    			}
     		}
     		if(newLocations.size() != 0) {
     			hasChange = true;
