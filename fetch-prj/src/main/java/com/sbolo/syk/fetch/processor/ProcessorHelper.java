@@ -134,6 +134,7 @@ public class ProcessorHelper {
 		}
 		
 		//与数据库中的该条movie对比，是否有，是否有不同，最终获取需要写入的movie
+		//此处的finalMovie可能只是几个字段的修改，所以信息是不全的。
 		MovieInfoVO finalMovie = this.filterMovieInDb(fetchMovie, thisTime);
 		
 		//根据扫描的信息构建resource对象
@@ -143,7 +144,7 @@ public class ProcessorHelper {
 		List<ResourceInfoVO> filter1 = this.filterResourceInCache(fetchMovie.getCategory(), fetchResources);
 		
 		if(filter1 == null || filter1.size() == 0) {
-			log.info("No canable resource after fileter in cache! movie: [{}] url: {}", finalMovie.getPureName(), comeFromUrl);
+			log.info("No canable resource after fileter in cache! movie: [{}] url: {}", fetchMovie.getPureName(), comeFromUrl);
 			return null;
 		}
 		
@@ -166,7 +167,7 @@ public class ProcessorHelper {
 		}
 		
 		if(filter2 == null || filter2.size() == 0) {
-			log.info("No canable resource after filter in db! movie: [{}] url: {}", finalMovie.getPureName(), comeFromUrl);
+			log.info("No canable resource after filter in db! movie: [{}] url: {}", fetchMovie.getPureName(), comeFromUrl);
 			return null;
 		}
 		
@@ -647,6 +648,7 @@ public class ProcessorHelper {
 	 */
 	private ResourceInfoVO getOptimalResource(int category, List<ResourceInfoVO> resources){
 		ResourceInfoVO optimalResource = null;
+		log.warn("========测试：还未进入，resourceList的长度：{}========", resources.size());
 		for(ResourceInfoVO resource:resources){
 			if(optimalResource == null){
 				optimalResource = resource;
