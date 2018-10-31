@@ -34,6 +34,7 @@ import com.sbolo.syk.fetch.entity.MovieInfoEntity;
 import com.sbolo.syk.fetch.entity.MovieLabelEntity;
 import com.sbolo.syk.fetch.entity.MovieLocationEntity;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
+import com.sbolo.syk.fetch.exception.ResourceException;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
 import com.sbolo.syk.fetch.vo.MovieLabelVO;
 import com.sbolo.syk.fetch.vo.MovieLocationVO;
@@ -687,7 +688,7 @@ public class FetchUtils {
     	
     }
 	
-	public static ResourceInfoVO buildResouceInfoFromName(String downloadLinkName, Integer category, Integer season, Integer totalEpisode){
+	public static ResourceInfoVO buildResouceInfoFromName(String downloadLinkName, Integer category, Integer season, Integer totalEpisode) throws ResourceException{
 		ResourceInfoVO resourceVO = new ResourceInfoVO();
 		
 		Matcher m2 = Pattern.compile(RegexConstant.quality).matcher(downloadLinkName);
@@ -753,7 +754,7 @@ public class FetchUtils {
 		//如果是连续剧则获取最新集数
 		if(category == MovieCategoryEnum.tv.getCode()){
 			List<Pattern> list_episode = RegexConstant.list_episode3;
-			
+			boolean hasEpisode = false;
 			for(int i=0; i<list_episode.size(); i++){
 	    		m2 = list_episode.get(i).matcher(downloadLinkName);
 	    		if(m2.find()){
@@ -780,9 +781,15 @@ public class FetchUtils {
 					}else {
 						resourceVO.setEpisodeEnd(Integer.valueOf(m2Grop1));
 					}
+					hasEpisode = true;
 					break;
 	    		}
 	    	}
+			
+			if(!hasEpisode) {
+				throw new ResourceException("剧集未获取到集数信息。downloadLinkName: "+downloadLinkName);
+			}
+			
 		}
 		return resourceVO;
 	}

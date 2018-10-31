@@ -61,6 +61,7 @@ import com.sbolo.syk.fetch.entity.MovieInfoEntity;
 import com.sbolo.syk.fetch.entity.MovieLabelEntity;
 import com.sbolo.syk.fetch.entity.MovieLocationEntity;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
+import com.sbolo.syk.fetch.exception.ResourceException;
 import com.sbolo.syk.fetch.mapper.MovieFileIndexMapper;
 import com.sbolo.syk.fetch.service.MovieInfoService;
 import com.sbolo.syk.fetch.service.MovieLabelService;
@@ -457,9 +458,14 @@ public class ProcessorHelper {
 				continue;
 			}
 			link.setName(stripEngName(link.getName(), anotherName));
-			ResourceInfoVO fetchResource = buildResourceInfoFromLinkName(fetchMovie, link, comeFromUrl, thisTime);
-			fetchResource.setShotOutUrlList(shots);
-			resources.add(fetchResource);
+			ResourceInfoVO fetchResource = null;
+			try {
+				fetchResource = buildResourceInfoFromLinkName(fetchMovie, link, comeFromUrl, thisTime);
+				fetchResource.setShotOutUrlList(shots);
+				resources.add(fetchResource);
+			} catch (ResourceException e) {
+				log.warn(e.getMessage());
+			}
 		}
 		return resources;
 	}
@@ -680,19 +686,14 @@ public class ProcessorHelper {
 	 * @param optimalResource
 	 */
 	private void setOptimalResource(MovieInfoVO finalMovie, ResourceInfoVO optimalResource) {
-		//如果optimal为空，则表示不需要变更optimal的信息，故留空直接返回
+		//既然走到这里，且optimal为空，那么表明resource中只有修改，没有新增
+		//仅仅只是为了将影片展示排序靠前
 		if(optimalResource == null) {
+			finalMovie.setResourceWriteTime(new Date());
 			return;
 		}
-		
-		//如果是abandon则不用重设直接跳过，是新增才是createTime，是修改就是updateTime
-		if(optimalResource.getAction() == CommonConstants.insert) {
-			finalMovie.setOptimalResourcePrn(optimalResource.getPrn());
-			finalMovie.setResourceWriteTime(optimalResource.getCreateTime());
-		}else if(optimalResource.getAction() == CommonConstants.update) {
-			finalMovie.setOptimalResourcePrn(optimalResource.getPrn());
-			finalMovie.setResourceWriteTime(optimalResource.getUpdateTime());
-		}
+		finalMovie.setOptimalResourcePrn(optimalResource.getPrn());
+		finalMovie.setResourceWriteTime(optimalResource.getCreateTime());
 	}
 	
 	
@@ -757,8 +758,9 @@ public class ProcessorHelper {
      * 
      * @param downloadLinkName
      * @return
+	 * @throws ResourceException 
      */
-    private ResourceInfoVO buildResourceInfoFromLinkName(MovieInfoVO fetchMovie, LinkInfoVO link, String comeFromUrl, Date thisTime){
+    private ResourceInfoVO buildResourceInfoFromLinkName(MovieInfoVO fetchMovie, LinkInfoVO link, String comeFromUrl, Date thisTime) throws ResourceException{
     	String pureName = fetchMovie.getPureName();
     	Date releaseTime = fetchMovie.getReleaseTime();
     	Integer season = fetchMovie.getPresentSeason();
