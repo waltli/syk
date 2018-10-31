@@ -648,11 +648,16 @@ public class ProcessorHelper {
 	 */
 	private ResourceInfoVO getOptimalResource(int category, List<ResourceInfoVO> resources){
 		ResourceInfoVO optimalResource = null;
-		log.warn("========测试：还未进入，resourceList的长度：{}========", resources.size());
 		for(ResourceInfoVO resource:resources){
+			
+			/*因为前面的逻辑决定了，电影不会有修改，只有剧集才会有修改，
+			而剧集只有在fetch到新一集的时候才会新增，故，如果不是新增，则不必变更optimal*/
+			if(resource.getAction() != CommonConstants.insert) {
+				continue;
+			}
+			
 			if(optimalResource == null){
 				optimalResource = resource;
-				log.warn("========测试：第一次进来，resource是否为空: {} resource的episode: {}。赋值后，optimal是否为空: {} optimal的episode: {}========", resource == null, resource.getEpisodeEnd(), optimalResource == null, optimalResource.getEpisodeEnd());
 				continue;
 			}
 			
@@ -661,7 +666,6 @@ public class ProcessorHelper {
 					optimalResource = resource;
 				}
 			}else {
-				log.warn("========测试：后面的判断，resource是否为空：{}，resource.getEpisodeEnd(): {}, optimalResource是否为空： {}, optimalResource.getEpisodeEnd(): {}========", resource == null, resource.getEpisodeEnd(), optimalResource == null, optimalResource.getEpisodeEnd());
 				if(resource.getEpisodeEnd().intValue() > optimalResource.getEpisodeEnd().intValue()){
 					optimalResource = resource;
 				}
@@ -676,8 +680,19 @@ public class ProcessorHelper {
 	 * @param optimalResource
 	 */
 	private void setOptimalResource(MovieInfoVO finalMovie, ResourceInfoVO optimalResource) {
-		finalMovie.setOptimalResourcePrn(optimalResource.getPrn());
-		finalMovie.setResourceWriteTime(optimalResource.getCreateTime());
+		//如果optimal为空，则表示不需要变更optimal的信息，故留空直接返回
+		if(optimalResource == null) {
+			return;
+		}
+		
+		//如果是abandon则不用重设直接跳过，是新增才是createTime，是修改就是updateTime
+		if(optimalResource.getAction() == CommonConstants.insert) {
+			finalMovie.setOptimalResourcePrn(optimalResource.getPrn());
+			finalMovie.setResourceWriteTime(optimalResource.getCreateTime());
+		}else if(optimalResource.getAction() == CommonConstants.update) {
+			finalMovie.setOptimalResourcePrn(optimalResource.getPrn());
+			finalMovie.setResourceWriteTime(optimalResource.getUpdateTime());
+		}
 	}
 	
 	
