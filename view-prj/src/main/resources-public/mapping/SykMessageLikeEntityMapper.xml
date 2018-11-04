@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sbolo.syk.view.mapper.SykMessageLikeEntityMapper">
+  <resultMap id="BaseResultMap" type="com.sbolo.syk.view.entity.SykMessageLikeEntity">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="prn" jdbcType="VARCHAR" property="prn" />
+    <result column="message_prn" jdbcType="VARCHAR" property="messagePrn" />
+    <result column="gaver_prn" jdbcType="VARCHAR" property="gaverPrn" />
+    <result column="gaver_ip" jdbcType="VARCHAR" property="gaverIp" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+</mapper>

@@ -3,6 +3,10 @@ package com.sbolo.syk.common.mvc.controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.sbolo.syk.common.constants.CommonConstants;
+
 public class BaseController {
 	protected Object getUser(HttpServletRequest request) {
 		if(request == null){
@@ -15,7 +19,7 @@ public class BaseController {
 		if(session == null){
 			throw new RuntimeException("The parameter \"session\" that must be available!");
 		}
-		Object attribute = session.getAttribute("user");
+		Object attribute = session.getAttribute(CommonConstants.USER);
 		return attribute;
 	}
 	
@@ -30,7 +34,7 @@ public class BaseController {
 		if(session == null){
 			throw new RuntimeException("The parameter \"session\" that must be available!");
 		}
-		Object attribute = session.getAttribute("username");
+		Object attribute = session.getAttribute(CommonConstants.USERNAME);
 		if(attribute != null){
 			return attribute.toString();
 		}
@@ -49,6 +53,31 @@ public class BaseController {
 		StringBuffer sb = new StringBuffer();
 		sb.append(scheme).append(serverName).append(":").append(serverPort).append(contextPath);
 		return sb.toString();
+	}
+	
+	protected String getClientIP(HttpServletRequest request) {
+		if(request == null){
+			throw new RuntimeException("The parameter \"request\" that must be available!");
+		}
 		
+		String forwardIP = request.getHeader("x-forwarded-for");
+		if(StringUtils.isNotBlank(forwardIP)) {
+			return forwardIP.split(",")[0];
+		}
+
+		String realIP = request.getHeader("X-Real-IP");
+		if(StringUtils.isNotBlank(realIP)) {
+			return realIP;
+		}
+		
+		return request.getRemoteAddr();
+	}
+	
+	protected String getUserAgent(HttpServletRequest request) {
+		if(request == null){
+			throw new RuntimeException("The parameter \"request\" that must be available!");
+		}
+		
+		return request.getHeader("User-Agent");
 	}
 }

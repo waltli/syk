@@ -52,7 +52,13 @@
         <table tableName="movie_location" domainObjectName="MovieLocationEntity">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table> -->
-        <table tableName="movie_file_index" domainObjectName="MovieFileIndexEntity">
+        <!-- <table tableName="movie_file_index" domainObjectName="MovieFileIndexEntity">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
+        </table> -->
+        <table tableName="syk_message" domainObjectName="SykMessageEntity">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
+        </table>
+        <table tableName="syk_message_like" domainObjectName="SykMessageLikeEntity">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
     </context>

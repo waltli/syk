@@ -4,11 +4,11 @@ html.push('<div class="ds-replybox ds-inline-replybox" box="{%location}">');
 html.push('	<a class="ds-avatar" href="{%link}" target="_blank" title="{%nickname}">');
 html.push('		<img src="{%avatarUrl}" alt="{%nickname}">');
 html.push('	</a>');
-html.push('	<form method="post" message-post="" onsubmit="return false;" url="http://www.sojson.com/message/pushMessage.shtml" >');
-html.push('		<input name="parentId" value="{%pid}" type="hidden">');
+html.push('	<form method="post" message-post="" onsubmit="return false;" url="'+ctx+'/pushMessage" >');
+html.push('		<input name="parentPrn" value="{%parentPrn}" type="hidden">');
 html.push('		<input name="pkey" value="{%pkey}" type="hidden">');
 html.push('		<input name="level" value="{%level}" type="hidden">');
-html.push('		<input name="pids" value="{%pids}" type="hidden">');
+html.push('		<input name="parentPrns" value="{%parentPrns}" type="hidden">');
 html.push('		<div class="ds-textarea-wrapper ds-rounded-top">');
 html.push('			<textarea message="" id="{%location}" name="message" _title="Ctrl+Enter快捷提交" placeholder="说点什么吧…"></textarea>');
 html.push('			<pre class="ds-hidden-text"></pre>');
@@ -26,19 +26,19 @@ html.push('	</form>');
 html.push('</div>');
 //单个评论输出模块
 var xhtml = [];
-xhtml.push('<li class="ds-post "  {%none} data-post-id="{%id}" nickname="{%author_nickname}" >');
+xhtml.push('<li class="ds-post "  {%none} data-post-prn="{%prn}" nickname="{%author_nickname}" >');
 xhtml.push('	<div class="ds-post-self">');
-xhtml.push('		<div class="ds-avatar" data-user-id="{%author_id}">');
-xhtml.push('			<a rel="nofollow author" target="_blank" href="{%author_url}" title="{%author_nickname}" show-user="" data-user-id="{%author_id}">');
+xhtml.push('		<div class="ds-avatar" data-user-prn="{%author_prn}">');
+xhtml.push('			<a rel="nofollow author" target="_blank" href="{%author_url}" title="{%author_nickname}" show-user="" data-user-prn="{%author_prn}">');
 xhtml.push('				<img src="{%author_avatarUrl}" alt="{%author_nickname}">');
 xhtml.push('			</a>');
 xhtml.push('		</div>');
 xhtml.push('		<div class="ds-comment-body">');
 xhtml.push('			<div class="ds-comment-header">');
-xhtml.push('				<a class="ds-user-name ds-highlight" show-user="" href="{%author_url}" rel="nofollow" target="_blank" data-user-id="{%author_id}">{%author_nickname}</a>');
+xhtml.push('				<a class="ds-user-name ds-highlight" show-user="" href="{%author_url}" rel="nofollow" target="_blank" data-user-prn="{%author_prn}">{%author_nickname}</a>');
 xhtml.push('			</div>');
 xhtml.push('			<p>{%message}</p>');
-xhtml.push('			<div class="ds-comment-footer ds-comment-actions  {%likes_class}" level="{%level}" pids="{%pids}" data_id="{%id}" author_id="{%author_id}" >');
+xhtml.push('			<div class="ds-comment-footer ds-comment-actions  {%likes_class}" level="{%level}" parentPrns="{%parentPrns}" data_prn="{%prn}" author_prn="{%author_prn}" >');
 xhtml.push('				<span class="ds-time" datetime="{%createdTimeZooe}" title="{%createdYMDHMSStr}">{%createdTimeFmt}</span>');
 xhtml.push('				<a class="ds-post-reply" href="javascript:void(0);"><span class="ds-icon ds-icon-reply"></span>回复</a>');
 xhtml.push('				<a class="ds-post-likes" href="javascript:void(0);"><span class="ds-icon ds-icon-like"></span>顶({%likes})</a>');
@@ -92,7 +92,7 @@ _history.push('				</div>');
 _history.push('			</li>');
 _history.push('		</ul>');
 _history.push('		<div class="ds-bubble-footer">');
-_history.push('			<a class="ds-ctx-open" href="javascript:void(0);" more_message="显示多层对话" data-user-id="{%id}" data-post-id="{%message_id}" pids="{%pids}">查看对话</a>');
+_history.push('			<a class="ds-ctx-open" href="javascript:void(0);" more_message="显示多层对话" data-user-prn="{%prn}" data-post-prn="{%message_prn}" parentPrns="{%parentPrns}">查看对话</a>');
 _history.push('		</div>');
 _history.push('	 </div>');
 _history.push('	 <div class="ds-arrow ds-arrow-down ds-arrow-border"></div>');
@@ -101,7 +101,7 @@ _history.push('</div>');
 
 //多层记录查看[显示多层对话]
 var historys = [],historys_body=[];
-historys.push('<li class="ds-ctx-entry" data-post-id="{%id}">');
+historys.push('<li class="ds-ctx-entry" data-post-prn="{%prn}">');
 historys.push('	<div class="ds-avatar">');
 historys.push('		<a rel="nofollow author" target="_blank" href="{%url}" title="{%nickname}">');
 historys.push('			<img src="{%avatarUrl}" alt="{%nickname}"/>');
@@ -206,104 +206,98 @@ var S = {
 		}
 };
 
-
-
-//main方法
-var loadMessage = function(){
-	//加载css
-//	so.insert.css('//cdn.sojson.com/css/common/message/embed.default.css',{id:"message-css"});
+(function($){
 	// QQ表情插件
-	(function($){
-		$.fn.selectContents=function(){ 
-			$(this).each(function(i){ 
-				var node = this; 
-				var selection, range, doc, win; 
-				if ((doc = node.ownerDocument) && (win = doc.defaultView) && typeof win.getSelection != 'undefined' && typeof doc.createRange != 'undefined' && (selection = window.getSelection()) && typeof selection.removeAllRanges != 'undefined'){ 
-					range = doc.createRange(); 
-					range.selectNode(node); 
-					if(i == 0){ 
-						selection.removeAllRanges(); 
-					} 
-					selection.addRange(range); 
-				} else if (document.body && typeof document.body.createTextRange != 'undefined' && (range = document.body.createTextRange())){ 
-					range.moveToElementText(node); 
-					range.select(); 
+	$.fn.selectContents=function(){ 
+		$(this).each(function(i){ 
+			var node = this; 
+			var selection, range, doc, win; 
+			if ((doc = node.ownerDocument) && (win = doc.defaultView) && typeof win.getSelection != 'undefined' && typeof doc.createRange != 'undefined' && (selection = window.getSelection()) && typeof selection.removeAllRanges != 'undefined'){ 
+				range = doc.createRange(); 
+				range.selectNode(node); 
+				if(i == 0){ 
+					selection.removeAllRanges(); 
 				} 
-			}); 
-		}, 
-		$.fn.setCaret=function(){
-			var msie = /msie/.test(navigator.userAgent.toLowerCase());
-			if(!msie) return; 
-			var initSetCaret = function(){ 
-				var textObj = $(this).get(0); 
-				textObj.caretPos = document.selection.createRange().duplicate(); 
-			}; 
-			$(this).click(initSetCaret).select(initSetCaret).keyup(initSetCaret); 
-		}, 
-	
-		$.fn.insertAtCaret=function(textFeildValue){ 
-			var textObj = $(this).get(0); 
-			if(document.all && textObj.createTextRange && textObj.caretPos){ 
-				var caretPos=textObj.caretPos; 
-				caretPos.text = caretPos.text.charAt(caretPos.text.length-1) == '' ? 
-				textFeildValue+'' : textFeildValue; 
-			} else if(textObj.setSelectionRange){ 
-				var rangeStart=textObj.selectionStart; 
-				var rangeEnd=textObj.selectionEnd; 
-				var tempStr1=textObj.value.substring(0,rangeStart); 
-				var tempStr2=textObj.value.substring(rangeEnd); 
-				textObj.value=tempStr1+textFeildValue+tempStr2; 
-				textObj.focus(); 
-				var len=textFeildValue.length; 
-				textObj.setSelectionRange(rangeStart+len,rangeStart+len); 
-				textObj.blur(); 
-			}else{ 
-				textObj.value+=textFeildValue; 
+				selection.addRange(range); 
+			} else if (document.body && typeof document.body.createTextRange != 'undefined' && (range = document.body.createTextRange())){ 
+				range.moveToElementText(node); 
+				range.select(); 
 			} 
-		},
-		$.fn.qqFace = function(options){
-			var defaults = {
-				id : 'facebox',
-				path : 'face/',
-				assign : 'content',
-				tip : 'em_'
-			};
-			var option = $.extend(defaults, options);
-			var assign = $('#'+option.assign);
-			var id = option.id;
-			var path = option.path;
-			var tip = option.tip;
-			var self = $(this);
-			
-			if(assign.length<=0){
-				alert('缺少表情赋值对象。');
-				return false;
-			}
-			self.click(function(e){
-				var strFace, labFace;
-				if($('#'+id).length<=0){
-					strFace = '<div id="'+id+'" style="position:absolute;display:none;z-index:1000;" class="qqFace">' +
-								  '<table border="0" cellspacing="0" cellpadding="0"><tr>';
-					for(var i=1; i<=75; i++){
-						labFace = '['+tip+i+']';
-						strFace += '<td><img src="'+path+i+'.gif" '+ assign.attr('id') +'="'+ labFace+'" /></td>';
-						if( i % 15 == 0 ) strFace += '</tr><tr>';
-					}
-					strFace += '</tr></table></div>';
-				}
-				$('body').append(strFace);
-				//位置
-				$('#'+id).css({top:self.offset().top + 22,left:self.offset().left-5}).show(200);
-				e.stopPropagation();
-			});
-			
-			$(document).click(function(){
-				$('#'+id).hide();
-				$('#'+id).remove();
-			});
+		}); 
+	}, 
+	$.fn.setCaret=function(){
+		var msie = /msie/.test(navigator.userAgent.toLowerCase());
+		if(!msie) return; 
+		var initSetCaret = function(){ 
+			var textObj = $(this).get(0); 
+			textObj.caretPos = document.selection.createRange().duplicate(); 
+		}; 
+		$(this).click(initSetCaret).select(initSetCaret).keyup(initSetCaret); 
+	}, 
+
+	$.fn.insertAtCaret=function(textFeildValue){ 
+		var textObj = $(this).get(0); 
+		if(document.all && textObj.createTextRange && textObj.caretPos){ 
+			var caretPos=textObj.caretPos; 
+			caretPos.text = caretPos.text.charAt(caretPos.text.length-1) == '' ? 
+			textFeildValue+'' : textFeildValue; 
+		} else if(textObj.setSelectionRange){ 
+			var rangeStart=textObj.selectionStart; 
+			var rangeEnd=textObj.selectionEnd; 
+			var tempStr1=textObj.value.substring(0,rangeStart); 
+			var tempStr2=textObj.value.substring(rangeEnd); 
+			textObj.value=tempStr1+textFeildValue+tempStr2; 
+			textObj.focus(); 
+			var len=textFeildValue.length; 
+			textObj.setSelectionRange(rangeStart+len,rangeStart+len); 
+			textObj.blur(); 
+		}else{ 
+			textObj.value+=textFeildValue; 
+		} 
+	},
+	$.fn.qqFace = function(options){
+		var defaults = {
+			id : 'facebox', 
+			assign:'main', 
+			path:ctxassets+'/message/img/emote/',
+			tip : 'em_'
 		};
+		
+		var option = $.extend(defaults, options);
+		var assign = $('#'+option.assign);
+		var id = option.id;
+		var path = option.path;
+		var tip = option.tip;
+		var self = $(this);
+		
+		if(assign.length<=0){
+			alert('缺少表情赋值对象。');
+			return false;
+		}
+		self.click(function(e){
+			var strFace, labFace;
+			if($('#'+id).length<=0){
+				strFace = '<div id="'+id+'" style="position:absolute;display:none;z-index:1000;" class="qqFace">' +
+							  '<table border="0" cellspacing="0" cellpadding="0"><tr>';
+				for(var i=1; i<=75; i++){
+					labFace = '['+tip+i+']';
+					strFace += '<td><img src="'+path+i+'.gif" '+ assign.attr('id') +'="'+ labFace+'" /></td>';
+					if( i % 15 == 0 ) strFace += '</tr><tr>';
+				}
+				strFace += '</tr></table></div>';
+			}
+			$('body').append(strFace);
+			//位置
+			$('#'+id).css({top:self.offset().top + 22,left:self.offset().left-5}).show(200);
+			e.stopPropagation();
+		});
+		
+		$(document).click(function(){
+			$('#'+id).hide();
+			$('#'+id).remove();
+		});
+	};
 	
-	})(jQuery);
 	$('body').on('click','[small]',function(){
 		var labFace = $(this).attr('small');
 		$("#small").setCaret();
@@ -314,6 +308,12 @@ var loadMessage = function(){
 		$("#main").setCaret();
 		$("#main").insertAtCaret(labFace);
 	});
+})(jQuery);
+
+//main方法
+var loadMessage = function(){
+	//加载css
+//	so.insert.css('//cdn.sojson.com/css/common/message/embed.default.css',{id:"message-css"});
 	$.extend({
 		unselectContents: function(){ 
 			if(window.getSelection){
@@ -329,7 +329,7 @@ var loadMessage = function(){
 	
 	//获取用户信息
 	var token ={};
-	var pkey = $('[data-key]').attr('data-key');//评论数据Key
+	var pkey = location.pathname;//评论数据Key
 	
 	//评论输出box
 	var body = $("#body_message");
@@ -344,14 +344,9 @@ var loadMessage = function(){
 			likes_class ="ds-post-liked";//点亮
 		}
 		
-		if(o.author.id == 1){
-			o.author.nickname = '在线工具（soゝso）';
-			o.author.avatarUrl = '//qzapp.qlogo.cn/qzapp/100229475/F94F6A0334F639D83B35554797EC6010/50';
-		}
-		
 		//构造单条信息的需要的参数
-		return strFmt(single,$.extend(o,{
-			author_id:author.id,
+		return syk.fmt(single,$.extend(o,{
+			author_prn:author.prn,
 			author_url:author.url,
 			author_nickname:author.nickname,
 			author_avatarUrl:author.avatarUrl,
@@ -360,119 +355,109 @@ var loadMessage = function(){
 			}))
 	};
 	var init_message = function(orderMarker){
-			//判断有没有排名标示
-			var args =  orderMarker?  {key:pkey,orderMarker:orderMarker}:{key:pkey};
-			//清空信息框
-			body.empty();
-			//根据key获取评论信息
-			$.getJSON(ctxassets+"/message/soso.json",function(result){
-				token = result.message.token;//赋值token
-				var fmtData = {};
-				if(token && !$.isEmptyObject(token)){
-					$("[token_nickname]").text(token.nickname).attr('href',token.link);
-				 	$(".ds-toolbar").show(200);
-					fmtData = $.extend(token,{"pid":0,location:"main",level:1,pids:'0',pkey:pkey});
-				}else{
-					fmtData = token = {"pid":0,location:"main",level:1,pids:'0',nickname:"请登录",avatarUrl:ctxassets+"/message/img/default_avatar_50.gif",id:"-1",url:"http://www.sojson.com/admin.shtml",link:"http://www.sojson.com/admin.shtml",pkey:pkey};
-				}
-				//初次加载把评论框加上
-				if($('[box="main"]').length === 0){
-					$("#orderMenu").before(strFmt(html.join(''), fmtData).replace('ds-inline-replybox',''));
-				}
-				//加载emote
-				$('[emote="main"]').qqFace({
-					id : 'facebox', 
-					assign:'main', 
-					path:ctxassets+'/message/img/emote/'	//表情存放的路径
-				});
-				$('#orderMenu').show(100);
-				//多少条评论
-				$('span[len]').text(result.message.data.length);
-				//没有评论
-				if(!result.message.data.length ||result.message.data.length == 0){
-					return body.html('<li class="ds-post ds-post-placeholder">还没有评论，沙发等你来抢</li>'),!1;
-				}
-				
-				//热评
-				if(result && result.message.hotData && result.message.hotData.length){
-					var outArray = [];
-					$.each(result.message.hotData,function(){
-						
-						//获取到单条的HTML
-						var outHtml = strFmt(outSingle(this), {none:""});
-						outArray.push(outHtml);
-					});
-					$("#ds-hot-posts >ul").html(outArray.join(''));
-					$("#ds-hot-posts").show(100);
-				}else{
-					$("#ds-hot-posts").remove();
-				}
-				
-				var users = {};//装用户信息
-				if(result && result.message && result.message.data && result.message.data.length){
-					$.each(result.message.data,function(i,v){
-						//用户信息
-						users[this.author.id] = this.author;
-						
-						//获取到单条的HTML
-						if(this.level > 5){//层级大于5
-							this.message = '{%parent_info}' + this.message;
-						}
-						var outHtml = strFmt(outSingle(this), {none:""});
-						//判断是否父类，如果有父类往下叠加,实现子父类关系
-						var li =  body.find("[data-post-id='"+ this.parentId +"']");
-						if(li.length>0){
-							if(this.level > 5){
-								var info = '<a class="ds-comment-context" pids="'+ this.pids  +'" data-user-id="'+ this.authorId +'"  more=""data-post-id="'+this.id +'" data-parent-id="'+ this.parentId +'">回复 '+ li.attr('nickname') +': </a>';
-								var t = strFmt(outHtml, {parent_info:info});
-								li.parent().children('li:last').after(t);
-							}else{
-								var children = li.children('ul.ds-children');
-								if(children.length > 0){
-									//已经有子评论了
-									children.find('li').eq(0).before(outHtml);
-								}else{
-									//第一个子评论
-									li.append('<ul class="ds-children">'+outHtml +'</ul>');
-								}
-							}
-						}else{
-							body.append(outHtml);
-						}
-					});
-				}else{
-					body.append('<li class="ds-post ds-post-placeholder">还没有评论，沙发等你来抢</li>');
-				}
-				//用户条数信息
-				if(result && result.message && result.message.userTips){
-					var userTips=result.message.userTips;
-					for(var i in userTips){//把count数量放到用户信息中去
-						if(users[i].id == 1){
-							users[i].nickname = '在线工具（soゝso）';
-							users[i].avatarUrl = '//qzapp.qlogo.cn/qzapp/100229475/F94F6A0334F639D83B35554797EC6010/50';
-						}
-						users[i]['count'] =userTips[i];
-					}
-					$._message = {},$._message.tokens = users;
-				};
-			});
+		//判断有没有排名标示
+		var args =  orderMarker?  {key:pkey,orderMarker:orderMarker}:{key:pkey};
+		//清空信息框
+		body.empty();
+		//根据key获取评论信息
+		$.getJSON(ctxassets+"/message/me.json",function(result){
+			token = result.message.token;//赋值token
+			var fmtData = {};
+			if(token && !$.isEmptyObject(token)){
+				$("[token_nickname]").text(token.nickname).attr('href',token.link);
+			 	$(".ds-toolbar").show(200);
+				fmtData = $.extend(token,{"parentPrn":0,location:"main",level:1,parentPrns:'0',pkey:pkey});
+			}else{
+				fmtData = token = {"parentPrn":0,location:"main",level:1,parentPrns:'0',nickname:"请登录",avatarUrl:ctxassets+"/message/img/default_avatar_50.gif",prn:"-1",url:"http://www.sojson.com/admin.shtml",link:"http://www.sojson.com/admin.shtml",pkey:pkey};
+			}
+			//初次加载把评论框加上
+			if($('[box="main"]').length === 0){
+				$("#orderMenu").before(syk.fmt(html.join(''), fmtData).replace('ds-inline-replybox',''));
+			}
+			//加载emote
+			$('[emote="main"]').qqFace({assign:'main'});
+			$('#orderMenu').show(100);
+			//多少条评论
+			$('span[len]').text(result.message.data.length);
+			//没有评论
+			if(!result.message.data.length ||result.message.data.length == 0){
+				return body.html('<li class="ds-post ds-post-placeholder">还没有评论，沙发等你来抢</li>'),!1;
+			}
 			
-			//时间格式化
-			setInterval(function() {
-				$(".ds-time").each(function() {
-					var e = $(this).attr("datetime");
-					var x = S.elapsedTime(e);
-					e && (this.innerHTML = S.elapsedTime(e));
+			//热评
+			if(result && result.message.hotData && result.message.hotData.length){
+				var outArray = [];
+				$.each(result.message.hotData,function(){
+					
+					//获取到单条的HTML
+					var outHtml = syk.fmt(outSingle(this), {none:""});
+					outArray.push(outHtml);
 				});
-			},
-			2e4);
+				$("#ds-hot-posts >ul").html(outArray.join(''));
+				$("#ds-hot-posts").show(100);
+			}else{
+				$("#ds-hot-posts").remove();
+			}
+			
+			var users = {};//装用户信息
+			if(result && result.message && result.message.data && result.message.data.length){
+				$.each(result.message.data,function(i,v){
+					//用户信息
+					users[this.author.prn] = this.author;
+					
+					//获取到单条的HTML
+					if(this.level > 5){//层级大于5
+						this.message = '{%parent_info}' + this.message;
+					}
+					var outHtml = syk.fmt(outSingle(this), {none:""});
+					//判断是否父类，如果有父类往下叠加,实现子父类关系
+					var li =  body.find("[data-post-prn='"+ this.parentPrn +"']");
+					if(li.length>0){
+						if(this.level > 5){
+							var info = '<a class="ds-comment-context" parentPrns="'+ this.parentPrns  +'" data-user-prn="'+ this.authorPrn +'"  more=""data-post-prn="'+this.prn +'" data-parent-prn="'+ this.parentPrn +'">回复 '+ li.attr('nickname') +': </a>';
+							var t = syk.fmt(outHtml, {parent_info:info});
+							li.parent().children('li:last').after(t);
+						}else{
+							var children = li.children('ul.ds-children');
+							if(children.length > 0){
+								//已经有子评论了
+								children.find('li').eq(0).before(outHtml);
+							}else{
+								//第一个子评论
+								li.append('<ul class="ds-children">'+outHtml +'</ul>');
+							}
+						}
+					}else{
+						body.append(outHtml);
+					}
+				});
+			}else{
+				body.append('<li class="ds-post ds-post-placeholder">还没有评论，沙发等你来抢</li>');
+			}
+			//用户条数信息
+			if(result && result.message && result.message.userTips){
+				var userTips=result.message.userTips;
+				for(var i in userTips){//把count数量放到用户信息中去
+					users[i]['count'] =userTips[i];
+				}
+				$._message = {},$._message.tokens = users;
+			};
+		});
+		
+		//时间格式化
+		setInterval(function() {
+			$(".ds-time").each(function() {
+				var e = $(this).attr("datetime");
+				var x = S.elapsedTime(e);
+				e && (this.innerHTML = S.elapsedTime(e));
+			});
+		},
+		2e4);
 	};
 	//加载信息
 	init_message();
 	
-	
-	
-	//用户tips信息显示="{%author_id}"
+	//用户tips信息显示="{%author_prn}"
 	$("#ds-thread").on("mouseover",'[show-user]',function(event){
 		if($('#ds-bubble').length){
 			return;
@@ -480,8 +465,8 @@ var loadMessage = function(){
 		var self = $(this);
 		var parent= $("#ds-reset").offset(),pleft=parent.left,ptop=parent.top;//父DIV的偏移量
 		var left = self.offset().left-pleft-15,top=self.offset().top-ptop-72;//计算出当前偏移量
-		var uid = self.attr('data-user-id');//用户id
-		$("#ds-reset").append(strFmt(_tips.join(''), $._message.tokens[uid]));//用户数据显示
+		var uprn = self.attr('data-user-prn');//用户prn
+		$("#ds-reset").append(syk.fmt(_tips.join(''), $._message.tokens[uprn]));//用户数据显示
 		$('#ds-bubble').css({top:top ,left:left}).show(200);
 	});
 	//用户tips信息显示
@@ -492,22 +477,22 @@ var loadMessage = function(){
 		var self = $(this);
 		var parent= $("#ds-reset").offset(),pleft=parent.left,ptop=parent.top;//父DIV的偏移量
 		var left = self.offset().left-pleft-15,top=self.offset().top-ptop-97;//计算出当前偏移量
-		var uid = self.attr('data-user-id');//用户id
-		var pid =self.attr('data-parent-id');
-		var pt = $('li[data-post-id="'+ pid +'"] span.ds-time') ;
+		var uprn = self.attr('data-user-prn');//用户prn
+		var parentPrn =self.attr('data-parent-prn');
+		var pt = $('li[data-post-prn="'+ parentPrn +'"] span.ds-time') ;
 		var createdTimeZooe =$.trim(pt.attr('datetime'));
 		var createdYMDHMSStr = pt.attr('title');
 		var createdTimeFmt = $.trim(pt.text());
-		var pmessage =$.trim($('li[data-post-id="'+ pid +'"] p').html());
-		var pids =  self.attr('pids');//用来取到各个message，然后显示到列表
-		var data = $.extend($._message.tokens[uid],{createdTimeZooe:createdTimeZooe,createdYMDHMSStr:createdYMDHMSStr,createdTimeFmt:createdTimeFmt,parent_message:pmessage,message_id:self.attr('data-post-id'),pids:pids});
-		$("#ds-reset").append(strFmt(_history.join(''), data ));//用户数据显示
+		var pmessage =$.trim($('li[data-post-prn="'+ parentPrn +'"] p').html());
+		var parentPrns =  self.attr('parentPrns');//用来取到各个message，然后显示到列表
+		var data = $.extend($._message.tokens[uprn],{createdTimeZooe:createdTimeZooe,createdYMDHMSStr:createdYMDHMSStr,createdTimeFmt:createdTimeFmt,parent_message:pmessage,message_prn:self.attr('data-post-prn'),parentPrns:parentPrns});
+		$("#ds-reset").append(syk.fmt(_history.join(''), data ));//用户数据显示
 		$('#ds-bubble').find('.ds-ctx-content>.ds-comment-context').remove().end().css({top:top ,left:left}).show(200);
 	});
 	//移动鼠标隐藏
 	$("#ds-thread").mousemove(function(e) {
 		e= e.target;
-		if(!($('[data-user-id]').is(e) || $("#ds-bubble").is(e) || $('[data-user-id]').find(e).length || $('#ds-bubble').find(e).length)){
+		if(!($('[data-user-prn]').is(e) || $("#ds-bubble").is(e) || $('[data-user-prn]').find(e).length || $('#ds-bubble').find(e).length)){
 			var target = $("#ds-reset >#ds-bubble").hide(300).remove();
 		}
 	});
@@ -516,31 +501,31 @@ var loadMessage = function(){
 		
 		var self =$(this);
 		//获取父类ID串，用来拼接信息楼层关系
-		var pids = self.attr('pids'),pids = pids.split(',');
+		var parentPrns = self.attr('parentPrns'),parentPrns = parentPrns.split(',');
 		var xh = [];//拼接楼层message
-		for(var i=1;pids.length>i+1;i++){
+		for(var i=1;parentPrns.length>i+1;i++){
 			//取到用户ID，用来获取用户信息
-			var uid = $('[data-post-id="'+ pids[i] +'"] >div>div').attr('data-user-id');
+			var uprn = $('[data-post-prn="'+ parentPrns[i] +'"] >div>div').attr('data-user-prn');
 			//取到message
-			var message = $('[data-post-id="'+ pids[i] +'"] >div>div>p').html();
+			var message = $('[data-post-prn="'+ parentPrns[i] +'"] >div>div>p').html();
 			
 			//每个的时间处理
-			var pt = $('[data_id="'+ pids[i] +'"]>span.ds-time'),
+			var pt = $('[data_prn="'+ parentPrns[i] +'"]>span.ds-time'),
 			createdTimeZooe = pt.attr('datetime'),
 			createdYMDHMSStr = pt.attr('title'),
 			createdTimeFmt = $.trim(pt.text());
 			var data = {message:message,no:i,createdTimeZooe:createdTimeZooe,createdYMDHMSStr:createdYMDHMSStr,createdTimeFmt:createdTimeFmt};
 			//取到用户信息，合并信息
 			//拼接单个message
-			data = $.extend($._message.tokens[uid],data);
+			data = $.extend($._message.tokens[uprn],data);
 			//html拼接信息
-			xh.push(strFmt(historys.join(""), data));
+			xh.push(syk.fmt(historys.join(""), data));
 		}
 		//拼接大的弹框信息
-		xh = strFmt(historys_body.join(''), {historys_body:xh.join("")});
+		xh = syk.fmt(historys_body.join(''), {historys_body:xh.join("")});
 		//输出到body
 		$('body').append(xh);
-		//删除 <a class="ds-comment-context" pids=",3309,3310," data-user-id="1" more="" data-post-id="3310" data-parent-id="3309">回复 在线工具: </a>
+		//删除 <a class="ds-comment-context" parentPrns=",3309,3310," data-user-prn="1" more="" data-post-prn="3310" data-parent-prn="3309">回复 在线工具: </a>
 		$('#ds-ctx div.ds-ctx-content>a.ds-comment-context').remove();
 		$('#ds-wrapper').show(300);//显示
 		
@@ -572,8 +557,8 @@ var loadMessage = function(){
 	//删除按钮
 	$("#ds-thread").on("mouseover mouseout",'.ds-comment-actions',function(event){
 		var self = $(this);
-		var author_id = self.attr('author_id');
-		if(author_id == token.id || token.id == 1){
+		var author_prn = self.attr('author_prn');
+		if(author_prn == token.prn || token.prn == 1){
 			if(event.type == "mouseover"){
 			 	$(this).find('.ds-post-delete-a').removeClass('none');
 			}else if(event.type == "mouseout"){
@@ -585,58 +570,47 @@ var loadMessage = function(){
 	//删除按钮
 	$("#ds-thread").on('click',"a.ds-post-delete-a",function(){
 		var self = $(this);
-		debugger;
 		layer.confirm('确认删除?',{
 			btn: ['确认','取消']
 			},function(){
-							debugger;
-				var p = self.p('[data_id]');
-				var id = p.attr('data_id');
-				var pids=p.attr('pids');
-				var data = {level:p.attr('level'),pids:pids,id:id,pkey:pkey};
+				var p = self.parent('[data_prn]');
+				var prn = p.attr('data_prn');
+				var parentPrns=p.attr('parentPrns');
+				var data = {level:p.attr('level'),parentPrns:parentPrns,prn:prn,pkey:pkey};
 				$.post("/message/deleteMessage.shtml",data,function(result){
-					//没有登录，请登录
-					debugger;
-					if(so.user.isLogin(result)){
-						if(result.status == 200){
-							//获取当前数据
-									debugger;
-							var pli = p.ps('li[data-post-id="'+ id +'"]');
-							pli.hide(500);//先动态隐藏
-							var hides = [];//需要删除的项
-							$.each($('[pids^="'+ pids+'"]'),function(){
-								var s = $('li[data-post-id="'+ $(this).attr('data-post-id') +'"]').hide(500);//先隐藏。后删除
-								hides.push(s);//添加数组，方便下面去定时删除
+					
+					syk.verify(data, function(){
+						//获取当前数据
+						var pli = p.parents('li[data-post-prn="'+ prn +'"]');
+						pli.hide(500);//先动态隐藏
+						var hides = [];//需要删除的项
+						$.each($('[parentPrns^="'+ parentPrns+'"]'),function(){
+							var s = $('li[data-post-prn="'+ $(this).attr('data-post-prn') +'"]').hide(500);//先隐藏。后删除
+							hides.push(s);//添加数组，方便下面去定时删除
+						});
+						
+						setTimeout(function(){
+							var ul = pli.parent('ul');
+							if(ul.children('li').length == 1){
+								ul.remove();//如果只有一个li，直接删除ul
+							}else{
+								pli.remove();//多个li，直接删除当前li即可
+							}
+							//上面隐藏，下面删除
+							$.each(hides,function(){
+								$(this).remove();
 							});
-							
-							setTimeout(function(){
-											debugger;
-								var ul = pli.p('ul');
-								if(ul.children('li').length == 1){
-									ul.remove();//如果只有一个li，直接删除ul
-								}else{
-									pli.remove();//多个li，直接删除当前li即可
-								}
-								//上面隐藏，下面删除
-								$.each(hides,function(){
-									$(this).remove();
-								});
-								//多少条评论
-								var len = ~~$('span[len]').text()-hides.length;
-								$('span[len]').text(len);
-								if(len === 0){//如果是0条要显示提示信息
-									$('#orderMenu').after('<ul class="ds-comments" id="body_message" style="display:none;"><li class="ds-post ds-post-placeholder">还没有评论，沙发等你来抢</li></ul>');
-									$("#body_message").show(300);
-								}
-								hides=null;
-							},600);//再删除
-									debugger;
-							return layer.msg('删除成功!'),!1;
-						}else{
-									debugger;							debugger;
-							return layer.msg(result.message || '删除失败!',so.defn),!1;
-						}
-					}
+							//多少条评论
+							var len = ~~$('span[len]').text()-hides.length;
+							$('span[len]').text(len);
+							if(len === 0){//如果是0条要显示提示信息
+								$('#orderMenu').after('<ul class="ds-comments" id="body_message" style="display:none;"><li class="ds-post ds-post-placeholder">还没有评论，沙发等你来抢</li></ul>');
+								$("#body_message").show(300);
+							}
+							hides=null;
+						},600);//再删除
+						return layer.msg('删除成功!'),!1;
+					});
 				},'json');
 			}
 		);
@@ -658,53 +632,32 @@ var loadMessage = function(){
 	});
 	//单条消息点击回复
 	$("#ds-thread").on('click',"a.ds-post-reply",function(){
-		if(token.id <0){
-			$.tmp_login = !0;//登录之后立马刷新
-			debugger;
-			return so.user.login(),!1;
-		}
 		$("div[box='small']").remove();
 		var xhtml = html.join('');
-						debugger;
-		var p =  $(this).p("div[data_id]");
-		var pid = p.attr('data_id');
+		var p =  $(this).parent("div[data_prn]");
+		var parentPrn = p.attr('data_prn');
 		var level=  1+~~p.attr('level');
-		var pids=  p.attr('pids');
-		$(this).parent().after(strFmt(xhtml, $.extend(token,{"pid":pid,location:"small",level:level,pids:pids})));
-		$('[emote="small"]').qqFace({
-			id : 'facebox', 
-			assign:'small', 
-			path:'//cdn.sojson.com/images/emote/'	//表情存放的路径
-		});
+		var parentPrns=  p.attr('parentPrns');
+		$(this).parent().after(syk.fmt(xhtml, $.extend(token,{"parentPrn":parentPrn,location:"small",level:level,parentPrns:parentPrns})));
+		$('[emote="small"]').qqFace({assign:'small'});
 	});
 	//顶
 	$("#ds-thread").on('click',"a.ds-post-likes",function(){
 		var self =$(this);
-				debugger;				
-		var id = self.ps('li[data-post-id]').attr('data-post-id');
-					debugger;
+		var prn = self.parents('li[data-post-prn]').attr('data-post-prn');
 		var load = layer.load();
-		$.post('/message/like.shtml',{id:id,pkey:pkey},function(data){
-			debugger;
+		$.post('/message/like.shtml',{prn:prn,pkey:pkey},function(data){
 			layer.close(load);
-			//没有登录，请登录
-			debugger;
-			if(so.user.isLogin(data)){
-				if(data && data.status == 200){
-					self.html(strFmt('<span class="ds-icon ds-icon-like"></span>顶({%likes})', data));
-					//♥显示
-					if(data.marker){
-							debugger;
-						self.p('div.ds-comment-footer').addClass('ds-post-liked');
-					}else{
-						self.p('div.ds-comment-footer').removeClass('ds-post-liked');
-					}
-					self.attr("like",data.marker);
+			syk.verify(data, function(){
+				self.html(syk.fmt('<span class="ds-icon ds-icon-like"></span>顶({%likes})', data));
+				//♥显示
+				if(data.marker){
+					self.parent('div.ds-comment-footer').addClass('ds-post-liked');
 				}else{
-							debugger;						debugger;
-					return layer.msg(data.message || '操作失败！',so.defn),!1;
+					self.parent('div.ds-comment-footer').removeClass('ds-post-liked');
 				}
-			}
+				self.attr("like",data.marker);
+			});
 		},'json');
 		
 		
@@ -712,73 +665,56 @@ var loadMessage = function(){
 	//提交
 	$("#ds-thread").on('click',"[submit]",function(){
 		var self = $(this);
-					debugger;
-		var form = self.ps('form');
+		var form = self.parents('form');
 		var message = form.find("[message]");
 		if($.trim(message.val()) == ''){
-					debugger;
-			return layer.msg("请输入内容",new Function()),!1;
+			return layer.msg("请输入内容"),!1;
 		}
 		if(message.val().length >2000){
-					debugger;
-			return layer.msg("内容超过2000",new Function()),!1;
+			return layer.msg("内容超过2000"),!1;
 		}
-		var parentIdv =form[0].parentId.value;
+		var parentPrnv =form[0].parentPrn.value;
 		var pkeyv =pkey || form[0].pkey.value;//评论加载Key
 		var levelv =form[0].level.value;//层级
-		var pidsv = form[0].pids.value;//父id串
-		var messagev =form[0].message.value.filter();//评论内容，过滤
-		var args = {message:messagev,pids:pidsv,level:levelv,pkey:pkeyv,parentId:parentIdv};//form.serialize()
-					debugger;
+		var parentPrnsv = form[0].parentPrns.value;//父prn串
+		var messagev =form[0].message.value;//评论内容
+		var args = {msgContent:messagev,parentPrns:parentPrnsv,level:levelv,pkey:pkeyv,parentPrn:parentPrnv};//form.serialize()
 		var load = layer.load();
 		$.post(form.attr('url'),args,function(result){
-			debugger;
 			layer.close(load);
-			//没有登录，请登录
-			if(so.user.isLogin(result)){
-				if(result && result.status == 200){
-					var data = result.data;
-					 if(data.level > 5){//层级大于5，特殊处理
-						 data.message = '{%parent_info}' + data.message;
-		 			 }
-					 var h = strFmt(outSingle(data), {none:"style='display:none'"});;
-					 var box = self.attr('submit');
-					 if(box == 'main'){//主评论框
-						 $("#body_message").children('li').eq(0).before(h);
-						 $("#body_message").find('li.ds-post-placeholder').remove();
-						 message.val('');
-					 }else{
-					 	var li =  $("#body_message").find("[data-post-id='"+ data.parentId +"']");
-					 	if(data.level > 5){
-		 					var info = '<a class="ds-comment-context"  pids="'+ data.pids  +'" data-user-id="'+ data.authorId +'"  more="" data-post-id="'+data.id +'" data-parent-id="'+ data.parentId +'">回复 '+ li.attr('nickname') +': </a>';
-		 					var t = strFmt(h, {parent_info:info});
-		 					li.parent().children('li:last').after(t);
-					 	}else{
-							var children = li.children('ul.ds-children');
-							if(children.length > 0){
-								//已经有子评论了
-								children.find('li').eq(0).before(h);
-							}else{
-								//第一个子评论
-								li.append('<ul class="ds-children">'+h +'</ul>');
-							}
-					 	}
-					 	$('div[box="small"]').remove();//删除评论框
-					 }
-					 //增加评论数
-					 $('span[len]').text(1+~~( $('span[len]').text()));
-					 $('li.ds-post').show(500);
-				}else if(result.status == 404){
-							debugger;
-					return layer.msg(result.message,function(){
-						debugger;
-						so.refresh();
-					}),!1;
+			syk.verify(result, function(){
+				var data = result.obj;
+				if(data.level > 5){//层级大于5，特殊处理
+					data.message = '{%parent_info}' + data.message;
+	 			}
+				var h = syk.fmt(outSingle(data), {none:"style='display:none'"});;
+				var box = self.attr('submit');
+				if(box == 'main'){//主评论框
+					$("#body_message").children('li').eq(0).before(h);
+					$("#body_message").find('li.ds-post-placeholder').remove();
+					message.val('');
 				}else{
-							debugger;							debugger;
-					return layer.msg(result.message || '操作失败！',so.defn),!1;
-				}
-			}
+					var li =  $("#body_message").find("[data-post-prn='"+ data.parentPrn +"']");
+					if(data.level > 5){
+					var info = '<a class="ds-comment-context"  parentPrns="'+ data.parentPrns  +'" data-user-prn="'+ data.authorPrn +'"  more="" data-post-prn="'+data.prn +'" data-parent-prn="'+ data.parentPrn +'">回复 '+ li.attr('nickname') +': </a>';
+	 					var t = syk.fmt(h, {parent_info:info});
+	 					li.parent().children('li:last').after(t);
+				 	}else{
+						var children = li.children('ul.ds-children');
+						if(children.length > 0){
+							//已经有子评论了
+							children.find('li').eq(0).before(h);
+						}else{
+							//第一个子评论
+							li.append('<ul class="ds-children">'+h +'</ul>');
+						}
+				 	}
+				 	$('div[box="small"]').remove();//删除评论框
+				 }
+				 //增加评论数
+				 $('span[len]').text(1+~~( $('span[len]').text()));
+				 $('li.ds-post').show(500);
+			});
 		},'json');
 	});
 	

@@ -40,14 +40,17 @@ public class RequestResult<T> implements Serializable {
 	private int pageLength;
 
 	private Boolean status = true;
+	private int code;
 	private String[] error;
 	private Throwable throwable;
 
 	public RequestResult() {
+		this.code = 200;
 	}
 
 	public RequestResult(T obj) {
 		this.obj = obj;
+		this.code = 200;
 	}
 	
 	public RequestResult(List<T> list) {
@@ -56,6 +59,7 @@ public class RequestResult<T> implements Serializable {
 			this.listSize = list.size();
 			this.obj = list.get(0);
 		}
+		this.code = 200;
 	}
 
 	public RequestResult(List<T> list, long allRow, int currentPage, int pageSize) {
@@ -63,7 +67,7 @@ public class RequestResult<T> implements Serializable {
 		this.allRow = allRow;
 		this.currentPage = currentPage;
 		this.pageSize = pageSize;
-		
+		this.code = 200;
 		init();
 	}
 	
@@ -167,6 +171,14 @@ public class RequestResult<T> implements Serializable {
 
 	public void setSort(String sort) {
 		this.sort = sort;
+	}
+
+	public int getCode() {
+		return code;
+	}
+
+	public void setCode(int code) {
+		this.code = code;
 	}
 
 	/**

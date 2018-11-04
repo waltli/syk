@@ -1,4 +1,4 @@
-package com.sbolo.syk.fetch.interceptor;
+package com.sbolo.syk.view.interceptor;
 
 import java.util.Map;
 
@@ -10,7 +10,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
+import com.sbolo.syk.common.ui.RequestResult;
+import com.sbolo.syk.view.vo.SykUsersVO;
 
 public class LoginInterceptor implements HandlerInterceptor {
 
@@ -36,37 +39,21 @@ public class LoginInterceptor implements HandlerInterceptor {
 		HttpSession session = request.getSession();
 		Object user = session.getAttribute(CommonConstants.USER);
 		
-		if(user != null){
-			return true;
+		if(user == null){
+			SykUsersVO sykUser = new SykUsersVO();
+			sykUser.setPrn("test111");
+			sykUser.setAvatarUri("//qzapp.qlogo.cn/qzapp/101263695/8F3E583A63B87A27E75329AEF2C2821E/100");
+			sykUser.setNikename("张三");
+			session.setAttribute(CommonConstants.USER, sykUser);
 		}
-		//获取请求的URL
-		String url = request.getRequestURI();
-		String contextPath = request.getContextPath();
-		String uri = url.replace(contextPath, "");
-		
-		Map<String, String[]> parameterMap = request.getParameterMap();
-		if(parameterMap != null && parameterMap.size() > 0) {
-			String params = "";
-			for(String key : parameterMap.keySet()) {
-				String[] strings = parameterMap.get(key);
-				String val = "";
-				for(String str :strings) {
-					val += ("," + str);
-				}
-				val = val.substring(1);
-				params  = params + key + "=" + val + "&";
-			}
-			if(StringUtils.isNotBlank(params)) {
-				params = "?"+params.substring(0, params.length()-1);
-				uri += params;
-			}
-		}
-		
-		
-		//不符合条件的，跳转到登录界面
-		response.sendRedirect(contextPath+"/login?cb="+uri);
-		
-		return false;
+		return true;
+//		RequestResult<String> result = new RequestResult<>();
+//		result.setCode(300);
+//		result.setError("请先登录。");
+//		String json = JSON.toJSONString(result);
+//		response.setContentType("application/json;charset=utf-8");
+//		response.getWriter().write(json);
+//		return false;
 	}
 
 }

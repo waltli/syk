@@ -50,6 +50,7 @@ public class CommonConstants {
 	public static final String location_s = "a";
 	public static final String pic_s = "p";
 	public static final String file_s = "f";
+	public static final String message_s = "g";
 	
 	public static final int rt_update = 2;
 	public static final int rt_add2update = 3;
@@ -62,6 +63,9 @@ public class CommonConstants {
 	
 	public static final String movie_default_icon = "movie_default_large.png";
 	public static final String tv_default_icon = "tv_default_large.png";
+	
+	public static final String USER = "user";
+	public static final String USERNAME = "username";
 	
 	/**
 	 * 乐观锁数据库列名

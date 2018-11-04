@@ -3,6 +3,8 @@ package com.sbolo.syk.common.mvc.filter.wrapper;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
+import org.springframework.web.util.HtmlUtils;
+
 public class XSSHttpServletRequestWrapper extends HttpServletRequestWrapper {
 
 	HttpServletRequest orgRequest = null;
@@ -21,7 +23,7 @@ public class XSSHttpServletRequestWrapper extends HttpServletRequestWrapper {
 	public String getParameter(String name) {
 		String value = super.getParameter(name);
         if (value != null) {
-            value = xssEncode(value);
+        	value = HtmlUtils.htmlEscape(value);
         }
         return value;
 	}
@@ -35,10 +37,25 @@ public class XSSHttpServletRequestWrapper extends HttpServletRequestWrapper {
     public String getHeader(String name) {
         String value = super.getHeader(name);
         if (value != null) {
-            value = xssEncode(value);
+            value = HtmlUtils.htmlEscape(value);
         }
         return value;
     }
+    
+    @Override
+    public String[] getParameterValues(String name) {
+        // 处理路径中的转义字符
+        String[] values = super.getParameterValues(name);
+        String[] newValues = new String[values.length];
+
+        for (int i = 0; i < values.length; i++) {
+            newValues[i] = HtmlUtils.htmlEscape(values[i]);
+        }
+
+        return newValues;
+    }
+    
+    
     /**
      * 将容易引起xss漏洞的半角字符直接替换成全角字符
      *
