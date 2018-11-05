@@ -8,11 +8,11 @@ import com.sbolo.syk.common.mvc.filter.XSSFilter;
 
 @Configuration
 public class FilterConfiguration {
-    @Bean
-    public FilterRegistrationBean<XSSFilter> filterRegist() {
-        FilterRegistrationBean<XSSFilter> frBean = new FilterRegistrationBean<XSSFilter>();
-        frBean.setFilter(new XSSFilter());
-        frBean.addUrlPatterns("/*");
-        return frBean;
-    }
+//    @Bean
+//    public FilterRegistrationBean<XSSFilter> filterRegist() {
+//        FilterRegistrationBean<XSSFilter> frBean = new FilterRegistrationBean<XSSFilter>();
+//        frBean.setFilter(new XSSFilter());
+//        frBean.addUrlPatterns("/*");
+//        return frBean;
+//    }
 }

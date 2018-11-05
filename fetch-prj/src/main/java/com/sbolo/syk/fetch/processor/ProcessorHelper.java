@@ -3,6 +3,7 @@ package com.sbolo.syk.fetch.processor;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -522,10 +523,13 @@ public class ProcessorHelper {
 	 * @param category 类型 tv/movie
 	 * @param fetchResources 获取到的所有resource
 	 * @return
+	 * @throws InvocationTargetException 
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
 	 */
 	private List<ResourceInfoVO> filterResourceInDB(int category, String moviePrn, 
 			List<ResourceInfoVO> fetchResources, 
-			ResourceInfoEntity dbOptimalResource, Date thisTime){
+			ResourceInfoEntity dbOptimalResource, Date thisTime) throws InstantiationException, IllegalAccessException, InvocationTargetException{
 		//过滤完成后剩下的资源
 		List<ResourceInfoVO> filterList = new ArrayList<>();
 		

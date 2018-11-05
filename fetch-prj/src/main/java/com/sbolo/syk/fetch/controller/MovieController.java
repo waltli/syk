@@ -1,5 +1,6 @@
 package com.sbolo.syk.fetch.controller;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -58,7 +59,7 @@ public class MovieController {
 	@Paginator
 	public String go(Model model, HttpServletRequest request, 
 			@RequestParam(value="page",defaultValue="1", required=false) Integer pageNum,
-            @RequestParam(value="q", required=false) String keyword){
+            @RequestParam(value="q", required=false) String keyword) throws InstantiationException, IllegalAccessException, InvocationTargetException{
 		RequestResult<MovieInfoVO> result = movieInfoService.getAroundList(pageNum, pageSize, null, keyword);
 		model.addAttribute("result", result);
 		return list;

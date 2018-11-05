@@ -13,7 +13,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.ui.RequestResult;
-import com.sbolo.syk.view.vo.SykUsersVO;
+import com.sbolo.syk.view.vo.SykUserVO;
 
 public class LoginInterceptor implements HandlerInterceptor {
 
@@ -40,10 +40,10 @@ public class LoginInterceptor implements HandlerInterceptor {
 		Object user = session.getAttribute(CommonConstants.USER);
 		
 		if(user == null){
-			SykUsersVO sykUser = new SykUsersVO();
+			SykUserVO sykUser = new SykUserVO();
 			sykUser.setPrn("test111");
 			sykUser.setAvatarUri("//qzapp.qlogo.cn/qzapp/101263695/8F3E583A63B87A27E75329AEF2C2821E/100");
-			sykUser.setNikename("张三");
+			sykUser.setNickname("张三");
 			session.setAttribute(CommonConstants.USER, sykUser);
 		}
 		return true;

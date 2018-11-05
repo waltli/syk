@@ -1,5 +1,6 @@
 package com.sbolo.syk.view.service;
 
+import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -55,7 +56,7 @@ public class MovieInfoService {
 	@Resource
 	private MovieHotStatMapper movieHotStatMapper;
 	
-	public RequestResult<MovieInfoVO> getAroundList(int pageNum, int pageSize, String label, String keyword){
+	public RequestResult<MovieInfoVO> getAroundList(int pageNum, int pageSize, String label, String keyword) throws InstantiationException, IllegalAccessException, InvocationTargetException{
         Map<String, Object> params = new HashMap<String, Object>();
         if(StringUtils.isNotBlank(keyword)){
         	params.put("keyword", keyword);
@@ -86,7 +87,7 @@ public class MovieInfoService {
 	}
 	
 	@CacheAvl(key="sidebar", hKey="currMonthTop", timeout=30, timeUnit=TimeUnit.MINUTES)
-	public Map<String, List<MovieHotStatVO>> getCurrMonthTop(){
+	public Map<String, List<MovieHotStatVO>> getCurrMonthTop() throws InstantiationException, IllegalAccessException, InvocationTargetException{
 		Map<String, List<MovieHotStatVO>> tops = null;
 //		SimpleDateFormat sdf = new SimpleDateFormat("MM月dd日");
 		Calendar calendar = Calendar.getInstance();
@@ -126,7 +127,7 @@ public class MovieInfoService {
 	}
 	
 	@CacheAvl(key="sidebar", hKey="lastMonthTop", timeout=30, timeUnit=TimeUnit.MINUTES)
-	public Map<String, List<MovieHotStatVO>> getLastMonthTop(){
+	public Map<String, List<MovieHotStatVO>> getLastMonthTop() throws InstantiationException, IllegalAccessException, InvocationTargetException{
 		Map<String, List<MovieHotStatVO>> tops = null;
 //		SimpleDateFormat sdf = new SimpleDateFormat("MM曰dd日");
 		

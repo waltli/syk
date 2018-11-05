@@ -7,13 +7,13 @@ import org.apache.ibatis.annotations.Select;
 
 import com.sbolo.syk.common.mvc.mapper.BatchWriteMapper;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
-import com.sbolo.syk.fetch.entity.SykUsersEntity;
+import com.sbolo.syk.fetch.entity.SykUserEntity;
 
 import tk.mybatis.mapper.common.Mapper;
 
-public interface SykUsersMapper extends Mapper<SykUsersEntity>, BatchWriteMapper<SykUsersEntity> {
+public interface SykUserMapper extends Mapper<SykUserEntity>, BatchWriteMapper<SykUserEntity> {
 	
 	@ResultMap("BaseResultMap")
-	@Select("select * from syk_users t where t.username = #{username} and t.password = #{password}")
-	SykUsersEntity selectOneByUsernamePassword(Map<String, Object> params);
+	@Select("select * from syk_user t where t.username = #{username} and t.password = #{password}")
+	SykUserEntity selectOneByUsernamePassword(Map<String, Object> params);
 }

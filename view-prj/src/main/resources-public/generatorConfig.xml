@@ -55,10 +55,13 @@
         <!-- <table tableName="movie_file_index" domainObjectName="MovieFileIndexEntity">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table> -->
-        <table tableName="syk_message" domainObjectName="SykMessageEntity">
+        <!-- <table tableName="syk_message" domainObjectName="SykMessageEntity">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
-        </table>
-        <table tableName="syk_message_like" domainObjectName="SykMessageLikeEntity">
+        </table> -->
+        <!-- <table tableName="syk_message_like" domainObjectName="SykMessageLikeEntity">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
+        </table> -->
+        <table tableName="syk_user" domainObjectName="SykUserEntity">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
     </context>

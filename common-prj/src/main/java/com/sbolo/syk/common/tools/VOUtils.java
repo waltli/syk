@@ -1,5 +1,6 @@
 package com.sbolo.syk.common.tools;
 
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,17 +15,12 @@ public class VOUtils {
 
 	private static final Logger LOG = LoggerFactory.getLogger(VOUtils.class);
 
-	public static <V> V po2vo(Object po, Class<V> clazz) {
-		V vo = null;
-		try {
-			if (ObjectUtils.isEmpty(po)) {
-				return vo;
-			}
-			vo = clazz.newInstance();
-			BeanUtils.copyProperties(vo, po);
-		} catch (Exception e) {
-			LOG.error(e.getMessage(), e);
+	public static <V> V po2vo(Object po, Class<V> clazz) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+		if (ObjectUtils.isEmpty(po)) {
+			return null;
 		}
+		V vo = clazz.newInstance();
+		BeanUtils.copyProperties(vo, po);
 		return vo;
 	}
 
@@ -53,7 +49,7 @@ public class VOUtils {
 		return vo;
 	}
 
-	public static <P, V> List<V> po2vo(List<P> content, Class<V> clazz) {
+	public static <P, V> List<V> po2vo(List<P> content, Class<V> clazz) throws InstantiationException, IllegalAccessException, InvocationTargetException {
 		List<V> newContent = new ArrayList<V>();
 		if (content != null && content.size() > 0) {
 			for (P po : content) {

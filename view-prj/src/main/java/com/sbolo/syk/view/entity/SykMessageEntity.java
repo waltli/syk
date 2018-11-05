@@ -27,6 +27,9 @@ public class SykMessageEntity {
 
     @Column(name = "`parent_prns`")
     private String parentPrns;
+    
+    @Column(name = "`root_prn`")
+    private String rootPrn;
 
     @Column(name = "`like_count`")
     private Integer likeCount;
@@ -48,8 +51,26 @@ public class SykMessageEntity {
 
     @Column(name = "`update_time`")
     private Date updateTime;
+    
+    private SykUserEntity author;
 
-    /**
+	public SykUserEntity getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(SykUserEntity author) {
+		this.author = author;
+	}
+
+	public String getRootPrn() {
+		return rootPrn;
+	}
+
+	public void setRootPrn(String rootPrn) {
+		this.rootPrn = rootPrn;
+	}
+
+	/**
      * @return id
      */
     public Long getId() {

@@ -3,92 +3,75 @@ package com.sbolo.syk.fetch.vo;
 import java.util.Date;
 import javax.persistence.*;
 
-@Table(name = "`syk_users`")
-public class SykUsersVO {
+public class SykUserVO {
     /**
      * 自增id
      */
-    @Id
-    @Column(name = "`id`")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /**
      * 全局唯一标识
      */
-    @Column(name = "`prn`")
     private String prn;
 
     /**
      * 用户名
      */
-    @Column(name = "`username`")
     private String username;
 
     /**
      * 密码
      */
-    @Column(name = "`password`")
     private String password;
 
     /**
      * 手机号
      */
-    @Column(name = "`mobile`")
     private String mobile;
 
     /**
      * 邮箱地址
      */
-    @Column(name = "`email`")
     private String email;
 
     /**
      * 微信信息prn
      */
-    @Column(name = "`wechat_info_prn`")
     private String wechatInfoPrn;
 
     /**
      * 微博信息prn
      */
-    @Column(name = "`weibo_info_prn`")
     private String weiboInfoPrn;
 
     /**
      * 用户类型
      */
-    @Column(name = "`user_type`")
     private Integer userType;
 
     /**
      * 状态
      */
-    @Column(name = "`st`")
     private Integer st;
 
     /**
      * 头像uri
      */
-    @Column(name = "`avatar_uri`")
     private String avatarUri;
 
     /**
      * 昵称
      */
-    @Column(name = "`nikename`")
     private String nikename;
 
     /**
      * 创建时间
      */
-    @Column(name = "`create_time`")
     private Date createTime;
 
     /**
      * 修改时间
      */
-    @Column(name = "`update_time`")
     private Date updateTime;
 
     /**

@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.common.ui.RequestResult;
-import com.sbolo.syk.fetch.entity.SykUsersEntity;
-import com.sbolo.syk.fetch.service.SykUsersService;
-import com.sbolo.syk.fetch.vo.SykUsersVO;
+import com.sbolo.syk.fetch.entity.SykUserEntity;
+import com.sbolo.syk.fetch.service.SykUserService;
+import com.sbolo.syk.fetch.vo.SykUserVO;
 
 @Controller
 public class LoginController {
@@ -26,7 +26,7 @@ public class LoginController {
 	private static final String login = "login.html";
 	
 	@Autowired
-	private SykUsersService sykUsersService;
+	private SykUserService sykUserService;
 	
 	@RequestMapping("")
 	public String go(){
@@ -47,14 +47,14 @@ public class LoginController {
 	public RequestResult<Map<String, Object>> login(HttpSession session, String username, String password, 
 			@RequestParam(value="cb", required=false)String cbUrl) throws Exception{
 		RequestResult<Map<String, Object>> result = null;
-		SykUsersEntity userEntity = sykUsersService.getOneByUsernamePassword(username, password);
+		SykUserEntity userEntity = sykUserService.getOneByUsernamePassword(username, password);
 		
 		if(userEntity == null){
 			result = RequestResult.error("用户名或密码错误");
 			return result;
 		}
 		
-		SykUsersVO userVO = VOUtils.po2vo(userEntity, SykUsersVO.class);
+		SykUserVO userVO = VOUtils.po2vo(userEntity, SykUserVO.class);
 		
 		session.setAttribute("user", userVO);
 		

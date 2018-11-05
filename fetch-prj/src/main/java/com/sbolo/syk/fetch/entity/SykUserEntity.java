@@ -1,10 +1,10 @@
-package com.sbolo.syk.view.vo;
+package com.sbolo.syk.fetch.entity;
 
 import java.util.Date;
 import javax.persistence.*;
 
-@Table(name = "`syk_users`")
-public class SykUsersVO {
+@Table(name = "`syk_user`")
+public class SykUserEntity {
     /**
      * 自增id
      */

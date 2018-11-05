@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.sbolo.syk.view.mapper.SykMessageLikeEntityMapper">
+<mapper namespace="com.sbolo.syk.view.mapper.SykMessageLikeMapper">
   <resultMap id="BaseResultMap" type="com.sbolo.syk.view.entity.SykMessageLikeEntity">
     <!--
       WARNING - @mbg.generated

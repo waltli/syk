@@ -1,77 +1,94 @@
-package com.sbolo.syk.fetch.entity;
+package com.sbolo.syk.view.entity;
 
 import java.util.Date;
 import javax.persistence.*;
 
-public class SykUsersEntity {
+@Table(name = "`syk_user`")
+public class SykUserEntity {
     /**
      * 自增id
      */
+    @Id
+    @Column(name = "`id`")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /**
      * 全局唯一标识
      */
+    @Column(name = "`prn`")
     private String prn;
 
     /**
      * 用户名
      */
+    @Column(name = "`username`")
     private String username;
 
     /**
      * 密码
      */
+    @Column(name = "`password`")
     private String password;
 
     /**
      * 手机号
      */
+    @Column(name = "`mobile`")
     private String mobile;
 
     /**
      * 邮箱地址
      */
+    @Column(name = "`email`")
     private String email;
 
     /**
      * 微信信息prn
      */
+    @Column(name = "`wechat_info_prn`")
     private String wechatInfoPrn;
 
     /**
      * 微博信息prn
      */
+    @Column(name = "`weibo_info_prn`")
     private String weiboInfoPrn;
 
     /**
      * 用户类型
      */
+    @Column(name = "`user_type`")
     private Integer userType;
 
     /**
      * 状态
      */
+    @Column(name = "`st`")
     private Integer st;
 
     /**
      * 头像uri
      */
+    @Column(name = "`avatar_uri`")
     private String avatarUri;
 
     /**
      * 昵称
      */
-    private String nikename;
+    @Column(name = "`nickname`")
+    private String nickname;
 
     /**
      * 创建时间
      */
+    @Column(name = "`create_time`")
     private Date createTime;
 
     /**
      * 修改时间
      */
+    @Column(name = "`update_time`")
     private Date updateTime;
 
     /**
@@ -272,25 +289,16 @@ public class SykUsersEntity {
         this.avatarUri = avatarUri;
     }
 
-    /**
-     * 获取昵称
-     *
-     * @return nikename - 昵称
-     */
-    public String getNikename() {
-        return nikename;
-    }
 
-    /**
-     * 设置昵称
-     *
-     * @param nikename 昵称
-     */
-    public void setNikename(String nikename) {
-        this.nikename = nikename;
-    }
+    public String getNickname() {
+		return nickname;
+	}
 
-    /**
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
+	}
+
+	/**
      * 获取创建时间
      *
      * @return create_time - 创建时间

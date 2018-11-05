@@ -27,7 +27,7 @@ public class ViewWebMvcConfig implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(loginInterceptor()).addPathPatterns("/pushMessage");
+        registry.addInterceptor(loginInterceptor()).addPathPatterns("/pushMessage", "/getMessages");
     }
 	
 }

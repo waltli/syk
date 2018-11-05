@@ -1,5 +1,6 @@
 package com.sbolo.syk.fetch.service;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -61,7 +62,7 @@ public class ResourceInfoService {
 		resourceInfoMapper.signStatusByPrn(params);
 	}
 	
-	public List<ResourceInfoVO> getListByMoviePrnOrderNoStatus(String moviePrn, Integer category){
+	public List<ResourceInfoVO> getListByMoviePrnOrderNoStatus(String moviePrn, Integer category) throws InstantiationException, IllegalAccessException, InvocationTargetException{
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("moviePrn", moviePrn);
 		Boolean istv = false;
@@ -175,7 +176,7 @@ public class ResourceInfoService {
 		}
 	}
 	
-	public ResourceInfoVO getResourceByPrn(String resourcePrn){
+	public ResourceInfoVO getResourceByPrn(String resourcePrn) throws InstantiationException, IllegalAccessException, InvocationTargetException{
 		ResourceInfoEntity resource = resourceInfoMapper.selectByPrn(resourcePrn);
 		ResourceInfoVO resourceVO = VOUtils.po2vo(resource, ResourceInfoVO.class);
 		resourceVO.parse();

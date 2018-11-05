@@ -1,5 +1,6 @@
 package com.sbolo.syk.view.controller;
 
+import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
@@ -101,7 +102,7 @@ public class IndexController {
 	
 	@RequestMapping("detail")
 	public String detail(Model model,
-            @RequestParam(value="mi", required=true) final String moviePrn){
+            @RequestParam(value="mi", required=true) final String moviePrn) throws InstantiationException, IllegalAccessException, InvocationTargetException{
 		if(StringUtils.isBlank(moviePrn) || moviePrn.equals("null")) {
 			throw new BusinessException("prn不能为空");
 		}

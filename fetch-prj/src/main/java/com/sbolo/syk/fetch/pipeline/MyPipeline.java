@@ -99,7 +99,7 @@ public class MyPipeline implements Pipeline {
 		return newFileIdxList;
 	}
 	
-	private void writeDB(Map<String, Object> fields, List<MovieFileIndexEntity> fileIdxs) {
+	private void writeDB(Map<String, Object> fields, List<MovieFileIndexEntity> fileIdxs) throws Exception {
 		List<MovieInfoEntity> addMovies = new ArrayList<>();
 		List<MovieLabelEntity> addLabels = new ArrayList<>();
 		List<MovieLocationEntity> addLocations = new ArrayList<>();

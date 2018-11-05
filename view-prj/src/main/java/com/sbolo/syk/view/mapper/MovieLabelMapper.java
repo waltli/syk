@@ -2,6 +2,7 @@ package com.sbolo.syk.view.mapper;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.ResultMap;
 import org.apache.ibatis.annotations.Select;
 
 import com.sbolo.syk.common.mvc.mapper.BatchWriteMapper;
@@ -11,9 +12,11 @@ import tk.mybatis.mapper.common.Mapper;
 
 public interface MovieLabelMapper extends Mapper<MovieLabelEntity>, BatchWriteMapper<MovieLabelEntity> {
 	
+	@ResultMap("BaseResultMap")
 	@Select("select t.* from movie_label t where t.movie_prn=#{moviePrn}")
 	List<MovieLabelEntity> selectListByMoviePrn(String moviePrn);
 	
+	@ResultMap("BaseResultMap")
 	@Select("select t.label_name from movie_label t GROUP BY t.label_name")
 	List<String> selectLabelsGroupLabel();
 }

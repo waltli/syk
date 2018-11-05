@@ -10,20 +10,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.sbolo.syk.common.tools.ThreeDESUtils;
-import com.sbolo.syk.fetch.entity.SykUsersEntity;
-import com.sbolo.syk.fetch.mapper.SykUsersMapper;
+import com.sbolo.syk.fetch.entity.SykUserEntity;
+import com.sbolo.syk.fetch.mapper.SykUserMapper;
 
 @Service
-public class SykUsersService {
-	private static final Logger log = LoggerFactory.getLogger(SykUsersService.class);
+public class SykUserService {
+	private static final Logger log = LoggerFactory.getLogger(SykUserService.class);
 	@Resource
-	private SykUsersMapper sykUsersMapper;
+	private SykUserMapper sykUserMapper;
 	
-	public SykUsersEntity getOneByUsernamePassword(String username, String password) throws Exception {
+	public SykUserEntity getOneByUsernamePassword(String username, String password) throws Exception {
 		Map<String, Object> params = new HashMap<>();
 		params.put("username", username);
 		params.put("password", ThreeDESUtils.encode3Des(password));
-		SykUsersEntity user = sykUsersMapper.selectOneByUsernamePassword(params);
+		SykUserEntity user = sykUserMapper.selectOneByUsernamePassword(params);
 		return user;
 	}
 }
