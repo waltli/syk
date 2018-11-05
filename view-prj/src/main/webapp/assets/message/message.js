@@ -9,6 +9,7 @@ html.push('		<input name="parentPrn" value="{%parentPrn}" type="hidden">');
 html.push('		<input name="pkey" value="{%pkey}" type="hidden">');
 html.push('		<input name="level" value="{%level}" type="hidden">');
 html.push('		<input name="parentPrns" value="{%parentPrns}" type="hidden">');
+html.push('		<input name="rootPrn" value="{%rootPrn}" type="hidden">');
 html.push('		<div class="ds-textarea-wrapper ds-rounded-top">');
 html.push('			<textarea message="" id="{%location}" name="message" _title="Ctrl+Enter快捷提交" placeholder="说点什么吧…"></textarea>');
 html.push('			<pre class="ds-hidden-text"></pre>');
@@ -38,7 +39,7 @@ xhtml.push('			<div class="ds-comment-header">');
 xhtml.push('				<a class="ds-user-name ds-highlight" show-user="" href="{%author_url}" rel="nofollow" target="_blank" data-user-prn="{%author_prn}">{%author_nickname}</a>');
 xhtml.push('			</div>');
 xhtml.push('			<p>{%message}</p>');
-xhtml.push('			<div class="ds-comment-footer ds-comment-actions  {%likes_class}" level="{%level}" parentPrns="{%parentPrns}" data_prn="{%prn}" author_prn="{%author_prn}" >');
+xhtml.push('			<div class="ds-comment-footer ds-comment-actions  {%likes_class}" level="{%level}" parentPrns="{%parentPrns}" data_prn="{%prn}" author_prn="{%author_prn}" rootPrn="{%rootPrn}" >');
 xhtml.push('				<span class="ds-time" datetime="{%createdTimeZooe}" title="{%createdYMDHMSStr}">{%createdTimeFmt}</span>');
 xhtml.push('				<a class="ds-post-reply" href="javascript:void(0);"><span class="ds-icon ds-icon-reply"></span>回复</a>');
 xhtml.push('				<a class="ds-post-likes" href="javascript:void(0);"><span class="ds-icon ds-icon-like"></span>顶({%likes})</a>');
@@ -366,9 +367,9 @@ var loadMessage = function(){
 			if(token && !$.isEmptyObject(token)){
 				$("[token_nickname]").text(token.nickname).attr('href',token.link);
 			 	$(".ds-toolbar").show(200);
-				fmtData = $.extend(token,{"parentPrn":0,location:"main",level:1,parentPrns:'0',pkey:pkey});
+				fmtData = $.extend(token,{"parentPrn":0,location:"main",level:1,parentPrns:'0',rootPrn:'',pkey:pkey});
 			}else{
-				fmtData = token = {"parentPrn":0,location:"main",level:1,parentPrns:'0',nickname:"请登录",avatarUrl:ctxassets+"/message/img/default_avatar_50.gif",prn:"-1",url:"http://www.sojson.com/admin.shtml",link:"http://www.sojson.com/admin.shtml",pkey:pkey};
+				fmtData = token = {"parentPrn":0,location:"main",level:1,parentPrns:'0',rootPrn:'',nickname:"请登录",avatarUrl:ctxassets+"/message/img/default_avatar_50.gif",prn:"-1",url:"http://www.sojson.com/admin.shtml",link:"http://www.sojson.com/admin.shtml",pkey:pkey};
 			}
 			//初次加载把评论框加上
 			if($('[box="main"]').length === 0){
@@ -638,7 +639,9 @@ var loadMessage = function(){
 		var parentPrn = p.attr('data_prn');
 		var level=  1+~~p.attr('level');
 		var parentPrns=  p.attr('parentPrns');
-		$(this).parent().after(syk.fmt(xhtml, $.extend(token,{"parentPrn":parentPrn,location:"small",level:level,parentPrns:parentPrns})));
+		var rootPrn= p.attr('rootPrn');
+		debugger;
+		$(this).parent().after(syk.fmt(xhtml, $.extend(token,{"parentPrn":parentPrn,location:"small",level:level,parentPrns:parentPrns,rootPrn:rootPrn})));
 		$('[emote="small"]').qqFace({assign:'small'});
 	});
 	//顶
@@ -677,8 +680,10 @@ var loadMessage = function(){
 		var pkeyv =pkey || form[0].pkey.value;//评论加载Key
 		var levelv =form[0].level.value;//层级
 		var parentPrnsv = form[0].parentPrns.value;//父prn串
+		var rootPrnv = form[0].rootPrn.value;//根节点prn
+		debugger;
 		var messagev =form[0].message.value;//评论内容
-		var args = {msgContent:messagev,parentPrns:parentPrnsv,level:levelv,pkey:pkeyv,parentPrn:parentPrnv};//form.serialize()
+		var args = {msgContent:messagev,parentPrns:parentPrnsv,rootPrn:rootPrnv,level:levelv,pkey:pkeyv,parentPrn:parentPrnv};//form.serialize()
 		var load = layer.load();
 		$.post(form.attr('url'),args,function(result){
 			layer.close(load);

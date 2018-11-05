@@ -12,6 +12,7 @@
     <result column="msg_level" jdbcType="INTEGER" property="msgLevel" />
     <result column="parent_prn" jdbcType="VARCHAR" property="parentPrn" />
     <result column="parent_prns" jdbcType="VARCHAR" property="parentPrns" />
+    <result column="root_prn" jdbcType="VARCHAR" property="rootPrn" />
     <result column="like_count" jdbcType="INTEGER" property="likeCount" />
     <result column="author_prn" jdbcType="VARCHAR" property="authorPrn" />
     <result column="author_ip" jdbcType="VARCHAR" property="authorIp" />
@@ -20,4 +21,75 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>
+  
+  
+  <resultMap id="AssociationResultMap" type="com.sbolo.syk.view.entity.SykMessageEntity">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="prn" jdbcType="VARCHAR" property="prn" />
+    <result column="pkey" jdbcType="VARCHAR" property="pkey" />
+    <result column="msg_content" jdbcType="VARCHAR" property="msgContent" />
+    <result column="msg_level" jdbcType="INTEGER" property="msgLevel" />
+    <result column="parent_prn" jdbcType="VARCHAR" property="parentPrn" />
+    <result column="parent_prns" jdbcType="VARCHAR" property="parentPrns" />
+    <result column="root_prn" jdbcType="VARCHAR" property="rootPrn" />
+    <result column="like_count" jdbcType="INTEGER" property="likeCount" />
+    <result column="author_prn" jdbcType="VARCHAR" property="authorPrn" />
+    <result column="author_ip" jdbcType="VARCHAR" property="authorIp" />
+    <result column="author_location" jdbcType="VARCHAR" property="authorLocation" />
+    <result column="user_agent" jdbcType="VARCHAR" property="userAgent" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    
+    <association property="optimalResource" javaType="com.sbolo.syk.view.entity.SykUsersEntity">
+		<id column="uid" jdbcType="BIGINT" property="id" />
+	    <result column="uprn" jdbcType="VARCHAR" property="prn" />
+	    <result column="username" jdbcType="VARCHAR" property="username" />
+	    <result column="password" jdbcType="VARCHAR" property="password" />
+	    <result column="mobile" jdbcType="VARCHAR" property="mobile" />
+	    <result column="email" jdbcType="VARCHAR" property="email" />
+	    <result column="wechat_info_prn" jdbcType="VARCHAR" property="wechatInfoPrn" />
+	    <result column="weibo_info_prn" jdbcType="VARCHAR" property="weiboInfoPrn" />
+	    <result column="user_type" jdbcType="INTEGER" property="userType" />
+	    <result column="st" jdbcType="INTEGER" property="st" />
+	    <result column="avatar_uri" jdbcType="VARCHAR" property="avatarUri" />
+	    <result column="nikename" jdbcType="VARCHAR" property="nikename" />
+	    <result column="ucreate_time" jdbcType="TIMESTAMP" property="createTime" />
+	    <result column="uupdate_time" jdbcType="TIMESTAMP" property="updateTime" />
+	</association>
+  </resultMap>
+  
+  <select id="selectAssociationByHot" resultMap="AssociationResultMap">
+  	select t.*, t1.id uid, t1.prn uprn, 
+  		t1.create_time ucreate_time, t1.update_time uupdate_time
+    from syk_message t, syk_users t1
+	WHERE 
+		t.author_prn = t1.prn and t.like_count &gt;= 10
+  </select>
+  
+  <select id="batchSelectAssociationByRootPrns" resultMap="AssociationResultMap" parameterType="java.util.List" >
+  	select t.*, t1.id uid, t1.prn uprn, 
+  		t1.create_time ucreate_time, t1.update_time uupdate_time
+    from syk_message t, syk_users t1
+	WHERE 
+		t.author_prn = t1.prn and t.root_prn in
+		<foreach collection="list" open="(" close=")" item="item" separator=",">
+	  		#{item}
+	  	</foreach>
+  </select>
+  
+  
+  <select id="countMessageByAuthor" resultType="java.util.Map" parameterType="java.util.Set" >
+  	select author_prn, count(1) msg_count 
+  	from syk_message 
+  	where author_prn in 
+  	<foreach collection="set" open="(" close=")" item="item" separator=",">
+		#{item}
+	</foreach>
+  	group by author_prn
+  </select>
+  
+  
 </mapper>

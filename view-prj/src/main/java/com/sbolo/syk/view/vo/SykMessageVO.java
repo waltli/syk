@@ -17,6 +17,8 @@ public class SykMessageVO {
     private String parentPrn;
 
     private String parentPrns;
+    
+    private String rootPrn;
 
     private Integer likeCount;
 
@@ -31,8 +33,26 @@ public class SykMessageVO {
     private Date createTime;
 
     private Date updateTime;
+    
+    private SykUsersVO author;
 
-    /**
+    public SykUsersVO getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(SykUsersVO author) {
+		this.author = author;
+	}
+
+	public String getRootPrn() {
+		return rootPrn;
+	}
+
+	public void setRootPrn(String rootPrn) {
+		this.rootPrn = rootPrn;
+	}
+
+	/**
      * @return id
      */
     public Long getId() {
