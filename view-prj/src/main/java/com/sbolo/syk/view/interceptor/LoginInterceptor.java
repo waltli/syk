@@ -41,9 +41,9 @@ public class LoginInterceptor implements HandlerInterceptor {
 		
 		if(user == null){
 			SykUserVO sykUser = new SykUserVO();
-			sykUser.setPrn("test111");
-			sykUser.setAvatarUri("//qzapp.qlogo.cn/qzapp/101263695/8F3E583A63B87A27E75329AEF2C2821E/100");
-			sykUser.setNickname("张三");
+			sykUser.setPrn("41877");
+			sykUser.setAvatarUri("//qzapp.qlogo.cn/qzapp/101263695/E7F30E126A43785C2F97053AE2162341/100");
+			sykUser.setNickname("qxw");
 			session.setAttribute(CommonConstants.USER, sykUser);
 		}
 		return true;

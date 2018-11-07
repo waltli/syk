@@ -55,14 +55,14 @@
 	    <result column="user_type" jdbcType="INTEGER" property="userType" />
 	    <result column="st" jdbcType="INTEGER" property="st" />
 	    <result column="avatar_uri" jdbcType="VARCHAR" property="avatarUri" />
-	    <result column="nikename" jdbcType="VARCHAR" property="nikename" />
+	    <result column="nickname" jdbcType="VARCHAR" property="nickname" />
 	    <result column="ucreate_time" jdbcType="TIMESTAMP" property="createTime" />
 	    <result column="uupdate_time" jdbcType="TIMESTAMP" property="updateTime" />
 	</association>
   </resultMap>
   
   <select id="selectAssociationByHot" resultMap="AssociationResultMap">
-  	select t.*, t1.id uid, t1.prn uprn, 
+  	select *, t1.id uid, t1.prn uprn, 
   		t1.create_time ucreate_time, t1.update_time uupdate_time
     from syk_message t, syk_user t1
 	WHERE 
@@ -70,7 +70,7 @@
   </select>
   
   <select id="batchSelectAssociationByRootPrns" resultMap="AssociationResultMap" parameterType="java.util.List" >
-  	select t.*, t1.id uid, t1.prn uprn, 
+  	select *, t1.id uid, t1.prn uprn, 
   		t1.create_time ucreate_time, t1.update_time uupdate_time
     from syk_message t, syk_user t1
 	WHERE 

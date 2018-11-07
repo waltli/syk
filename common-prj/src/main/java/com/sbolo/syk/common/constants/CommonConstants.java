@@ -99,6 +99,7 @@ public class CommonConstants {
 		timeFormat.put(8, "yyyy-MM-dd");
 		timeFormat.put(9, "yyyy-MM-dd");
 		timeFormat.put(10, "yyyy-MM-dd");
+		timeFormat.put(19, "yyyy-MM-dd HH:mm:ss");
 	}
 	
 	public static String getTimeFormat(String timeStr){

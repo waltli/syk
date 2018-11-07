@@ -2,6 +2,7 @@ package com.sbolo.syk.view.service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -49,6 +50,7 @@ public class SykMessageService {
 			throw new BusinessException("获取消息失败！");
 		}
 		
+		PageHelper.orderBy("t."+orderBy);
 		List<SykMessageEntity> msgEntityList = sykMessageMapper.batchSelectAssociationByRootPrns(rootPrnList);
 		
 		PageHelper.startPage(0, 5, "t.like_count DESC");
@@ -71,18 +73,21 @@ public class SykMessageService {
 			SykUserEntity authorEntity = msgEntity.getAuthor();
 			msgEntity.setAuthor(null);
 			SykMessageVO message = VOUtils.po2vo(msgEntity, SykMessageVO.class);
+			message.parse();
 			if(authorEntity != null) {
 				SykUserVO author = VOUtils.po2vo(authorEntity, SykUserVO.class);
 				message.setAuthor(author);
 			}
 			messages.add(message);
 		}
+		Collections.sort(messages);
 		
 		List<SykMessageVO> hotMessages = new ArrayList<>();
 		for(SykMessageEntity hotMsgEntity : hotMsgEntityList) {
 			SykUserEntity hotAuthorEntity = hotMsgEntity.getAuthor();
 			hotMsgEntity.setAuthor(null);
 			SykMessageVO hotMessage = VOUtils.po2vo(hotMsgEntity, SykMessageVO.class);
+			hotMessage.parse();
 			if(hotAuthorEntity != null) {
 				SykUserVO hotAuthor = VOUtils.po2vo(hotAuthorEntity, SykUserVO.class);
 				hotMessage.setAuthor(hotAuthor);
