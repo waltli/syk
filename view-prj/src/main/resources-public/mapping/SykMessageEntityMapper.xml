@@ -42,7 +42,7 @@
     <result column="user_agent" jdbcType="VARCHAR" property="userAgent" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
-    
+    <result column="liked" jdbcType="INTEGER" property="liked" />
     <association property="author" javaType="com.sbolo.syk.view.entity.SykUserEntity">
 		<id column="uid" jdbcType="BIGINT" property="id" />
 	    <result column="uprn" jdbcType="VARCHAR" property="prn" />
@@ -55,31 +55,45 @@
 	    <result column="user_type" jdbcType="INTEGER" property="userType" />
 	    <result column="st" jdbcType="INTEGER" property="st" />
 	    <result column="avatar_uri" jdbcType="VARCHAR" property="avatarUri" />
-	    <result column="nikename" jdbcType="VARCHAR" property="nikename" />
+	    <result column="nickname" jdbcType="VARCHAR" property="nickname" />
 	    <result column="ucreate_time" jdbcType="TIMESTAMP" property="createTime" />
 	    <result column="uupdate_time" jdbcType="TIMESTAMP" property="updateTime" />
 	</association>
   </resultMap>
   
   <select id="selectAssociationByHot" resultMap="AssociationResultMap">
-  	select t.*, t1.id uid, t1.prn uprn, 
-  		t1.create_time ucreate_time, t1.update_time uupdate_time
-    from syk_message t, syk_user t1
+  	select 
+  		*, 
+  		t1.id uid, 
+  		t1.create_time ucreate_time, 
+  		t1.update_time uupdate_time,
+		( CASE WHEN t2.prn IS NULL THEN FALSE ELSE TRUE END ) AS liked 
+    from 
+    	syk_message t
+		LEFT JOIN syk_user t1 ON t.author_prn = t1.prn
+		LEFT JOIN syk_message_like t2 ON t.prn = t2.msg_prn 
 	WHERE 
-		t.author_prn = t1.prn and t.like_count &gt;= 10
+		t.like_count &gt;= 1
   </select>
   
   <select id="batchSelectAssociationByRootPrns" resultMap="AssociationResultMap" parameterType="java.util.List" >
-  	select t.*, t1.id uid, t1.prn uprn, 
-  		t1.create_time ucreate_time, t1.update_time uupdate_time
-    from syk_message t, syk_user t1
+  	select 
+  		*, 
+  		t1.id uid, 
+  		t1.prn uprn, 
+  		t1.create_time ucreate_time, 
+  		t1.update_time uupdate_time,
+		( CASE WHEN t2.prn IS NULL THEN FALSE ELSE TRUE END ) AS liked 
+    from 
+    	syk_message t
+		LEFT JOIN syk_user t1 ON t.author_prn = t1.prn
+		LEFT JOIN syk_message_like t2 ON t.prn = t2.msg_prn 
 	WHERE 
-		t.author_prn = t1.prn and t.root_prn in
+		t.root_prn in
 		<foreach collection="list" open="(" close=")" item="item" separator=",">
 	  		#{item}
 	  	</foreach>
   </select>
-  
   
   <select id="countMessageByAuthor" resultType="java.util.Map" parameterType="java.util.Set" >
   	select author_prn, count(1) msg_count 
@@ -91,5 +105,11 @@
   	group by author_prn
   </select>
   
+  <delete id="deleteByPrns" parameterType="java.util.List" >
+  	delete from syk_message where prn in
+  	<foreach collection="list" open="(" close=")" item="item" separator=",">
+  		#{item}
+  	</foreach>
+  </delete>
   
 </mapper>

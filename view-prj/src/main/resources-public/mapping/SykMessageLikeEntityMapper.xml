@@ -7,10 +7,19 @@
     -->
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="prn" jdbcType="VARCHAR" property="prn" />
-    <result column="message_prn" jdbcType="VARCHAR" property="messagePrn" />
+    <result column="msg_prn" jdbcType="VARCHAR" property="msgPrn" />
     <result column="gaver_prn" jdbcType="VARCHAR" property="gaverPrn" />
     <result column="gaver_ip" jdbcType="VARCHAR" property="gaverIp" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>
+  
+  
+  <delete id="deleteByMsgPrns" parameterType="java.util.List" >
+  	delete from syk_message_like where msg_prn in
+  	<foreach collection="list" open="(" close=")" item="item" separator=",">
+  		#{item}
+  	</foreach>
+  </delete>
+  
 </mapper>

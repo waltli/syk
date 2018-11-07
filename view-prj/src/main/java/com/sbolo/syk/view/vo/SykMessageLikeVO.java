@@ -8,7 +8,7 @@ public class SykMessageLikeVO {
 
     private String prn;
 
-    private String messagePrn;
+    private String msgPrn;
 
     private String gaverPrn;
 
@@ -46,21 +46,15 @@ public class SykMessageLikeVO {
         this.prn = prn;
     }
 
-    /**
-     * @return message_prn
-     */
-    public String getMessagePrn() {
-        return messagePrn;
-    }
+    public String getMsgPrn() {
+		return msgPrn;
+	}
 
-    /**
-     * @param messagePrn
-     */
-    public void setMessagePrn(String messagePrn) {
-        this.messagePrn = messagePrn;
-    }
+	public void setMsgPrn(String msgPrn) {
+		this.msgPrn = msgPrn;
+	}
 
-    /**
+	/**
      * @return gaver_prn
      */
     public String getGaverPrn() {

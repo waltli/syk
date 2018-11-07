@@ -74,5 +74,16 @@ public class BatchWriteProvider extends MapperTemplate {
         sql.append("</where>");
         return sql.toString();
 	}
+	
+	public String selectByPrn(MappedStatement ms) {
+		Class<?> entityClass = getEntityClass(ms);
+        //修改返回值类型为实体类型
+        setResultType(ms, entityClass);
+        StringBuilder sql = new StringBuilder();
+        sql.append(SqlHelper.selectAllColumns(entityClass));
+        sql.append(SqlHelper.fromTable(entityClass, tableName(entityClass)));
+        sql.append("<where>").append("prn = #{prn}").append("</where>");
+        return sql.toString();
+	}
 
 }

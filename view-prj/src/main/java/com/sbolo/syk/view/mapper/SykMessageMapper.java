@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.ResultMap;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import com.sbolo.syk.common.mvc.mapper.BatchWriteMapper;
 import com.sbolo.syk.view.entity.SykMessageEntity;
@@ -23,4 +25,15 @@ public interface SykMessageMapper extends Mapper<SykMessageEntity>, BatchWriteMa
 	List<SykMessageEntity> selectAssociationByHot();
 	
 	List<Map<String, Object>> countMessageByAuthor(@Param("set") Set<String> authorSet);
+	
+	@Update("update syk_message t set t.like_count = t.like_count+1 where prn = #{msgPrn}")
+	int addLike(String msgPrn);
+	
+	@Update("update syk_message t set t.like_count = t.like_count-1 where prn = #{msgPrn}")
+	int subLike(String msgPrn);
+	
+	int deleteByPrns(List<String> prns);
+	
+	@Select("select prn from syk_message where (LOCATE(#{msgPrnEvo}, parent_prns)>0")
+	List<String> selectByParentPrns(String msgPrnEvo);
 }

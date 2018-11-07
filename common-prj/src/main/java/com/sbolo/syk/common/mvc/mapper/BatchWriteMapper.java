@@ -2,8 +2,10 @@ package com.sbolo.syk.common.mvc.mapper;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.DeleteProvider;
 import org.apache.ibatis.annotations.InsertProvider;
 import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.annotations.UpdateProvider;
 
 import com.sbolo.syk.common.mvc.mapper.provider.BatchWriteProvider;
@@ -23,4 +25,6 @@ public interface BatchWriteMapper<T> {
 	@UpdateProvider(type = BatchWriteProvider.class, method = "dynamicSQL")
 	int updateByPrn(T record);
 	
+	@SelectProvider(type = BatchWriteProvider.class, method = "dynamicSQL")
+	T selectByPrn(String prn);
 }

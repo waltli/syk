@@ -4,6 +4,8 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.RegexConstant;
 
@@ -132,6 +134,9 @@ public class StringUtil {
 	}
 	
 	public static String getId(String sign){
+		if(StringUtils.isBlank(sign)) {
+			return UIDGenerator.getUID()+"";
+		}
 		return sign + UIDGenerator.getUID();
 	}
 	

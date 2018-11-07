@@ -1,8 +1,12 @@
 package com.sbolo.syk.view.vo;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
-public class SykMessageVO {
+import com.sbolo.syk.common.constants.CommonConstants;
+
+public class SykMessageVO implements Comparable<SykMessageVO> {
 	
     private Long id;
 
@@ -31,12 +35,53 @@ public class SykMessageVO {
     private String userAgent;
 
     private Date createTime;
+    
+    private String createTimeStr;
+    
+    private String createTimeFullStr;
+    
+    private String createTimeCalc;
 
     private Date updateTime;
     
     private SykUserVO author;
+    
+    //当前登录用户对此条回复是否已赞
+    private Boolean liked;
 
-    public SykUserVO getAuthor() {
+    public Boolean getLiked() {
+		return liked;
+	}
+
+	public void setLiked(Boolean liked) {
+		this.liked = liked;
+	}
+
+	public String getCreateTimeFullStr() {
+		return createTimeFullStr;
+	}
+
+	public void setCreateTimeFullStr(String createTimeFullStr) {
+		this.createTimeFullStr = createTimeFullStr;
+	}
+
+	public String getCreateTimeStr() {
+		return createTimeStr;
+	}
+
+	public void setCreateTimeStr(String createTimeStr) {
+		this.createTimeStr = createTimeStr;
+	}
+
+	public String getCreateTimeCalc() {
+		return createTimeCalc;
+	}
+
+	public void setCreateTimeCalc(String createTimeCalc) {
+		this.createTimeCalc = createTimeCalc;
+	}
+
+	public SykUserVO getAuthor() {
 		return author;
 	}
 
@@ -241,4 +286,53 @@ public class SykMessageVO {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
+    
+    @SuppressWarnings("deprecation")
+	public void parse() {
+    	if(this.getCreateTime() != null) {
+    		SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
+			String createTimeStr = sdf.format(this.getCreateTime());
+			this.setCreateTimeStr(createTimeStr);
+			
+			SimpleDateFormat sdf2 = new SimpleDateFormat(CommonConstants.timeFormat.get(19));
+			String createTimeFullStr = sdf2.format(this.getCreateTime());
+			this.setCreateTimeFullStr(createTimeFullStr);
+			
+			Date thisTime = new Date();
+			int thisYear = thisTime.getYear();
+			int createYear = this.getCreateTime().getYear();
+			long timeStamp = this.getCreateTime().getTime();
+			long timeStampNow = thisTime.getTime();
+			long dis = (timeStampNow - timeStamp) / 1000; //获取秒
+			if(dis < 10) {
+				this.setCreateTimeCalc("刚刚");
+			}else if(dis < 60) {
+				this.setCreateTimeCalc(dis+"秒前");
+			}else if(dis < 3600) {
+				this.setCreateTimeCalc((dis/60)+"分钟前");
+			}else if(dis < 86400) {
+				this.setCreateTimeCalc((dis/60/60)+"小时前");
+			}else if(thisYear == createYear){
+				SimpleDateFormat sdf3 = new SimpleDateFormat("MM月dd日");
+				this.setCreateTimeCalc(sdf3.format(this.getCreateTime()));
+			}else {
+				this.setCreateTimeCalc(createTimeStr);
+			}
+		}
+    }
+    
+    public static void parse(List<SykMessageVO> list){
+    	for(SykMessageVO vo : list){
+    		vo.parse();
+    	}
+    }
+
+	@Override
+	public int compareTo(SykMessageVO o) {
+		if(this.getMsgLevel() < o.getMsgLevel()) {
+			return -1;
+		}
+		return 1;
+	}
+    
 }

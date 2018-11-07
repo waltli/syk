@@ -13,8 +13,8 @@ public class SykMessageLikeEntity {
     @Column(name = "`prn`")
     private String prn;
 
-    @Column(name = "`message_prn`")
-    private String messagePrn;
+    @Column(name = "`msg_prn`")
+    private String msgPrn;
 
     @Column(name = "`gaver_prn`")
     private String gaverPrn;
@@ -56,21 +56,16 @@ public class SykMessageLikeEntity {
         this.prn = prn;
     }
 
-    /**
-     * @return message_prn
-     */
-    public String getMessagePrn() {
-        return messagePrn;
-    }
 
-    /**
-     * @param messagePrn
-     */
-    public void setMessagePrn(String messagePrn) {
-        this.messagePrn = messagePrn;
-    }
+    public String getMsgPrn() {
+		return msgPrn;
+	}
 
-    /**
+	public void setMsgPrn(String msgPrn) {
+		this.msgPrn = msgPrn;
+	}
+
+	/**
      * @return gaver_prn
      */
     public String getGaverPrn() {

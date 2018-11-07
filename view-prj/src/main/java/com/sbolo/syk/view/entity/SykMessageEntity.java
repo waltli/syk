@@ -52,7 +52,19 @@ public class SykMessageEntity {
     @Column(name = "`update_time`")
     private Date updateTime;
     
+    @Transient
     private SykUserEntity author;
+    
+    @Transient
+    private Boolean liked;
+
+	public Boolean getLiked() {
+		return liked;
+	}
+
+	public void setLiked(Boolean liked) {
+		this.liked = liked;
+	}
 
 	public SykUserEntity getAuthor() {
 		return author;
