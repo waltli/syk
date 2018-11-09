@@ -462,20 +462,18 @@ var loadMessage = function(){
 		var self =$(this);
 		//获取父类ID串，用来拼接信息楼层关系
 		var parentPrns = self.attr('parentPrns'),parentPrns = parentPrns.split(',');
-		//拼接上触发楼层的消息prn
-		parentPrns.push(self.attr('data-post-prn'));
 		var xh = [];//拼接楼层message
-		for(var i=0;parentPrns.length>i;i++){
+		for(var i=1;parentPrns.length>i+1;i++){
 			//取到用户ID，用来获取用户信息
-			var uprn = $('[data-post-prn="'+ parentPrns[i] +'"] >div>div').attr('data-user-prn');
+			var uprn = $('#body_message [data-post-prn="'+ parentPrns[i] +'"] >div>div').attr('data-user-prn');
 			//取到message
 			var message = $('[data-post-prn="'+ parentPrns[i] +'"] >div>div>p').html();
 			//每个的时间处理
-			var pt = $('[data_prn="'+ parentPrns[i] +'"]>span.ds-time'),
+			var pt = $('#body_message [data_prn="'+ parentPrns[i] +'"]>span.ds-time'),
 			createTime = pt.attr('datetime'),
 			createTimeFullStr = pt.attr('title'),
 			createTimeCalc = $.trim(pt.text());
-			var data = {msgContent:message,no:i+1,createTime:createTime,createTimeFullStr:createTimeFullStr,createTimeCalc:createTimeCalc};
+			var data = {msgContent:message,no:i,createTime:createTime,createTimeFullStr:createTimeFullStr,createTimeCalc:createTimeCalc};
 			//取到用户信息，合并信息
 			//拼接单个message
 			data = $.extend($._message.tokens[uprn],data);

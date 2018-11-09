@@ -45,12 +45,14 @@ public class MessageController extends BaseController {
 	private static final Integer pageSize = 10;
 	
 	@PostMapping("push")
-	public RequestResult<String> pushMessage(HttpServletRequest request, HttpSession session, SykMessageVO vo) throws InstantiationException, IllegalAccessException, InvocationTargetException{
+	public RequestResult<SykMessageVO> pushMessage(HttpServletRequest request, HttpSession session, SykMessageVO vo) throws InstantiationException, IllegalAccessException, InvocationTargetException{
 		String clientIP = this.getClientIP(request);
 		SykUserVO sykUser = (SykUserVO) this.getUser(request);
 		String userAgent = this.getUserAgent(request);
 		sykMessageService.addOne(vo, sykUser.getPrn(), clientIP, userAgent);
-		return new RequestResult<>("success");
+		vo.setAuthor(sykUser);
+		vo.parse();
+		return new RequestResult<>(vo);
 	}
 	
 	@GetMapping("gets")

@@ -77,6 +77,10 @@ public class SykMessageService {
 		List<SykMessageVO> messages = new ArrayList<>();
 		for(SykMessageEntity msgEntity : msgEntityList) {
 			SykUserEntity authorEntity = msgEntity.getAuthor();
+			if(authorEntity == null) {
+				log.warn("消息："+msgEntity.getPrn()+" 没有找到相关作者！跳过。");
+				continue;
+			}
 			msgEntity.setAuthor(null);
 			SykMessageVO message = VOUtils.po2vo(msgEntity, SykMessageVO.class);
 			message.parse();
@@ -91,6 +95,10 @@ public class SykMessageService {
 		List<SykMessageVO> hotMessages = new ArrayList<>();
 		for(SykMessageEntity hotMsgEntity : hotMsgEntityList) {
 			SykUserEntity hotAuthorEntity = hotMsgEntity.getAuthor();
+			if(hotAuthorEntity == null) {
+				log.warn("消息："+hotMsgEntity.getPrn()+" 没有找到相关作者！跳过。");
+				continue;
+			}
 			hotMsgEntity.setAuthor(null);
 			SykMessageVO hotMessage = VOUtils.po2vo(hotMsgEntity, SykMessageVO.class);
 			hotMessage.parse();
