@@ -10,6 +10,8 @@ public class TestVO {
 	private List<SykMessageVO> messages;
 	private Map<String, Object> userTips;
 	
+	public TestVO() {}
+	
 	public TestVO(String pkey, SykUserVO token, List<SykMessageVO> hotMessages, List<SykMessageVO> messages, Map<String, Object> userTips) {
 		this.pkey = pkey;
 		this.token = token;

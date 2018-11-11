@@ -22,9 +22,9 @@ public interface SykMessageMapper extends Mapper<SykMessageEntity>, BatchWriteMa
 	
 	List<SykMessageEntity> batchSelectAssociationByRootPrns(List<String> rootPrnList);
 	
-	List<SykMessageEntity> selectAssociationByHot();
+	List<SykMessageEntity> selectAssociationByHot(@Param("likeCount") Integer likeCount, @Param("pkey") String pkey);
 	
-	List<Map<String, Object>> countMessageByAuthor(@Param("set") Set<String> authorSet);
+	List<Map<String, Object>> countMessageByAuthor(@Param("pkey") String pkey, @Param("set") Set<String> authorSet);
 	
 	@Update("update syk_message t set t.like_count = t.like_count+1 where prn = #{msgPrn}")
 	int addLike(String msgPrn);
@@ -34,6 +34,6 @@ public interface SykMessageMapper extends Mapper<SykMessageEntity>, BatchWriteMa
 	
 	int deleteByPrns(List<String> prns);
 	
-	@Select("select prn from syk_message where (LOCATE(#{msgPrnEvo}, parent_prns)>0")
-	List<String> selectByParentPrns(String msgPrnEvo);
+	@Select("select prn from syk_message where LOCATE(#{msgPrnEvo}, prn_line)>0")
+	List<String> selectByPrnLine(String msgPrnEvo);
 }

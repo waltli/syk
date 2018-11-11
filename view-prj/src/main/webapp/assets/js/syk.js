@@ -1,10 +1,13 @@
 var syk = {
 	fmt:function(sources, fmtData){
-		for(var i in fmtData){
-			var keyRegx = new RegExp("\{%"+i+"\}", "gm"); 
-			var value = fmtData[i];
-			sources = sources.replace(keyRegx, value);
+		if(fmtData != null){
+			for(var i in fmtData){
+				var keyRegx = new RegExp("\{%"+i+"\}", "gm"); 
+				var value = fmtData[i];
+				sources = sources.replace(keyRegx, value);
+			}
 		}
+		sources = sources.replace(/\{%.*?\}/g, "");
 		return sources;
 	},
 	verify:function(data, foo){
@@ -71,6 +74,34 @@ var syk = {
 			s = new Date,
 			a = (s - 0 - t) / 1e3;
 			return 10 > a ? "刚刚": 60 > a ? Math.round(a) + "秒前": 3600 > a ? Math.round(a / 60) + "分钟前": 86400 > a ? Math.round(a / 3600) + "小时前": (s.getFullYear() == t.getFullYear() ? "": t.getFullYear() + "年") + (t.getMonth() + 1) + "月" + t.getDate() + "日"
+		}
+	},
+	insert: {
+		outTag:function(){
+			return document.getElementsByTagName("head")[0] || document.getElementsByTagName("body")[0];
+		},
+		css:function(e,attr) {
+			var s = document.createElement("link");
+			s.type = "text/css",
+			s.rel = "stylesheet",
+			s.href = e,
+			this.outTag().appendChild(s);
+			attr && $(s).attr(attr);
+		},
+		js:function(a,option){
+			var r = document.createElement("script");
+			r.type = "text/javascript",
+			r.src = a,
+			r.charset = "utf-8";
+			this.outTag().appendChild(r);
+			if(option && typeof option =='object'){
+				if(option.callback){//回调方法。
+					r.onload=option.callback;
+				}
+				if(option.attr){
+					$(r).attr(option.attr);
+				}
+			}
 		}
 	}
 }

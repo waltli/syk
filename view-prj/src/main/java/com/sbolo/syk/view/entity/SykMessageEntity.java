@@ -25,8 +25,8 @@ public class SykMessageEntity {
     @Column(name = "`parent_prn`")
     private String parentPrn;
 
-    @Column(name = "`parent_prns`")
-    private String parentPrns;
+    @Column(name = "`prn_line`")
+    private String prnLine;
     
     @Column(name = "`root_prn`")
     private String rootPrn;
@@ -166,21 +166,15 @@ public class SykMessageEntity {
         this.parentPrn = parentPrn;
     }
 
-    /**
-     * @return parent_prns
-     */
-    public String getParentPrns() {
-        return parentPrns;
-    }
+    public String getPrnLine() {
+		return prnLine;
+	}
 
-    /**
-     * @param parentPrns
-     */
-    public void setParentPrns(String parentPrns) {
-        this.parentPrns = parentPrns;
-    }
+	public void setPrnLine(String prnLine) {
+		this.prnLine = prnLine;
+	}
 
-    /**
+	/**
      * @return like_count
      */
     public Integer getLikeCount() {

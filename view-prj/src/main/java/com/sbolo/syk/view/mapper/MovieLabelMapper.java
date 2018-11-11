@@ -16,7 +16,6 @@ public interface MovieLabelMapper extends Mapper<MovieLabelEntity>, BatchWriteMa
 	@Select("select t.* from movie_label t where t.movie_prn=#{moviePrn}")
 	List<MovieLabelEntity> selectListByMoviePrn(String moviePrn);
 	
-	@ResultMap("BaseResultMap")
 	@Select("select t.label_name from movie_label t GROUP BY t.label_name")
 	List<String> selectLabelsGroupLabel();
 }
