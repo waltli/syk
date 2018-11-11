@@ -20,7 +20,7 @@ public class SykMessageVO implements Comparable<SykMessageVO> {
 
     private String parentPrn;
 
-    private String parentPrns;
+    private String prnLine;
     
     private String rootPrn;
 
@@ -181,21 +181,15 @@ public class SykMessageVO implements Comparable<SykMessageVO> {
         this.parentPrn = parentPrn;
     }
 
-    /**
-     * @return parent_prns
-     */
-    public String getParentPrns() {
-        return parentPrns;
-    }
+    public String getPrnLine() {
+		return prnLine;
+	}
 
-    /**
-     * @param parentPrns
-     */
-    public void setParentPrns(String parentPrns) {
-        this.parentPrns = parentPrns;
-    }
+	public void setPrnLine(String prnLine) {
+		this.prnLine = prnLine;
+	}
 
-    /**
+	/**
      * @return like_count
      */
     public Integer getLikeCount() {

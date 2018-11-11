@@ -11,7 +11,7 @@
     <result column="msg_content" jdbcType="VARCHAR" property="msgContent" />
     <result column="msg_level" jdbcType="INTEGER" property="msgLevel" />
     <result column="parent_prn" jdbcType="VARCHAR" property="parentPrn" />
-    <result column="parent_prns" jdbcType="VARCHAR" property="parentPrns" />
+    <result column="prn_line" jdbcType="VARCHAR" property="prnLine" />
     <result column="root_prn" jdbcType="VARCHAR" property="rootPrn" />
     <result column="like_count" jdbcType="INTEGER" property="likeCount" />
     <result column="author_prn" jdbcType="VARCHAR" property="authorPrn" />
@@ -33,7 +33,7 @@
     <result column="msg_content" jdbcType="VARCHAR" property="msgContent" />
     <result column="msg_level" jdbcType="INTEGER" property="msgLevel" />
     <result column="parent_prn" jdbcType="VARCHAR" property="parentPrn" />
-    <result column="parent_prns" jdbcType="VARCHAR" property="parentPrns" />
+    <result column="prn_line" jdbcType="VARCHAR" property="prnLine" />
     <result column="root_prn" jdbcType="VARCHAR" property="rootPrn" />
     <result column="like_count" jdbcType="INTEGER" property="likeCount" />
     <result column="author_prn" jdbcType="VARCHAR" property="authorPrn" />
@@ -65,6 +65,7 @@
   	select 
   		*, 
   		t1.id uid, 
+  		t1.prn uprn, 
   		t1.create_time ucreate_time, 
   		t1.update_time uupdate_time,
 		( CASE WHEN t2.prn IS NULL THEN FALSE ELSE TRUE END ) AS liked 
@@ -73,7 +74,7 @@
 		LEFT JOIN syk_user t1 ON t.author_prn = t1.prn
 		LEFT JOIN syk_message_like t2 ON t.prn = t2.msg_prn 
 	WHERE 
-		t.like_count &gt;= 1
+		t.like_count &gt;= #{likeCount} and t.pkey = #{pkey}
   </select>
   
   <select id="batchSelectAssociationByRootPrns" resultMap="AssociationResultMap" parameterType="java.util.List" >
@@ -98,7 +99,7 @@
   <select id="countMessageByAuthor" resultType="java.util.Map" parameterType="java.util.Set" >
   	select author_prn, count(1) msg_count 
   	from syk_message 
-  	where author_prn in 
+  	where pkey = #{pkey} and author_prn in 
   	<foreach collection="set" open="(" close=")" item="item" separator=",">
 		#{item}
 	</foreach>

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.exception.BusinessException;
 import com.sbolo.syk.common.mvc.controller.BaseController;
 import com.sbolo.syk.common.ui.RequestResult;
@@ -58,11 +59,18 @@ public class MessageController extends BaseController {
 	@GetMapping("gets")
 	public RequestResult<TestVO> getMessages(
 			@RequestParam(value="pkey",required=true) String pkey,
-			@RequestParam(value="page",defaultValue="1", required=false) Integer pageNum,
+//			@RequestParam(value="page",defaultValue="1", required=false) Integer pageNum,
 			@RequestParam(value="orderMarker", required=false) String orderMarker,
-			HttpServletRequest request) throws InstantiationException, IllegalAccessException, InvocationTargetException{
+			HttpServletRequest request, HttpSession session) throws InstantiationException, IllegalAccessException, InvocationTargetException{
 		SykUserVO token = (SykUserVO) this.getUser(request);
-		TestVO test = sykMessageService.getListByPage(pkey, token, pageNum, pageSize, orderMarker);
+		if(token == null) {
+				token = new SykUserVO();
+				token.setPrn("41877");
+				token.setAvatarUri("//qzapp.qlogo.cn/qzapp/101263695/E7F30E126A43785C2F97053AE2162341/100");
+				token.setNickname("qxw");
+				session.setAttribute(CommonConstants.USER, token);
+		}
+		TestVO test = sykMessageService.getListByPage(pkey, token, orderMarker);
 		return new RequestResult<>(test);
 	}
 	
@@ -86,8 +94,17 @@ public class MessageController extends BaseController {
 	}
 	
 	@PostMapping("delete")
-	public RequestResult<String> delete(String msgPrn){
-		List<String> msgPrnl = sykMessageService.getByParentPrns(msgPrn);
+	public RequestResult<String> delete(HttpServletRequest request, String msgPrn){
+		SykUserVO token = (SykUserVO) this.getUser(request);
+		SykMessageEntity msgEntity = sykMessageService.getByPrn(msgPrn);
+		if(msgEntity == null) {
+			throw new BusinessException("获取数据失败！");
+		}
+		if(!token.getPrn().equals(msgEntity.getAuthorPrn())) {
+			throw new BusinessException("无法操作别人的数据！");
+		}
+		
+		List<String> msgPrnl = sykMessageService.getByPrnLine(msgPrn);
 		if(msgPrnl == null || msgPrnl.size() == 0) {
 			throw new BusinessException("未获取到消息数据。");
 		}

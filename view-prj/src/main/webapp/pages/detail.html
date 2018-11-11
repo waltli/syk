@@ -228,14 +228,8 @@
 						</table>
 					</div>
 				</div>
-				<div id="SOHUCS" sid="${movie.prn }"></div>
-				<script charset="utf-8" type="text/javascript" src="http://changyan.sohu.com/upload/changyan.js" ></script>
-				<script type="text/javascript">
-					window.changyan.api.config({
-					appid: 'cytakvx4W',
-					conf: 'prod_a0bd794c38e6ae1d3d93faddf1b4bde5'
-					});
-				</script>
+				<div id="ds-thread"></div>
+				<script type="text/javascript" src="${pageCtx('ctxassets')}/message/js/message.js"></script>
 			</div>
 			<div id="sidebar" style="width:325px; margin-right:0px;">
 				@include("common/sidebar.html"){}

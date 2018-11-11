@@ -46,22 +46,33 @@ public class SykMessageService {
 	@Autowired
 	private SykMessageLikeService sykMessageLikeService;
 	
-	public TestVO getListByPage(String pkey, SykUserVO token, int pageNum, int pageSize, String orderMarker) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+	public TestVO getListByPage(String pkey, SykUserVO token, String orderMarker) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+		//获取rootPrns
 		OrderMarkerEnum orderMarkerEnum = OrderMarkerEnum.getEnumByCode(orderMarker);
 		String orderBy = orderMarkerEnum.getSort()+" "+orderMarkerEnum.getDirect();
-		PageHelper.startPage(pageNum, pageSize, orderBy);
+		PageHelper.orderBy(orderBy);
 		List<String> rootPrnList = sykMessageMapper.selectRootPrns(pkey);
-		
 		if(rootPrnList == null || rootPrnList.size() == 0) {
-			throw new BusinessException("获取消息失败！");
+			return new TestVO(pkey, token, new ArrayList<>(), new ArrayList<>(), new HashMap<>());
 		}
 		
+		//获取消息列表和最热消息列表
 		PageHelper.orderBy("t."+orderBy);
 		List<SykMessageEntity> msgEntityList = sykMessageMapper.batchSelectAssociationByRootPrns(rootPrnList);
-		
 		PageHelper.startPage(0, 5, "t.like_count DESC");
-		List<SykMessageEntity> hotMsgEntityList = sykMessageMapper.selectAssociationByHot();
+		List<SykMessageEntity> hotMsgEntityList = sykMessageMapper.selectAssociationByHot(1, pkey);
+		//转换为VO
+		List<SykMessageVO> messages = this.buildMessageVO(msgEntityList);
+		Collections.sort(messages);
+		List<SykMessageVO> hotMessages = this.buildMessageVO(hotMsgEntityList);
 		
+		//获取userTips
+		Map<String, Object> userTips = this.getUserTips(pkey, msgEntityList, hotMsgEntityList);
+		
+		return new TestVO(pkey, token, hotMessages, messages, userTips);
+	}
+	
+	private Map<String, Object> getUserTips(String pkey, List<SykMessageEntity> msgEntityList, List<SykMessageEntity> hotMsgEntityList){
 		Set<String> authorSet = new HashSet<>();
 		if(hotMsgEntityList != null && hotMsgEntityList.size() > 0) {
 			for(SykMessageEntity entity : hotMsgEntityList) {
@@ -74,6 +85,22 @@ public class SykMessageService {
 			}
 		}
 		
+		Map<String, Object> userTips = new HashMap<>();
+		if(authorSet.size() > 0) {
+			List<Map<String,Object>> countMessage = sykMessageMapper.countMessageByAuthor(pkey, authorSet);
+			if(countMessage != null && countMessage.size() > 0) {
+				for(Map<String,Object> m : countMessage) {
+					userTips.put(m.get("author_prn").toString(), m.get("msg_count"));
+				}
+			}
+		}
+		return userTips;
+	}
+	
+	private List<SykMessageVO> buildMessageVO(List<SykMessageEntity> msgEntityList) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+		if(msgEntityList == null) {
+			return null;
+		}
 		List<SykMessageVO> messages = new ArrayList<>();
 		for(SykMessageEntity msgEntity : msgEntityList) {
 			SykUserEntity authorEntity = msgEntity.getAuthor();
@@ -90,37 +117,7 @@ public class SykMessageService {
 			}
 			messages.add(message);
 		}
-		Collections.sort(messages);
-		
-		List<SykMessageVO> hotMessages = new ArrayList<>();
-		for(SykMessageEntity hotMsgEntity : hotMsgEntityList) {
-			SykUserEntity hotAuthorEntity = hotMsgEntity.getAuthor();
-			if(hotAuthorEntity == null) {
-				log.warn("消息："+hotMsgEntity.getPrn()+" 没有找到相关作者！跳过。");
-				continue;
-			}
-			hotMsgEntity.setAuthor(null);
-			SykMessageVO hotMessage = VOUtils.po2vo(hotMsgEntity, SykMessageVO.class);
-			hotMessage.parse();
-			if(hotAuthorEntity != null) {
-				SykUserVO hotAuthor = VOUtils.po2vo(hotAuthorEntity, SykUserVO.class);
-				hotMessage.setAuthor(hotAuthor);
-			}
-			hotMessages.add(hotMessage);
-		}
-		
-		Map<String, Object> userTips = new HashMap<>();
-		if(authorSet.size() > 0) {
-			List<Map<String,Object>> countMessage = sykMessageMapper.countMessageByAuthor(authorSet);
-			if(countMessage != null && countMessage.size() > 0) {
-				for(Map<String,Object> m : countMessage) {
-					userTips.put(m.get("author_prn").toString(), m.get("msg_count"));
-				}
-			}
-		}
-		return new TestVO(pkey, token, hotMessages, messages, userTips);
-		
-		
+		return messages;
 	}
 	
 	public void addOne(SykMessageVO vo, String userPrn, String ip, String userAgent) throws InstantiationException, IllegalAccessException, InvocationTargetException {
@@ -135,10 +132,12 @@ public class SykMessageService {
 			vo.setMsgLevel(1);
 		}
 		if(StringUtils.isBlank(vo.getParentPrn())) {
-			vo.setParentPrn(prn);
+			vo.setParentPrn("0");
 		}
-		if(StringUtils.isBlank(vo.getParentPrns())) {
-			vo.setParentPrns(","+prn+",");
+		if(StringUtils.isBlank(vo.getPrnLine())) {
+			vo.setPrnLine(","+prn+",");
+		}else {
+			vo.setPrnLine(vo.getPrnLine()+prn+",");
 		}
 		if(StringUtils.isBlank(vo.getRootPrn())) {
 			vo.setRootPrn(prn);
@@ -188,20 +187,19 @@ public class SykMessageService {
 		if(msgdc != size) {
 			throw new BusinessException("删除消息数："+ msgdc + " 不符合预期 "+size+" 。");
 		}
-		int likedc = sykMessageLikeService.removeByMsgPrns(msgPrnl);
+		sykMessageLikeService.removeByMsgPrns(msgPrnl);
 		
-		if(likedc != size) {
-			throw new BusinessException("删除赞数："+ likedc + " 不符合预期 "+size+" 。");
-		}
 		return true;
 	}
 	
-	public List<String> getByParentPrns(String msgPrn){
+	public List<String> getByPrnLine(String msgPrn){
 		String msgPrnEvo = ","+msgPrn+",";
-		return sykMessageMapper.selectByParentPrns(msgPrnEvo);
+		return sykMessageMapper.selectByPrnLine(msgPrnEvo);
 	}
 	
-	
+	public SykMessageEntity getByPrn(String msgPrn) {
+		return sykMessageMapper.selectByPrn(msgPrn);
+	}
 	
 	
 	private void check(SykMessageVO vo) {

@@ -1,5 +1,10 @@
 package com.sbolo.syk.common.mvc.filter.wrapper;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
@@ -46,6 +51,9 @@ public class XSSHttpServletRequestWrapper extends HttpServletRequestWrapper {
     public String[] getParameterValues(String name) {
         // 处理路径中的转义字符
         String[] values = super.getParameterValues(name);
+        if(values == null) {
+        	return values;
+        }
         String[] newValues = new String[values.length];
 
         for (int i = 0; i < values.length; i++) {
@@ -55,6 +63,29 @@ public class XSSHttpServletRequestWrapper extends HttpServletRequestWrapper {
         return newValues;
     }
     
+    @Override
+    public Map<String, String[]> getParameterMap() {
+ 
+        Map<String, String[]> paramMap = super.getParameterMap();
+        Map<String, String[]> newParamMap = new HashMap<>();
+ 
+        for (Iterator<Entry<String, String[]>> iterator = paramMap.entrySet().iterator(); iterator.hasNext(); ) {
+            Entry<String, String[]> entry = iterator.next();
+            String key = entry.getKey();
+            String[] values = entry.getValue();
+            if(values == null) {
+            	continue;
+            }
+            String[] newValues = new String[values.length];
+            for (int i = 0; i < values.length; i++) {
+                if (values[i] instanceof String) {
+                	newValues[i] = HtmlUtils.htmlEscape(values[i]);
+                }
+            }
+            newParamMap.put(key, values);
+        }
+        return newParamMap;
+    }    
     
     /**
      * 将容易引起xss漏洞的半角字符直接替换成全角字符

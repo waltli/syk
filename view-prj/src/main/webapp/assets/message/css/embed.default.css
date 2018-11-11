@@ -1733,7 +1733,8 @@
 #ds-wrapper #ds-reset .ds-dialog-footer {
     clear: both;
     border-top: 1px dotted #ccc;
-    padding: 10px 15px 6px
+    padding: 10px 15px 6px;
+    height: 21px;
 }
 
 #ds-wrapper #ds-reset .ds-dialog-footer span {

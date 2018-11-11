@@ -20,11 +20,6 @@ public class SykUserVO {
     private String username;
 
     /**
-     * 密码
-     */
-    private String password;
-
-    /**
      * 手机号
      */
     private String mobile;
@@ -126,24 +121,6 @@ public class SykUserVO {
      */
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    /**
-     * 获取密码
-     *
-     * @return password - 密码
-     */
-    public String getPassword() {
-        return password;
-    }
-
-    /**
-     * 设置密码
-     *
-     * @param password 密码
-     */
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     /**
