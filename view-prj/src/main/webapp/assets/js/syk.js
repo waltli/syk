@@ -12,7 +12,7 @@ var syk = {
 	},
 	verify:function(data, foo){
 		if(!data || !data.status){
-			return layer.msg(data.message || '操作失败！');
+			return layer.msg(data.error.join(",") || '服务器开小差了 - -!');
 		}
 		if(!this.user.isLogin(data)){
 			this.user.login();

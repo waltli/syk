@@ -1,9 +1,12 @@
 package com.sbolo.syk.common.mvc.configuration;
 
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import com.sbolo.syk.common.mvc.filter.XSSFilter;
 import com.sbolo.syk.common.tools.ConfigUtil;
 
 @Configuration
@@ -19,5 +22,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		registry.addResourceHandler(fsMapping+"/**").addResourceLocations("file:"+fsDir+"/");
 		WebMvcConfigurer.super.addResourceHandlers(registry);
 	}
+	
+//	@Bean
+//    public FilterRegistrationBean<XSSFilter> filterRegist() {
+//        FilterRegistrationBean<XSSFilter> frBean = new FilterRegistrationBean<XSSFilter>();
+//        frBean.setFilter(new XSSFilter());
+//        frBean.addUrlPatterns("/*");
+//        return frBean;
+//    }
 	
 }

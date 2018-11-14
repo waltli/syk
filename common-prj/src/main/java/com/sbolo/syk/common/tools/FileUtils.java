@@ -8,6 +8,7 @@ import java.awt.RenderingHints;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -16,10 +17,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -280,5 +284,29 @@ public class FileUtils {
         	scaleBig = widthBig.divide(oldWidthBig, 2, BigDecimal.ROUND_HALF_DOWN);
         }
         return scaleBig;
+	}
+	
+	public static Set<String> txt2Set(InputStream txtStream) throws Exception{
+		InputStreamReader isr = null;
+		BufferedReader br = null;
+		try {
+			isr = new InputStreamReader(txtStream, "utf-8");
+			br = new BufferedReader(isr);
+			
+			String lineTxt = null;
+			Set<String> set = new HashSet<>();
+			while ((lineTxt = br.readLine()) != null) {
+				set.add(lineTxt);
+		    }
+			return set;
+		} finally {
+			if(br != null) {
+				br.close();
+			}
+			
+			if(isr != null) {
+				isr.close();
+			}
+		}
 	}
 }

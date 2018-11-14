@@ -120,29 +120,8 @@ public class SykMessageService {
 		return messages;
 	}
 	
-	public void addOne(SykMessageVO vo, String userPrn, String ip, String userAgent) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+	public void addOne(SykMessageVO vo) throws InstantiationException, IllegalAccessException, InvocationTargetException {
 		this.check(vo);
-		String prn = StringUtil.getId(CommonConstants.message_s);
-		vo.setPrn(prn);
-		vo.setAuthorPrn(userPrn);
-		vo.setCreateTime(new Date());
-		vo.setAuthorIp(ip);
-		vo.setLikeCount(0);
-		if(vo.getMsgLevel() == null) {
-			vo.setMsgLevel(1);
-		}
-		if(StringUtils.isBlank(vo.getParentPrn())) {
-			vo.setParentPrn("0");
-		}
-		if(StringUtils.isBlank(vo.getPrnLine())) {
-			vo.setPrnLine(","+prn+",");
-		}else {
-			vo.setPrnLine(vo.getPrnLine()+prn+",");
-		}
-		if(StringUtils.isBlank(vo.getRootPrn())) {
-			vo.setRootPrn(prn);
-		}
-		vo.setUserAgent(userAgent);
 		SykMessageEntity entity = VOUtils.po2vo(vo, SykMessageEntity.class);
 		sykMessageMapper.insert(entity);
 	}

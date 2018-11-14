@@ -32,16 +32,11 @@ public class VOUtils {
 			}
 			vo = clazz.newInstance();
 			BeanUtilsBean beanUtilsBean = new BeanUtilsBean();
-			beanUtilsBean.getConvertUtils()
-					.register(new org.apache.commons.beanutils.converters.BigDecimalConverter(null), BigDecimal.class);
-			beanUtilsBean.getConvertUtils().register(new org.apache.commons.beanutils.converters.DateConverter(null),
-					java.util.Date.class);
-			beanUtilsBean.getConvertUtils().register(
-					new org.apache.commons.beanutils.converters.SqlTimestampConverter(null), java.sql.Timestamp.class);
-			beanUtilsBean.getConvertUtils().register(new org.apache.commons.beanutils.converters.SqlDateConverter(null),
-					java.sql.Date.class);
-			beanUtilsBean.getConvertUtils().register(new org.apache.commons.beanutils.converters.SqlTimeConverter(null),
-					java.sql.Time.class);
+			beanUtilsBean.getConvertUtils().register(new org.apache.commons.beanutils.converters.BigDecimalConverter(null), BigDecimal.class);
+			beanUtilsBean.getConvertUtils().register(new org.apache.commons.beanutils.converters.DateConverter(null),java.util.Date.class);
+			beanUtilsBean.getConvertUtils().register(new org.apache.commons.beanutils.converters.SqlTimestampConverter(null), java.sql.Timestamp.class);
+			beanUtilsBean.getConvertUtils().register(new org.apache.commons.beanutils.converters.SqlDateConverter(null),java.sql.Date.class);
+			beanUtilsBean.getConvertUtils().register(new org.apache.commons.beanutils.converters.SqlTimeConverter(null),java.sql.Time.class);
 			beanUtilsBean.copyProperties(vo, po);
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
