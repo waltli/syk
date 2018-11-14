@@ -4,7 +4,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.sbolo.syk.common.constants.CommonConstants;
+import com.sbolo.syk.common.tools.StringUtil;
 
 public class SykMessageVO implements Comparable<SykMessageVO> {
 	
@@ -327,6 +330,43 @@ public class SykMessageVO implements Comparable<SykMessageVO> {
 			return -1;
 		}
 		return 1;
+	}
+	
+	public void notNull(String authorPrn, String ip, String userAgent) {
+		if(this.getCreateTime() == null) {
+			this.setCreateTime(new Date());
+		}
+		
+		if(this.getLikeCount() == null) {
+			this.setLikeCount(0);
+		}
+		
+		if(StringUtils.isBlank(this.getPrn())) {
+			this.setPrn(StringUtil.getId(CommonConstants.message_s));
+		}
+		
+		if(StringUtils.isBlank(this.getAuthorPrn())) {
+			this.setAuthorPrn(authorPrn);
+		}
+		
+		if(StringUtils.isBlank(this.getAuthorIp())) {
+			this.setAuthorIp(ip);
+		}
+		
+		if(StringUtils.isBlank(this.getParentPrn())) {
+			this.setParentPrn("0");
+		}
+		if(StringUtils.isBlank(this.getPrnLine())) {
+			this.setPrnLine(","+this.getPrn()+",");
+		}else {
+			this.setPrnLine(this.getPrnLine()+this.getPrn()+",");
+		}
+		if(StringUtils.isBlank(this.getRootPrn())) {
+			this.setRootPrn(this.getPrn());
+		}
+		if(StringUtils.isBlank(this.getUserAgent())) {
+			this.setUserAgent(userAgent);
+		}
 	}
     
 }

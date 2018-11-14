@@ -40,19 +40,19 @@ public class LoginInterceptor implements HandlerInterceptor {
 		Object user = session.getAttribute(CommonConstants.USER);
 		
 		if(user == null){
-			SykUserVO sykUser = new SykUserVO();
-			sykUser.setPrn("41877");
-			sykUser.setAvatarUri("//qzapp.qlogo.cn/qzapp/101263695/E7F30E126A43785C2F97053AE2162341/100");
-			sykUser.setNickname("qxw");
-			session.setAttribute(CommonConstants.USER, sykUser);
+//			SykUserVO sykUser = new SykUserVO();
+//			sykUser.setPrn("41877");
+//			sykUser.setAvatarUri("//qzapp.qlogo.cn/qzapp/101263695/E7F30E126A43785C2F97053AE2162341/100");
+//			sykUser.setNickname("qxw");
+//			session.setAttribute(CommonConstants.USER, sykUser);
 			
-//			RequestResult<String> result = new RequestResult<>();
-//			result.setCode(300);
-//			result.setError("请先登录。");
-//			String json = JSON.toJSONString(result);
-//			response.setContentType("application/json;charset=utf-8");
-//			response.getWriter().write(json);
-//			return false;
+			RequestResult<String> result = new RequestResult<>();
+			result.setCode(300);
+			result.setError("请先登录。");
+			String json = JSON.toJSONString(result);
+			response.setContentType("application/json;charset=utf-8");
+			response.getWriter().write(json);
+			return false;
 		}
 		return true;
 //		

@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -18,10 +19,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.HtmlUtils;
 
 import com.sbolo.syk.common.constants.CommonConstants;
+import com.sbolo.syk.common.constants.MatchRuleEnum;
 import com.sbolo.syk.common.exception.BusinessException;
 import com.sbolo.syk.common.mvc.controller.BaseController;
+import com.sbolo.syk.common.tools.SensitiveWordUtils;
 import com.sbolo.syk.common.ui.RequestResult;
 import com.sbolo.syk.view.entity.SykMessageEntity;
 import com.sbolo.syk.view.entity.SykMessageLikeEntity;
@@ -45,12 +49,23 @@ public class MessageController extends BaseController {
 	
 	private static final Integer pageSize = 10;
 	
+	@GetMapping("loginBack")
+	public void loginBack() {
+		log.info("登录成功！");
+	}
+	
 	@PostMapping("push")
 	public RequestResult<SykMessageVO> pushMessage(HttpServletRequest request, HttpSession session, SykMessageVO vo) throws InstantiationException, IllegalAccessException, InvocationTargetException{
 		String clientIP = this.getClientIP(request);
-		SykUserVO sykUser = (SykUserVO) this.getUser(request);
 		String userAgent = this.getUserAgent(request);
-		sykMessageService.addOne(vo, sykUser.getPrn(), clientIP, userAgent);
+		SykUserVO sykUser = (SykUserVO) this.getUser(request);
+		vo.notNull(sykUser.getPrn(), clientIP, userAgent);
+		String msgContent = vo.getMsgContent();
+		vo.setMsgContent(HtmlUtils.htmlEscape(msgContent));
+		Set<String> sensitiveWords = SensitiveWordUtils.getSensitiveWords(msgContent, MatchRuleEnum.MIN_MATCH);
+		if(sensitiveWords == null || sensitiveWords.size() <= 0) {
+			sykMessageService.addOne(vo);
+		}
 		vo.setAuthor(sykUser);
 		vo.parse();
 		return new RequestResult<>(vo);
@@ -64,11 +79,11 @@ public class MessageController extends BaseController {
 			HttpServletRequest request, HttpSession session) throws InstantiationException, IllegalAccessException, InvocationTargetException{
 		SykUserVO token = (SykUserVO) this.getUser(request);
 		if(token == null) {
-				token = new SykUserVO();
-				token.setPrn("41877");
-				token.setAvatarUri("//qzapp.qlogo.cn/qzapp/101263695/E7F30E126A43785C2F97053AE2162341/100");
-				token.setNickname("qxw");
-				session.setAttribute(CommonConstants.USER, token);
+			token = new SykUserVO();
+			token.setPrn("41877");
+			token.setAvatarUri("//qzapp.qlogo.cn/qzapp/101263695/E7F30E126A43785C2F97053AE2162341/100");
+			token.setNickname("qxw");
+			session.setAttribute(CommonConstants.USER, token);
 		}
 		TestVO test = sykMessageService.getListByPage(pkey, token, orderMarker);
 		return new RequestResult<>(test);
