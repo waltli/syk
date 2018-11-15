@@ -317,7 +317,10 @@ var loadMessage = function(){
 	
 	//获取用户信息
 	var token ={};
-	var pkey = location.href;//评论数据Key
+	var pkey = $('#ds-thread').attr("pkey");//评论数据Key
+	if(pkey == null || pkey == ""){
+		pkey = location.href;
+	}
 	
 	//评论输出box
 	var body = $("#body_message");
