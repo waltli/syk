@@ -78,13 +78,13 @@ public class MessageController extends BaseController {
 			@RequestParam(value="orderMarker", required=false) String orderMarker,
 			HttpServletRequest request, HttpSession session) throws InstantiationException, IllegalAccessException, InvocationTargetException{
 		SykUserVO token = (SykUserVO) this.getUser(request);
-		if(token == null) {
-			token = new SykUserVO();
-			token.setPrn("41877");
-			token.setAvatarUri("//qzapp.qlogo.cn/qzapp/101263695/E7F30E126A43785C2F97053AE2162341/100");
-			token.setNickname("qxw");
-			session.setAttribute(CommonConstants.USER, token);
-		}
+//		if(token == null) {
+//			token = new SykUserVO();
+//			token.setPrn("41877");
+//			token.setAvatarUri("//qzapp.qlogo.cn/qzapp/101263695/E7F30E126A43785C2F97053AE2162341/100");
+//			token.setNickname("qxw");
+//			session.setAttribute(CommonConstants.USER, token);
+//		}
 		TestVO test = sykMessageService.getListByPage(pkey, token, orderMarker);
 		return new RequestResult<>(test);
 	}
