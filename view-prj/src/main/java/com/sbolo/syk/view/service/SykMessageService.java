@@ -51,12 +51,9 @@ public class SykMessageService {
 		//获取rootPrns
 		OrderMarkerEnum orderMarkerEnum = OrderMarkerEnum.getEnumByCode(orderMarker);
 		String orderBy = orderMarkerEnum.getSort()+" "+orderMarkerEnum.getDirect();
-		log.info("开始时间："+DateUtil.date2Str(new Date()));
 		PageHelper.orderBy(orderBy);
 		List<String> rootPrnList = sykMessageMapper.selectRootPrns(pkey);
-		log.info("结束时间："+DateUtil.date2Str(new Date()));
 		if(rootPrnList == null || rootPrnList.size() == 0) {
-			log.info("直接返回");
 			return new TestVO(pkey, token, new ArrayList<>(), new ArrayList<>(), new HashMap<>());
 		}
 		
