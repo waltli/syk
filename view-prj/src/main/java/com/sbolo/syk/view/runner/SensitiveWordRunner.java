@@ -1,4 +1,4 @@
-package com.sbolo.syk.common.mvc.runner;
+package com.sbolo.syk.view.runner;
 
 import java.io.InputStream;
 import java.util.HashSet;
