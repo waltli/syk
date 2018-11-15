@@ -356,7 +356,7 @@ var loadMessage = function(){
 			 	$(".ds-toolbar").show(200);
 				fmtData = $.extend(token,{parentPrn:0,location:'mainComment',msgLevel:1,prnLine:'',rootPrn:'',pkey:pkey});
 			}else{
-				fmtData = token = {parentPrn:0,location:'mainComment',msgLevel:1,prnLine:'',rootPrn:'',nickname:"请登录",avatarUri:ctxassets+"/message/img/default_avatar_50.gif",prn:"-1",uri:"http://www.sojson.com/admin.shtml",link:"http://www.sojson.com/admin.shtml",pkey:pkey};
+				fmtData = token = {parentPrn:0,location:'mainComment',msgLevel:1,prnLine:'',rootPrn:'',nickname:"请登录",avatarUri:ctxassets+"/message/img/default_avatar_50.gif",prn:"-1",uri:"",link:"",pkey:pkey};
 			}
 			//初次加载把评论框加上
 			if($('[box="mainComment"]').length === 0){
