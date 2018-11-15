@@ -77,6 +77,7 @@ public class MessageController extends BaseController {
 //			@RequestParam(value="page",defaultValue="1", required=false) Integer pageNum,
 			@RequestParam(value="orderMarker", required=false) String orderMarker,
 			HttpServletRequest request, HttpSession session) throws InstantiationException, IllegalAccessException, InvocationTargetException{
+		log.info("进入controller");
 		SykUserVO token = (SykUserVO) this.getUser(request);
 //		if(token == null) {
 //			token = new SykUserVO();
