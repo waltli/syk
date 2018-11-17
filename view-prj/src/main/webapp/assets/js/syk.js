@@ -47,6 +47,7 @@ var syk = {
 	  			area: ['630px', '380px'],
 			    content:'<div style="width:630px;height:380px;overflow:hidden"><iframe frameborder="0"  scrolling="auto" src="'+url+'" width="100%" height="800"></iframe></div>',
 			    end:function(){
+			    	debugger;
 					//用户自己关闭，调用回调方法。
 				}
 			});
