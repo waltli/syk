@@ -27,7 +27,7 @@ public class ViewWebMvcConfig implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(loginInterceptor()).addPathPatterns("/msg/**").excludePathPatterns("/msg/gets");
+        registry.addInterceptor(loginInterceptor()).addPathPatterns("/msg/**").excludePathPatterns("/msg/gets", "/msg/step1");
     }
 	
 }
