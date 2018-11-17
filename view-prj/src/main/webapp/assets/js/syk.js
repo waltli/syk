@@ -34,7 +34,7 @@ var syk = {
 		login:function(){
 			var h = ($(window).height() - 480 )/2 - 20;
 			var appid="101519587";
-			var backUrl = encodeURIComponent(ctx+"msg/step1");
+			var backUrl = encodeURIComponent("http://chanying.cc/msg/step1");
 			var state = "123456789abcdefg";
 			var url = "https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id="+appid+"&redirect_uri="+backUrl+"&state="+state;
 			layer.open({
