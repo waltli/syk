@@ -158,8 +158,7 @@
     vertical-align: middle;
     display: inline-block;
     overflow: hidden;
-    background: transparent url("//cdn.www.sojson.com/images/sprites.png") no-repeat;
-    _background-image: url("//static.duoshuo.com/images/sprites.gif")
+    background: transparent url("../img/sprites.png") no-repeat;
 }
 
 #ds-reset a .ds-icon {
@@ -799,7 +798,6 @@
 
 #ds-thread #ds-reset .ds-post-toolbar span, #ds-thread #ds-reset .ds-post-toolbar input, #ds-thread #ds-reset .ds-post-toolbar label, #ds-thread #ds-reset .ds-post-toolbar a {
     vertical-align: middle;
-    width: auto
 }
 
 #ds-thread #ds-reset .ds-post-options {
@@ -815,7 +813,7 @@
 
 #ds-thread #ds-reset .ds-toolbar-buttons {
     position: absolute;
-    top: 5px;
+    top: 4px;
     left: 6px
 }
 
@@ -825,8 +823,7 @@
     height: 19px;
     float: left;
     margin-right: 4px;
-    background: transparent url("//cdn.www.sojson.com/images/sprites.png") no-repeat;
-    _background-image: url("//static.duoshuo.com/images/sprites.gif");
+    background: transparent url("../img/sprites.png") no-repeat;
     vertical-align: middle;
     opacity: .6;
     -webkit-transition: opacity .15s linear;
@@ -836,6 +833,50 @@
 
 #ds-thread #ds-reset .ds-toolbar-button:hover {
     opacity: 1
+}
+
+#ds-thread #ds-reset .ds-cmt-login-wrapper {
+    display: inline-block;
+}
+
+#ds-thread #ds-reset .ds-cmt-login-tip {
+    display: inline-block;
+    vertical-align: middle;
+    color: #818181;
+    margin: 1px 4px 0 16px;
+}
+
+#ds-thread #ds-reset .ds-cmt-icon-qq {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background: url(../img/login/qq_login.png);
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+#ds-thread #ds-reset .ds-cmt-icon-weibo {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background: url(../img/login/weibo.png);
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+#ds-thread #ds-reset .ds-toolbar-button {
+    display: block;
+    width: 19px !important;
+    height: 19px;
+    float: left;
+    margin-right: 4px;
+    background: transparent url("../img/sprites.png") no-repeat;
+    vertical-align: middle;
+    opacity: .6;
+    -webkit-transition: opacity .15s linear;
+    -moz-transition: opacity .15s linear;
+    transition: opacity .15s linear;
+    margin-top: 3px;
 }
 
 #ds-thread #ds-reset .ds-add-image {
@@ -1714,8 +1755,7 @@
     width: 13px;
     height: 13px;
     overflow: hidden;
-    background: transparent url("//cdn.www.sojson.com/images/sprites.png") 0 -163px no-repeat;
-    _background-image: url("//static.duoshuo.com/images/sprites.gif")
+    background: transparent url("../img/sprites.png") 0 -163px no-repeat;
 }
 
 #ds-wrapper #ds-reset .ds-dialog-close:hover {
@@ -1829,12 +1869,11 @@
 #ds-notify #ds-reset a.ds-logo {
     width: 18px;
     height: 14px;
-    background: transparent url("//cdn.www.sojson.com/images/sprites.png") 0 -220px no-repeat;
-    _background-image: url("//static.duoshuo.com/images/sprites.gif");
+    background: transparent url("../img/sprites.png") 0 -220px no-repeat;
     position: absolute;
     display: block;
     top: 8px;
-    left: 12px
+    left: 12px;
 }
 
 #ds-notify #ds-reset span.ds-unread-count {

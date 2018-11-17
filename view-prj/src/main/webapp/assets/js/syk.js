@@ -15,7 +15,7 @@ var syk = {
 			return layer.msg(data.error.join(",") || '服务器开小差了 - -!');
 		}
 		if(!this.user.isLogin(data)){
-			this.user.login();
+//			this.user.login();
 			return;
 		}
 		if(typeof foo == 'function'){
@@ -33,6 +33,10 @@ var syk = {
 		},
 		login:function(){
 			var h = ($(window).height() - 480 )/2 - 20;
+			var appid="101519587";
+			var backUrl = encodeURIComponent(ctx+"msg/step1");
+			var state = "123456789abcdefg";
+			var url = "https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id="+appid+"&redirect_uri="+backUrl+"&state="+state;
 			layer.open({
 			    type: 1,
 			    shadeClose: true,
@@ -41,7 +45,7 @@ var syk = {
 			    shade: [0.8, '#000'],
 			    offset: [h + 'px',''],
 	  			area: ['630px', '380px'],
-			    content:'<div style="width:630px;height:380px;overflow:hidden"><iframe frameborder="0"  scrolling="auto" src="" width="100%" height="800"></iframe></div>',
+			    content:'<div style="width:630px;height:380px;overflow:hidden"><iframe frameborder="0"  scrolling="auto" src="'+url+'" width="100%" height="800"></iframe></div>',
 			    end:function(){
 					//用户自己关闭，调用回调方法。
 				}

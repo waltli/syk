@@ -1,6 +1,8 @@
 package com.sbolo.syk.view.controller;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,9 +23,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.HtmlUtils;
 
+import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.MatchRuleEnum;
 import com.sbolo.syk.common.exception.BusinessException;
+import com.sbolo.syk.common.http.HttpUtils;
+import com.sbolo.syk.common.http.HttpUtils.HttpResult;
+import com.sbolo.syk.common.http.callback.HttpSendCallback;
 import com.sbolo.syk.common.mvc.controller.BaseController;
 import com.sbolo.syk.common.tools.SensitiveWordUtils;
 import com.sbolo.syk.common.ui.RequestResult;
@@ -35,6 +41,8 @@ import com.sbolo.syk.view.service.SykMessageService;
 import com.sbolo.syk.view.vo.SykMessageVO;
 import com.sbolo.syk.view.vo.SykUserVO;
 import com.sbolo.syk.view.vo.TestVO;
+
+import okhttp3.Response;
 
 @RestController
 @RequestMapping("msg")
@@ -49,9 +57,29 @@ public class MessageController extends BaseController {
 	
 	private static final Integer pageSize = 10;
 	
-	@GetMapping("loginBack")
-	public void loginBack() {
-		log.info("登录成功！");
+	@GetMapping("step1")
+	public void step1(String code, String state) throws Exception {
+		
+		String backUrl = URLEncoder.encode("http://chanying.cc/msg/step1", "utf-8");
+		String url="https://graph.qq.com/oauth2.0/token?grant_type=authorization_code&client_id=101519587&client_secret=63874b6e0fc71ce529448dcf524f2904&code="+code+"&redirect_uri="+backUrl;
+		HttpResult<Map<String, Object>> result = HttpUtils.httpGet(url, new HttpSendCallback<Map<String, Object>>() {
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public Map<String, Object> onResponse(Response response) throws Exception {
+				String string = response.body().string();
+				Map<String, Object> m = JSON.parseObject(string, Map.class);
+				return m;
+			}
+		});
+		
+		Map<String, Object> value = result.getValue();
+		
+	}
+	
+	@GetMapping("step2")
+	public void step2() {
+		
 	}
 	
 	@PostMapping("push")
