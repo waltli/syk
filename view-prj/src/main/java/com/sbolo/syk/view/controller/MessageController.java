@@ -91,49 +91,48 @@ public class MessageController extends BaseController {
 	private Map<String, Object> getAccessToken(String appId, String appKey, String code, String callBackUrl) throws Exception{
 		String backUrl = URLEncoder.encode(callBackUrl, "utf-8");
 		String url="https://graph.qq.com/oauth2.0/token?grant_type=authorization_code&client_id="+appId+"&client_secret="+appKey+"&code="+code+"&redirect_uri="+backUrl;
-		HttpResult<Map<String, Object>> result = HttpUtils.httpGet(url, new HttpSendCallback<Map<String, Object>>() {
+		HttpResult<String> result = HttpUtils.httpGet(url, new HttpSendCallback<String>() {
 
-			@SuppressWarnings("unchecked")
 			@Override
-			public Map<String, Object> onResponse(Response response) throws Exception {
+			public String onResponse(Response response) throws Exception {
 				String string = response.body().string();
-				Map<String, Object> m = JSON.parseObject(string);
-				return m;
+				return string;
 			}
 		});
 		
-		Map<String, Object> value = result.getValue();
-		return value;
+		String value = result.getValue();
+		Map<String, Object> m = JSON.parseObject(value);
+		return m;
 	}
 	
 	private Map<String, Object> getOpenId(String accessToken) throws Exception{
 		String url = "https://graph.qq.com/oauth2.0/me?access_token="+accessToken;
-		HttpResult<Map<String, Object>> result = HttpUtils.httpGet(url, new HttpSendCallback<Map<String, Object>>() {
+		HttpResult<String> result = HttpUtils.httpGet(url, new HttpSendCallback<String>() {
 
 			@Override
-			public Map<String, Object> onResponse(Response response) throws Exception {
+			public String onResponse(Response response) throws Exception {
 				String string = response.body().string();
-				Map<String, Object> m = JSON.parseObject(string);
-				return m;
+				return string;
 			}
 		});
-		Map<String, Object> value = result.getValue();
-		return value;
+		String value = result.getValue();
+		Map<String, Object> m = JSON.parseObject(value);
+		return m;
 	}
 	
 	private Map<String, Object> getOpenUser(String accessToken, String appId, String openId) throws Exception{
 		String url = "https://graph.qq.com/user/get_user_info?access_token="+accessToken+"&oauth_consumer_key"+appId+"&openid="+openId;
-		HttpResult<Map<String, Object>> result = HttpUtils.httpGet(url, new HttpSendCallback<Map<String, Object>>() {
+		HttpResult<String> result = HttpUtils.httpGet(url, new HttpSendCallback<String>() {
 
 			@Override
-			public Map<String, Object> onResponse(Response response) throws Exception {
+			public String onResponse(Response response) throws Exception {
 				String string = response.body().string();
-				Map<String, Object> m = JSON.parseObject(string);
-				return m;
+				return string;
 			}
 		});
-		Map<String, Object> value = result.getValue();
-		return value;
+		String value = result.getValue();
+		Map<String, Object> m = JSON.parseObject(value);
+		return m;
 	}
 	
 	@PostMapping("push")
