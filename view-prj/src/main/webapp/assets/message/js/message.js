@@ -724,5 +724,10 @@ var loadMessage = function(){
 		},'json');
 	});
 	
+	
+	$("#ds-thread").on('click',".ds-cmt-icon-qq",function(){
+		syk.user.login();
+	});
+	
 };
 loadMessage();
