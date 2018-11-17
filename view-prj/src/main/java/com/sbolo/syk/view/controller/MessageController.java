@@ -59,7 +59,7 @@ public class MessageController extends BaseController {
 	
 	@GetMapping("step1")
 	public void step1(String code, String state) throws Exception {
-		String callBackUrl = "http://chanying.cc/msg/step1";
+		String callBackUrl = "http://www.chanying.cc/msg/step1";
 		String appId = "101519587";
 		String appKey = "63874b6e0fc71ce529448dcf524f2904";
 		Map<String, Object> m1 = this.getAccessToken(appId, appKey, code, callBackUrl);
