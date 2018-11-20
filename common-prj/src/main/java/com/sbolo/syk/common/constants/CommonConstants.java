@@ -51,6 +51,7 @@ public class CommonConstants {
 	public static final String pic_s = "p";
 	public static final String file_s = "f";
 	public static final String message_s = "g";
+	public static final String user_s = "u";
 	
 	public static final int rt_update = 2;
 	public static final int rt_add2update = 3;

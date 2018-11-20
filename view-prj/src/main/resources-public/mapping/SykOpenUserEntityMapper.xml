@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sbolo.syk.view.mapper.SykOpenUserMapper">
+  <resultMap id="BaseResultMap" type="com.sbolo.syk.view.entity.SykOpenUserEntity">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="prn" jdbcType="VARCHAR" property="prn" />
+    <result column="user_prn" jdbcType="VARCHAR" property="userPrn" />
+    <result column="open_type" jdbcType="INTEGER" property="openType" />
+    <result column="open_id" jdbcType="VARCHAR" property="openId" />
+    <result column="access_token" jdbcType="VARCHAR" property="accessToken" />
+    <result column="expired_time" jdbcType="BIGINT" property="expiredTime" />
+    <result column="nickname" jdbcType="VARCHAR" property="nickname" />
+    <result column="avatar_url" jdbcType="VARCHAR" property="avatarUrl" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+</mapper>

@@ -6,17 +6,28 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.RegexConstant;
 
 public class StringUtil {
-	public static String toString(Object o) {
-		if (o == null)
+
+	public static String params2Json(String strs) {
+		if(StringUtils.isBlank(strs)) {
 			return "";
-		else
-			return o.toString();
+		}
+		
+		String[] strArr = strs.split("&");
+		StringBuilder json = new StringBuilder("{");
+		for(String str : strArr) {
+			String[] sigleArr = str.split("=");
+			json.append("\"").append(sigleArr[0]).append("\"");
+			json.append(":");
+			json.append("\"").append(sigleArr[1]).append("\"");
+			json.append(",");
+		}
+		return json.replace(json.length()-1, json.length(), "}").toString();
 	}
-	
 	/**
 	 * 去除html的特殊符号 如：&nbsp; &gt;等
 	 * @param str

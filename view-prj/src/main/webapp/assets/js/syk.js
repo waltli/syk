@@ -32,23 +32,31 @@ var syk = {
 			throw "data is undefined!";
 		},
 		login:function(){
-			var h = ($(window).height() - 480 )/2 - 20;
-			var appid="101519587";
-			var backUrl = encodeURIComponent("http://www.chanying.cc/msg/step1");
-			var state = "123456789abcdefg";
-			var url = "https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id="+appid+"&redirect_uri="+backUrl+"&state="+state;
-			layer.open({
-			    type: 1,
-			    shadeClose: true,
-			    title: false,
-			    closeBtn: [0, true],
-			    shade: [0.8, '#000'],
-			    offset: [h + 'px',''],
-	  			area: ['630px', '380px'],
-			    content:'<div style="width:630px;height:380px;overflow:hidden"><iframe frameborder="0"  scrolling="auto" src="'+url+'" width="100%" height="800"></iframe></div>',
-			    end:function(){
-			    	debugger;
-					//用户自己关闭，调用回调方法。
+			$.ajax({
+				url:ctx+"/login/pre",
+				data:{openType:1},
+				type:"get",
+				success:function(data){
+					syk.verify(data, function(){
+						var authorizeUrl = data.obj.authorizeUrl;
+						var h = ($(window).height() - 480 )/2 - 20;
+						layer.open({
+						    type: 1,
+						    shadeClose: true,
+						    title: false,
+						    closeBtn: [0, true],
+						    shade: [0.8, '#000'],
+						    offset: [h + 'px',''],
+				  			area: ['630px', '380px'],
+						    content:'<div style="width:630px;height:380px;overflow:hidden"><iframe frameborder="0"  scrolling="auto" src="'+authorizeUrl+'" width="100%" height="800"></iframe></div>',
+						    end:function(){
+								//用户自己关闭，调用回调方法。
+							}
+						});
+					});
+				},
+				error : function(data){
+					console.log(data);
 				}
 			});
 		}

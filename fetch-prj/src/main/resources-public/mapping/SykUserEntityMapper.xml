@@ -13,10 +13,11 @@
     <result column="email" jdbcType="VARCHAR" property="email" />
     <result column="wechat_info_prn" jdbcType="VARCHAR" property="wechatInfoPrn" />
     <result column="weibo_info_prn" jdbcType="VARCHAR" property="weiboInfoPrn" />
-    <result column="user_type" jdbcType="INTEGER" property="userType" />
+    <result column="user_power" jdbcType="BIGINT" property="userPower" />
     <result column="st" jdbcType="INTEGER" property="st" />
     <result column="avatar_uri" jdbcType="VARCHAR" property="avatarUri" />
     <result column="nikename" jdbcType="VARCHAR" property="nikename" />
+    <result column="is_settle" jdbcType="INTEGER" property="isSettle" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>

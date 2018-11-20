@@ -44,22 +44,10 @@ public class SykUserEntity {
     private String email;
 
     /**
-     * 微信信息prn
-     */
-    @Column(name = "`wechat_info_prn`")
-    private String wechatInfoPrn;
-
-    /**
-     * 微博信息prn
-     */
-    @Column(name = "`weibo_info_prn`")
-    private String weiboInfoPrn;
-
-    /**
      * 用户类型
      */
-    @Column(name = "`user_type`")
-    private Integer userType;
+    @Column(name = "`user_power`")
+    private Long userPower;
 
     /**
      * 状态
@@ -78,6 +66,9 @@ public class SykUserEntity {
      */
     @Column(name = "`nikename`")
     private String nikename;
+    
+    @Column(name= "`is_settle`")
+    private Integer isSettle;
 
     /**
      * 创建时间
@@ -91,7 +82,23 @@ public class SykUserEntity {
     @Column(name = "`update_time`")
     private Date updateTime;
 
-    /**
+    public Integer getIsSettle() {
+		return isSettle;
+	}
+
+	public void setIsSettle(Integer isSettle) {
+		this.isSettle = isSettle;
+	}
+
+	public Long getUserPower() {
+		return userPower;
+	}
+
+	public void setUserPower(Long userPower) {
+		this.userPower = userPower;
+	}
+
+	/**
      * 获取自增id
      *
      * @return id - 自增id
@@ -199,61 +206,7 @@ public class SykUserEntity {
         this.email = email;
     }
 
-    /**
-     * 获取微信信息prn
-     *
-     * @return wechat_info_prn - 微信信息prn
-     */
-    public String getWechatInfoPrn() {
-        return wechatInfoPrn;
-    }
-
-    /**
-     * 设置微信信息prn
-     *
-     * @param wechatInfoPrn 微信信息prn
-     */
-    public void setWechatInfoPrn(String wechatInfoPrn) {
-        this.wechatInfoPrn = wechatInfoPrn;
-    }
-
-    /**
-     * 获取微博信息prn
-     *
-     * @return weibo_info_prn - 微博信息prn
-     */
-    public String getWeiboInfoPrn() {
-        return weiboInfoPrn;
-    }
-
-    /**
-     * 设置微博信息prn
-     *
-     * @param weiboInfoPrn 微博信息prn
-     */
-    public void setWeiboInfoPrn(String weiboInfoPrn) {
-        this.weiboInfoPrn = weiboInfoPrn;
-    }
-
-    /**
-     * 获取用户类型
-     *
-     * @return user_type - 用户类型
-     */
-    public Integer getUserType() {
-        return userType;
-    }
-
-    /**
-     * 设置用户类型
-     *
-     * @param userType 用户类型
-     */
-    public void setUserType(Integer userType) {
-        this.userType = userType;
-    }
-
-    /**
+	/**
      * 获取状态
      *
      * @return st - 状态

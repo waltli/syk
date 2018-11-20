@@ -19,7 +19,7 @@ public class ThreeDESUtils {
 	public static void main(String[] args) throws Exception {
 		String key = "xUHdKxzVCbsgVIwTnc1jtpWn";
 
-		String idcard = "130682199606071234";
+		String idcard = "abc123456";
 
 		String encode = ThreeDESUtils.encode3Des(key, idcard);
 

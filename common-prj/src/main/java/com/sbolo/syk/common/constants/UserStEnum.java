@@ -2,25 +2,28 @@ package com.sbolo.syk.common.constants;
 
 import com.sbolo.syk.common.tools.StringUtil;
 
-public enum StdStEnum {
+/**
+ * 字典状态
+ * @author Cathy
+ *
+ */
+public enum UserStEnum {
 
-
-
-	YX(1, "有效标准"),
-	ZF(2, "作废标准");
+	TY(0, "停用"),
+	QY(1, "启用");
 	
 	private Integer code;
 	private String desc;
 
-	StdStEnum(Integer code, String desc){
+	UserStEnum(Integer code, String desc){
 		this.code = code;
 		this.desc = desc;
 	}
 	
 	public static Integer getCodeByName(String name){
 		name = StringUtil.replaceBlank2(name).toUpperCase();
-		StdStEnum[] values = StdStEnum.values();
-		for(StdStEnum value : values){
+		UserStEnum[] values = UserStEnum.values();
+		for(UserStEnum value : values){
 			if(value.name().equals(name)){
 				return value.getCode();
 			}
@@ -29,8 +32,8 @@ public enum StdStEnum {
 	}
 	
 	public static Integer getCodeByDesc(String desc){
-		StdStEnum[] values = StdStEnum.values();
-		for(StdStEnum value : values){
+		UserStEnum[] values = UserStEnum.values();
+		for(UserStEnum value : values){
 			if(value.getDesc().equals(desc)){
 				return value.getCode();
 			}
@@ -39,8 +42,8 @@ public enum StdStEnum {
 	}
 	
 	public static String getDescByCode(Integer code){
-		StdStEnum[] values = StdStEnum.values();
-		for(StdStEnum value : values){
+		UserStEnum[] values = UserStEnum.values();
+		for(UserStEnum value : values){
 			if(value.getCode().equals(code)){
 				return value.getDesc();
 			}
@@ -63,11 +66,5 @@ public enum StdStEnum {
 	public void setDesc(String desc) {
 		this.desc = desc;
 	}
-
-	
-	
-
-
-
 
 }
