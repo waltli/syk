@@ -8,6 +8,15 @@ import org.apache.commons.lang3.StringUtils;
 import com.sbolo.syk.common.constants.CommonConstants;
 
 public class BaseController {
+	
+	protected void setUserInfo(HttpSession session, Object user, String username) {
+		if(session == null){
+			throw new RuntimeException("The parameter \"session\" that must be available!");
+		}
+		session.setAttribute(CommonConstants.USER, user);
+		session.setAttribute(CommonConstants.USERNAME, username);
+	}
+	
 	protected Object getUser(HttpServletRequest request) {
 		if(request == null){
 			throw new RuntimeException("The parameter \"request\" that must be available!");
@@ -21,6 +30,13 @@ public class BaseController {
 		}
 		Object attribute = session.getAttribute(CommonConstants.USER);
 		return attribute;
+	}
+	
+	protected void removeUser(HttpSession session) {
+		if(session == null){
+			throw new RuntimeException("The parameter \"session\" that must be available!");
+		}
+		session.removeAttribute(CommonConstants.USER);
 	}
 	
 	protected String getUserName(HttpServletRequest request){

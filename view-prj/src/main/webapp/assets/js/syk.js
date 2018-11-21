@@ -12,15 +12,16 @@ var syk = {
 	},
 	verify:function(data, foo){
 		if(!data || !data.status){
-			return layer.msg(data.error.join(",") || '服务器开小差了 - -!');
+			layer.msg(data.error.join(",") || '服务器开小差了 - -!');
+			return false;
 		}
 		if(!this.user.isLogin(data)){
-//			this.user.login();
-			return;
+			return false;
 		}
 		if(typeof foo == 'function'){
 			foo();
 		}
+		return true;
 	},
 	user: {
 		isLogin:function(data){
@@ -31,16 +32,28 @@ var syk = {
 			return !0;
 			throw "data is undefined!";
 		},
-		login:function(){
+		login:function(loginType, foo){
+			//普通登录调用
+		},
+		openLogin:function(openType, foo){
+			var layerIndex;
+			this.openBack = function(data){
+				syk.verify(data, function(){
+					layer.close(layerIndex);
+					if(typeof foo == 'function'){
+						foo(data.obj);
+					}
+				});
+			};
 			$.ajax({
-				url:ctx+"/login/pre",
-				data:{openType:1},
+				url:ctx+"/account/pre",
+				data:{"openType":openType},
 				type:"get",
 				success:function(data){
 					syk.verify(data, function(){
 						var authorizeUrl = data.obj.authorizeUrl;
 						var h = ($(window).height() - 480 )/2 - 20;
-						layer.open({
+						layerIndex = layer.open({
 						    type: 1,
 						    shadeClose: true,
 						    title: false,
@@ -50,9 +63,26 @@ var syk = {
 				  			area: ['630px', '380px'],
 						    content:'<div style="width:630px;height:380px;overflow:hidden"><iframe frameborder="0"  scrolling="auto" src="'+authorizeUrl+'" width="100%" height="800"></iframe></div>',
 						    end:function(){
-								//用户自己关闭，调用回调方法。
-							}
+						    	//用户自己点击关闭弹出层
+						    }
 						});
+					});
+				},
+				error : function(data){
+					console.log(data);
+				}
+			});
+		},
+		logout:function(token, foo){
+			$.ajax({
+				url:ctx+"/account/logout",
+				data:{"username":token.username},
+				type:"post",
+				success:function(data){
+					syk.verify(data, function(){
+						if(typeof foo == 'function'){
+							foo(data);
+						}
 					});
 				},
 				error : function(data){
@@ -117,6 +147,10 @@ var syk = {
 			}
 		}
 	}
+}
+
+function test(){
+	alert("aac");
 }
 
 $(function(){

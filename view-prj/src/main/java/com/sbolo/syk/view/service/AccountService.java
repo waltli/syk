@@ -35,7 +35,7 @@ import com.sbolo.syk.view.vo.SykUserVO;
 import okhttp3.Response;
 
 @Service
-public class LoginService {
+public class AccountService {
 	
 	@Autowired
 	private SykOpenUserMapper sykOpenUserMapper;
