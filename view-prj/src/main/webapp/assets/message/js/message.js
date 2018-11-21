@@ -1,33 +1,33 @@
 //评论框
 var html = [];
 html.push('<div class="ds-replybox ds-inline-replybox" box="{%location}" style="{%style}">');
-html.push('	<a class="ds-avatar" href="{%link}" target="_blank" title="{%nickname}">');
-html.push('		<img src="{%avatarUri}" alt="{%nickname}">');
-html.push('	</a>');
-html.push('	<form method="post" message-post="" onsubmit="return false;" url="'+ctx+'/msg/push" >');
-html.push('		<input name="parentPrn" value="{%parentPrn}" type="hidden">');
-html.push('		<input name="pkey" value="{%pkey}" type="hidden">');
-html.push('		<input name="msgLevel" value="{%msgLevel}" type="hidden">');
-html.push('		<input name="prnLine" value="{%prnLine}" type="hidden">');
-html.push('		<input name="rootPrn" value="{%rootPrn}" type="hidden">');
-html.push('		<div class="ds-textarea-wrapper ds-rounded-top">');
-html.push('			<textarea message="" id="{%location}" name="msgContent" _title="Ctrl+Enter快捷提交" placeholder="说点什么吧…"></textarea>');
-html.push('			<pre class="ds-hidden-text"></pre>');
-html.push('		</div>');
-html.push('		<div class="ds-post-toolbar">');
-html.push('			<div class="ds-post-options ds-gradient-bg">');
-html.push('			</div>');
-html.push('			<button class="ds-post-button" submit="{%location}">发布</button>');
-html.push('			<div class="ds-toolbar-buttons">');
-html.push('				<a class="ds-toolbar-button ds-add-emote" emote="{%location}" title="插入表情"></a>');
-html.push('				<div class="ds-cmt-login-wrapper">');
-html.push('					<span class="ds-cmt-login-tip">使用社交账号登录</span>');
-html.push('					<a href="javascript:;" title="使用QQ账号登录" class="ds-cmt-icon-qq"></a>');
-//html.push('					<a href="javascript:;" title="使用微博账号登录" class="xei-cmt-icon-weibo"></a>');
-html.push('				</div>');
-html.push('			</div>');
-html.push('		</div>');
-html.push('	</form>');
+html.push('    <a class="ds-avatar" href="{%link}" target="_blank" title="{%nickname}">');
+html.push('        <img src="{%avatarUri}" alt="{%nickname}">');
+html.push('    </a>');
+html.push('    <form method="post" message-post="" onsubmit="return false;" url="'+ctx+'/msg/push" >');
+html.push('        <input name="parentPrn" value="{%parentPrn}" type="hidden">');
+html.push('        <input name="pkey" value="{%pkey}" type="hidden">');
+html.push('        <input name="msgLevel" value="{%msgLevel}" type="hidden">');
+html.push('        <input name="prnLine" value="{%prnLine}" type="hidden">');
+html.push('        <input name="rootPrn" value="{%rootPrn}" type="hidden">');
+html.push('        <div class="ds-textarea-wrapper ds-rounded-top">');
+html.push('            <textarea message="" id="{%location}" name="msgContent" _title="Ctrl+Enter快捷提交" placeholder="说点什么吧…"></textarea>');
+html.push('            <pre class="ds-hidden-text"></pre>');
+html.push('        </div>');
+html.push('        <div class="ds-post-toolbar">');
+html.push('            <div class="ds-post-options ds-gradient-bg">');
+html.push('            </div>');
+html.push('            <button class="ds-post-button" submit="{%location}">发布</button>');
+html.push('            <div class="ds-toolbar-buttons">');
+html.push('                <a class="ds-toolbar-button ds-add-emote" emote="{%location}" title="插入表情"></a>');
+html.push('                <div class="ds-cmt-login-wrapper">');
+html.push('                    <span class="ds-cmt-login-tip">使用社交账号登录</span>');
+html.push('                    <a href="javascript:;" title="使用QQ账号登录" class="ds-cmt-icon-qq"></a>');
+//html.push('                    <a href="javascript:;" title="使用微博账号登录" class="xei-cmt-icon-weibo"></a>');
+html.push('                </div>');
+html.push('            </div>');
+html.push('        </div>');
+html.push('    </form>');
 html.push('</div>');
 //单个评论输出模块
 var xhtml = [];
@@ -146,20 +146,25 @@ box.push('			<div class="ds-header ds-gradient-bg">被顶起来的评论</div>')
 box.push('			<ul></ul>');
 box.push('		</div>');
 box.push('		<div class="ds-toolbar" style="display: none;">');
-box.push('			<div class="ds-account-control">');
-box.push('				<span class="ds-icon ds-icon-settings"></span>'); 
-box.push('				<span>个人中心</span>');
-box.push('				<ul>');
-box.push('					<li><a target="_blank"rel="nofollow" href="http://www.sojson.com/admin.shtml">个人资料</a></li>');
-box.push('					<li><a  href="javascript:void(0);" onclick="logout();" style="border-bottom: none">退出登录</a></li>');
-box.push('				</ul>');
+box.push('			<div class="ds-account" style="display: none;">');
+box.push('				<div class="ds-account-control">');
+box.push('					<span class="ds-icon ds-icon-settings"></span>'); 
+box.push('					<span>个人中心</span>');
+box.push('					<ul>');
+box.push('						<li><a target="_blank"rel="nofollow" href="http://www.sojson.com/admin.shtml">个人资料</a></li>');
+box.push('						<li><a  href="javascript:void(0);" onclick="logout();" style="border-bottom: none">退出登录</a></li>');
+box.push('					</ul>');
+box.push('				</div>');
+box.push('				<div class="ds-account-name">');
+box.push('					<a token_nickname="" href="javascript:void(0);">nickname</a>');
+box.push('				</div>');
 box.push('			</div>');
 box.push('			<div class="ds-visitor">');
-box.push('				<a class="ds-visitor-name"   token_nickname=""  href="javascript:void(0);">请登录</a>');
+box.push('				<a class="ds-visitor-name"  href="javascript:void(0);">请登录</a>');
 box.push('			</div>');
 box.push('		</div>');
 //<#--统计，排序-->
-box.push('		<div class="ds-comments-info" id="orderMenu" style="display: none;">');
+box.push('		<div class="ds-comments-info" id="ds-order-menu" style="display: none;">');
 box.push('			<div class="ds-sort">');
 box.push('				<a class="ds-order-desc ds-current">最新</a>');
 box.push('				<a class="ds-order-asc">最早</a>');
@@ -172,7 +177,7 @@ box.push('				</li>');
 box.push('			</ul>');
 box.push('		</div>');
 //<#--/统计，排序-->
-box.push('		<ul class="ds-comments" id="body_message">');
+box.push('		<ul class="ds-comments" id="ds-body-message">');
 box.push('			<li class="ds-post ds-post-placeholder">正在加载评论... ... </li>');
 box.push('		</ul>');
 box.push('	</div>');
@@ -328,7 +333,7 @@ var loadMessage = function(){
 	}
 	
 	//评论输出box
-	var body = $("#body_message");
+	var body = $("#ds-body-message");
 	//单个评论输出
 	var outSingle = function(o){
 		
@@ -358,21 +363,24 @@ var loadMessage = function(){
 		$.getJSON(ctx+"/msg/gets", args,function(result){
 			var data = result.obj;
 			token = data.token;//赋值token
+			$(".ds-toolbar").show(200);
 			var fmtData = {};
 			if(token && !$.isEmptyObject(token)){
+				$(".ds-cmt-login-wrapper").hide();
+				$(".ds-visitor").hide();
+				$(".ds-account").show();
 				$("[token_nickname]").text(token.nickname).attr('href',token.link);
-			 	$(".ds-toolbar").show(200);
-				fmtData = $.extend(token,{parentPrn:0,location:'mainComment',msgLevel:1,prnLine:'',rootPrn:'',pkey:pkey});
+				fmtData = $.extend(token,{parentPrn:0,location:'ds-main-replybox',msgLevel:1,prnLine:'',rootPrn:'',pkey:pkey});
 			}else{
-				fmtData = token = {parentPrn:0,location:'mainComment',msgLevel:1,prnLine:'',rootPrn:'',nickname:"请登录",avatarUri:ctxassets+"/message/img/default_avatar_50.gif",prn:"-1",uri:"",link:"",pkey:pkey};
+				fmtData = token = {parentPrn:0,location:'ds-main-replybox',msgLevel:1,prnLine:'',rootPrn:'',nickname:"请登录",avatarUri:ctxassets+"/message/img/default_avatar_50.gif",prn:"-1",uri:"",link:"",pkey:pkey};
 			}
 			//初次加载把评论框加上
-			if($('[box="mainComment"]').length === 0){
-				$("#orderMenu").before(syk.fmt(html.join(''), fmtData).replace('ds-inline-replybox',''));
+			if($('[box="ds-main-replybox"]').length === 0){
+				$("#ds-order-menu").before(syk.fmt(html.join(''), fmtData).replace('ds-inline-replybox',''));
 			}
 			//加载emote
-			$('[emote="mainComment"]').qqFace({assign:'mainComment'});
-			$('#orderMenu').show(100);
+			$('[emote="ds-main-replybox"]').qqFace({assign:'ds-main-replybox'});
+			$('#ds-order-menu').show(100);
 			//多少条评论
 			$('span[len]').text(data.messages.length);
 			//没有评论
@@ -493,11 +501,11 @@ var loadMessage = function(){
 		var xh = [];//拼接楼层message
 		for(var i=1;prnLine.length>i+1;i++){
 			//取到用户ID，用来获取用户信息
-			var uprn = $('#body_message [data-post-prn="'+ prnLine[i] +'"] >div>div').attr('data-user-prn');
+			var uprn = $('#ds-body-message [data-post-prn="'+ prnLine[i] +'"] >div>div').attr('data-user-prn');
 			//取到message
 			var message = $('[data-post-prn="'+ prnLine[i] +'"] >div>div>p').html();
 			//每个的时间处理
-			var pt = $('#body_message [data_prn="'+ prnLine[i] +'"]>span.ds-time'),
+			var pt = $('#ds-body-message [data_prn="'+ prnLine[i] +'"]>span.ds-time'),
 			createTime = pt.attr('datetime'),
 			createTimeFullStr = pt.attr('title'),
 			createTimeCalc = $.trim(pt.text());
@@ -590,8 +598,8 @@ var loadMessage = function(){
 							var len = ~~$('span[len]').text()-hides.length;
 							$('span[len]').text(len);
 							if(len === 0){//如果是0条要显示提示信息
-								$('#orderMenu').after('<ul class="ds-comments" id="body_message" style="display:none;"><li class="ds-post ds-post-placeholder">还没有评论，沙发等你来抢</li></ul>');
-								$("#body_message").show(300);
+								$('#ds-order-menu').after('<ul class="ds-comments" id="ds-body-message" style="display:none;"><li class="ds-post ds-post-placeholder">还没有评论，沙发等你来抢</li></ul>');
+								$("#ds-body-message").show(300);
 							}
 							hides=null;
 						},600);//再删除
@@ -618,8 +626,8 @@ var loadMessage = function(){
 	});
 	//单条消息点击回复
 	$("#ds-thread").on('click',"a.ds-post-reply",function(){
-		$("div[box='smallComment']").hide(200, function(){
-			$("div[box='smallComment']:hidden").remove();
+		$("div[box='ds-small-replybox']").hide(200, function(){
+			$("div[box='ds-small-replybox']:hidden").remove();
 		});
 		$("a.ds-post-unreply").hide();
 		$("a.ds-post-reply").show();
@@ -631,16 +639,16 @@ var loadMessage = function(){
 		var msgLevel=1+~~p.attr('msgLevel');
 		var prnLine=p.attr('prnLine');
 		var rootPrn= p.attr('rootPrn');
-		var data = $.extend(token,{style:"display:none;","parentPrn":parentPrn,location:"smallComment",msgLevel:msgLevel,prnLine:prnLine,rootPrn:rootPrn});
+		var data = $.extend(token,{style:"display:none;","parentPrn":parentPrn,location:"ds-small-replybox",msgLevel:msgLevel,prnLine:prnLine,rootPrn:rootPrn});
 		var $xhtml = $(syk.fmt(xhtml, data));
 		$(this).parent().after($xhtml);
 		$xhtml.show(200);
-		$('[emote="smallComment"]').qqFace({assign:'smallComment'});
+		$('[emote="ds-small-replybox"]').qqFace({assign:'ds-small-replybox'});
 	});
 	//取消单条消息回复
 	$("#ds-thread").on('click',"a.ds-post-unreply",function(){
-		$("div[box='smallComment']").hide(200, function(){
-			$("div[box='smallComment']:hidden").remove();
+		$("div[box='ds-small-replybox']").hide(200, function(){
+			$("div[box='ds-small-replybox']:hidden").remove();
 		});
 		$(this).hide();
 		$(this).prev(".ds-post-reply").show();
@@ -695,12 +703,12 @@ var loadMessage = function(){
 	 			}
 				var h = syk.fmt(outSingle(data), {none:"style='display:none'"});;
 				var box = self.attr('submit');
-				if(box == 'mainComment'){//主评论框
-					$("#body_message").children('li').eq(0).before(h);
-					$("#body_message").find('li.ds-post-placeholder').remove();
+				if(box == 'ds-main-replybox'){//主评论框
+					$("#ds-body-message").children('li').eq(0).before(h);
+					$("#ds-body-message").find('li.ds-post-placeholder').remove();
 					message.val('');
 				}else{
-					var li =  $("#body_message").find("[data-post-prn='"+ data.parentPrn +"']");
+					var li =  $("#ds-body-message").find("[data-post-prn='"+ data.parentPrn +"']");
 					if(data.msgLevel > 5){
 					var info = '<a class="ds-comment-context"  prnLine="'+ data.prnLine  +'" data-user-prn="'+ data.authorPrn +'"  more="" data-post-prn="'+data.prn +'" data-parent-prn="'+ data.parentPrn +'">回复 '+ li.attr('nickname') +': </a>';
 	 					var t = syk.fmt(h, {parent_info:info});
@@ -715,7 +723,7 @@ var loadMessage = function(){
 							li.append('<ul class="ds-children">'+h +'</ul>');
 						}
 				 	}
-				 	$('div[box="smallComment"]').remove();//删除评论框
+				 	$('div[box="ds-small-replybox"]').remove();//删除评论框
 				 }
 				 //增加评论数
 				 $('span[len]').text(1+~~( $('span[len]').text()));

@@ -59,6 +59,19 @@ var syk = {
 					console.log(data);
 				}
 			});
+		},
+		loginBack:function(data){
+			syk.verify(data, function(){
+				debugger;
+				layer.closeAll();
+				var token = data.obj;
+				$(".ds-visitor").hide();
+				$(".ds-account").show();
+				$("[token_nickname]").text(token.nickname).attr('href',token.link);
+				$(".ds-replybox > a.ds-avatar").attr("title", token.nickname)
+					.find("img").attr("src", token.avatarUri).attr("alt",token.nickname);
+				$(".ds-cmt-login-wrapper").hide();
+			})
 		}
 	},
 	// 时间格式化
@@ -117,6 +130,10 @@ var syk = {
 			}
 		}
 	}
+}
+
+function test(){
+	alert("aac");
 }
 
 $(function(){

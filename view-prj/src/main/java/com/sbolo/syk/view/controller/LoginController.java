@@ -1,10 +1,13 @@
 package com.sbolo.syk.view.controller;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSON;
+import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.http.HttpUtils.HttpResult;
 import com.sbolo.syk.common.http.callback.HttpSendCallback;
@@ -36,7 +40,7 @@ public class LoginController {
 	private LoginService loginService;
 	
 	@GetMapping("cb_qq")
-	public RequestResult<SykUserVO> cbQQ(HttpSession session, String code, String state) {
+	public void cbQQ(HttpServletResponse response, HttpSession session, String code, String state) throws IOException {
 		RequestResult<SykUserVO> result = null;
 		try {
 //			String qqState = String.valueOf(session.getAttribute("qqState"));
@@ -44,14 +48,35 @@ public class LoginController {
 //				throw new OpenUserException("登录条码不一致！");
 //			}
 			SykUserVO user = loginService.qqLogin(code);
+			session.setAttribute(CommonConstants.USER, user);
 			result = new RequestResult<>(user);
 		} catch (Exception e) {
 			result = RequestResult.error(e);
 			result.setCode(360);
 			log.error("", e);
 		}
-		
-		return result;
+		String jsonData = JSON.toJSONString(result);
+		StringBuilder js = new StringBuilder();
+		js.append("<script type='text/javascript' charset='utf-8'>");
+		js.append("try {");
+		js.append("parent.syk.user.loginBack(").append(jsonData).append(");");
+		js.append("} catch (e) {");
+		js.append("console.log(e);");
+		js.append("}");
+		js.append("</script>");
+		response.setCharacterEncoding("utf-8");
+		PrintWriter pw = null;
+		try {
+			pw = response.getWriter();
+			pw.write(js.toString());
+		} catch (IOException e) {
+			log.error("回写信息失败", e);
+		} finally {
+			if (pw != null) {
+				pw.flush();
+				pw.close();
+			}
+		}
 	}
 	
 	@GetMapping("pre")
