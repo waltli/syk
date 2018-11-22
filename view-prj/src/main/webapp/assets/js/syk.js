@@ -149,10 +149,6 @@ var syk = {
 	}
 }
 
-function test(){
-	alert("aac");
-}
-
 $(function(){
 	$('img').lazyload({
 		effect:'fadeIn'
