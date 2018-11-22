@@ -20,7 +20,7 @@ html.push('            </div>');
 html.push('            <button class="ds-post-button" submit="{%location}">发布</button>');
 html.push('            <div class="ds-toolbar-buttons">');
 html.push('                <a class="ds-toolbar-button ds-add-emote" emote="{%location}" title="插入表情"></a>');
-html.push('                <div class="ds-cmt-login-wrapper" style="{%display}">');
+html.push('                <div class="ds-cmt-login-wrapper" open="{%location}" style="{%display}">');
 html.push('                    <span class="ds-cmt-login-tip">使用社交账号登录</span>');
 html.push('                    <a href="javascript:;" title="使用QQ账号登录" class="ds-cmt-icon-qq"></a>');
 //html.push('                    <a href="javascript:;" title="使用微博账号登录" class="xei-cmt-icon-weibo"></a>');
@@ -739,7 +739,7 @@ var loadMessage = function(){
 			$("#ds-thread [token_nickname]").text(user.nickname).attr('href',user.link);
 			$("#ds-thread .ds-replybox > a.ds-avatar").attr("title", user.nickname)
 				.find("img").attr("src", user.avatarUri).attr("alt",user.nickname);
-			$("#ds-thread .ds-cmt-login-wrapper").hide();
+			$("#ds-thread [open=ds-main-replybox]").hide();
 			token = user;
 		});
 	});
@@ -751,7 +751,7 @@ var loadMessage = function(){
 			$("#ds-thread [token_nickname]").text('nickname').attr('href','');
 			$("#ds-thread .ds-replybox > a.ds-avatar").attr("title", "请登录")
 				.find("img").attr("src", ctxassets+"/message/img/default_avatar_50.gif").attr("alt","请登录");
-			$("#ds-thread .ds-cmt-login-wrapper").show();
+			$("#ds-thread [open=ds-main-replybox]").show();
 		});
 	});
 	
