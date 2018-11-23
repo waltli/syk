@@ -61,7 +61,7 @@ public class SykMessageService {
 		PageHelper.orderBy("t."+orderBy);
 		List<SykMessageEntity> msgEntityList = sykMessageMapper.batchSelectAssociationByRootPrns(rootPrnList);
 		PageHelper.startPage(0, 5, "t.like_count DESC");
-		List<SykMessageEntity> hotMsgEntityList = sykMessageMapper.selectAssociationByHot(1, pkey);
+		List<SykMessageEntity> hotMsgEntityList = sykMessageMapper.selectAssociationByHot(7, pkey);
 		//转换为VO
 		List<SykMessageVO> messages = this.buildMessageVO(msgEntityList);
 		Collections.sort(messages);
