@@ -59,8 +59,6 @@ public class MovieInfoVO {
     
     private String[] labelArr;
     
-    private List<MovieLabelVO> labelList;
-    
     /**
      * 多个导演，逗号间隔
      */
@@ -81,8 +79,6 @@ public class MovieInfoVO {
      */
     private String locations;
 
-    private List<MovieLocationVO> locationList;
-    
     /**
      * 多个电影语言，逗号间隔
      */
@@ -150,6 +146,8 @@ public class MovieInfoVO {
      * 类别 tv/movie
      */
     private Integer category;
+    
+    private Integer tag;
 
     /**
      * 当前第几季
@@ -245,6 +243,14 @@ public class MovieInfoVO {
     
     private String posterUrlStr;
     
+	public Integer getTag() {
+		return tag;
+	}
+
+	public void setTag(Integer tag) {
+		this.tag = tag;
+	}
+
 	public String getShowName() {
 		return showName;
 	}
@@ -459,22 +465,6 @@ public class MovieInfoVO {
 
 	public void setPhotoUriJson(String photoUriJson) {
 		this.photoUriJson = photoUriJson;
-	}
-
-	public List<MovieLabelVO> getLabelList() {
-		return labelList;
-	}
-
-	public void setLabelList(List<MovieLabelVO> labelList) {
-		this.labelList = labelList;
-	}
-
-	public List<MovieLocationVO> getLocationList() {
-		return locationList;
-	}
-
-	public void setLocationList(List<MovieLocationVO> locationList) {
-		this.locationList = locationList;
 	}
 
 	public Integer getAction() {

@@ -1,12 +1,10 @@
 package com.sbolo.syk.view.controller;
 
 import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -15,22 +13,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sbolo.syk.common.annotation.Paginator;
 import com.sbolo.syk.common.exception.BusinessException;
-import com.sbolo.syk.common.tools.DateUtil;
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.common.ui.RequestResult;
-import com.sbolo.syk.view.entity.MovieHotStatEntity;
 import com.sbolo.syk.view.entity.MovieInfoEntity;
 import com.sbolo.syk.view.entity.ResourceInfoEntity;
-import com.sbolo.syk.view.mapper.ResourceInfoMapper;
 import com.sbolo.syk.view.service.MovieInfoService;
-import com.sbolo.syk.view.service.MovieLabelService;
 import com.sbolo.syk.view.service.ResourceInfoService;
 import com.sbolo.syk.view.vo.MovieHotStatVO;
 import com.sbolo.syk.view.vo.MovieInfoVO;
@@ -50,9 +43,6 @@ public class IndexController {
 	
 	@Autowired
 	private MovieInfoService movieInfoService;
-	
-	@Autowired
-	private MovieLabelService movieLabelService;
 	
 	@Autowired
 	private ThreadPoolTaskExecutor threadPool;
@@ -75,7 +65,8 @@ public class IndexController {
 	@RequestMapping("sidebar")
 	@ResponseBody
 	public RequestResult<Map<String, Object>> sidebar() throws Exception{
-		List<String> labels = movieLabelService.getLabels();
+		String[] labelArr = new String[]{"喜剧", "剧情", "爱情", "惊悚", "犯罪", "悬疑", "动作", "科幻", "冒险", "动画", "战争", "奇幻", "历史", "恐怖", "运动", "武侠", "音乐", "传记", "古装", "灾难", "家庭", "同性", "西部", "儿童", "歌舞", "情色", "纪录片", "真人秀", "舞台艺术"};
+		List<String> labels = Arrays.asList(labelArr);
 		Map<String, List<MovieHotStatVO>> currMonthTop = movieInfoService.getCurrMonthTop();
 		Map<String, List<MovieHotStatVO>> lastMonthTop = movieInfoService.getLastMonthTop();
 		Map<String, Object> m = new HashMap<>();

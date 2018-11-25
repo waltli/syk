@@ -1,60 +1,38 @@
 package com.sbolo.syk.fetch.service;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
-import okhttp3.Response;
-
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.MovieCategoryEnum;
 import com.sbolo.syk.common.constants.MovieStatusEnum;
 import com.sbolo.syk.common.constants.RegexConstant;
-import com.sbolo.syk.common.exception.BusinessException;
 import com.sbolo.syk.common.tools.BucketUtils;
-import com.sbolo.syk.common.tools.ConfigUtil;
 import com.sbolo.syk.common.tools.StringUtil;
-import com.sbolo.syk.common.tools.Utils;
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.common.ui.RequestResult;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
-import com.sbolo.syk.fetch.entity.MovieLabelEntity;
-import com.sbolo.syk.fetch.entity.MovieLocationEntity;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
 import com.sbolo.syk.fetch.mapper.MovieInfoMapper;
-import com.sbolo.syk.fetch.mapper.MovieLabelMapper;
-import com.sbolo.syk.fetch.mapper.MovieLocationMapper;
 import com.sbolo.syk.fetch.mapper.ResourceInfoMapper;
 import com.sbolo.syk.fetch.tool.FetchUtils;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
-import com.sbolo.syk.fetch.vo.MovieLabelVO;
-import com.sbolo.syk.fetch.vo.MovieLocationVO;
 import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 
 @Service
@@ -64,11 +42,6 @@ public class MovieInfoService {
 	
 	@Resource
 	private MovieInfoMapper movieInfoMapper;
-	
-	@Resource
-	private MovieLabelMapper movieLabelMapper;
-	
-	@Resource MovieLocationMapper movieLocationMapper;
 	
 	@Resource
 	private ResourceInfoService resourceInfoService;
@@ -163,45 +136,6 @@ public class MovieInfoService {
 		movie.setCountDownload(0);
 		movie.setSt(MovieStatusEnum.available.getCode());
 		
-		List<MovieLabelEntity> labelList = new ArrayList<MovieLabelEntity>();
-		String labels = movie.getLabels();
-		String[] labelsSplit = labels.split(RegexConstant.slashSep);
-		for(int i=0; i<labelsSplit.length; i++){
-			String label = labelsSplit[i];
-			MovieLabelEntity labelEntity = new MovieLabelEntity();
-			labelEntity.setLabelName(label);
-			String labelPrn = StringUtil.getId(CommonConstants.label_s);
-			labelEntity.setPrn(labelPrn);
-			labelEntity.setMoviePrn(moviePrn);
-			labelEntity.setPureName(movie.getPureName());
-			labelEntity.setReleaseTime(movie.getReleaseTime());
-			labelEntity.setCreateTime(now);
-			labelList.add(labelEntity);
-		}
-		
-		
-		List<MovieLocationEntity> locationList = new ArrayList<MovieLocationEntity>();
-		String locations = movie.getLocations();
-		String[] locationsSplit = locations.split(RegexConstant.slashSep);
-		for(int i=0; i<locationsSplit.length; i++){
-			String location = locationsSplit[i];
-			//地区只要中文，如果实在没有也没有办法！
-			Matcher m = Pattern.compile(RegexConstant.chinese).matcher(location);
-			if(!m.find()){
-				continue;
-			}
-			location = m.group();
-			MovieLocationEntity locationEntity = new MovieLocationEntity();
-			locationEntity.setLocationName(location);
-			String locationPrn = StringUtil.getId(CommonConstants.location_s);
-			locationEntity.setPrn(locationPrn);
-			locationEntity.setMoviePrn(moviePrn);
-			locationEntity.setPureName(movie.getPureName());
-			locationEntity.setReleaseTime(movie.getReleaseTime());
-			locationEntity.setCreateTime(now);
-			locationList.add(locationEntity);
-		}
-		
 		//上传ICON图片
 		if(StringUtils.isNotBlank(movie.getIconSubDir())) {
 			String iconUri = FetchUtils.uploadIconGetUriFromDir(movie.getIconSubDir());
@@ -279,13 +213,6 @@ public class MovieInfoService {
 		
 		MovieInfoEntity movieEntity = VOUtils.po2vo(movie, MovieInfoEntity.class);
 		movieInfoMapper.insert(movieEntity);
-		if(labelList.size() != 0){
-			movieLabelMapper.insertList(labelList);
-		}
-		
-		if(locationList.size() != 0){
-			movieLocationMapper.insertList(locationList);
-		}
 		
 		if(resources.size() != 0){
 			List<ResourceInfoEntity> resourceEntities = VOUtils.po2vo(resources, ResourceInfoEntity.class);
@@ -313,9 +240,7 @@ public class MovieInfoService {
 		if(dbMovie == null){
 			throw new Exception("该影片信息不存在，修改失败！");
 		}
-		List<MovieLabelEntity> dbLabels = movieLabelMapper.selectListByMoviePrn(dbMovie.getPrn());
-		List<MovieLocationEntity> dbLocations = movieLocationMapper.selectListByMoviePrn(dbMovie.getPrn());
-		MovieInfoVO changeMovie = FetchUtils.movieChangeOption(dbMovie, modiMovie, dbLabels, dbLocations, new Date());
+		MovieInfoVO changeMovie = FetchUtils.movieChangeOption(dbMovie, modiMovie, new Date());
 		
 		if(changeMovie == null){
 			return;
@@ -342,19 +267,7 @@ public class MovieInfoService {
 			changeMovie.setPhotoUriJson(uriJson);
 		}
 		
-		
-		List<MovieLabelVO> labelList = changeMovie.getLabelList();
-		List<MovieLocationVO> locationList = changeMovie.getLocationList();
-		
-		List<MovieLabelEntity> labelEntities = VOUtils.po2vo(labelList, MovieLabelEntity.class);
-		List<MovieLocationEntity> locationEntities = VOUtils.po2vo(locationList, MovieLocationEntity.class);
 		MovieInfoEntity movieInfoEntity = VOUtils.po2vo(changeMovie, MovieInfoEntity.class);
-		if(labelEntities != null && labelEntities.size() > 0) {
-			movieLabelMapper.insertList(labelEntities);
-		}
-		if(locationEntities != null && locationEntities.size() > 0) {
-			movieLocationMapper.insertList(locationEntities);
-		}
 		if(movieInfoEntity != null) {
 			movieInfoMapper.updateByPrn(movieInfoEntity);
 		}

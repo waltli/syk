@@ -29,6 +29,7 @@
     <result column="imdb_score" jdbcType="DECIMAL" property="imdbScore" />
     <result column="attention_rate" jdbcType="INTEGER" property="attentionRate" />
     <result column="category" jdbcType="INTEGER" property="category" />
+    <result column="tag" jdbcType="INTEGER" property="tag" />
     <result column="present_season" jdbcType="INTEGER" property="presentSeason" />
     <result column="total_episode" jdbcType="INTEGER" property="totalEpisode" />
     <result column="st" jdbcType="INTEGER" property="st" />
@@ -65,6 +66,7 @@
     <result column="imdb_score" jdbcType="DECIMAL" property="imdbScore" />
     <result column="attention_rate" jdbcType="INTEGER" property="attentionRate" />
     <result column="category" jdbcType="INTEGER" property="category" />
+    <result column="tag" jdbcType="INTEGER" property="tag" />
     <result column="present_season" jdbcType="INTEGER" property="presentSeason" />
     <result column="total_episode" jdbcType="INTEGER" property="totalEpisode" />
     <result column="st" jdbcType="INTEGER" property="st" />
@@ -127,8 +129,9 @@
   		t1.release_time rrelease_time, t1.st rst, 
   		t1.create_time rcreate_time, t1.update_time rupdate_time
   	FROM 
-  		(select b.movie_prn from movie_label b where b.label_name = #{label}) a, movie_info t, resource_info t1
-  	WHERE t.prn = a.movie_prn and t.optimal_resource_prn = t1.prn
+  		movie_info t, resource_info t1
+  	WHERE 
+  		t.optimal_resource_prn = t1.prn and LOCATE(#{label}, t.labels)>0
   </select>
   
   <select id="selectByPureNameAndPrecision" resultMap="BaseResultMap" parameterType="java.util.Map">

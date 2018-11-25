@@ -1,72 +1,38 @@
 package com.sbolo.syk.fetch.processor;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
-import okhttp3.Response;
-
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.TextNode;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.MovieCategoryEnum;
-import com.sbolo.syk.common.constants.MovieQualityEnum;
-import com.sbolo.syk.common.constants.MovieResolutionConstant;
 import com.sbolo.syk.common.constants.MovieStatusEnum;
 import com.sbolo.syk.common.constants.RegexConstant;
-import com.sbolo.syk.common.http.HttpUtils;
-import com.sbolo.syk.common.http.HttpUtils.HttpResult;
-import com.sbolo.syk.common.http.callback.HttpSendCallback;
-import com.sbolo.syk.common.http.callback.HttpSendCallbackPure;
-import com.sbolo.syk.common.tools.BucketUtils;
-import com.sbolo.syk.common.tools.ConfigUtil;
 import com.sbolo.syk.common.tools.DateUtil;
-import com.sbolo.syk.common.tools.FileUtils;
 import com.sbolo.syk.common.tools.StringUtil;
-import com.sbolo.syk.common.tools.UIDGenerator;
 import com.sbolo.syk.common.tools.Utils;
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.common.vo.LinkAnalyzeResultVO;
-import com.sbolo.syk.fetch.entity.MovieFileIndexEntity;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
-import com.sbolo.syk.fetch.entity.MovieLabelEntity;
-import com.sbolo.syk.fetch.entity.MovieLocationEntity;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
 import com.sbolo.syk.fetch.exception.ResourceException;
 import com.sbolo.syk.fetch.mapper.MovieFileIndexMapper;
 import com.sbolo.syk.fetch.service.MovieInfoService;
-import com.sbolo.syk.fetch.service.MovieLabelService;
-import com.sbolo.syk.fetch.service.MovieLocationService;
 import com.sbolo.syk.fetch.service.ResourceInfoService;
 import com.sbolo.syk.fetch.spider.exception.AnalystException;
 import com.sbolo.syk.fetch.spider.exception.SpiderException;
@@ -76,9 +42,6 @@ import com.sbolo.syk.fetch.tool.LinkAnalyst;
 import com.sbolo.syk.fetch.vo.ConcludeVO;
 import com.sbolo.syk.fetch.vo.LinkInfoVO;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
-import com.sbolo.syk.fetch.vo.MovieLabelVO;
-import com.sbolo.syk.fetch.vo.MovieLocationVO;
-import com.sbolo.syk.fetch.vo.PicVO;
 import com.sbolo.syk.fetch.vo.PureNameAndSeasonVO;
 import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 
@@ -102,12 +65,6 @@ public class ProcessorHelper {
 	
 	@Resource
 	private MovieInfoService movieInfoService;
-	
-	@Resource
-	private MovieLabelService movieLabelService;
-	
-	@Resource
-	private MovieLocationService movieLocationService;
 	
 	@Resource
 	private MovieFileIndexMapper movieFileIndexMapper;
@@ -411,7 +368,6 @@ public class ProcessorHelper {
 	private MovieInfoVO filterMovieInDb(MovieInfoVO fetchMovie, Date thisTime) throws ParseException {
 		//根据条件从数据库中查询出相应的movie
 		String pureName = fetchMovie.getPureName();
-		Date releaseTime = fetchMovie.getReleaseTime();
 		String yearStr = fetchMovie.getReleaseTimeStr().substring(0,4);
 		MovieInfoEntity dbMovie = movieInfoService.getOneByPureNameAndYear(pureName, DateUtil.str2Date(yearStr, "yyyy"));
 		
@@ -419,16 +375,9 @@ public class ProcessorHelper {
 		if(dbMovie == null) {
 			//给予标识，标识插入
 			fetchMovie.setAction(CommonConstants.insert);
-			List<MovieLabelVO> labelList = this.buildLabels(fetchMovie.getLabels(), fetchMovie.getPrn(), pureName, releaseTime, thisTime);
-			List<MovieLocationVO> locationList = this.buildLocations(fetchMovie.getLocations(), fetchMovie.getPrn(), pureName, releaseTime, thisTime);
-			fetchMovie.setLabelList(labelList);
-			fetchMovie.setLocationList(locationList);
 			return fetchMovie;
 		}
-		//获取有改变的属性项
-		List<MovieLabelEntity> dbLabels = movieLabelService.getListByMoviePrn(dbMovie.getPrn());
-		List<MovieLocationEntity> dbLocations = movieLocationService.getListByMoviePrn(dbMovie.getPrn());
-		MovieInfoVO changeOption = FetchUtils.movieChangeOption(dbMovie, fetchMovie, dbLabels, dbLocations, thisTime);
+		MovieInfoVO changeOption = FetchUtils.movieChangeOption(dbMovie, fetchMovie, thisTime);
 		if(changeOption == null){
 			//如果没有改变，则new一个新的，用作放置optimalResourcePrn
 			changeOption = new MovieInfoVO();
@@ -698,59 +647,6 @@ public class ProcessorHelper {
 		}
 		finalMovie.setOptimalResourcePrn(optimalResource.getPrn());
 		finalMovie.setResourceWriteTime(optimalResource.getCreateTime());
-	}
-	
-	
-	/**
-	 * 构建label信息
-	 * 
-	 * @param labelsStr
-	 * @param moviePrn
-	 * @param pureName
-	 * @param releaseTime
-	 * @return
-	 */
-	private List<MovieLabelVO> buildLabels(String labelsStr, String moviePrn, String pureName, Date releaseTime, Date thisTime){
-		if(StringUtils.isBlank(labelsStr)){
-			labelsStr = "剧情";
-		}
-		String[] labelsSplit = labelsStr.split(RegexConstant.slashSep);
-		List<MovieLabelVO> labels = new ArrayList<MovieLabelVO>();
-		for(int i=0; i<labelsSplit.length; i++){
-			String labelName = labelsSplit[i];
-			MovieLabelVO label = MovieLabelVO.buildLabel(labelName, moviePrn, pureName, releaseTime, thisTime);
-			labels.add(label);
-		}
-		return labels;
-	}
-	
-	/**
-	 * 构建location对象
-	 * 
-	 * @param locationsStr
-	 * @param moviePrn
-	 * @param pureName
-	 * @param releaseTime
-	 * @return
-	 */
-	private List<MovieLocationVO> buildLocations(String locationsStr, String moviePrn, String pureName, Date releaseTime, Date thisTime){
-		if(StringUtils.isBlank(locationsStr)){
-			locationsStr = "中国大陆";
-		}
-		String[] locationsSplit = locationsStr.split(RegexConstant.slashSep);
-		List<MovieLocationVO> locations = new ArrayList<MovieLocationVO>();
-		for(int i=0; i<locationsSplit.length; i++){
-			String locationStr = locationsSplit[i];
-			//地区只要中文，如果实在没有也没有办法！
-			Matcher m = Pattern.compile(RegexConstant.chinese).matcher(locationStr);
-			if(!m.find()){
-				continue;
-			}
-			String locationName = m.group();
-			MovieLocationVO location = MovieLocationVO.buildLocation(locationName, moviePrn, pureName, releaseTime, thisTime);
-			locations.add(location);
-		}
-		return locations;
 	}
 	
 	/**

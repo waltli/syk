@@ -31,13 +31,9 @@ import com.sbolo.syk.common.tools.GrapicmagickUtils;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.Utils;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
-import com.sbolo.syk.fetch.entity.MovieLabelEntity;
-import com.sbolo.syk.fetch.entity.MovieLocationEntity;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
 import com.sbolo.syk.fetch.exception.ResourceException;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
-import com.sbolo.syk.fetch.vo.MovieLabelVO;
-import com.sbolo.syk.fetch.vo.MovieLocationVO;
 import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 
 public class FetchUtils {
@@ -373,73 +369,25 @@ public class FetchUtils {
 	 * @param fetchMovie
 	 * @return
 	 */
-	public static MovieInfoVO movieChangeOption(MovieInfoEntity dbMovie, MovieInfoVO fetchMovie, List<MovieLabelEntity> dbLabels, List<MovieLocationEntity> dbLocations, Date thisTime){
+	public static MovieInfoVO movieChangeOption(MovieInfoEntity dbMovie, MovieInfoVO fetchMovie, Date thisTime){
     	MovieInfoVO changeOption = new MovieInfoVO();
     	boolean hasChange = false;
     	
     	if(StringUtils.isNotBlank(dbMovie.getLabels()) && 
-    			StringUtils.isNotBlank(fetchMovie.getLabels()) &&
-    			!dbMovie.getLabels().equals(fetchMovie.getLabels())) {
-    		//从数据库中查询出的labels
-    		String[] fetchLabelNames = fetchMovie.getLabels().split(RegexConstant.slashSep);
-    		
-    		List<MovieLabelVO> newLabels = new ArrayList<>();
-    		
-    		for(String fetchLabelName : fetchLabelNames) {
-    			boolean hasExists = false;
-    			for(MovieLabelEntity dbLabel : dbLabels) {
-    				if(fetchLabelName.equals(dbLabel.getLabelName())) {
-    					//如果有相同的，证明之前已经有了，直接break，循环下一个被fetch到的
-    					hasExists = true;
-    					break;
-    				}
-    			}
-    			if(!hasExists) {
-    				MovieLabelVO newLabel = MovieLabelVO.buildLabel(fetchLabelName, dbMovie.getPrn(), dbMovie.getPureName(), dbMovie.getReleaseTime(), thisTime);
-    				newLabels.add(newLabel);
-    			}
-    		}
-    		if(newLabels.size() != 0) {
-    			hasChange = true;
-    			changeOption.setLabels(fetchMovie.getLabels());
-    			changeOption.setLabelList(newLabels);
-    		}
+			StringUtils.isNotBlank(fetchMovie.getLabels()) &&
+			!dbMovie.getLabels().equals(fetchMovie.getLabels())) {
+
+			changeOption.setLabels(fetchMovie.getLabels());
+			hasChange = true;
     	}
     	
     	
     	if(StringUtils.isNotBlank(dbMovie.getLocations()) && 
-    			StringUtils.isNotBlank(fetchMovie.getLocations()) &&
-    			!dbMovie.getLocations().equals(fetchMovie.getLocations())) {
-    		//从数据库中查询出的labels 
-    		String[] fetchLocationNames = fetchMovie.getLocations().split(",");
-    		
-    		List<MovieLocationVO> newLocations = new ArrayList<>();
-    		
-    		for(String fetchLocationStr : fetchLocationNames) {
-    			//地区只要中文，如果实在没有也没有办法！
-    			Matcher m = Pattern.compile(RegexConstant.chinese).matcher(fetchLocationStr);
-    			if(!m.find()){
-    				continue;
-    			}
-    			boolean hasExists = false;
-    			String fetchLocationName = m.group();
-    			for(MovieLocationEntity dbLocation : dbLocations) {
-    				if(fetchLocationName.equals(dbLocation.getLocationName())) {
-    					//如果有相同的，证明之前已经有了，直接break，循环下一个被fetch到的
-    					hasExists = true;
-    					break;
-    				}
-    			}
-    			if(!hasExists) {
-    				MovieLocationVO newLocation = MovieLocationVO.buildLocation(fetchLocationName, dbMovie.getPrn(), dbMovie.getPureName(), dbMovie.getReleaseTime(), thisTime);
-    				newLocations.add(newLocation);
-    			}
-    		}
-    		if(newLocations.size() != 0) {
-    			hasChange = true;
-    			changeOption.setLocations(fetchMovie.getLocations());
-    			changeOption.setLocationList(newLocations);
-    		}
+			StringUtils.isNotBlank(fetchMovie.getLocations()) &&
+			!dbMovie.getLocations().equals(fetchMovie.getLocations())) {
+
+			changeOption.setLocations(fetchMovie.getLocations());
+			hasChange = true;
     	}
     	
     	if(StringUtils.isBlank(dbMovie.getIconUri()) && StringUtils.isNotBlank(fetchMovie.getIconOutUrl())){

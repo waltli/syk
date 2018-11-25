@@ -23,6 +23,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.MovieCategoryEnum;
 import com.sbolo.syk.common.constants.MovieStatusEnum;
+import com.sbolo.syk.common.constants.MovieTagEnum;
 import com.sbolo.syk.common.constants.RegexConstant;
 import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.http.HttpUtils.HttpResult;
@@ -130,6 +131,12 @@ public class DoubanUtils {
 		}
 	}
 	
+	public static void main(String[] args) {
+		String content = "剧情/科幻/惊悚";
+		content = content.replaceAll("(?<=[^\\s])/(?=[^\\s])", " | ");
+		System.out.println(content);
+	}
+	
 	/**
      * 爬取豆瓣对应电影的MovieInfo，并拼装MovieInfoVO和MovieLabelMappingEntity
      * 拼装属性涵盖：
@@ -231,8 +238,14 @@ public class DoubanUtils {
 						newMovie.setLocations(content);
 					}else if("语言".equals(title)){
 						newMovie.setLanguages(content);
-					}else if("上映日期".equals(title) || "首播".equals(title)) {
+					}else if("上映日期".equals(title)) {
 						releaseTimeStr = Utils.getTimeStr(content);
+					}else if("首播".equals(title)) {
+						releaseTimeStr = Utils.getTimeStr(content);
+						if(category == MovieCategoryEnum.tv.getCode()) {
+							int tag = getTag(category, content);
+							newMovie.setTag(tag);
+						}
 					}else if("片长".equals(title) || "单集片长".equals(title)){
 						newMovie.setDuration(content);
 					}else if("又名".equals(title)){
@@ -304,6 +317,19 @@ public class DoubanUtils {
 			}
 			throw e;
 		}
+	}
+	
+	private static int getTag(int category, String text) {
+		Integer tagCode = null;
+		if(category == MovieCategoryEnum.tv.getCode()) {
+			Matcher m2 = Pattern.compile(RegexConstant.TAG_LOCATION).matcher(text);
+	    	String tagLocation = null;
+	    	if(m2.find()){
+	    		tagLocation = m2.group();
+	    	}
+	    	tagCode = MovieTagEnum.getCodeByLocation(tagLocation);
+		}
+		return tagCode;
 	}
 	
 	public static List<MovieInfoVO> fetchListFromDouban(final String query) throws Exception{

@@ -1,6 +1,5 @@
 package com.sbolo.syk.fetch.pipeline;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -13,7 +12,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 import java.util.Set;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,31 +22,19 @@ import org.springframework.transaction.annotation.Transactional;
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.RegexConstant;
-import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.tools.BucketUtils;
-import com.sbolo.syk.common.tools.ConfigUtil;
-import com.sbolo.syk.common.tools.DateUtil;
-import com.sbolo.syk.common.tools.FileUtils;
-import com.sbolo.syk.common.tools.GrapicmagickUtils;
-import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.fetch.entity.MovieFileIndexEntity;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
-import com.sbolo.syk.fetch.entity.MovieLabelEntity;
-import com.sbolo.syk.fetch.entity.MovieLocationEntity;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
 import com.sbolo.syk.fetch.mapper.MovieFileIndexMapper;
 import com.sbolo.syk.fetch.mapper.MovieInfoMapper;
-import com.sbolo.syk.fetch.mapper.MovieLabelMapper;
-import com.sbolo.syk.fetch.mapper.MovieLocationMapper;
 import com.sbolo.syk.fetch.mapper.ResourceInfoMapper;
 import com.sbolo.syk.fetch.spider.Pipeline;
 import com.sbolo.syk.fetch.spider.exception.AnalystException;
 import com.sbolo.syk.fetch.tool.FetchUtils;
 import com.sbolo.syk.fetch.vo.ConcludeVO;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
-import com.sbolo.syk.fetch.vo.MovieLabelVO;
-import com.sbolo.syk.fetch.vo.MovieLocationVO;
 import com.sbolo.syk.fetch.vo.PicVO;
 import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 
@@ -63,10 +49,6 @@ public class MyPipeline implements Pipeline {
 	
 	@Autowired
 	private MovieInfoMapper movieInfoMapper;
-	@Autowired
-	private MovieLabelMapper movieLabelMapper;
-	@Autowired
-	private MovieLocationMapper movieLocationMapper;
 	@Autowired
 	private ResourceInfoMapper resourceInfoMapper;
 	@Autowired
@@ -101,8 +83,6 @@ public class MyPipeline implements Pipeline {
 	
 	private void writeDB(Map<String, Object> fields, List<MovieFileIndexEntity> fileIdxs) throws Exception {
 		List<MovieInfoEntity> addMovies = new ArrayList<>();
-		List<MovieLabelEntity> addLabels = new ArrayList<>();
-		List<MovieLocationEntity> addLocations = new ArrayList<>();
 		List<ResourceInfoEntity> addResourceInfos = new ArrayList<>();
 		List<MovieInfoEntity> updateMovies = new ArrayList<>();
 		List<ResourceInfoEntity> updateResourceInfos = new ArrayList<>();
@@ -113,21 +93,6 @@ public class MyPipeline implements Pipeline {
 			MovieInfoVO fetchMovie = vo.getFetchMovie();
 			List<ResourceInfoVO> fetchResources = vo.getFetchResources();
 			try {
-				if(fetchMovie.getAction() == CommonConstants.insert || 
-						fetchMovie.getAction() == CommonConstants.update) {
-					List<MovieLabelVO> labelList = fetchMovie.getLabelList();
-					if(labelList != null && labelList.size() > 0) {
-						List<MovieLabelEntity> labelEntityList = VOUtils.po2vo(labelList, MovieLabelEntity.class);
-						addLabels.addAll(labelEntityList);
-					}
-					
-					List<MovieLocationVO> locationList = fetchMovie.getLocationList();
-					if(locationList != null && locationList.size() > 0) {
-						List<MovieLocationEntity> locationEntityList = VOUtils.po2vo(locationList, MovieLocationEntity.class);
-						addLocations.addAll(locationEntityList);
-					}
-				}
-				
 				if(fetchMovie.getAction() == CommonConstants.insert) {
 					MovieInfoEntity movieEntity = VOUtils.po2vo(fetchMovie, MovieInfoEntity.class);
 					addMovies.add(movieEntity);
@@ -157,7 +122,6 @@ public class MyPipeline implements Pipeline {
 		int insertMovieSize = 0;
 		int updateMovieSize = 0;
 		int insertLabelSize = 0;
-		int insertLocationSize = 0;
 		int insertResourceSize = 0;
 		int updateResourceSize = 0;
 		int insertFileIdxsSize = 0;
@@ -166,12 +130,6 @@ public class MyPipeline implements Pipeline {
 		}
 		if(updateMovies.size() > 0) {
 			updateMovieSize = movieInfoMapper.updateListByPrn(updateMovies);
-		}
-		if(addLabels.size() > 0) {
-			insertLabelSize = movieLabelMapper.insertList(addLabels);
-		}
-		if(addLocations.size() > 0) {
-			insertLocationSize = movieLocationMapper.insertList(addLocations);
 		}
 		if(addResourceInfos.size() > 0) {
 			insertResourceSize = resourceInfoMapper.insertList(addResourceInfos);
@@ -186,7 +144,6 @@ public class MyPipeline implements Pipeline {
 		log.info("新增movieInfo条数："+insertMovieSize);
 		log.info("修改movieInfo条数："+updateMovieSize);
 		log.info("labels条数："+insertLabelSize);
-		log.info("locations条数："+insertLocationSize);
 		log.info("新增resourceInfo条数："+insertResourceSize);
 		log.info("修改resourceInfo条数："+updateResourceSize);
 		log.info("movie file index："+insertFileIdxsSize);

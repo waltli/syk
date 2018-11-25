@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import javax.persistence.Column;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.alibaba.fastjson.JSON;
@@ -153,6 +155,8 @@ public class MovieInfoVO {
      * 类别 tv/movie
      */
     private Integer category;
+    
+    private Integer tag;
 
     /**
      * 当前第几季
@@ -216,6 +220,14 @@ public class MovieInfoVO {
     
     private List<String> shotUrlList;
     
+	public Integer getTag() {
+		return tag;
+	}
+
+	public void setTag(Integer tag) {
+		this.tag = tag;
+	}
+
 	public String getShowName() {
 		return showName;
 	}

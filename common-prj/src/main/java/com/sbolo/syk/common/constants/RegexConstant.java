@@ -30,6 +30,7 @@ public class RegexConstant {
 	public static final String subtitle_m_encn = "(?i)chs\\.eng|chs-eng|English.CHS|中英";
 	public static final String subtitle_m_cn = "(?i)中字|chs|字幕|翻译|听译|译制";
 	public static final String format = "(?i)MP4|MKV|RMVB|AVI";
+	public static final String TAG_LOCATION = "美国|英国|日本|韩国|香港|台湾|中国大陆|中国";
 	public static final String format_end = "(?i)\\.mp4$|\\.rmvb$|\\.mkv$|\\.avi$";
 	public static final String size = "(?i)\\d+(\\.\\d+)?(GB|G|MB|M)";
 	public static final String chinese = "[\u4E00-\u9FA5]+";

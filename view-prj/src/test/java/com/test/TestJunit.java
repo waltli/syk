@@ -25,10 +25,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.viewApplication;
 import com.sbolo.syk.common.tools.ConfigUtil;
+import com.sbolo.syk.common.tools.StringUtil;
+import com.sbolo.syk.view.entity.MovieInfoEntity;
+import com.sbolo.syk.view.mapper.MovieInfoMapper;
+import com.sbolo.syk.view.service.MovieInfoService;
 
 @AutoConfigureMockMvc
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -37,6 +42,9 @@ public class TestJunit {
 	
 	@Autowired
     private MockMvc mockMvc;
+	
+	@Autowired
+	private MovieInfoService movieInfoService;
 	
 	@After
 	public void after() throws Exception{
@@ -61,11 +69,9 @@ public class TestJunit {
         }
 	}
 	
-	@Autowired
-	private ThreadPoolTaskExecutor threadPool;
-	
 	@Test
 	public void test() throws Exception{
+		String[] labelArry = new String[]{"喜剧", "剧情", "爱情", "惊悚", "犯罪", "悬疑", "动作", "科幻", "冒险", "动画", "战争", "奇幻", "历史", "恐怖", "运动", "武侠", "音乐", "传记", "古装", "灾难", "家庭", "同性", "西部", "儿童", "歌舞", "情色", "纪录片", "真人秀", "舞台艺术"};
 	}
 	
 	
