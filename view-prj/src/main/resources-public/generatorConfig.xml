@@ -61,7 +61,10 @@
         <!-- <table tableName="syk_message_like" domainObjectName="SykMessageLikeEntity">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table> -->
-        <table tableName="syk_open_user" domainObjectName="SykOpenUserEntity">
+        <!-- <table tableName="syk_open_user" domainObjectName="SykOpenUserEntity">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
+        </table> -->
+        <table tableName="syk_dict" domainObjectName="SykDictEntity">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
     </context>

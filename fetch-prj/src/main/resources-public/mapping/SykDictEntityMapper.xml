@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sbolo.syk.fetch.mapper.SykDictMapper">
+  <resultMap id="BaseResultMap" type="com.sbolo.syk.fetch.entity.SykDictEntity">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="prn" jdbcType="VARCHAR" property="prn" />
+    <result column="parent_prn" jdbcType="VARCHAR" property="parentPrn" />
+    <result column="val" jdbcType="VARCHAR" property="val" />
+    <result column="st" jdbcType="VARCHAR" property="st" />
+    <result column="tier" jdbcType="INTEGER" property="tier" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+  </resultMap>
+  
+</mapper>
