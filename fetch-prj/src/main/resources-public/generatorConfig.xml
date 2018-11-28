@@ -52,7 +52,7 @@
         <table tableName="movie_location" domainObjectName="MovieLocationEntity">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table> -->
-        <table tableName="syk_user" domainObjectName="SykUserEntity">
+        <table tableName="movie_dict" domainObjectName="MovieDictEntity">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
     </context>

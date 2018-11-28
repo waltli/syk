@@ -577,7 +577,7 @@ var loadMessage = function(){
 						var pli = p.parents('li[data-post-prn="'+ msgPrn +'"]');
 						pli.hide(500);//先动态隐藏
 						var hides = [];//需要删除的项
-						$.each($('[prnLine^="'+ prnLine+'"]'),function(){
+						$.each($('.ds-comment-footer[prnLine^="'+ prnLine+'"]'),function(){
 							var s = $('li[data-post-prn="'+ $(this).attr('data-post-prn') +'"]').hide(500);//先隐藏。后删除
 							hides.push(s);//添加数组，方便下面去定时删除
 						});

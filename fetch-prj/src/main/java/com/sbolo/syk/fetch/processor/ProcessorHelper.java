@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.MovieCategoryEnum;
+import com.sbolo.syk.common.constants.MovieDictEnum;
 import com.sbolo.syk.common.constants.MovieStatusEnum;
 import com.sbolo.syk.common.constants.RegexConstant;
 import com.sbolo.syk.common.tools.DateUtil;
@@ -28,10 +29,12 @@ import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.Utils;
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.common.vo.LinkAnalyzeResultVO;
+import com.sbolo.syk.fetch.entity.MovieDictEntity;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
 import com.sbolo.syk.fetch.exception.ResourceException;
 import com.sbolo.syk.fetch.mapper.MovieFileIndexMapper;
+import com.sbolo.syk.fetch.service.MovieDictService;
 import com.sbolo.syk.fetch.service.MovieInfoService;
 import com.sbolo.syk.fetch.service.ResourceInfoService;
 import com.sbolo.syk.fetch.spider.exception.AnalystException;
@@ -41,6 +44,7 @@ import com.sbolo.syk.fetch.tool.FetchUtils;
 import com.sbolo.syk.fetch.tool.LinkAnalyst;
 import com.sbolo.syk.fetch.vo.ConcludeVO;
 import com.sbolo.syk.fetch.vo.LinkInfoVO;
+import com.sbolo.syk.fetch.vo.MovieDictVO;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
 import com.sbolo.syk.fetch.vo.PureNameAndSeasonVO;
 import com.sbolo.syk.fetch.vo.ResourceInfoVO;
@@ -68,6 +72,9 @@ public class ProcessorHelper {
 	
 	@Resource
 	private MovieFileIndexMapper movieFileIndexMapper;
+	
+	@Resource
+	private MovieDictService movieDictService;
 	
 	
 	protected ConcludeVO resolve(PureNameAndSeasonVO pureNameAndSeanson, List<String> precisions, List<LinkInfoVO> links, List<String> shots, String comeFromUrl, String doubanUrl) throws Exception {
@@ -143,7 +150,88 @@ public class ProcessorHelper {
 		//从下载连接中分析资源信息
 		this.analyzeDownloadLink(filter2, thisTime);
 		
-		return new ConcludeVO(finalMovie, filter2);
+		List<MovieDictVO> movieDict = new ArrayList<>();
+		List<MovieDictVO> newLabelList = this.getNewLabels(finalMovie.getLabels(), thisTime);
+		List<MovieDictVO> newLocationList = this.getNewLocations(finalMovie.getLocations(), thisTime);
+		if(newLabelList != null && newLabelList.size() > 0) {
+			movieDict.addAll(newLabelList);
+		}
+		if(newLocationList != null && newLocationList.size() > 0) {
+			movieDict.addAll(newLocationList);
+		}
+		
+		return new ConcludeVO(finalMovie, filter2, movieDict);
+	}
+	
+	
+	private List<MovieDictVO> getNewLocations(String fetchLocations, Date thisTime){
+		
+		List<MovieDictVO> newLocationList = new ArrayList<>();
+		if(StringUtils.isBlank(fetchLocations)) {
+			return null;
+		}
+		String[] fetchLocationArr = fetchLocations.split(RegexConstant.slashSep);
+		List<String> existLocationList = movieDictService.getLocations();
+		
+		if(existLocationList != null && existLocationList.size() > 0) {
+			for(String fetchLocation : fetchLocationArr) {
+				boolean hasExist = false;
+				fetchLocation = fetchLocation.trim();
+				for(String existLocation : existLocationList) {
+					if(existLocation.equals(existLocation)) {
+						hasExist = true;
+						break;
+					}
+				}
+				if(!hasExist) {
+					MovieDictVO newEntity = new MovieDictVO();
+					newEntity.setCode(StringUtil.getId(CommonConstants.location_s));
+					newEntity.setCreateTime(thisTime);
+					newEntity.setParentCode(MovieDictEnum.LOCATION.getCode());
+					newEntity.setSt(MovieStatusEnum.available.getCode());
+					newEntity.setTier(2);
+					newEntity.setVal(fetchLocation);
+					newLocationList.add(newEntity);
+				}
+			}
+		}
+		return newLocationList;
+	}
+	
+	
+	
+	private List<MovieDictVO> getNewLabels(String fetchLabels, Date thisTime){
+		
+		List<MovieDictVO> newLabelList = new ArrayList<>();
+		if(StringUtils.isBlank(fetchLabels)) {
+			return null;
+		}
+		String[] fetchLabelArr = fetchLabels.split(RegexConstant.slashSep);
+		List<String> existLabelList = movieDictService.getLabels();
+		
+		if(existLabelList != null && existLabelList.size() > 0) {
+			for(String fetchLabel : fetchLabelArr) {
+				boolean hasExist = false;
+				fetchLabel = fetchLabel.trim();
+				for(String existLabel : existLabelList) {
+					if(fetchLabel.equals(existLabel)) {
+						hasExist = true;
+						break;
+					}
+				}
+				if(!hasExist) {
+					MovieDictVO newEntity = new MovieDictVO();
+					newEntity.setCode(StringUtil.getId(CommonConstants.label_s));
+					newEntity.setCreateTime(thisTime);
+					newEntity.setParentCode(MovieDictEnum.LABEL.getCode());
+					newEntity.setSt(MovieStatusEnum.available.getCode());
+					newEntity.setTier(2);
+					newEntity.setVal(fetchLabel);
+					newLabelList.add(newEntity);
+				}
+			}
+		}
+		return newLabelList;
 	}
 	
 	/**

@@ -4,28 +4,23 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.sbolo.syk.common.tools.StringUtil;
 
-/**
- * 字典状态
- * @author Cathy
- *
- */
 public enum UserSettleEnum {
 
 	DOWN(1, "已设置"),
 	NOT(0, "未设置");
 	
 	private Integer code;
-	private String direct;
+	private String desc;
 
-	UserSettleEnum(Integer code, String direct){
+	UserSettleEnum(Integer code, String desc){
 		this.code = code;
-		this.direct = direct;
+		this.desc = desc;
 	}
 	
 	public static Integer getCodeByName(String name){
 		name = StringUtil.replaceBlank2(name).toUpperCase();
-		DicStEnum[] values = DicStEnum.values();
-		for(DicStEnum value : values){
+		UserSettleEnum[] values = UserSettleEnum.values();
+		for(UserSettleEnum value : values){
 			if(value.name().equals(name)){
 				return value.getCode();
 			}
@@ -34,8 +29,8 @@ public enum UserSettleEnum {
 	}
 	
 	public static Integer getCodeByDesc(String desc){
-		DicStEnum[] values = DicStEnum.values();
-		for(DicStEnum value : values){
+		UserSettleEnum[] values = UserSettleEnum.values();
+		for(UserSettleEnum value : values){
 			if(value.getDesc().equals(desc)){
 				return value.getCode();
 			}
@@ -44,8 +39,8 @@ public enum UserSettleEnum {
 	}
 	
 	public static String getDescByCode(Integer code){
-		DicStEnum[] values = DicStEnum.values();
-		for(DicStEnum value : values){
+		MovieDictEnum[] values = MovieDictEnum.values();
+		for(MovieDictEnum value : values){
 			if(value.getCode().equals(code)){
 				return value.getDesc();
 			}
@@ -53,12 +48,12 @@ public enum UserSettleEnum {
 		return null;
 	}
 
-	public String getDirect() {
-		return direct;
+	public String getDesc() {
+		return desc;
 	}
 
-	public void setDirect(String direct) {
-		this.direct = direct;
+	public void setDesc(String desc) {
+		this.desc = desc;
 	}
 
 	public Integer getCode() {

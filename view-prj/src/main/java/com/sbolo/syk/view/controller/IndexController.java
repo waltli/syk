@@ -23,6 +23,7 @@ import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.common.ui.RequestResult;
 import com.sbolo.syk.view.entity.MovieInfoEntity;
 import com.sbolo.syk.view.entity.ResourceInfoEntity;
+import com.sbolo.syk.view.service.MovieDictService;
 import com.sbolo.syk.view.service.MovieInfoService;
 import com.sbolo.syk.view.service.ResourceInfoService;
 import com.sbolo.syk.view.vo.MovieHotStatVO;
@@ -50,6 +51,9 @@ public class IndexController {
 	@Autowired
 	private ResourceInfoService resourceInfoService;
 	
+	@Autowired
+	private MovieDictService movieDictService;
+	
 	@RequestMapping("")
 	@Paginator
 	public String go(Model model,
@@ -65,8 +69,9 @@ public class IndexController {
 	@RequestMapping("sidebar")
 	@ResponseBody
 	public RequestResult<Map<String, Object>> sidebar() throws Exception{
-		String[] labelArr = new String[]{"喜剧", "剧情", "爱情", "惊悚", "犯罪", "悬疑", "动作", "科幻", "冒险", "动画", "战争", "奇幻", "历史", "恐怖", "运动", "武侠", "音乐", "传记", "古装", "灾难", "家庭", "同性", "西部", "儿童", "歌舞", "情色", "纪录片", "真人秀", "舞台艺术"};
-		List<String> labels = Arrays.asList(labelArr);
+//		String[] labelArr = new String[]{"喜剧", "剧情", "爱情", "惊悚", "犯罪", "悬疑", "动作", "科幻", "冒险", "动画", "战争", "奇幻", "历史", "恐怖", "运动", "武侠", "音乐", "传记", "古装", "灾难", "家庭", "同性", "西部", "儿童", "歌舞", "情色", "纪录片", "真人秀", "舞台艺术"};
+//		List<String> labels = Arrays.asList(labelArr);
+		List<String> labels = movieDictService.getLabels();
 		Map<String, List<MovieHotStatVO>> currMonthTop = movieInfoService.getCurrMonthTop();
 		Map<String, List<MovieHotStatVO>> lastMonthTop = movieInfoService.getLastMonthTop();
 		Map<String, Object> m = new HashMap<>();

@@ -24,9 +24,11 @@ import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.RegexConstant;
 import com.sbolo.syk.common.tools.BucketUtils;
 import com.sbolo.syk.common.tools.VOUtils;
+import com.sbolo.syk.fetch.entity.MovieDictEntity;
 import com.sbolo.syk.fetch.entity.MovieFileIndexEntity;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
+import com.sbolo.syk.fetch.mapper.MovieDictMapper;
 import com.sbolo.syk.fetch.mapper.MovieFileIndexMapper;
 import com.sbolo.syk.fetch.mapper.MovieInfoMapper;
 import com.sbolo.syk.fetch.mapper.ResourceInfoMapper;
@@ -34,6 +36,7 @@ import com.sbolo.syk.fetch.spider.Pipeline;
 import com.sbolo.syk.fetch.spider.exception.AnalystException;
 import com.sbolo.syk.fetch.tool.FetchUtils;
 import com.sbolo.syk.fetch.vo.ConcludeVO;
+import com.sbolo.syk.fetch.vo.MovieDictVO;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
 import com.sbolo.syk.fetch.vo.PicVO;
 import com.sbolo.syk.fetch.vo.ResourceInfoVO;
@@ -53,6 +56,8 @@ public class MyPipeline implements Pipeline {
 	private ResourceInfoMapper resourceInfoMapper;
 	@Autowired
 	private MovieFileIndexMapper movieFileIndexMapper;
+	@Autowired
+	private MovieDictMapper movieDictMapper;
 	
 	@Override
 	@Transactional
@@ -86,12 +91,14 @@ public class MyPipeline implements Pipeline {
 		List<ResourceInfoEntity> addResourceInfos = new ArrayList<>();
 		List<MovieInfoEntity> updateMovies = new ArrayList<>();
 		List<ResourceInfoEntity> updateResourceInfos = new ArrayList<>();
+		List<MovieDictEntity> addDicts = new ArrayList<>();
 		
 		Set<Entry<String,Object>> entrySet = fields.entrySet();
 		for(Entry<String,Object> entry : entrySet) {
 			ConcludeVO vo = (ConcludeVO) entry.getValue();
 			MovieInfoVO fetchMovie = vo.getFetchMovie();
 			List<ResourceInfoVO> fetchResources = vo.getFetchResources();
+			List<MovieDictVO> newDicts = vo.getMovieDicts();
 			try {
 				if(fetchMovie.getAction() == CommonConstants.insert) {
 					MovieInfoEntity movieEntity = VOUtils.po2vo(fetchMovie, MovieInfoEntity.class);
@@ -112,6 +119,11 @@ public class MyPipeline implements Pipeline {
 						}
 					}
 				}
+				
+				if(newDicts != null && newDicts.size() > 0) {
+					List<MovieDictEntity> po2vo = VOUtils.po2vo(newDicts, MovieDictEntity.class);
+					addDicts.addAll(po2vo);
+				}
 			} catch (Exception e) {
 				log.error("分解入库时出现错误", e);
 				deleteFiles(fetchMovie, fetchResources);
@@ -121,7 +133,7 @@ public class MyPipeline implements Pipeline {
 		
 		int insertMovieSize = 0;
 		int updateMovieSize = 0;
-		int insertLabelSize = 0;
+		int insertDictSize = 0;
 		int insertResourceSize = 0;
 		int updateResourceSize = 0;
 		int insertFileIdxsSize = 0;
@@ -140,13 +152,17 @@ public class MyPipeline implements Pipeline {
 		if(fileIdxs.size() > 0) {
 			insertFileIdxsSize = movieFileIndexMapper.insertList(fileIdxs);
 		}
+		if(addDicts.size() > 0) {
+			insertDictSize = movieDictMapper.insertList(addDicts);
+		}
+		
 		log.info("===================================================================================");
 		log.info("新增movieInfo条数："+insertMovieSize);
 		log.info("修改movieInfo条数："+updateMovieSize);
-		log.info("labels条数："+insertLabelSize);
 		log.info("新增resourceInfo条数："+insertResourceSize);
 		log.info("修改resourceInfo条数："+updateResourceSize);
 		log.info("movie file index："+insertFileIdxsSize);
+		log.info("新增Dict条数："+insertDictSize);
 		log.info("bachAdd completion");
 	}
 	

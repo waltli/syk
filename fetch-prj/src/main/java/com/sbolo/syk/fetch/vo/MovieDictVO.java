@@ -1,37 +1,25 @@
-package com.sbolo.syk.fetch.entity;
+package com.sbolo.syk.fetch.vo;
 
 import java.util.Date;
 import javax.persistence.*;
 
-@Table(name = "`syk_dict`")
-public class SykDictEntity {
-    @Id
-    @Column(name = "`id`")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class MovieDictVO {
     private Long id;
 
-    @Column(name = "`prn`")
-    private String prn;
+    private String code;
 
-    @Column(name = "`parent_prn`")
-    private String parentPrn;
+    private String parentCode;
 
-    @Column(name = "`val`")
     private String val;
 
-    @Column(name = "`st`")
-    private String st;
+    private Integer st;
 
-    @Column(name = "`tier`")
     private Integer tier;
 
-    @Column(name = "`create_time`")
     private Date createTime;
 
-    @Column(name = "`update_time`")
     private Date updateTime;
 
-    @Column(name = "`remark`")
     private String remark;
 
     /**
@@ -48,35 +36,23 @@ public class SykDictEntity {
         this.id = id;
     }
 
-    /**
-     * @return prn
-     */
-    public String getPrn() {
-        return prn;
-    }
+    public String getCode() {
+		return code;
+	}
 
-    /**
-     * @param prn
-     */
-    public void setPrn(String prn) {
-        this.prn = prn;
-    }
+	public void setCode(String code) {
+		this.code = code;
+	}
 
-    /**
-     * @return parent_prn
-     */
-    public String getParentPrn() {
-        return parentPrn;
-    }
+	public String getParentCode() {
+		return parentCode;
+	}
 
-    /**
-     * @param parentPrn
-     */
-    public void setParentPrn(String parentPrn) {
-        this.parentPrn = parentPrn;
-    }
+	public void setParentCode(String parentCode) {
+		this.parentCode = parentCode;
+	}
 
-    /**
+	/**
      * @return val
      */
     public String getVal() {
@@ -90,21 +66,15 @@ public class SykDictEntity {
         this.val = val;
     }
 
-    /**
-     * @return st
-     */
-    public String getSt() {
-        return st;
-    }
+    public Integer getSt() {
+		return st;
+	}
 
-    /**
-     * @param st
-     */
-    public void setSt(String st) {
-        this.st = st;
-    }
+	public void setSt(Integer st) {
+		this.st = st;
+	}
 
-    /**
+	/**
      * @return tier
      */
     public Integer getTier() {

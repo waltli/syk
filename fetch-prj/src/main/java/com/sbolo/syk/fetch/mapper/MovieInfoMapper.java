@@ -20,7 +20,7 @@ public interface MovieInfoMapper extends Mapper<MovieInfoEntity>, BatchWriteMapp
 	@Select("select t.* from movie_info t " + 
 			"where t.pure_name = #{pureName} and t.release_time >= #{year} " + 
 			"limit 1")
-	public MovieInfoEntity selectOneByPureNameAndYear(@Param(value = "pureName") String pureName, @Param(value = "year") Date year);
+	MovieInfoEntity selectOneByPureNameAndYear(@Param(value = "pureName") String pureName, @Param(value = "year") Date year);
 	
 	List<MovieInfoEntity> selectByAssociation(Map<String, Object> params);
 	
