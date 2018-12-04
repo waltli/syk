@@ -27,4 +27,7 @@ public interface BatchWriteMapper<T> {
 	
 	@SelectProvider(type = BatchWriteProvider.class, method = "dynamicSQL")
 	T selectByPrn(String prn);
+	
+	@SelectProvider(type = BatchWriteProvider.class, method = "dynamicSQL")
+	List<T> selectByPrnList(List<String> prns);
 }

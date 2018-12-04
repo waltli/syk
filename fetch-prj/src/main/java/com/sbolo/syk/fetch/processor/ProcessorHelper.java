@@ -150,88 +150,72 @@ public class ProcessorHelper {
 		//从下载连接中分析资源信息
 		this.analyzeDownloadLink(filter2, thisTime);
 		
-		List<MovieDictVO> movieDict = new ArrayList<>();
-		List<MovieDictVO> newLabelList = this.getNewLabels(finalMovie.getLabels(), thisTime);
-		List<MovieDictVO> newLocationList = this.getNewLocations(finalMovie.getLocations(), thisTime);
-		if(newLabelList != null && newLabelList.size() > 0) {
-			movieDict.addAll(newLabelList);
-		}
-		if(newLocationList != null && newLocationList.size() > 0) {
-			movieDict.addAll(newLocationList);
-		}
+		//更新label和location
+		List<MovieDictVO> movieDict = this.updateMovieDict(finalMovie, thisTime);
 		
 		return new ConcludeVO(finalMovie, filter2, movieDict);
 	}
 	
-	
-	private List<MovieDictVO> getNewLocations(String fetchLocations, Date thisTime){
+	private List<MovieDictVO> updateMovieDict(MovieInfoVO finalMovie, Date thisTime) {
+		String locations = finalMovie.getLocations();
+		String labels = finalMovie.getLabels();
+		List<MovieDictVO> dictList = new ArrayList<>();
 		
-		List<MovieDictVO> newLocationList = new ArrayList<>();
-		if(StringUtils.isBlank(fetchLocations)) {
-			return null;
-		}
-		String[] fetchLocationArr = fetchLocations.split(RegexConstant.slashSep);
-		List<String> existLocationList = movieDictService.getLocations();
-		
-		if(existLocationList != null && existLocationList.size() > 0) {
-			for(String fetchLocation : fetchLocationArr) {
-				boolean hasExist = false;
-				fetchLocation = fetchLocation.trim();
-				for(String existLocation : existLocationList) {
-					if(existLocation.equals(existLocation)) {
-						hasExist = true;
-						break;
+		if(StringUtils.isNotBlank(locations)) {
+			List<String> existLocationList = movieDictService.getLocations();
+			if(existLocationList != null && existLocationList.size() > 0) {
+				String[] fetchLocationArr = locations.split(RegexConstant.slashSep);
+				for(String fetchLocation : fetchLocationArr) {
+					boolean hasExist = false;
+					fetchLocation = fetchLocation.trim();
+					for(String existLocation : existLocationList) {
+						if(existLocation.equals(existLocation)) {
+							hasExist = true;
+							break;
+						}
 					}
-				}
-				if(!hasExist) {
-					MovieDictVO newEntity = new MovieDictVO();
-					newEntity.setCode(StringUtil.getId(CommonConstants.location_s));
-					newEntity.setCreateTime(thisTime);
-					newEntity.setParentCode(MovieDictEnum.LOCATION.getCode());
-					newEntity.setSt(MovieStatusEnum.available.getCode());
-					newEntity.setTier(2);
-					newEntity.setVal(fetchLocation);
-					newLocationList.add(newEntity);
+					if(!hasExist) {
+						MovieDictVO newEntity = new MovieDictVO();
+						newEntity.setCode(StringUtil.getId(CommonConstants.location_s));
+						newEntity.setCreateTime(thisTime);
+						newEntity.setParentCode(MovieDictEnum.LOCATION.getCode());
+						newEntity.setSt(MovieStatusEnum.available.getCode());
+						newEntity.setTier(2);
+						newEntity.setVal(fetchLocation);
+						dictList.add(newEntity);
+					}
 				}
 			}
 		}
-		return newLocationList;
-	}
-	
-	
-	
-	private List<MovieDictVO> getNewLabels(String fetchLabels, Date thisTime){
 		
-		List<MovieDictVO> newLabelList = new ArrayList<>();
-		if(StringUtils.isBlank(fetchLabels)) {
-			return null;
-		}
-		String[] fetchLabelArr = fetchLabels.split(RegexConstant.slashSep);
-		List<String> existLabelList = movieDictService.getLabels();
-		
-		if(existLabelList != null && existLabelList.size() > 0) {
-			for(String fetchLabel : fetchLabelArr) {
-				boolean hasExist = false;
-				fetchLabel = fetchLabel.trim();
-				for(String existLabel : existLabelList) {
-					if(fetchLabel.equals(existLabel)) {
-						hasExist = true;
-						break;
+		if(StringUtils.isNotBlank(labels)) {
+			List<String> existLabelList = movieDictService.getLabels();
+			if(existLabelList != null && existLabelList.size() > 0) {
+				String[] fetchLabelArr = labels.split(RegexConstant.slashSep);
+				
+				for(String fetchLabel : fetchLabelArr) {
+					boolean hasExist = false;
+					fetchLabel = fetchLabel.trim();
+					for(String existLabel : existLabelList) {
+						if(fetchLabel.equals(existLabel)) {
+							hasExist = true;
+							break;
+						}
 					}
-				}
-				if(!hasExist) {
-					MovieDictVO newEntity = new MovieDictVO();
-					newEntity.setCode(StringUtil.getId(CommonConstants.label_s));
-					newEntity.setCreateTime(thisTime);
-					newEntity.setParentCode(MovieDictEnum.LABEL.getCode());
-					newEntity.setSt(MovieStatusEnum.available.getCode());
-					newEntity.setTier(2);
-					newEntity.setVal(fetchLabel);
-					newLabelList.add(newEntity);
+					if(!hasExist) {
+						MovieDictVO newEntity = new MovieDictVO();
+						newEntity.setCode(StringUtil.getId(CommonConstants.label_s));
+						newEntity.setCreateTime(thisTime);
+						newEntity.setParentCode(MovieDictEnum.LABEL.getCode());
+						newEntity.setSt(MovieStatusEnum.available.getCode());
+						newEntity.setTier(2);
+						newEntity.setVal(fetchLabel);
+						dictList.add(newEntity);
+					}
 				}
 			}
 		}
-		return newLabelList;
+		return dictList;
 	}
 	
 	/**

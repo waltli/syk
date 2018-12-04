@@ -85,5 +85,19 @@ public class BatchWriteProvider extends MapperTemplate {
         sql.append("<where>").append("prn = #{prn}").append("</where>");
         return sql.toString();
 	}
+	
+	public String selectByPrnList(MappedStatement ms) {
+		final Class<?> entityClass = getEntityClass(ms);
+        StringBuilder sql = new StringBuilder();
+        sql.append(SqlHelper.selectAllColumns(entityClass));
+        sql.append(SqlHelper.fromTable(entityClass, tableName(entityClass)));
+        sql.append("<where>").append("prn in ");
+        sql.append("<foreach collection=\"list\" open=\"(\" close=\")\" item=\"item\" separator=\",\">");
+        sql.append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
+        sql.append("#{prn}");
+        sql.append("</trim>");
+        sql.append("</foreach>");
+        return sql.toString();
+	}
 
 }

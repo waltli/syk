@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapping.MovieFetchRecordEntityMapper">
+  <resultMap id="BaseResultMap" type="com.sbolo.syk.fetch.entity.MovieFetchRecordEntity">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="prn" jdbcType="VARCHAR" property="prn" />
+    <result column="operate_type" jdbcType="INTEGER" property="operateType" />
+    <result column="rely_data" jdbcType="VARCHAR" property="relyData" />
+    <result column="data_prn" jdbcType="VARCHAR" property="dataPrn" />
+    <result column="data_json" jdbcType="VARCHAR" property="dataJson" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="has_migrated" jdbcType="BIT" property="hasMigrated" />
+  </resultMap>
+</mapper>
