@@ -43,50 +43,22 @@ public class MovieScheduler {
 	private Spider spider;
 	
 	@Resource
-	private MovieFetchRecordService movieFetchRecordService;
-	
-	@Resource
 	private MigrateService migrateService;
+	
+	
 	
 	@Scheduled(cron="0 0 10,14,18,21 * * ?")
 	public void goSpider(){
 		try {
 			spider.run();
-			this.migrate();
+			migrateService.migrate();
 		} catch (Exception e) {
 			log.error("",e);
 		}
 	}
 	
 	private void migrate() throws Exception {
-		List<MovieFetchRecordEntity> noMigrated = movieFetchRecordService.getNoMigrated();
 		
-		MigrateVO todo = migrateService.todo(noMigrated);
-		
-		String url = ConfigUtil.getPropertyValue("migrate.view.url");
-		
-		HttpResult<RequestResult> httpResult = HttpUtils.httpPost(url, todo, new HttpSendCallback<RequestResult>() {
-
-			@Override
-			public RequestResult<String> onResponse(Response response) throws Exception {
-				if(!response.isSuccessful()) {
-					return RequestResult.error("code: "+ response.code()+ " message: "+response.message());
-				}
-				String string = response.body().string();
-				return JSON.parseObject(string, RequestResult.class);
-			}
-		});
-		
-		RequestResult result = httpResult.getValue();
-		if(!result.getStatus()) {
-			throw new Exception("数据迁移失败！cause:"+result.getError());
-		}
-		
-		List<String> prnList = new ArrayList<>();
-		for(MovieFetchRecordEntity entity : noMigrated) {
-			prnList.add(entity.getPrn());
-		}
-		migrateService.done(prnList);
 		
 	}
 }

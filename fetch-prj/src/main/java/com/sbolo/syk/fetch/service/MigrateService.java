@@ -1,17 +1,21 @@
 package com.sbolo.syk.fetch.service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.sbolo.syk.common.http.HttpUtils;
+import com.sbolo.syk.common.http.HttpUtils.HttpResult;
+import com.sbolo.syk.common.http.callback.HttpSendCallback;
+import com.sbolo.syk.common.tools.ConfigUtil;
+import com.sbolo.syk.common.ui.RequestResult;
 import com.sbolo.syk.common.vo.MigrateVO;
 import com.sbolo.syk.fetch.entity.MovieDictEntity;
 import com.sbolo.syk.fetch.entity.MovieFetchRecordEntity;
@@ -24,8 +28,11 @@ import com.sbolo.syk.fetch.mapper.MovieFetchRecordMapper;
 import com.sbolo.syk.fetch.mapper.MovieInfoMapper;
 import com.sbolo.syk.fetch.mapper.ResourceInfoMapper;
 
+import okhttp3.Response;
+
 @Service
 public class MigrateService {
+	private static final Logger log = LoggerFactory.getLogger(MigrateService.class);
 	
 	@Resource
 	private MovieInfoMapper movieInfoMapper;
@@ -39,7 +46,43 @@ public class MigrateService {
 	@Resource
 	private MovieFetchRecordMapper movieFetchRecordMapper;
 	
-	public MigrateVO todo(List<MovieFetchRecordEntity> noMigrated) {
+	@Resource
+	private MovieFetchRecordService movieFetchRecordService;
+	
+	public void migrate() throws Exception {
+		log.info("======================开始数据迁移=========================");
+		List<MovieFetchRecordEntity> noMigrated = movieFetchRecordService.getNoMigrated();
+		log.info("======================待迁移数：{}=========================", noMigrated.size());
+		MigrateVO todo = this.todo(noMigrated);
+		
+		String url = ConfigUtil.getPropertyValue("migrate.view.url");
+		
+		HttpResult<RequestResult> httpResult = HttpUtils.httpPost(url, todo, new HttpSendCallback<RequestResult>() {
+
+			@Override
+			public RequestResult<String> onResponse(Response response) throws Exception {
+				if(!response.isSuccessful()) {
+					return RequestResult.error("code: "+ response.code()+ " message: "+response.message());
+				}
+				String string = response.body().string();
+				return JSON.parseObject(string, RequestResult.class);
+			}
+		});
+		
+		RequestResult result = httpResult.getValue();
+		if(!result.getStatus()) {
+			throw new Exception("数据迁移失败！cause:"+result.getError());
+		}
+		
+		List<String> prnList = new ArrayList<>();
+		for(MovieFetchRecordEntity entity : noMigrated) {
+			prnList.add(entity.getPrn());
+		}
+		this.done(prnList);
+		log.info("======================已迁移数：{}=========================", prnList.size());
+	}
+	
+	private MigrateVO todo(List<MovieFetchRecordEntity> noMigrated) {
 
 		List<String> addMoviePrns = new ArrayList<>();
 		List<String> addResourcePrns = new ArrayList<>();
@@ -101,8 +144,7 @@ public class MigrateService {
 		return migrate;
 	}
 	
-	@Transactional
-	public void done(List<String> prnList) {
+	private void done(List<String> prnList) {
 		List<MovieFetchRecordEntity> recordList = new ArrayList<>();
 		for(String prn : prnList) {
 			MovieFetchRecordEntity mfre = new MovieFetchRecordEntity();

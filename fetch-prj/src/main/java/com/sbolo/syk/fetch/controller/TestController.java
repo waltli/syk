@@ -23,6 +23,7 @@ import com.sbolo.syk.common.tools.FileUtils;
 import com.sbolo.syk.common.tools.GrapicmagickUtils;
 import com.sbolo.syk.common.ui.RequestResult;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
+import com.sbolo.syk.fetch.service.MigrateService;
 import com.sbolo.syk.fetch.service.MovieInfoService;
 import com.sbolo.syk.fetch.service.ResourceInfoService;
 import com.sbolo.syk.fetch.spider.Spider;
@@ -45,26 +46,30 @@ public class TestController {
 	@Resource
 	private MovieInfoService movieInfoService;
 	
+	@Resource
+	private MigrateService migrateService;
+	
 	@GetMapping("test111")
 	@ResponseBody
 	public RequestResult<String> test() throws ParseException{
-//		movieInfoService.getOneByPureNameAndYear("亿万少年俱乐部", DateUtil.str2Date("2018", "yyyy"));
-//		
-//		resourceInfoService.getOptimalResource("m178267591232");
 		try {
 			spider.run();
 		} catch (Exception e) {
 			log.error("",e);
 		}
-//		
-//		ResourceInfoEntity optimalResource = resourceInfoService.getOptimalResource("");
-		
 		return new RequestResult<String>("到达");
 	}
 	
 	@GetMapping("test222")
 	@ResponseBody
-	public RequestResult<String> test222() throws Exception{
+	public RequestResult<String> test222() throws Exception {
+		migrateService.migrate();
+		return new RequestResult<String>("到达");
+	}
+	
+	@GetMapping("test333")
+	@ResponseBody
+	public RequestResult<String> test333() throws Exception{
 		String url = "https://tu.66vod.net/2018/3503.jpg";
     	byte[] bytes = HttpUtils.getBytes(url);
     	InputStream resourceAsStream = this.getClass().getResourceAsStream("/img/mark.png");
