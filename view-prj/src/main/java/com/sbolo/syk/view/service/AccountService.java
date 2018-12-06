@@ -18,7 +18,7 @@ import com.sbolo.syk.common.constants.UserStEnum;
 import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.http.HttpUtils.HttpResult;
 import com.sbolo.syk.common.http.callback.HttpSendCallback;
-import com.sbolo.syk.common.tools.ConfigUtil;
+import com.sbolo.syk.common.tools.ConfigUtils;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.view.entity.SykOpenUserEntity;
@@ -45,9 +45,9 @@ public class AccountService {
 	
 	@Transactional
 	public SykUserVO qqLogin(String code) throws Exception {
-		String appid = ConfigUtil.getPropertyValue("open.qq.appid");
-		String appkey = ConfigUtil.getPropertyValue("open.qq.appkey");
-		String callbackUrl = ConfigUtil.getPropertyValue("open.qq.callback");
+		String appid = ConfigUtils.getPropertyValue("open.qq.appid");
+		String appkey = ConfigUtils.getPropertyValue("open.qq.appkey");
+		String callbackUrl = ConfigUtils.getPropertyValue("open.qq.callback");
 		
 		QQAccessTokenInfoVO accessTokenInfo = this.getAccessToken(appid, appkey, code, callbackUrl);
 		String accessToken = accessTokenInfo.getAccess_token();
@@ -98,7 +98,7 @@ public class AccountService {
 	}
 	
 	private SykUserEntity addAndGetSykUser(String avatarUrl, String nickname) {
-		String defaultPassword = ConfigUtil.getPropertyValue("user.defaultPassword");
+		String defaultPassword = ConfigUtils.getPropertyValue("user.defaultPassword");
 		String prn = StringUtil.getId(CommonConstants.user_s);
 		SykUserEntity user = new SykUserEntity();
 		user.setAvatarUri(avatarUrl);

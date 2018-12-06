@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sbolo.syk.common.annotation.Paginator;
 import com.sbolo.syk.common.exception.BusinessException;
-import com.sbolo.syk.common.tools.ConfigUtil;
+import com.sbolo.syk.common.tools.ConfigUtils;
 import com.sbolo.syk.common.tools.DateUtil;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.VOUtils;
@@ -198,7 +198,7 @@ public class MovieController {
 		String subDir = FetchUtils.saveTempIcon(url);
 		Map<String, Object> map = new HashMap<>();
 		map.put("subDir", subDir);
-		String root = ConfigUtil.getPropertyValue("fs.temp.mapping");
+		String root = ConfigUtils.getPropertyValue("fs.temp.mapping");
 		map.put("uri", root+subDir);
 		RequestResult<Map<String, Object>> result = new RequestResult<>(map);
 		return result;
@@ -212,7 +212,7 @@ public class MovieController {
 		List<String> tempUriList = new ArrayList<>();
 		for(String url : urlArr) {
 			String subDir = FetchUtils.saveTempPhoto(url);
-			String root = ConfigUtil.getPropertyValue("fs.temp.mapping");
+			String root = ConfigUtils.getPropertyValue("fs.temp.mapping");
 			subDirList.add(subDir);
 			tempUriList.add(root+subDir);
 		}
@@ -239,7 +239,7 @@ public class MovieController {
 		
 		List<String> posterTempUriList = new ArrayList<>();
 		List<String> subDirList = new ArrayList<>();
-		String root = ConfigUtil.getPropertyValue("fs.temp.mapping");
+		String root = ConfigUtils.getPropertyValue("fs.temp.mapping");
 		for(String posterUrl : posterUrlList) {
 			String subDir = FetchUtils.saveTempPoster(posterUrl);
 			subDirList.add(subDir);

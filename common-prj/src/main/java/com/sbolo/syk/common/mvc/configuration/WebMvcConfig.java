@@ -7,7 +7,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.sbolo.syk.common.mvc.filter.XSSFilter;
-import com.sbolo.syk.common.tools.ConfigUtil;
+import com.sbolo.syk.common.tools.ConfigUtils;
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
@@ -17,8 +17,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		//配置静态资源路由
 		registry.addResourceHandler("/assets/**").addResourceLocations("classpath:/webapp/assets/");
 		//配置绝对路径映射
-		String fsMapping = ConfigUtil.getPropertyValue("fs.mapping");
-		String fsDir = ConfigUtil.getPropertyValue("fs.dir");
+		String fsMapping = ConfigUtils.getPropertyValue("fs.mapping");
+		String fsDir = ConfigUtils.getPropertyValue("fs.dir");
 		registry.addResourceHandler(fsMapping+"/**").addResourceLocations("file:"+fsDir+"/");
 		WebMvcConfigurer.super.addResourceHandlers(registry);
 	}

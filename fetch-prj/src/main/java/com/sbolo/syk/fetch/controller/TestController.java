@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sbolo.syk.common.http.HttpUtils;
-import com.sbolo.syk.common.tools.ConfigUtil;
+import com.sbolo.syk.common.tools.ConfigUtils;
 import com.sbolo.syk.common.tools.DateUtil;
 import com.sbolo.syk.common.tools.FileUtils;
 import com.sbolo.syk.common.tools.GrapicmagickUtils;
@@ -75,7 +75,7 @@ public class TestController {
     	InputStream resourceAsStream = this.getClass().getResourceAsStream("/img/mark.png");
     	byte[] byteArray = IOUtils.toByteArray(resourceAsStream);
 		byte[] watermark = GrapicmagickUtils.watermark(bytes, byteArray);
-		String tempDir = ConfigUtil.getPropertyValue("fs.temp.dir");
+		String tempDir = ConfigUtils.getPropertyValue("fs.temp.dir");
 		FileUtils.saveFile(watermark, tempDir, "test", "jpg");
 		return new RequestResult<String>("到达");
 	}

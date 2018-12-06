@@ -20,7 +20,7 @@ import com.sbolo.syk.common.exception.BusinessException;
  * @version 1.0.0
  * @description desc
  */
-public class ConfigUtil {
+public class ConfigUtils {
 
 	private static Properties properties;
 	
@@ -33,7 +33,7 @@ public class ConfigUtil {
 	}
 	
 	private static void init() throws IOException{
-		String[] configArr = new String[]{"/config_gp.properties", "/config_g.properties", "/config_p.properties"};
+		String[] configArr = new String[]{"/config_GP.properties", "/config_GE.properties", "/config_SP.properties", "/config_SE.properties"};
 		
 		InputStream inputStream = null;
 		InputStreamReader inputStreamReader = null;
@@ -41,7 +41,7 @@ public class ConfigUtil {
 		
 		for(String config : configArr) {
 			try {
-				inputStream = ConfigUtil.class.getResourceAsStream(config);
+				inputStream = ConfigUtils.class.getResourceAsStream(config);
 				if(inputStream != null){
 					inputStreamReader = new InputStreamReader(inputStream, "utf-8");
 					properties.load(inputStreamReader);

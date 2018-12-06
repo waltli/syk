@@ -28,7 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.fetchApplication;
-import com.sbolo.syk.common.tools.ConfigUtil;
+import com.sbolo.syk.common.tools.ConfigUtils;
 import com.sbolo.syk.common.tools.ThreeDESUtils;
 
 @AutoConfigureMockMvc

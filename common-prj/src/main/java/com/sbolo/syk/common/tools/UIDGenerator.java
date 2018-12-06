@@ -27,7 +27,7 @@ public class UIDGenerator {
     }
     
 	public static long getUID() {
-		String workerId = ConfigUtil.getPropertyValue("workerId");
+		String workerId = ConfigUtils.getPropertyValue("workerId");
 		if(StringUtils.isBlank(workerId)) {
 			return getUID(null);
 		}

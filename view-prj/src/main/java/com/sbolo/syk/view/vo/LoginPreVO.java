@@ -3,7 +3,7 @@ package com.sbolo.syk.view.vo;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-import com.sbolo.syk.common.tools.ConfigUtil;
+import com.sbolo.syk.common.tools.ConfigUtils;
 
 public class LoginPreVO {
 	private String authorizeUrl;
@@ -58,9 +58,9 @@ public class LoginPreVO {
 	}
 	
 	public void notNull() throws UnsupportedEncodingException {
-		String appid = ConfigUtil.getPropertyValue("open.qq.appid");
-		String scope = ConfigUtil.getPropertyValue("open.qq.scope");
-		String callbackUrl = ConfigUtil.getPropertyValue("open.qq.callback");
+		String appid = ConfigUtils.getPropertyValue("open.qq.appid");
+		String scope = ConfigUtils.getPropertyValue("open.qq.scope");
+		String callbackUrl = ConfigUtils.getPropertyValue("open.qq.callback");
 		String cbUrlEncode = URLEncoder.encode(callbackUrl,"utf-8");
 		this.setAppid(appid);
 		this.setCbUrlEncode(cbUrlEncode);

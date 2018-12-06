@@ -25,7 +25,7 @@ import com.sbolo.syk.common.constants.RegexConstant;
 import com.sbolo.syk.common.exception.BusinessException;
 import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.tools.BucketUtils;
-import com.sbolo.syk.common.tools.ConfigUtil;
+import com.sbolo.syk.common.tools.ConfigUtils;
 import com.sbolo.syk.common.tools.FileUtils;
 import com.sbolo.syk.common.tools.GrapicmagickUtils;
 import com.sbolo.syk.common.tools.StringUtil;
@@ -44,13 +44,13 @@ public class FetchUtils {
 		int fixWidth = CommonConstants.icon_width;
 		int fixHeight = CommonConstants.icon_height;
 		byte[] imageBytes = GrapicmagickUtils.descale(bytes, fixWidth, fixHeight);
-		String root = ConfigUtil.getPropertyValue("bucket.formal");
+		String root = ConfigUtils.getPropertyValue("bucket.formal");
 		String typeDir = FileUtils.getTypeDir("icon");
 		String dateDir = FileUtils.getTypeDir("date");
 		String targetDir = root + typeDir + dateDir;
 		String fileName = StringUtil.getId(CommonConstants.pic_s);
 		BucketUtils.upload(imageBytes, targetDir, fileName, suffix);
-		return ConfigUtil.getPropertyValue("bucket.formal") + typeDir + dateDir + "/" + fileName + "." +suffix;
+		return ConfigUtils.getPropertyValue("bucket.formal") + typeDir + dateDir + "/" + fileName + "." +suffix;
 	}
 	
 	public static String uploadIconGetUri(String iconUrl) throws Exception {
@@ -67,7 +67,7 @@ public class FetchUtils {
 	}
 	
 	public static String uploadIconGetUriFromDir(String iconSubDir) throws Exception {
-		String root = ConfigUtil.getPropertyValue("fs.temp.dir");
+		String root = ConfigUtils.getPropertyValue("fs.temp.dir");
 		File iconFile = new File(root+iconSubDir);
 		return uploadIconGetUri(iconFile);
 	}
@@ -76,13 +76,13 @@ public class FetchUtils {
 		int fixWidth = CommonConstants.poster_width;
 		int fixHeight = CommonConstants.poster_height;
 		byte[] imageBytes = GrapicmagickUtils.descale(bytes, fixWidth, fixHeight);
-		String root = ConfigUtil.getPropertyValue("bucket.formal");
+		String root = ConfigUtils.getPropertyValue("bucket.formal");
 		String typeDir = FileUtils.getTypeDir("poster");
 		String dateDir = FileUtils.getTypeDir("date");
 		String targetDir = root + typeDir + dateDir;
 		String fileName = StringUtil.getId(CommonConstants.pic_s);
 		BucketUtils.upload(imageBytes, targetDir, fileName, suffix);
-		return ConfigUtil.getPropertyValue("bucket.formal") + typeDir + dateDir + "/" + fileName + "." +suffix;
+		return ConfigUtils.getPropertyValue("bucket.formal") + typeDir + dateDir + "/" + fileName + "." +suffix;
 	}
 	
 	public static String uploadPosterGetUri(String posterUrl) throws Exception {
@@ -99,7 +99,7 @@ public class FetchUtils {
 	}
 	
 	public static String uploadPosterGetUriFromDir(String posterSubDir) throws Exception {
-		String root = ConfigUtil.getPropertyValue("fs.temp.dir");
+		String root = ConfigUtils.getPropertyValue("fs.temp.dir");
 		File posterFile = new File(root+posterSubDir);
 		return uploadPosterGetUri(posterFile);
 	}
@@ -122,13 +122,13 @@ public class FetchUtils {
 		int fixWidth = CommonConstants.photo_width;
 		int fixHeight = CommonConstants.photo_height;
 		byte[] imageBytes = GrapicmagickUtils.descale(bytes, fixWidth, fixHeight);
-		String root = ConfigUtil.getPropertyValue("bucket.formal");
+		String root = ConfigUtils.getPropertyValue("bucket.formal");
 		String typeDir = FileUtils.getTypeDir("photo");
 		String dateDir = FileUtils.getTypeDir("date");
 		String targetDir = root + typeDir + dateDir;
 		String fileName = StringUtil.getId(CommonConstants.pic_s);
 		BucketUtils.upload(imageBytes, targetDir, fileName, suffix);
-		return ConfigUtil.getPropertyValue("bucket.formal") + typeDir + dateDir + "/" + fileName + "." +suffix;
+		return ConfigUtils.getPropertyValue("bucket.formal") + typeDir + dateDir + "/" + fileName + "." +suffix;
 	}
 	
 	public static String uploadPhotoGetUri(String photoUrl) throws Exception {
@@ -145,7 +145,7 @@ public class FetchUtils {
 	}
 	
 	public static String uploadPhotoGetUriFromDir(String photoSubDir) throws Exception {
-		String root = ConfigUtil.getPropertyValue("fs.temp.dir");
+		String root = ConfigUtils.getPropertyValue("fs.temp.dir");
 		File photoFile = new File(root+photoSubDir);
 		return uploadPhotoGetUri(photoFile);
 	}
@@ -175,13 +175,13 @@ public class FetchUtils {
 				byte[] markBytes = IOUtils.toByteArray(markStream);
 				imageBytes = GrapicmagickUtils.watermark(imageBytes, markBytes);
 			}
-			String root = ConfigUtil.getPropertyValue("bucket.formal");
+			String root = ConfigUtils.getPropertyValue("bucket.formal");
 			String typeDir = FileUtils.getTypeDir("shot");
 			String dateDir = FileUtils.getTypeDir("date");
 			String targetDir = root + typeDir + dateDir;
 			String fileName = StringUtil.getId(CommonConstants.pic_s);
 			BucketUtils.upload(imageBytes, targetDir, fileName, suffix);
-			return ConfigUtil.getPropertyValue("bucket.formal") + typeDir + dateDir + "/" + fileName + "." +suffix;
+			return ConfigUtils.getPropertyValue("bucket.formal") + typeDir + dateDir + "/" + fileName + "." +suffix;
 		} finally {
 			if(markStream != null) {
 				markStream.close();
@@ -205,7 +205,7 @@ public class FetchUtils {
 	}
 	
 	public static String uploadShotGetUriFromDir(String shotSubDir) throws Exception {
-		String root = ConfigUtil.getPropertyValue("fs.temp.dir");
+		String root = ConfigUtils.getPropertyValue("fs.temp.dir");
 		File shotFile = new File(root+shotSubDir);
 		return uploadShotGetUri(shotFile);
 	}
@@ -225,12 +225,12 @@ public class FetchUtils {
 	}
 	
 	public static String uploadTorrentGetUri(byte[] bytes, String torrentName, String suffix) throws Exception {
-		String root = ConfigUtil.getPropertyValue("bucket.formal");
+		String root = ConfigUtils.getPropertyValue("bucket.formal");
 		String typeDir = FileUtils.getTypeDir("torrent");
 		String dateDir = FileUtils.getTypeDir("date");
 		String targetDir = root + typeDir + dateDir;
 		BucketUtils.upload(bytes, targetDir, torrentName, suffix);
-		return ConfigUtil.getPropertyValue("bucket.formal") + typeDir + dateDir + "/" + torrentName + "." +suffix;
+		return ConfigUtils.getPropertyValue("bucket.formal") + typeDir + dateDir + "/" + torrentName + "." +suffix;
 	}
 	
 	public static String uploadTorrentGetUri(String torrentUrl, String torrentName) throws Exception {
@@ -247,7 +247,7 @@ public class FetchUtils {
 	}
 	
 	public static String uploadTorrentGetUriFromDir(String torrentSubDir, String torrentName) throws Exception {
-		String root = ConfigUtil.getPropertyValue("fs.temp.dir");
+		String root = ConfigUtils.getPropertyValue("fs.temp.dir");
 		File torrentFile = new File(root+torrentSubDir);
 		return uploadTorrentGetUri(torrentFile, torrentName);
 	}
@@ -312,7 +312,7 @@ public class FetchUtils {
      * @param resource
      */
     public static void deleteResourceTempFile(ResourceInfoVO resource){
-    	String formalDir = ConfigUtil.getPropertyValue("fs.formal.dir");
+    	String formalDir = ConfigUtils.getPropertyValue("fs.formal.dir");
 		String shotJson = resource.getShotUriJson();
 		
 		if(StringUtils.isNotBlank(shotJson)){
@@ -336,7 +336,7 @@ public class FetchUtils {
      * @param resource
      */
     public static void deleteMovieTempFile(MovieInfoVO movie){
-    	String formalDir = ConfigUtil.getPropertyValue("fs.formal.dir");
+    	String formalDir = ConfigUtils.getPropertyValue("fs.formal.dir");
 		String iconUri = movie.getIconUri();
 		if(StringUtils.isNotBlank(iconUri)) {
 			String iconPath = formalDir+"/"+iconUri;
@@ -782,7 +782,7 @@ public class FetchUtils {
 	}
 	
 	public static String saveTempIcon(byte[] bytes, String suffix) throws IOException {
-		String root = ConfigUtil.getPropertyValue("fs.temp.dir");
+		String root = ConfigUtils.getPropertyValue("fs.temp.dir");
 		String typeDir = FileUtils.getTypeDir("icon");
 		String targetDir = root+typeDir;
 		String fileName = StringUtil.getId(CommonConstants.pic_s);
@@ -797,7 +797,7 @@ public class FetchUtils {
 	}
 	
 	public static String saveTempPoster(byte[] bytes, String suffix) throws IOException {
-		String root = ConfigUtil.getPropertyValue("fs.temp.dir");
+		String root = ConfigUtils.getPropertyValue("fs.temp.dir");
 		String typeDir = FileUtils.getTypeDir("poster");
 		String targetDir = root+typeDir;
 		String fileName = StringUtil.getId(CommonConstants.pic_s);
@@ -812,7 +812,7 @@ public class FetchUtils {
 	}
 	
 	public static String saveTempPhoto(byte[] bytes, String suffix) throws IOException {
-		String root = ConfigUtil.getPropertyValue("fs.temp.dir");
+		String root = ConfigUtils.getPropertyValue("fs.temp.dir");
 		String typeDir = FileUtils.getTypeDir("photo");
 		String targetDir = root+typeDir;
 		String fileName = StringUtil.getId(CommonConstants.pic_s);
@@ -827,7 +827,7 @@ public class FetchUtils {
 	}
 	
 	public static String saveTempShot(byte[] bytes, String suffix) throws IOException {
-		String root = ConfigUtil.getPropertyValue("fs.temp.dir");
+		String root = ConfigUtils.getPropertyValue("fs.temp.dir");
 		String typeDir = FileUtils.getTypeDir("shot");
 		String targetDir = root+typeDir;
 		String fileName = StringUtil.getId(CommonConstants.pic_s);
@@ -842,7 +842,7 @@ public class FetchUtils {
 	}
 	
 	public static String saveTempTorrent(byte[] bytes, String suffix) throws IOException {
-		String root = ConfigUtil.getPropertyValue("fs.temp.dir");
+		String root = ConfigUtils.getPropertyValue("fs.temp.dir");
 		String typeDir = FileUtils.getTypeDir("torrent");
 		String targetDir = root+typeDir;
 		String fileName = StringUtil.getId(CommonConstants.file_s);

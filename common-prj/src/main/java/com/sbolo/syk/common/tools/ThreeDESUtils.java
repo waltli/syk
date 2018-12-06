@@ -73,7 +73,7 @@ public class ThreeDESUtils {
 	}
 	
 	public static String encode3Des(String srcStr) throws Exception {
-		String key = ConfigUtil.getPropertyValue("3des.key");
+		String key = ConfigUtils.getPropertyValue("3des.key");
 		if(StringUtils.isBlank(key)) {
 			throw new Exception("3des key is null");
 		}
@@ -105,7 +105,7 @@ public class ThreeDESUtils {
 	}
 	
 	public static String decode3Des(String desStr) throws Exception {
-		String key = ConfigUtil.getPropertyValue("3des.key");
+		String key = ConfigUtils.getPropertyValue("3des.key");
 		if(StringUtils.isBlank(key)) {
 			throw new Exception("3des key is null");
 		}

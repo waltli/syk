@@ -7,12 +7,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
-import com.sbolo.syk.common.tools.ConfigUtil;
+import com.sbolo.syk.common.tools.ConfigUtils;
 
 @Configuration
 public class ValidationConfiguration {
 	public ResourceBundleMessageSource getMessageSource() throws Exception {
-		String local = ConfigUtil.getPropertyValue("i18n.local");
+		String local = ConfigUtils.getPropertyValue("i18n.local");
         ResourceBundleMessageSource rbms = new ResourceBundleMessageSource();
         rbms.setDefaultEncoding("UTF-8");
         rbms.setBasenames("i18n/validation/ValidationMessages_"+local);

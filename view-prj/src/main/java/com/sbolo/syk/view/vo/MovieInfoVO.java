@@ -15,7 +15,7 @@ import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.MovieCategoryEnum;
 import com.sbolo.syk.common.constants.RegexConstant;
-import com.sbolo.syk.common.tools.ConfigUtil;
+import com.sbolo.syk.common.tools.ConfigUtils;
 import com.sbolo.syk.common.tools.StringUtil;
 
 public class MovieInfoVO {
@@ -933,7 +933,7 @@ public class MovieInfoVO {
     
     public void parse(){
     	SimpleDateFormat sdf = new SimpleDateFormat(CommonConstants.timeFormat.get(10));
-    	String bucketHost = ConfigUtil.getPropertyValue("bucket.host");
+    	String bucketHost = ConfigUtils.getPropertyValue("bucket.host");
 
     	if(this.getCategory() == MovieCategoryEnum.tv.getCode() || this.getCategory() == MovieCategoryEnum.variety.getCode()) {
     		if(this.getOptimalResource() != null && this.getOptimalResource().getEpisodeEnd() != null) {

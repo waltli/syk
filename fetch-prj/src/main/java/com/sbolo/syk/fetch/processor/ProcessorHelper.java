@@ -162,9 +162,16 @@ public class ProcessorHelper {
 		List<MovieDictVO> dictList = new ArrayList<>();
 		
 		if(StringUtils.isNotBlank(locations)) {
+			String[] fetchLocationArr = locations.split(RegexConstant.slashSep);
 			List<String> existLocationList = movieDictService.getLocations();
-			if(existLocationList != null && existLocationList.size() > 0) {
-				String[] fetchLocationArr = locations.split(RegexConstant.slashSep);
+			if(existLocationList == null || existLocationList.size() <= 0) {
+				MovieDictVO locationRoot = new MovieDictVO(MovieDictEnum.LOCATION.getCode(), MovieDictEnum.ROOT.getCode(), MovieDictEnum.LOCATION.getDesc(), MovieStatusEnum.available.getCode(), 1, thisTime);
+				dictList.add(locationRoot);
+				for(String fetchLocation : fetchLocationArr) {
+					MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.location_s), MovieDictEnum.LOCATION.getCode(), fetchLocation, MovieStatusEnum.available.getCode(), 2, thisTime);
+					dictList.add(vo);
+				}
+			}else {
 				for(String fetchLocation : fetchLocationArr) {
 					boolean hasExist = false;
 					fetchLocation = fetchLocation.trim();
@@ -175,24 +182,24 @@ public class ProcessorHelper {
 						}
 					}
 					if(!hasExist) {
-						MovieDictVO newEntity = new MovieDictVO();
-						newEntity.setCode(StringUtil.getId(CommonConstants.location_s));
-						newEntity.setCreateTime(thisTime);
-						newEntity.setParentCode(MovieDictEnum.LOCATION.getCode());
-						newEntity.setSt(MovieStatusEnum.available.getCode());
-						newEntity.setTier(2);
-						newEntity.setVal(fetchLocation);
-						dictList.add(newEntity);
+						MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.location_s), MovieDictEnum.LOCATION.getCode(), fetchLocation, MovieStatusEnum.available.getCode(), 2, thisTime);
+						dictList.add(vo);
 					}
 				}
 			}
 		}
 		
 		if(StringUtils.isNotBlank(labels)) {
+			String[] fetchLabelArr = labels.split(RegexConstant.slashSep);
 			List<String> existLabelList = movieDictService.getLabels();
-			if(existLabelList != null && existLabelList.size() > 0) {
-				String[] fetchLabelArr = labels.split(RegexConstant.slashSep);
-				
+			if(existLabelList == null || existLabelList.size() <= 0) {
+				MovieDictVO labelRoot = new MovieDictVO(MovieDictEnum.LABEL.getCode(), MovieDictEnum.ROOT.getCode(), MovieDictEnum.LABEL.getDesc(), MovieStatusEnum.available.getCode(), 1, thisTime);
+				dictList.add(labelRoot);
+				for(String fetchLabel : fetchLabelArr) {
+					MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.location_s), MovieDictEnum.LABEL.getCode(), fetchLabel, MovieStatusEnum.available.getCode(), 2, thisTime);
+					dictList.add(vo);
+				}
+			}else {
 				for(String fetchLabel : fetchLabelArr) {
 					boolean hasExist = false;
 					fetchLabel = fetchLabel.trim();
@@ -203,14 +210,8 @@ public class ProcessorHelper {
 						}
 					}
 					if(!hasExist) {
-						MovieDictVO newEntity = new MovieDictVO();
-						newEntity.setCode(StringUtil.getId(CommonConstants.label_s));
-						newEntity.setCreateTime(thisTime);
-						newEntity.setParentCode(MovieDictEnum.LABEL.getCode());
-						newEntity.setSt(MovieStatusEnum.available.getCode());
-						newEntity.setTier(2);
-						newEntity.setVal(fetchLabel);
-						dictList.add(newEntity);
+						MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.location_s), MovieDictEnum.LABEL.getCode(), fetchLabel, MovieStatusEnum.available.getCode(), 2, thisTime);
+						dictList.add(vo);
 					}
 				}
 			}
