@@ -237,9 +237,6 @@ public class DoubanUtils {
 						category = MovieCategoryEnum.tv.getCode();
 					}else if("制片国家/地区".equals(title)){
 						newMovie.setLocations(content);
-						if(StringUtils.isBlank(tagDescp)) {
-							tagDescp = content;
-						}
 					}else if("语言".equals(title)){
 						newMovie.setLanguages(content);
 					}else if("上映日期".equals(title)) {
@@ -259,8 +256,14 @@ public class DoubanUtils {
 				}
 				
 				newMovie.setCategory(category);
-				Integer tag = getTag(category, tagDescp);
-				newMovie.setTag(tag);
+				//赋值tag
+				if(StringUtils.isNotBlank(tagDescp)) {
+					Integer tag = getTag(category, tagDescp);
+					if(tag == MovieTagEnum.Other.getCode()) {
+						tag = getTag(category, newMovie.getLocations());
+					}
+					newMovie.setTag(tag);
+				}
 				if(StringUtils.isNotBlank(anotherName)){
 					newMovie.setAnotherName(anotherName);
 				}
