@@ -28,9 +28,9 @@ import com.sbolo.syk.fetch.vo.PureNameAndSeasonVO;
 public class MeiJuTTProcessor extends ProcessorHelper implements PageProcessor {
 private static final Logger log = LoggerFactory.getLogger(MeiJuTTProcessor.class);
 	//http://www.meijutt.com/
-	private String pageUrlReg = "^http://www\\.meijutt\\.com/$";
+	private String pageUrlReg = "^https?://www\\.meijutt\\.com/$";
 	//http://www.meijutt.com/content/meiju23842.html
-	private String detailUrlReg = "^http://www\\.meijutt\\.com/content/meiju\\d{4,5}\\.html$";
+	private String detailUrlReg = "^https?://www\\.meijutt\\.com/content/meiju\\d{4,5}\\.html$";
 	
 	@Override
 	public void before() {
@@ -113,7 +113,7 @@ private static final Logger log = LoggerFactory.getLogger(MeiJuTTProcessor.class
 				fields.put(url, conclude);
 			}
 		}else {
-			log.warn(url+" 不符合6vhao的正则表达式，首页："+pageUrlReg+",详情页："+detailUrlReg);
+			log.warn(url+" 不符合meijutt的正则表达式，首页："+pageUrlReg+",详情页："+detailUrlReg);
 		}
 	}
 	

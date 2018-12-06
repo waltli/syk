@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
+import com.sbolo.syk.common.constants.MovieStatusEnum;
 import com.sbolo.syk.common.constants.RegexConstant;
 import com.sbolo.syk.common.tools.BucketUtils;
 import com.sbolo.syk.common.tools.StringUtil;
@@ -238,6 +239,7 @@ public class MyPipeline implements Pipeline {
 		fetchRecordEntity.setOperateType(operateType);
 		fetchRecordEntity.setPrn(StringUtil.getId(null));
 		fetchRecordEntity.setRelyData(relyData);
+		fetchRecordEntity.setSt(MovieStatusEnum.available.getCode());
 		return fetchRecordEntity;
 	}
 	

@@ -24,6 +24,9 @@ public class MovieFetchRecordEntity {
 
     @Column(name = "`data_json`")
     private String dataJson;
+    
+    @Column(name = "`st`")
+    private Integer st;
 
     @Column(name = "`create_time`")
     private Date createTime;
@@ -34,7 +37,15 @@ public class MovieFetchRecordEntity {
     @Column(name = "`has_migrated`")
     private Boolean hasMigrated;
 
-    /**
+    public Integer getSt() {
+		return st;
+	}
+
+	public void setSt(Integer st) {
+		this.st = st;
+	}
+
+	/**
      * @return id
      */
     public Long getId() {

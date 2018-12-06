@@ -164,6 +164,7 @@ public class DoubanUtils {
 				MovieInfoVO newMovie = new MovieInfoVO();
 				String moviePrn = StringUtil.getId(CommonConstants.movie_s);
 				Integer category = MovieCategoryEnum.movie.getCode();
+				String tagDescp = null;
 				newMovie.setPrn(moviePrn);
 				Document doc = Jsoup.parse(new String(response.body().bytes(), "utf-8"));
 				String pureName = doc.select("head title").first().text().replace("(豆瓣)", "").trim();
@@ -236,16 +237,16 @@ public class DoubanUtils {
 						category = MovieCategoryEnum.tv.getCode();
 					}else if("制片国家/地区".equals(title)){
 						newMovie.setLocations(content);
+						if(StringUtils.isBlank(tagDescp)) {
+							tagDescp = content;
+						}
 					}else if("语言".equals(title)){
 						newMovie.setLanguages(content);
 					}else if("上映日期".equals(title)) {
 						releaseTimeStr = Utils.getTimeStr(content);
 					}else if("首播".equals(title)) {
 						releaseTimeStr = Utils.getTimeStr(content);
-						if(category == MovieCategoryEnum.tv.getCode()) {
-							int tag = getTag(category, content);
-							newMovie.setTag(tag);
-						}
+						tagDescp = content;
 					}else if("片长".equals(title) || "单集片长".equals(title)){
 						newMovie.setDuration(content);
 					}else if("又名".equals(title)){
@@ -258,7 +259,8 @@ public class DoubanUtils {
 				}
 				
 				newMovie.setCategory(category);
-				
+				Integer tag = getTag(category, tagDescp);
+				newMovie.setTag(tag);
 				if(StringUtils.isNotBlank(anotherName)){
 					newMovie.setAnotherName(anotherName);
 				}
@@ -319,7 +321,7 @@ public class DoubanUtils {
 		}
 	}
 	
-	private static int getTag(int category, String text) {
+	private static Integer getTag(int category, String text) {
 		Integer tagCode = null;
 		if(category == MovieCategoryEnum.tv.getCode()) {
 			Matcher m2 = Pattern.compile(RegexConstant.TAG_LOCATION).matcher(text);
