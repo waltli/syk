@@ -32,7 +32,7 @@ import com.sbolo.syk.common.http.HttpUtils;
  *
  */
 public class GrapicmagickUtils {
-    private static String GRAPHICS_MAGICK_PATH = ConfigUtil.getPropertyValue("gm.home");
+    private static String GRAPHICS_MAGICK_PATH = ConfigUtils.getPropertyValue("gm.home");
  
     private static boolean IS_WINDOWS = SystemUtils.IS_OS_WINDOWS;
     

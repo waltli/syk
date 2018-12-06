@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.viewApplication;
-import com.sbolo.syk.common.tools.ConfigUtil;
+import com.sbolo.syk.common.tools.ConfigUtils;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.view.entity.MovieInfoEntity;
 import com.sbolo.syk.view.mapper.MovieInfoMapper;

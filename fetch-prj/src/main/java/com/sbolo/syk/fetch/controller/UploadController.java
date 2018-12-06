@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.MovieCategoryEnum;
-import com.sbolo.syk.common.tools.ConfigUtil;
+import com.sbolo.syk.common.tools.ConfigUtils;
 import com.sbolo.syk.common.ui.RequestResult;
 import com.sbolo.syk.fetch.tool.FetchUtils;
 import com.sbolo.syk.fetch.vo.ResourceInfoVO;
@@ -66,7 +66,7 @@ public class UploadController {
         		map.put("resource", resourceVO);
         	}
         	map.put("subDir", subDir);
-        	uri = ConfigUtil.getPropertyValue("fs.temp.mapping")+subDir;
+        	uri = ConfigUtils.getPropertyValue("fs.temp.mapping")+subDir;
         	map.put("uri", uri);
         	result = new RequestResult<>(map);
 		} catch (Exception e) {

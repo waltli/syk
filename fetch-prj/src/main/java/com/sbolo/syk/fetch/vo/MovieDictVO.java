@@ -21,6 +21,15 @@ public class MovieDictVO {
     private Date updateTime;
 
     private String remark;
+    
+    public MovieDictVO(String code, String parentCode, String val, Integer st, Integer tier, Date createTime) {
+    	this.code = code;
+    	this.parentCode = parentCode;
+    	this.val = val;
+    	this.st = st;
+    	this.tier = tier;
+    	this.createTime = createTime;
+    }
 
     /**
      * @return id

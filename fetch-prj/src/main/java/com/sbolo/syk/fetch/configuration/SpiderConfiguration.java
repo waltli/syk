@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import com.sbolo.syk.common.tools.ConfigUtil;
+import com.sbolo.syk.common.tools.ConfigUtils;
 import com.sbolo.syk.fetch.pipeline.MyPipeline;
 import com.sbolo.syk.fetch.processor.MeiJuTTProcessor;
 import com.sbolo.syk.fetch.processor.SixVHaoProcessor;
@@ -23,14 +23,14 @@ public class SpiderConfiguration {
 	@Bean
 	public PageProcessor sixVHaoProcessor() {
 		SixVHaoProcessor sixVHaoProcessor = new SixVHaoProcessor();
-		sixVHaoProcessor.setStartUrl(ConfigUtil.getPropertyValue("spider.url.sixVHao"));
+		sixVHaoProcessor.setStartUrl(ConfigUtils.getPropertyValue("spider.url.sixVHao"));
 		return sixVHaoProcessor;
 	}
 	
 	@Bean
 	public PageProcessor meiJuTTProcessor() {
 		MeiJuTTProcessor meiJuTTProcessor = new MeiJuTTProcessor();
-		meiJuTTProcessor.setStartUrl(ConfigUtil.getPropertyValue("spider.url.meijutt"));
+		meiJuTTProcessor.setStartUrl(ConfigUtils.getPropertyValue("spider.url.meijutt"));
 		return meiJuTTProcessor;
 	}
 	

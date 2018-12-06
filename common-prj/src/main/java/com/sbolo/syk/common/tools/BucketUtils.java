@@ -30,10 +30,10 @@ public class BucketUtils {
 	
 	public static void openBucket() {
 		if(!hasOpened) {
-			String secretId = ConfigUtil.getPropertyValue("bucket.secretId");
-			String secretKey = ConfigUtil.getPropertyValue("bucket.secretKey");
-			String region = ConfigUtil.getPropertyValue("bucket.region");
-			BucketUtils.bucketName = ConfigUtil.getPropertyValue("bucket.name");
+			String secretId = ConfigUtils.getPropertyValue("bucket.secretId");
+			String secretKey = ConfigUtils.getPropertyValue("bucket.secretKey");
+			String region = ConfigUtils.getPropertyValue("bucket.region");
+			BucketUtils.bucketName = ConfigUtils.getPropertyValue("bucket.name");
 			// 1 初始化用户身份信息(secretId, secretKey)
 			COSCredentials cred = new BasicCOSCredentials(secretId, secretKey);
 			// 2 设置bucket的区域, COS地域的简称请参照 https://cloud.tencent.com/document/product/436/6224

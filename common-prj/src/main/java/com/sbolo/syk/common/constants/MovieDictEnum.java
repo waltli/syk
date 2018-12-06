@@ -1,9 +1,8 @@
 package com.sbolo.syk.common.constants;
 
-import com.sbolo.syk.common.tools.StringUtil;
-
 public enum MovieDictEnum {
 
+	ROOT("ROOT", "根"),
 	LABEL("LABEL", "标签类型"),
 	LOCATION("LOCATION", "地区类型");
 	

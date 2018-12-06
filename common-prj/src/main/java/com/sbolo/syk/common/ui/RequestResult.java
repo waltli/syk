@@ -8,7 +8,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 import com.sbolo.syk.common.exception.BusinessException;
-import com.sbolo.syk.common.tools.ConfigUtil;
+import com.sbolo.syk.common.tools.ConfigUtils;
 
 /**
  * 

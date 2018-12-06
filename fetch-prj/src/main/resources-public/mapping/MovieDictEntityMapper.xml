@@ -16,4 +16,11 @@
     <result column="remark" jdbcType="VARCHAR" property="remark" />
   </resultMap>
   
+  <select id="selectByCodes" parameterType="java.util.List" resultMap="BaseResultMap">
+  	select * from movie_dict where `code` in 
+  	<foreach collection="list" open="(" close=")" item="item" separator=",">
+  		#{item}
+  	</foreach>
+  </select>
+  
 </mapper>

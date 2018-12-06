@@ -1,6 +1,7 @@
 package com.sbolo.syk.fetch.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -14,7 +15,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.http.HttpUtils.HttpResult;
 import com.sbolo.syk.common.http.callback.HttpSendCallback;
-import com.sbolo.syk.common.tools.ConfigUtil;
+import com.sbolo.syk.common.tools.ConfigUtils;
 import com.sbolo.syk.common.ui.RequestResult;
 import com.sbolo.syk.common.vo.MigrateVO;
 import com.sbolo.syk.fetch.entity.MovieDictEntity;
@@ -52,10 +53,10 @@ public class MigrateService {
 	public void migrate() throws Exception {
 		log.info("======================开始数据迁移=========================");
 		List<MovieFetchRecordEntity> noMigrated = movieFetchRecordService.getNoMigrated();
-		log.info("======================待迁移数：{}=========================", noMigrated.size());
+		log.info("待迁移数：{}", noMigrated.size());
 		MigrateVO todo = this.todo(noMigrated);
 		
-		String url = ConfigUtil.getPropertyValue("migrate.view.url");
+		String url = ConfigUtils.getPropertyValue("migrate.view.url");
 		
 		HttpResult<RequestResult> httpResult = HttpUtils.httpPost(url, todo, new HttpSendCallback<RequestResult>() {
 
@@ -71,7 +72,7 @@ public class MigrateService {
 		
 		RequestResult result = httpResult.getValue();
 		if(!result.getStatus()) {
-			throw new Exception("数据迁移失败！cause:"+result.getError());
+			throw new Exception("数据迁移失败！cause:"+ Arrays.toString(result.getError()));
 		}
 		
 		List<String> prnList = new ArrayList<>();
@@ -79,14 +80,15 @@ public class MigrateService {
 			prnList.add(entity.getPrn());
 		}
 		this.done(prnList);
-		log.info("======================已迁移数：{}=========================", prnList.size());
+		log.info("已迁移数：{}", prnList.size());
+		log.info("======================数据迁移结束=========================");
 	}
 	
 	private MigrateVO todo(List<MovieFetchRecordEntity> noMigrated) {
 
 		List<String> addMoviePrns = new ArrayList<>();
 		List<String> addResourcePrns = new ArrayList<>();
-		List<String> addDictPrns = new ArrayList<>();
+		List<String> addDictCodes = new ArrayList<>();
 		List<JSONObject> movieUpdateJsonArray = new ArrayList<>();
 		List<JSONObject> resourceUpdateJsonArray = new ArrayList<>();
 		if(noMigrated != null && noMigrated.size() > 0) {
@@ -97,7 +99,7 @@ public class MigrateService {
 					}else if(RelyDataEnum.resource.getCode().equals(record.getRelyData())) {
 						addResourcePrns.add(record.getDataPrn());
 					}else if(RelyDataEnum.dict.getCode().equals(record.getRelyData())) {
-						addDictPrns.add(record.getDataPrn());
+						addDictCodes.add(record.getDataPrn());
 					}
 				} else if(OperateTypeEnum.update.getCode() == record.getOperateType()) {
 					JSONObject parseObject = JSON.parseObject(record.getDataJson());
@@ -126,8 +128,8 @@ public class MigrateService {
 				migrate.setAddResources(addResources);
 			}
 		}
-		if(addDictPrns.size() > 0) {
-			List<MovieDictEntity> dictEntities = movieDictMapper.selectByPrnList(addDictPrns);
+		if(addDictCodes.size() > 0) {
+			List<MovieDictEntity> dictEntities = movieDictMapper.selectByCodes(addDictCodes);
 			if(dictEntities != null && dictEntities.size() > 0) {
 				String addDicts = JSON.toJSONString(dictEntities);
 				migrate.setAddDicts(addDicts);
@@ -150,6 +152,7 @@ public class MigrateService {
 			MovieFetchRecordEntity mfre = new MovieFetchRecordEntity();
 			mfre.setPrn(prn);
 			mfre.setHasMigrated(true);
+			recordList.add(mfre);
 		}
 		
 		if(recordList.size() > 0) {

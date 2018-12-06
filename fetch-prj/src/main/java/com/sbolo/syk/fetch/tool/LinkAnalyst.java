@@ -21,7 +21,7 @@ import com.frostwire.jlibtorrent.SessionManager;
 import com.frostwire.jlibtorrent.TorrentInfo;
 import com.sbolo.syk.common.constants.RegexConstant;
 import com.sbolo.syk.common.http.HttpUtils;
-import com.sbolo.syk.common.tools.ConfigUtil;
+import com.sbolo.syk.common.tools.ConfigUtils;
 import com.sbolo.syk.common.tools.FileUtils;
 import com.sbolo.syk.common.tools.FtpUtils;
 import com.sbolo.syk.common.tools.StringUtil;

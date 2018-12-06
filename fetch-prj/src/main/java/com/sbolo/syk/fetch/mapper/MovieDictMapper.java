@@ -18,4 +18,6 @@ public interface MovieDictMapper extends Mapper<MovieDictEntity>, BatchWriteMapp
 	@Select("select t.val from movie_dict t where t.parent_code = #{parentPrn}")
 	List<String> selectByParentPrn(String parentPrn);
 	
+	List<MovieDictEntity> selectByCodes(List<String> codes);
+	
 }
