@@ -46,7 +46,7 @@ var syk = {
 				});
 			};
 			$.ajax({
-				url:ctx+"/account/pre",
+				url:ctx+"/pre",
 				data:{"openType":openType},
 				type:"get",
 				success:function(data){
@@ -75,7 +75,7 @@ var syk = {
 		},
 		logout:function(token, foo){
 			$.ajax({
-				url:ctx+"/account/logout",
+				url:ctx+"/logout",
 				data:{"username":token.username},
 				type:"post",
 				success:function(data){
