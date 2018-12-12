@@ -34,9 +34,8 @@ import com.sbolo.syk.view.vo.SykUserVO;
 import okhttp3.Response;
 
 @RestController
-@RequestMapping("account")
-public class AccountController extends BaseController {
-	private static final Logger log = LoggerFactory.getLogger(AccountController.class);
+public class LoginController extends BaseController {
+	private static final Logger log = LoggerFactory.getLogger(LoginController.class);
 	
 	@Autowired
 	private AccountService accountService;
