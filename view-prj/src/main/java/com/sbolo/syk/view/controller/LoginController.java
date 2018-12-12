@@ -3,9 +3,6 @@ package com.sbolo.syk.view.controller;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -13,25 +10,16 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSON;
-import com.sbolo.syk.common.constants.CommonConstants;
-import com.sbolo.syk.common.http.HttpUtils;
-import com.sbolo.syk.common.http.HttpUtils.HttpResult;
-import com.sbolo.syk.common.http.callback.HttpSendCallback;
 import com.sbolo.syk.common.mvc.controller.BaseController;
 import com.sbolo.syk.common.ui.RequestResult;
-import com.sbolo.syk.view.exception.OpenUserException;
 import com.sbolo.syk.view.service.AccountService;
 import com.sbolo.syk.view.vo.LoginPreVO;
 import com.sbolo.syk.view.vo.SykUserVO;
-
-import okhttp3.Response;
 
 @RestController
 public class LoginController extends BaseController {
