@@ -151,72 +151,19 @@ public class ProcessorHelper {
 		this.analyzeDownloadLink(filter2, thisTime);
 		
 		//更新label和location
-		List<MovieDictVO> movieDict = this.updateMovieDict(finalMovie, thisTime);
-		
-		return new ConcludeVO(finalMovie, filter2, movieDict);
-	}
-	
-	private List<MovieDictVO> updateMovieDict(MovieInfoVO finalMovie, Date thisTime) {
 		String locations = finalMovie.getLocations();
 		String labels = finalMovie.getLabels();
-		List<MovieDictVO> dictList = new ArrayList<>();
-		
+		List<String> existLabelList = null;
+		List<String> existLocationList = null;
 		if(StringUtils.isNotBlank(locations)) {
-			String[] fetchLocationArr = locations.split(RegexConstant.slashSep);
-			List<String> existLocationList = movieDictService.getLocations();
-			if(existLocationList == null || existLocationList.size() <= 0) {
-				MovieDictVO locationRoot = new MovieDictVO(MovieDictEnum.LOCATION.getCode(), MovieDictEnum.ROOT.getCode(), MovieDictEnum.LOCATION.getDesc(), MovieStatusEnum.available.getCode(), 1, thisTime);
-				dictList.add(locationRoot);
-				for(String fetchLocation : fetchLocationArr) {
-					MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.location_s), MovieDictEnum.LOCATION.getCode(), fetchLocation, MovieStatusEnum.available.getCode(), 2, thisTime);
-					dictList.add(vo);
-				}
-			}else {
-				for(String fetchLocation : fetchLocationArr) {
-					boolean hasExist = false;
-					fetchLocation = fetchLocation.trim();
-					for(String existLocation : existLocationList) {
-						if(existLocation.equals(existLocation)) {
-							hasExist = true;
-							break;
-						}
-					}
-					if(!hasExist) {
-						MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.location_s), MovieDictEnum.LOCATION.getCode(), fetchLocation, MovieStatusEnum.available.getCode(), 2, thisTime);
-						dictList.add(vo);
-					}
-				}
-			}
+			existLocationList = movieDictService.getLocations();
 		}
-		
 		if(StringUtils.isNotBlank(labels)) {
-			String[] fetchLabelArr = labels.split(RegexConstant.slashSep);
-			List<String> existLabelList = movieDictService.getLabels();
-			if(existLabelList == null || existLabelList.size() <= 0) {
-				MovieDictVO labelRoot = new MovieDictVO(MovieDictEnum.LABEL.getCode(), MovieDictEnum.ROOT.getCode(), MovieDictEnum.LABEL.getDesc(), MovieStatusEnum.available.getCode(), 1, thisTime);
-				dictList.add(labelRoot);
-				for(String fetchLabel : fetchLabelArr) {
-					MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.location_s), MovieDictEnum.LABEL.getCode(), fetchLabel, MovieStatusEnum.available.getCode(), 2, thisTime);
-					dictList.add(vo);
-				}
-			}else {
-				for(String fetchLabel : fetchLabelArr) {
-					boolean hasExist = false;
-					fetchLabel = fetchLabel.trim();
-					for(String existLabel : existLabelList) {
-						if(fetchLabel.equals(existLabel)) {
-							hasExist = true;
-							break;
-						}
-					}
-					if(!hasExist) {
-						MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.location_s), MovieDictEnum.LABEL.getCode(), fetchLabel, MovieStatusEnum.available.getCode(), 2, thisTime);
-						dictList.add(vo);
-					}
-				}
-			}
+			existLabelList = movieDictService.getLabels();
 		}
-		return dictList;
+		List<MovieDictVO> movieDict = FetchUtils.updateMovieDict(finalMovie, existLocationList, existLabelList, thisTime);
+		
+		return new ConcludeVO(finalMovie, filter2, movieDict);
 	}
 	
 	/**

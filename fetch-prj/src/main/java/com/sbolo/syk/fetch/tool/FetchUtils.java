@@ -19,8 +19,10 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.MovieCategoryEnum;
+import com.sbolo.syk.common.constants.MovieDictEnum;
 import com.sbolo.syk.common.constants.MovieQualityEnum;
 import com.sbolo.syk.common.constants.MovieResolutionConstant;
+import com.sbolo.syk.common.constants.MovieStatusEnum;
 import com.sbolo.syk.common.constants.RegexConstant;
 import com.sbolo.syk.common.exception.BusinessException;
 import com.sbolo.syk.common.http.HttpUtils;
@@ -30,15 +32,143 @@ import com.sbolo.syk.common.tools.FileUtils;
 import com.sbolo.syk.common.tools.GrapicmagickUtils;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.Utils;
+import com.sbolo.syk.fetch.entity.MovieDictEntity;
+import com.sbolo.syk.fetch.entity.MovieFetchRecordEntity;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
+import com.sbolo.syk.fetch.enums.OperateTypeEnum;
+import com.sbolo.syk.fetch.enums.RelyDataEnum;
 import com.sbolo.syk.fetch.exception.ResourceException;
+import com.sbolo.syk.fetch.vo.MovieDictVO;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
 import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 
 public class FetchUtils {
 	private static final Logger log = LoggerFactory.getLogger(FetchUtils.class);
 	
+	
+	public static List<MovieDictVO> updateMovieDict(MovieInfoVO finalMovie, List<String> existLocationList, List<String> existLabelList, Date thisTime) {
+		String locations = finalMovie.getLocations();
+		String labels = finalMovie.getLabels();
+		List<MovieDictVO> dictList = new ArrayList<>();
+		
+		if(StringUtils.isNotBlank(locations)) {
+			String[] fetchLocationArr = locations.split(RegexConstant.slashSep);
+			if(existLocationList == null || existLocationList.size() <= 0) {
+				MovieDictVO locationRoot = new MovieDictVO(MovieDictEnum.LOCATION.getCode(), MovieDictEnum.ROOT.getCode(), MovieDictEnum.LOCATION.getDesc(), MovieStatusEnum.available.getCode(), 1, thisTime);
+				dictList.add(locationRoot);
+				for(String fetchLocation : fetchLocationArr) {
+					MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.location_s), MovieDictEnum.LOCATION.getCode(), fetchLocation, MovieStatusEnum.available.getCode(), 2, thisTime);
+					dictList.add(vo);
+				}
+			}else {
+				for(String fetchLocation : fetchLocationArr) {
+					boolean hasExist = false;
+					fetchLocation = fetchLocation.trim();
+					for(String existLocation : existLocationList) {
+						if(existLocation.equals(existLocation)) {
+							hasExist = true;
+							break;
+						}
+					}
+					if(!hasExist) {
+						MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.location_s), MovieDictEnum.LOCATION.getCode(), fetchLocation, MovieStatusEnum.available.getCode(), 2, thisTime);
+						dictList.add(vo);
+					}
+				}
+			}
+		}
+		
+		if(StringUtils.isNotBlank(labels)) {
+			String[] fetchLabelArr = labels.split(RegexConstant.slashSep);
+			if(existLabelList == null || existLabelList.size() <= 0) {
+				MovieDictVO labelRoot = new MovieDictVO(MovieDictEnum.LABEL.getCode(), MovieDictEnum.ROOT.getCode(), MovieDictEnum.LABEL.getDesc(), MovieStatusEnum.available.getCode(), 1, thisTime);
+				dictList.add(labelRoot);
+				for(String fetchLabel : fetchLabelArr) {
+					MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.location_s), MovieDictEnum.LABEL.getCode(), fetchLabel, MovieStatusEnum.available.getCode(), 2, thisTime);
+					dictList.add(vo);
+				}
+			}else {
+				for(String fetchLabel : fetchLabelArr) {
+					boolean hasExist = false;
+					fetchLabel = fetchLabel.trim();
+					for(String existLabel : existLabelList) {
+						if(fetchLabel.equals(existLabel)) {
+							hasExist = true;
+							break;
+						}
+					}
+					if(!hasExist) {
+						MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.location_s), MovieDictEnum.LABEL.getCode(), fetchLabel, MovieStatusEnum.available.getCode(), 2, thisTime);
+						dictList.add(vo);
+					}
+				}
+			}
+		}
+		return dictList;
+	}
+	
+	public static List<MovieFetchRecordEntity> buildFetchRecordList(
+			List<MovieInfoEntity> addMovies, List<MovieInfoEntity> updateMovies,
+			List<ResourceInfoEntity> addResourceInfos, List<ResourceInfoEntity> updateResourceInfos, 
+			List<MovieDictEntity> addDicts) {
+		
+		List<MovieFetchRecordEntity> fetchRecordList = new ArrayList<>();
+		
+		if(addMovies != null && addMovies.size() > 0) {
+			for(MovieInfoEntity addMovie : addMovies) {
+				MovieFetchRecordEntity fetchRecord = buildFetchRecord(addMovie.getPrn(), OperateTypeEnum.insert.getCode(), RelyDataEnum.moive.getCode(), null);
+				fetchRecordList.add(fetchRecord);
+			}
+		}
+		
+		if(updateMovies != null && updateMovies.size() > 0) {
+			for(MovieInfoEntity updateMovie : updateMovies) {
+				String jsonString = JSON.toJSONString(updateMovie);
+				MovieFetchRecordEntity fetchRecord = buildFetchRecord(updateMovie.getPrn(), OperateTypeEnum.update.getCode(), RelyDataEnum.moive.getCode(), jsonString);
+				fetchRecordList.add(fetchRecord);
+			}
+		}
+		
+		if(addResourceInfos != null && addResourceInfos.size() > 0) {
+			for(ResourceInfoEntity addResource : addResourceInfos) {
+				MovieFetchRecordEntity fetchRecord = buildFetchRecord(addResource.getPrn(), OperateTypeEnum.insert.getCode(), RelyDataEnum.resource.getCode(), null);
+				fetchRecordList.add(fetchRecord);
+			}
+		}
+		
+		if(updateResourceInfos != null && updateResourceInfos.size() > 0) {
+			for(ResourceInfoEntity updateResource : updateResourceInfos) {
+				String jsonString = JSON.toJSONString(updateResource);
+				MovieFetchRecordEntity fetchRecord = buildFetchRecord(updateResource.getPrn(), OperateTypeEnum.update.getCode(), RelyDataEnum.resource.getCode(), jsonString);
+				fetchRecordList.add(fetchRecord);
+			}
+		}
+		
+		if(addDicts != null && addDicts.size() > 0) {
+			for(MovieDictEntity addDict : addDicts) {
+				MovieFetchRecordEntity fetchRecord = buildFetchRecord(addDict.getCode(), OperateTypeEnum.insert.getCode(), RelyDataEnum.dict.getCode(), null);
+				fetchRecordList.add(fetchRecord);
+			}
+		}
+		
+		
+		
+		return fetchRecordList;
+	}
+	
+	private static MovieFetchRecordEntity buildFetchRecord(String dataPrn, Integer operateType, String relyData, String dataJson) {
+		MovieFetchRecordEntity fetchRecordEntity = new MovieFetchRecordEntity();
+		fetchRecordEntity.setCreateTime(new Date());
+		fetchRecordEntity.setDataPrn(dataPrn);
+		fetchRecordEntity.setDataJson(dataJson);
+		fetchRecordEntity.setHasMigrated(false);
+		fetchRecordEntity.setOperateType(operateType);
+		fetchRecordEntity.setPrn(StringUtil.getId(null));
+		fetchRecordEntity.setRelyData(relyData);
+		fetchRecordEntity.setSt(MovieStatusEnum.available.getCode());
+		return fetchRecordEntity;
+	}
 	
 	public static String uploadIconGetUri(byte[] bytes, String suffix) throws Exception {
 		int fixWidth = CommonConstants.icon_width;

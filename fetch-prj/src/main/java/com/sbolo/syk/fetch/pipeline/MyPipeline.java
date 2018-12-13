@@ -139,7 +139,7 @@ public class MyPipeline implements Pipeline {
 			}
 		}
 		
-		List<MovieFetchRecordEntity> addFetchRecords = this.buildFetchRecordList(addMovies, updateMovies, addResourceInfos, updateResourceInfos, addDicts);
+		List<MovieFetchRecordEntity> addFetchRecords = FetchUtils.buildFetchRecordList(addMovies, updateMovies, addResourceInfos, updateResourceInfos, addDicts);
 		
 		int insertMovieSize = 0;
 		int updateMovieSize = 0;
@@ -179,68 +179,6 @@ public class MyPipeline implements Pipeline {
 		log.info("新增Dict条数："+insertDictSize);
 		log.info("新增fetchRecord条数："+insertFetchRecordSize);
 		log.info("bachAdd completion");
-	}
-	
-	private List<MovieFetchRecordEntity> buildFetchRecordList(
-			List<MovieInfoEntity> addMovies, List<MovieInfoEntity> updateMovies,
-			List<ResourceInfoEntity> addResourceInfos, List<ResourceInfoEntity> updateResourceInfos, 
-			List<MovieDictEntity> addDicts) {
-		
-		List<MovieFetchRecordEntity> fetchRecordList = new ArrayList<>();
-		
-		if(addMovies != null && addMovies.size() > 0) {
-			for(MovieInfoEntity addMovie : addMovies) {
-				MovieFetchRecordEntity fetchRecord = this.buildFetchRecord(addMovie.getPrn(), OperateTypeEnum.insert.getCode(), RelyDataEnum.moive.getCode(), null);
-				fetchRecordList.add(fetchRecord);
-			}
-		}
-		
-		if(updateMovies != null && updateMovies.size() > 0) {
-			for(MovieInfoEntity updateMovie : updateMovies) {
-				String jsonString = JSON.toJSONString(updateMovie);
-				MovieFetchRecordEntity fetchRecord = this.buildFetchRecord(updateMovie.getPrn(), OperateTypeEnum.update.getCode(), RelyDataEnum.moive.getCode(), jsonString);
-				fetchRecordList.add(fetchRecord);
-			}
-		}
-		
-		if(addResourceInfos != null && addResourceInfos.size() > 0) {
-			for(ResourceInfoEntity addResource : addResourceInfos) {
-				MovieFetchRecordEntity fetchRecord = this.buildFetchRecord(addResource.getPrn(), OperateTypeEnum.insert.getCode(), RelyDataEnum.resource.getCode(), null);
-				fetchRecordList.add(fetchRecord);
-			}
-		}
-		
-		if(updateResourceInfos != null && updateResourceInfos.size() > 0) {
-			for(ResourceInfoEntity updateResource : updateResourceInfos) {
-				String jsonString = JSON.toJSONString(updateResource);
-				MovieFetchRecordEntity fetchRecord = this.buildFetchRecord(updateResource.getPrn(), OperateTypeEnum.update.getCode(), RelyDataEnum.resource.getCode(), jsonString);
-				fetchRecordList.add(fetchRecord);
-			}
-		}
-		
-		if(addDicts != null && addDicts.size() > 0) {
-			for(MovieDictEntity addDict : addDicts) {
-				MovieFetchRecordEntity fetchRecord = this.buildFetchRecord(addDict.getCode(), OperateTypeEnum.insert.getCode(), RelyDataEnum.dict.getCode(), null);
-				fetchRecordList.add(fetchRecord);
-			}
-		}
-		
-		
-		
-		return fetchRecordList;
-	}
-	
-	private MovieFetchRecordEntity buildFetchRecord(String dataPrn, Integer operateType, String relyData, String dataJson) {
-		MovieFetchRecordEntity fetchRecordEntity = new MovieFetchRecordEntity();
-		fetchRecordEntity.setCreateTime(new Date());
-		fetchRecordEntity.setDataPrn(dataPrn);
-		fetchRecordEntity.setDataJson(dataJson);
-		fetchRecordEntity.setHasMigrated(false);
-		fetchRecordEntity.setOperateType(operateType);
-		fetchRecordEntity.setPrn(StringUtil.getId(null));
-		fetchRecordEntity.setRelyData(relyData);
-		fetchRecordEntity.setSt(MovieStatusEnum.available.getCode());
-		return fetchRecordEntity;
 	}
 	
 	private void deleteFiles(MovieInfoVO fetchMovie, List<ResourceInfoVO> fetchResources) {
