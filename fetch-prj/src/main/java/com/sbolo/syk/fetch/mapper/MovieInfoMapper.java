@@ -16,11 +16,11 @@ import tk.mybatis.mapper.common.Mapper;
 
 public interface MovieInfoMapper extends Mapper<MovieInfoEntity>, BatchWriteMapper<MovieInfoEntity> {
 
-	@ResultMap("BaseResultMap")
-	@Select("select t.* from movie_info t " + 
-			"where t.pure_name = #{pureName} and t.release_time >= #{year} " + 
-			"limit 1")
-	MovieInfoEntity selectOneByPureNameAndYear(@Param(value = "pureName") String pureName, @Param(value = "year") Date year);
+//	@ResultMap("BaseResultMap")
+//	@Select("select t.* from movie_info t " + 
+//			"where t.pure_name = #{pureName} and t.release_time >= #{year} " + 
+//			"limit 1")
+	List<MovieInfoEntity> selectByPureNames(List<String> pureNames);
 	
 	List<MovieInfoEntity> selectByAssociation(Map<String, Object> params);
 	

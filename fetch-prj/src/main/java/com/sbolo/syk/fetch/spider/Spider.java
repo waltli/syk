@@ -27,7 +27,9 @@ import com.sbolo.syk.fetch.spider.exception.SpiderException;
 public class Spider {
 	private static final Logger log = LoggerFactory.getLogger(Spider.class);
 	
-	private Pipeline pipeline;
+	private List<Pipeline> listPipeline;
+	
+	private Distinct distinct;
 	
 	private Downloader downloader;
 	
@@ -53,25 +55,31 @@ public class Spider {
 	
 	private int emptySleepTime = 30000;
 	public Spider() {}
-	public Spider(List<PageProcessor> listProcessor, Pipeline pipeline) {
+	public Spider(List<PageProcessor> listProcessor, Distinct distinct, List<Pipeline> listPipeline) {
 		this.listProcessor = listProcessor;
-		this.pipeline = pipeline;
+		this.distinct = distinct;
+		this.listPipeline = listPipeline;
 	}
 	
-	public Spider(List<PageProcessor> listProcessor, Pipeline pipeline, Downloader downloader) {
+	public Spider(List<PageProcessor> listProcessor, Distinct distinct, List<Pipeline> listPipeline, Downloader downloader) {
 		this.listProcessor = listProcessor;
-		this.pipeline = pipeline;
+		this.distinct = distinct;
+		this.listPipeline = listPipeline;
 		this.downloader = downloader;
 	}
 	
-	public Pipeline getPipeline() {
-		return pipeline;
+	public List<Pipeline> getListPipeline() {
+		return listPipeline;
 	}
-
-	public void setPipeline(Pipeline pipeline) {
-		this.pipeline = pipeline;
+	public void setListPipeline(List<Pipeline> listPipeline) {
+		this.listPipeline = listPipeline;
 	}
-
+	public Distinct getDistinct() {
+		return distinct;
+	}
+	public void setDistinct(Distinct distinct) {
+		this.distinct = distinct;
+	}
 	public Downloader getDownloader() {
 		return downloader;
 	}
@@ -162,12 +170,22 @@ public class Spider {
 				return;
 			}
 			try {
-				pipeline.before();
-				pipeline.process(fields);
-			} catch(Exception e){
-				log.error("", e);
+				distinct.before();
+				distinct.process(fields);
 			} finally {
-				pipeline.after();
+				distinct.after();
+			}
+			if(fields == null || fields.size() == 0) {
+				return;
+			}
+			for(int i=0; i<listPipeline.size(); i++) {
+				Pipeline pipeline = listPipeline.get(i);
+				try {
+					pipeline.before();
+					pipeline.process(fields);
+				} finally {
+					pipeline.after();
+				}
 			}
 		} finally{
 			isRun = false;

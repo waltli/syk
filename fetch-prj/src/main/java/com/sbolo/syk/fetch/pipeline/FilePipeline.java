@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
@@ -17,209 +16,44 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
-import com.sbolo.syk.common.constants.MovieStatusEnum;
 import com.sbolo.syk.common.constants.RegexConstant;
 import com.sbolo.syk.common.tools.BucketUtils;
-import com.sbolo.syk.common.tools.StringUtil;
-import com.sbolo.syk.common.tools.VOUtils;
-import com.sbolo.syk.fetch.entity.MovieDictEntity;
-import com.sbolo.syk.fetch.entity.MovieFetchRecordEntity;
 import com.sbolo.syk.fetch.entity.MovieFileIndexEntity;
-import com.sbolo.syk.fetch.entity.MovieInfoEntity;
-import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
-import com.sbolo.syk.fetch.enums.OperateTypeEnum;
-import com.sbolo.syk.fetch.enums.RelyDataEnum;
-import com.sbolo.syk.fetch.mapper.MovieDictMapper;
-import com.sbolo.syk.fetch.mapper.MovieFetchRecordMapper;
 import com.sbolo.syk.fetch.mapper.MovieFileIndexMapper;
-import com.sbolo.syk.fetch.mapper.MovieInfoMapper;
-import com.sbolo.syk.fetch.mapper.ResourceInfoMapper;
 import com.sbolo.syk.fetch.spider.Pipeline;
 import com.sbolo.syk.fetch.spider.exception.AnalystException;
 import com.sbolo.syk.fetch.tool.FetchUtils;
-import com.sbolo.syk.fetch.vo.ConcludeVO;
-import com.sbolo.syk.fetch.vo.MovieDictVO;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
 import com.sbolo.syk.fetch.vo.PicVO;
 import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 
 @Component
-public class MyPipeline implements Pipeline {
+public class FilePipeline implements Pipeline {
 	
-	private static final Logger log = LoggerFactory.getLogger(MyPipeline.class);
+	private static final Logger log = LoggerFactory.getLogger(FilePipeline.class);
 	
 	private ConcurrentMap<String, String> shotUrlMapping;
 	
 	private ConcurrentMap<String, Integer> torrentNameMapping; 
 	
 	@Autowired
-	private MovieInfoMapper movieInfoMapper;
-	@Autowired
-	private ResourceInfoMapper resourceInfoMapper;
-	@Autowired
 	private MovieFileIndexMapper movieFileIndexMapper;
-	@Autowired
-	private MovieDictMapper movieDictMapper;
-	@Autowired
-	private MovieFetchRecordMapper movieFetchRecordMapper;
 	
+	@SuppressWarnings("unchecked")
 	@Override
-	@Transactional
 	public void process(Map<String, Object> fields) throws Exception {
-		//需要下载的文件进行处理
-		List<MovieFileIndexEntity> fileIdxs = downAndGetFileIndex(fields);
-		//写入DB
-		writeDB(fields, fileIdxs);
-	}
-	
-	private List<MovieFileIndexEntity> downAndGetFileIndex(Map<String, Object> fields) {
-		List<MovieInfoVO> allFetchMovie = new ArrayList<>();
-		List<ResourceInfoVO> allFetchResource = new ArrayList<>();
 		
-		Set<Entry<String,Object>> entrySet = fields.entrySet();
-		for(Entry<String,Object> entry : entrySet) {
-			ConcludeVO vo = (ConcludeVO) entry.getValue();
-			allFetchMovie.add(vo.getFetchMovie());
-			allFetchResource.addAll(vo.getFetchResources());
-		}
+		List<MovieInfoVO> finalMovies = (List<MovieInfoVO>) fields.get("finalMovies");
+		List<ResourceInfoVO> finalResources = (List<ResourceInfoVO>) fields.get("finalResources");
 		
-		Map<String, MovieFileIndexEntity> pioneer = getPioneer(allFetchMovie, allFetchResource);
-		List<MovieFileIndexEntity> newFileIdxList = new ArrayList<>();
-		downloadAndSetMoviePic(allFetchMovie, pioneer, newFileIdxList, new Date());
-		downloadAndSetResourceFile(allFetchResource, pioneer, newFileIdxList, new Date());
-		return newFileIdxList;
-	}
-	
-	private void writeDB(Map<String, Object> fields, List<MovieFileIndexEntity> fileIdxs) throws Exception {
-		List<MovieInfoEntity> addMovies = new ArrayList<>();
-		List<ResourceInfoEntity> addResourceInfos = new ArrayList<>();
-		List<MovieInfoEntity> updateMovies = new ArrayList<>();
-		List<ResourceInfoEntity> updateResourceInfos = new ArrayList<>();
-		List<MovieDictEntity> addDicts = new ArrayList<>();
-		
-		Set<Entry<String,Object>> entrySet = fields.entrySet();
-		for(Entry<String,Object> entry : entrySet) {
-			ConcludeVO vo = (ConcludeVO) entry.getValue();
-			MovieInfoVO fetchMovie = vo.getFetchMovie();
-			List<ResourceInfoVO> fetchResources = vo.getFetchResources();
-			List<MovieDictVO> newDicts = vo.getMovieDicts();
-			try {
-				if(fetchMovie.getAction() == CommonConstants.insert) {
-					MovieInfoEntity movieEntity = VOUtils.po2vo(fetchMovie, MovieInfoEntity.class);
-					addMovies.add(movieEntity);
-				}else if(fetchMovie.getAction() == CommonConstants.update) {
-					MovieInfoEntity movieEntity = VOUtils.po2vo(fetchMovie, MovieInfoEntity.class);
-					updateMovies.add(movieEntity);
-				}
-				
-				if(fetchResources != null && fetchResources.size() > 0) {
-					for(ResourceInfoVO fetchResource : fetchResources) {
-						if(fetchResource.getAction() == CommonConstants.insert) {
-							ResourceInfoEntity resourceInfoEntity = VOUtils.po2vo(fetchResource, ResourceInfoEntity.class);
-							addResourceInfos.add(resourceInfoEntity);
-						}else if(fetchResource.getAction() == CommonConstants.update) {
-							ResourceInfoEntity resourceInfoEntity = VOUtils.po2vo(fetchResource, ResourceInfoEntity.class);
-							updateResourceInfos.add(resourceInfoEntity);
-						}
-					}
-				}
-				
-				if(newDicts != null && newDicts.size() > 0) {
-					List<MovieDictEntity> po2vo = VOUtils.po2vo(newDicts, MovieDictEntity.class);
-					addDicts.addAll(po2vo);
-				}
-			} catch (Exception e) {
-				log.error("分解入库时出现错误", e);
-				deleteFiles(fetchMovie, fetchResources);
-				throw e;
-			}
-		}
-		
-		List<MovieFetchRecordEntity> addFetchRecords = FetchUtils.buildFetchRecordList(addMovies, updateMovies, addResourceInfos, updateResourceInfos, addDicts);
-		
-		int insertMovieSize = 0;
-		int updateMovieSize = 0;
-		int insertDictSize = 0;
-		int insertResourceSize = 0;
-		int updateResourceSize = 0;
-		int insertFileIdxsSize = 0;
-		int insertFetchRecordSize = 0;
-		if(addMovies.size() > 0) {
-			insertMovieSize = movieInfoMapper.insertList(addMovies);
-		}
-		if(updateMovies.size() > 0) {
-			updateMovieSize = movieInfoMapper.updateListByPrn(updateMovies);
-		}
-		if(addResourceInfos.size() > 0) {
-			insertResourceSize = resourceInfoMapper.insertList(addResourceInfos);
-		}
-		if(updateResourceInfos.size() > 0) {
-			updateResourceSize = resourceInfoMapper.updateListByPrn(updateResourceInfos);
-		}
-		if(fileIdxs.size() > 0) {
-			insertFileIdxsSize = movieFileIndexMapper.insertList(fileIdxs);
-		}
-		if(addDicts.size() > 0) {
-			insertDictSize = movieDictMapper.insertList(addDicts);
-		}
-		if(addFetchRecords != null && addFetchRecords.size() > 0) {
-			insertFetchRecordSize = movieFetchRecordMapper.insertList(addFetchRecords);
-		}
-		
-		log.info("===================================================================================");
-		log.info("新增movieInfo条数："+insertMovieSize);
-		log.info("修改movieInfo条数："+updateMovieSize);
-		log.info("新增resourceInfo条数："+insertResourceSize);
-		log.info("修改resourceInfo条数："+updateResourceSize);
-		log.info("movie file index："+insertFileIdxsSize);
-		log.info("新增Dict条数："+insertDictSize);
-		log.info("新增fetchRecord条数："+insertFetchRecordSize);
-		log.info("bachAdd completion");
-	}
-	
-	private void deleteFiles(MovieInfoVO fetchMovie, List<ResourceInfoVO> fetchResources) {
-		List<String> uris = new ArrayList<>();
-		
-		String iconUri = fetchMovie.getIconUri();
-		List<String> posterUriList = fetchMovie.getPosterUriList();
-		List<String> photoUriList = fetchMovie.getPhotoUriList();
-		List<String> shotUriList = new ArrayList<>();
-		List<String> torrentUriList = new ArrayList<>();
-		for(ResourceInfoVO fetchResource : fetchResources) {
-			List<String> shotUris = fetchResource.getShotUriList();
-			shotUriList.addAll(shotUris);
-			if(Pattern.compile(RegexConstant.torrent).matcher(fetchResource.getDownloadLink()).find()) {
-				torrentUriList.add(fetchResource.getDownloadLink());
-			}
-		}
-		if(StringUtils.isNotBlank(iconUri)) {
-			uris.add(iconUri);
-		}
-		if(posterUriList != null && posterUriList.size() > 0) {
-			uris.addAll(posterUriList);
-		}
-		
-		if(photoUriList != null && photoUriList.size() > 0) {
-			uris.addAll(photoUriList);
-		}
-		
-		if(shotUriList != null && shotUriList.size() > 0) {
-			uris.addAll(shotUriList);
-		}
-		
-		if(torrentUriList != null && torrentUriList.size() > 0) {
-			uris.addAll(torrentUriList);
-		}
-		
-		try {
-			BucketUtils.deletes(uris);
-		} catch (Exception e) {
-			log.error("删除文件时出现错误", e);
-		}
+		Map<String, MovieFileIndexEntity> pioneer = getPioneer(finalMovies, finalResources);
+		List<MovieFileIndexEntity> fileIdxs = new ArrayList<>();
+		downloadAndSetMoviePic(finalMovies, pioneer, fileIdxs, new Date());
+		downloadAndSetResourceFile(finalResources, pioneer, fileIdxs, new Date());
+		fields.put("fileIdxs", fileIdxs);
 	}
 	
 	/**

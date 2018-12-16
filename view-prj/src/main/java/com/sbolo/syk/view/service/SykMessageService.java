@@ -29,6 +29,7 @@ import com.sbolo.syk.view.entity.SykMessageEntity;
 import com.sbolo.syk.view.entity.SykMessageLikeEntity;
 import com.sbolo.syk.view.entity.SykUserEntity;
 import com.sbolo.syk.view.enums.OrderMarkerEnum;
+import com.sbolo.syk.view.mapper.MovieInfoMapper;
 import com.sbolo.syk.view.mapper.SykMessageLikeMapper;
 import com.sbolo.syk.view.mapper.SykMessageMapper;
 import com.sbolo.syk.view.vo.MovieInfoVO;
@@ -46,6 +47,9 @@ public class SykMessageService {
 	
 	@Autowired
 	private SykMessageLikeService sykMessageLikeService;
+	
+	@Autowired
+	private MovieInfoMapper movieInfoMapper;
 	
 	public TestVO getListByPage(String pkey, SykUserVO token, String orderMarker) throws InstantiationException, IllegalAccessException, InvocationTargetException {
 		//获取rootPrns
@@ -121,10 +125,12 @@ public class SykMessageService {
 		return messages;
 	}
 	
+	@Transactional
 	public void addOne(SykMessageVO vo) throws InstantiationException, IllegalAccessException, InvocationTargetException {
 		this.check(vo);
 		SykMessageEntity entity = VOUtils.po2vo(vo, SykMessageEntity.class);
 		sykMessageMapper.insert(entity);
+		movieInfoMapper.updateCountComment(vo.getPkey());
 	}
 	
 	public SykMessageEntity getOne(String msgPrn) {
@@ -161,7 +167,7 @@ public class SykMessageService {
 	}
 	
 	@Transactional
-	public boolean remove(List<String> msgPrnl) {
+	public boolean remove(List<String> msgPrnl, String pkey) {
 		int size = msgPrnl.size();
 		int msgdc = sykMessageMapper.deleteByPrns(msgPrnl);
 		if(msgdc != size) {
@@ -169,6 +175,7 @@ public class SykMessageService {
 		}
 		sykMessageLikeService.removeByMsgPrns(msgPrnl);
 		
+		movieInfoMapper.updateCountCommentSub(pkey, size);
 		return true;
 	}
 	

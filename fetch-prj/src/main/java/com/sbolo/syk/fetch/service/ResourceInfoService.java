@@ -43,9 +43,9 @@ public class ResourceInfoService {
 	@Resource
 	private MovieInfoService movieInfoService;
 	
-	public ResourceInfoEntity getOptimalResource(String moviePrn) {
-		ResourceInfoEntity dbOptimalResource = resourceInfoMapper.selectOptimalResource(moviePrn);
-		return dbOptimalResource;
+	public List<ResourceInfoEntity> getOptimalResources(List<String> moviePrns) {
+		List<ResourceInfoEntity> dbOptimalResources = resourceInfoMapper.selectOptimalResources(moviePrns);
+		return dbOptimalResources;
 	}
 	
 	public void updateStatusByMoviePrn(String moviePrn, int resourceStatus){

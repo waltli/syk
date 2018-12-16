@@ -23,6 +23,7 @@ import com.sbolo.syk.fetch.spider.exception.AnalystException;
 import com.sbolo.syk.fetch.spider.exception.SpiderException;
 import com.sbolo.syk.fetch.vo.ConcludeVO;
 import com.sbolo.syk.fetch.vo.LinkInfoVO;
+import com.sbolo.syk.fetch.vo.MovieInfoVO;
 import com.sbolo.syk.fetch.vo.PureNameAndSeasonVO;
 
 public class MeiJuTTProcessor extends ProcessorHelper implements PageProcessor {
@@ -108,10 +109,7 @@ private static final Logger log = LoggerFactory.getLogger(MeiJuTTProcessor.class
 				linkInfos.add(linkInfo);
 			}
 			
-			ConcludeVO conclude = this.resolve(pureNameAndSeason, precisions, linkInfos, null, url, null);
-			if(conclude != null) {
-				fields.put(url, conclude);
-			}
+			this.resolve(fields, pureNameAndSeason, precisions, linkInfos, null, url, null);
 		}else {
 			log.warn(url+" 不符合meijutt的正则表达式，首页："+pageUrlReg+",详情页："+detailUrlReg);
 		}

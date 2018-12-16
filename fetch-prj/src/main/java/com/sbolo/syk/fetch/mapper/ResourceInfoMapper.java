@@ -15,9 +15,7 @@ import tk.mybatis.mapper.common.Mapper;
 
 public interface ResourceInfoMapper extends Mapper<ResourceInfoEntity>, BatchWriteMapper<ResourceInfoEntity> {
 	
-	@ResultMap("BaseResultMap")
-	@Select("select t1.* from movie_info t, resource_info t1 where t.optimal_resource_prn = t1.prn and t.prn = #{moviePrn}")
-	ResourceInfoEntity selectOptimalResource(String moviePrn);
+	List<ResourceInfoEntity> selectOptimalResources(List<String> moviePrns);
 	
 	@Update("update resource_info t set t.st=#{resourceStatus} where t.movie_prn=#{moviePrn}")
 	int signStatusByMoviePrn(Map<String, Object> params);

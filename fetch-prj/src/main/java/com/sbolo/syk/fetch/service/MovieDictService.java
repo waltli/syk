@@ -47,13 +47,21 @@ public class MovieDictService {
 	private MovieDictMapper movieDictMapper;
 	
 	public List<String> getLabels() {
-		List<String> labelEntities = movieDictMapper.selectByParentPrn(MovieDictEnum.LABEL.getCode());
+		List<String> labelEntities = movieDictMapper.selectByParentCode(MovieDictEnum.LABEL.getCode());
 		return labelEntities;
 	}
 	
 	public List<String> getLocations() {
-		List<String> locationEntities = movieDictMapper.selectByParentPrn(MovieDictEnum.LOCATION.getCode());
+		List<String> locationEntities = movieDictMapper.selectByParentCode(MovieDictEnum.LOCATION.getCode());
 		return locationEntities;
+	}
+	
+	public String getLabelRoot() {
+		return movieDictMapper.selectByCode(MovieDictEnum.LABEL.getCode());
+	}
+	
+	public String getLocationRoot() {
+		return movieDictMapper.selectByCode(MovieDictEnum.LOCATION.getCode());
 	}
 	
 }

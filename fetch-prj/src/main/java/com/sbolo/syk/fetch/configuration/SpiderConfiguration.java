@@ -9,9 +9,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.sbolo.syk.common.tools.ConfigUtils;
-import com.sbolo.syk.fetch.pipeline.MyPipeline;
+import com.sbolo.syk.fetch.distinct.MyDistinct;
+import com.sbolo.syk.fetch.pipeline.FilePipeline;
+import com.sbolo.syk.fetch.pipeline.DBPipeline;
 import com.sbolo.syk.fetch.processor.MeiJuTTProcessor;
 import com.sbolo.syk.fetch.processor.SixVHaoProcessor;
+import com.sbolo.syk.fetch.spider.Distinct;
 import com.sbolo.syk.fetch.spider.Downloader;
 import com.sbolo.syk.fetch.spider.PageProcessor;
 import com.sbolo.syk.fetch.spider.Pipeline;
@@ -35,9 +38,21 @@ public class SpiderConfiguration {
 	}
 	
 	@Bean
-	public Pipeline myPipeline() {
-		MyPipeline myPipeline = new MyPipeline();
-		return myPipeline;
+	public Distinct myDistinct() {
+		MyDistinct myDistinct = new MyDistinct();
+		return myDistinct;
+	}
+	
+	@Bean
+	public Pipeline filePipeline() {
+		FilePipeline filePipeline = new FilePipeline();
+		return filePipeline;
+	}
+	
+	@Bean
+	public Pipeline dbPipeline() {
+		DBPipeline dbPipeline = new DBPipeline();
+		return dbPipeline;
 	}
 	
 	@Bean
@@ -50,7 +65,10 @@ public class SpiderConfiguration {
 		List<PageProcessor> listProcessor = new ArrayList<>();
 		listProcessor.add(sixVHaoProcessor());
 		listProcessor.add(meiJuTTProcessor());
-		Spider spider = new Spider(listProcessor, myPipeline(), downloader());
+		List<Pipeline> listPipeline = new ArrayList<>();
+		listPipeline.add(filePipeline());
+		listPipeline.add(dbPipeline());
+		Spider spider = new Spider(listProcessor, myDistinct(), listPipeline, downloader());
 		return spider;
 	}
 	

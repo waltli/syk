@@ -145,4 +145,11 @@
   	limit 1
   </select>
   
+  <select id="selectByPureNames" resultMap="BaseResultMap" parameterType="java.util.List">
+  	select * from movie_info where pure_name in 
+  	<foreach collection="list" open="(" close=")" item="item" separator=",">
+  		#{item}
+  	</foreach>
+  </select>
+  
 </mapper>

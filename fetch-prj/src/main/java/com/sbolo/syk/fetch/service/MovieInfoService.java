@@ -49,9 +49,9 @@ public class MovieInfoService {
 	@Resource
 	private ResourceInfoMapper resourceInfoMapper;
 	
-	public MovieInfoEntity getOneByPureNameAndYear(String pureName, Date year) {
-		MovieInfoEntity movie = movieInfoMapper.selectOneByPureNameAndYear(pureName, year);
-		return movie;
+	public List<MovieInfoEntity> getByPureNames(List<String> pureNames) {
+		List<MovieInfoEntity> entities = movieInfoMapper.selectByPureNames(pureNames);
+		return entities;
 	}
 	
 	public RequestResult<MovieInfoVO> getAroundList(int pageNum, int pageSize, String label, String keyword) throws InstantiationException, IllegalAccessException, InvocationTargetException{

@@ -61,4 +61,11 @@
 			</otherwise>
 		</choose>
   </select>
+  
+  <select id="selectOptimalResources" resultMap="BaseResultMap" parameterType="java.util.List">
+  	select t1.* from movie_info t, resource_info t1 where t.optimal_resource_prn = t1.prn and t.prn in
+  	<foreach collection="list" open="(" close=")" item="item" separator=",">
+  		#{item}
+  	</foreach>
+  </select>
 </mapper>
