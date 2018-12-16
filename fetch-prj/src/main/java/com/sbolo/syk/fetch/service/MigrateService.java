@@ -50,6 +50,7 @@ public class MigrateService {
 	@Resource
 	private MovieFetchRecordService movieFetchRecordService;
 	
+	@SuppressWarnings("rawtypes")
 	public void migrate() throws Exception {
 		log.info("======================开始数据迁移=========================");
 		List<MovieFetchRecordEntity> noMigrated = movieFetchRecordService.getNoMigrated();

@@ -68,30 +68,12 @@ public class CommonConstants {
 	public static final String USER = "user";
 	public static final String USERNAME = "username";
 	
-	/**
-	 * 乐观锁数据库列名
-	 */
-	public static final String UP_VERSION_COLUMN_NAME = "up_ver";
-	
-	/**
-	 * id列名
-	 */
-	public static final String ID_NAME = "id";
-	
-	/**
-	 * prn数据库列名
-	 */
-	public static final String PRN = "prn";
+	public static final String DICT = "dict_";
 	
 	/**
 	 * 当前正在使用的过滤标识
 	 */
 	public static final String USE_FILTER_CHAR = "";
-	
-	/**
-	 * 状态列名
-	 */
-	public static final String ST_NAME = "st";
 	
 	static{
 		timeFormat.put(4, "yyyy");

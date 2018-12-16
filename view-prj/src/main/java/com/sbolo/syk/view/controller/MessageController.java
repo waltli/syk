@@ -126,7 +126,7 @@ public class MessageController extends BaseController {
 		if(msgPrnl == null || msgPrnl.size() == 0) {
 			throw new BusinessException("未获取到消息数据。");
 		}
-		sykMessageService.remove(msgPrnl);
+		sykMessageService.remove(msgPrnl, msgEntity.getPkey());
 		return new RequestResult<>("success");
 	}
 	

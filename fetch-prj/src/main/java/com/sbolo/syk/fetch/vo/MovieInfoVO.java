@@ -78,7 +78,7 @@ public class MovieInfoVO {
      * 多个制片国家/地区，逗号间隔
      */
     private String locations;
-
+    
     /**
      * 多个电影语言，逗号间隔
      */
@@ -243,6 +243,36 @@ public class MovieInfoVO {
     
     private String posterUrlStr;
     
+    private String comeFromUrl;
+    
+    private List<ResourceInfoVO> resourceList;
+    
+    private List<MovieDictVO> dictList;
+    
+	public List<MovieDictVO> getDictList() {
+		return dictList;
+	}
+
+	public void setDictList(List<MovieDictVO> dictList) {
+		this.dictList = dictList;
+	}
+
+	public List<ResourceInfoVO> getResourceList() {
+		return resourceList;
+	}
+
+	public void setResourceList(List<ResourceInfoVO> resourceList) {
+		this.resourceList = resourceList;
+	}
+
+	public String getComeFromUrl() {
+		return comeFromUrl;
+	}
+
+	public void setComeFromUrl(String comeFromUrl) {
+		this.comeFromUrl = comeFromUrl;
+	}
+
 	public Integer getTag() {
 		return tag;
 	}

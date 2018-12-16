@@ -1,14 +1,9 @@
 package com.sbolo.syk.fetch.processor;
 
-import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,31 +15,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.sbolo.syk.common.constants.CommonConstants;
-import com.sbolo.syk.common.constants.MovieCategoryEnum;
-import com.sbolo.syk.common.constants.MovieDictEnum;
 import com.sbolo.syk.common.constants.MovieStatusEnum;
 import com.sbolo.syk.common.constants.RegexConstant;
-import com.sbolo.syk.common.tools.DateUtil;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.Utils;
-import com.sbolo.syk.common.tools.VOUtils;
-import com.sbolo.syk.common.vo.LinkAnalyzeResultVO;
-import com.sbolo.syk.fetch.entity.MovieDictEntity;
-import com.sbolo.syk.fetch.entity.MovieInfoEntity;
-import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
 import com.sbolo.syk.fetch.exception.ResourceException;
 import com.sbolo.syk.fetch.mapper.MovieFileIndexMapper;
 import com.sbolo.syk.fetch.service.MovieDictService;
 import com.sbolo.syk.fetch.service.MovieInfoService;
 import com.sbolo.syk.fetch.service.ResourceInfoService;
-import com.sbolo.syk.fetch.spider.exception.AnalystException;
 import com.sbolo.syk.fetch.spider.exception.SpiderException;
 import com.sbolo.syk.fetch.tool.DoubanUtils;
 import com.sbolo.syk.fetch.tool.FetchUtils;
-import com.sbolo.syk.fetch.tool.LinkAnalyst;
-import com.sbolo.syk.fetch.vo.ConcludeVO;
 import com.sbolo.syk.fetch.vo.LinkInfoVO;
-import com.sbolo.syk.fetch.vo.MovieDictVO;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
 import com.sbolo.syk.fetch.vo.PureNameAndSeasonVO;
 import com.sbolo.syk.fetch.vo.ResourceInfoVO;
@@ -52,7 +35,6 @@ import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 @Component
 public class ProcessorHelper {
 	private static final Logger log = LoggerFactory.getLogger(ProcessorHelper.class);
-	private ConcurrentMap<String, String> cacheDist;
 
 	private String startUrl;
 	
@@ -77,7 +59,7 @@ public class ProcessorHelper {
 	private MovieDictService movieDictService;
 	
 	
-	protected ConcludeVO resolve(PureNameAndSeasonVO pureNameAndSeanson, List<String> precisions, List<LinkInfoVO> links, List<String> shots, String comeFromUrl, String doubanUrl) throws Exception {
+	protected MovieInfoVO resolve(PureNameAndSeasonVO pureNameAndSeanson, List<String> precisions, List<LinkInfoVO> links, List<String> shots, String comeFromUrl, String doubanUrl) throws Exception {
 		if(links == null || links.size() == 0) {
 			log.info("No donload link! movie: [{}] url: {}", pureNameAndSeanson.getPureName(), comeFromUrl);
 			return null;
@@ -92,97 +74,13 @@ public class ProcessorHelper {
 		
 		//从豆瓣中获取到准确的movie信息
 		MovieInfoVO fetchMovie = DoubanUtils.fetchMovieFromDouban(doubanUrl, thisTime);
-		
-		//判断在这次扫描中是否有重复出现过
-		boolean isRepeated = this.isRepeatedMovieInCache(fetchMovie, comeFromUrl);
-		if(isRepeated) {
-			return null;
-		}
-		
-		//与数据库中的该条movie对比，是否有，是否有不同，最终获取需要写入的movie
-		//此处的finalMovie可能只是几个字段的修改，所以信息是不全的。
-		MovieInfoVO finalMovie = this.filterMovieInDb(fetchMovie, thisTime);
+		fetchMovie.setComeFromUrl(comeFromUrl);
 		
 		//根据扫描的信息构建resource对象
 		List<ResourceInfoVO> fetchResources = this.getResources(links, fetchMovie, shots, comeFromUrl, thisTime);
+		fetchMovie.setResourceList(fetchResources);
 		
-		//在缓存中过滤一批resource
-		List<ResourceInfoVO> filter1 = this.filterResourceInCache(fetchMovie.getCategory(), fetchResources);
-		
-		if(filter1 == null || filter1.size() == 0) {
-			log.info("No canable resource after fileter in cache! movie: [{}] url: {}", fetchMovie.getPureName(), comeFromUrl);
-			return null;
-		}
-		
-		//如果影片的action等于insert，那就表示是新电影，库中肯定没有资源
-		List<ResourceInfoVO> filter2 = null;
-		ResourceInfoEntity dbOptimalResource = null;
-		if(finalMovie.getAction() == CommonConstants.insert) {
-			filter2 = this.setAndGetInsertResource(filter1, finalMovie.getPrn(), thisTime);
-		}else {
-			//获取到数据库中该影片质量最好的resource
-			//此处因为是修改，所以dbMovie的prn已经设置到finalMovie中了
-			dbOptimalResource = resourceInfoService.getOptimalResource(finalMovie.getPrn());
-			
-			if(dbOptimalResource == null) {
-				throw new SpiderException("该影片的最佳resource丢失，请检查！影片prn: "+finalMovie.getPrn()+" 影片名称: ["+fetchMovie.getPureName()+"], url: "+comeFromUrl);
-			}else {
-				//在数据库中过滤一批reousrce
-				filter2 = this.filterResourceInDB(fetchMovie.getCategory(), finalMovie.getPrn(), filter1, dbOptimalResource, thisTime);
-			}
-		}
-		
-		if(filter2 == null || filter2.size() == 0) {
-			log.info("No canable resource after filter in db! movie: [{}] url: {}", fetchMovie.getPureName(), comeFromUrl);
-			return null;
-		}
-		
-		//精选过后获取posterUrlList
-		List<String> posterOutUrlList = DoubanUtils.getPosterUrlList(finalMovie.getPosterPageUrl(), finalMovie.getIconOutUrl());
-		finalMovie.setPosterOutUrlList(posterOutUrlList);
-		
-		//既然走到这里，证明缓存中的resource比数据库存在更佳的resource
-		ResourceInfoVO fetchOptimalResource = this.getOptimalResource(fetchMovie.getCategory(), filter2);
-		
-		//为finalMovie设置optimalResource的相关信息
-		this.setOptimalResource(finalMovie, fetchOptimalResource);
-		
-		//从下载连接中分析资源信息
-		this.analyzeDownloadLink(filter2, thisTime);
-		
-		//更新label和location
-		String locations = finalMovie.getLocations();
-		String labels = finalMovie.getLabels();
-		List<String> existLabelList = null;
-		List<String> existLocationList = null;
-		if(StringUtils.isNotBlank(locations)) {
-			existLocationList = movieDictService.getLocations();
-		}
-		if(StringUtils.isNotBlank(labels)) {
-			existLabelList = movieDictService.getLabels();
-		}
-		List<MovieDictVO> movieDict = FetchUtils.updateMovieDict(finalMovie, existLocationList, existLabelList, thisTime);
-		
-		return new ConcludeVO(finalMovie, filter2, movieDict);
-	}
-	
-	/**
-	 * 标识为插入的resource
-	 * @param fetchResources
-	 * @param moviePrn
-	 * @param thisTime
-	 */
-	private List<ResourceInfoVO> setAndGetInsertResource(List<ResourceInfoVO> fetchResources, String moviePrn, Date thisTime) {
-		for(ResourceInfoVO fetchResource : fetchResources) {
-			if(Pattern.compile(RegexConstant.baiduNet).matcher(fetchResource.getDownloadLinkTemp()).find()) {
-				fetchResource.setAction(CommonConstants.abandon);
-				continue;
-			}
-			fetchResource.setAction(CommonConstants.insert);
-			fetchResource.setCreateTime(thisTime);
-			fetchResource.setMoviePrn(moviePrn);
-		}
-		return fetchResources;
+		return fetchMovie;
 	}
 	
     public PureNameAndSeasonVO getPureNameAndSeason(String pureName, String fullName) throws SpiderException{
@@ -248,14 +146,9 @@ public class ProcessorHelper {
     }
     
     protected void destroy(){
-    	if(cacheDist != null) {
-    		cacheDist.clear();
-    		cacheDist = null;
-    	}
     }
     
     protected void init() {
-    	cacheDist = new ConcurrentHashMap<String, String>();
     }
     
     protected List<String> getPrecisionsByInfo(String infos, String separator, String filter) {
@@ -358,58 +251,6 @@ public class ProcessorHelper {
     }
     
     
-	
-	/**
-	 * 判断该影片是否在缓存中出现过，
-	 * 避免出现一个网站两个相同影片，fetchPureName+fetchReleaseTimeStr做为key来过滤
-	 * @param fetchMovie
-	 * @param comeFromUrl
-	 * @throws SpiderException
-	 */
-	private boolean isRepeatedMovieInCache(MovieInfoVO fetchMovie, String comeFromUrl) throws SpiderException {
-		String fetchPureName = fetchMovie.getPureName();
-		String fetchReleaseTimeStr = fetchMovie.getReleaseTimeStr();
-		String repeatedUrl = cacheDist.get(fetchPureName+fetchReleaseTimeStr);
-		if(repeatedUrl != null){
-			log.info("warning!!! ["+fetchMovie.getPureName()+"] has appeared in this web. between "+ repeatedUrl +" and " + comeFromUrl);
-			return true;
-		}
-		cacheDist.put(fetchPureName+fetchReleaseTimeStr, comeFromUrl);
-		return false;
-	}
-	
-	/**
-	 * 与数据库中的该条movie对比，是否有，是否有不同，最终获取需要写入的movie
-	 * 如果无更新项则new一个空的，待后面更新optimalResourcePrn
-	 * @param fetchMovie
-	 * @return
-	 * @throws ParseException 
-	 */
-	private MovieInfoVO filterMovieInDb(MovieInfoVO fetchMovie, Date thisTime) throws ParseException {
-		//根据条件从数据库中查询出相应的movie
-		String pureName = fetchMovie.getPureName();
-		String yearStr = fetchMovie.getReleaseTimeStr().substring(0,4);
-		MovieInfoEntity dbMovie = movieInfoService.getOneByPureNameAndYear(pureName, DateUtil.str2Date(yearStr, "yyyy"));
-		
-		//如果数据库中查询为空，则直接全部插入
-		if(dbMovie == null) {
-			//给予标识，标识插入
-			fetchMovie.setAction(CommonConstants.insert);
-			return fetchMovie;
-		}
-		MovieInfoVO changeOption = FetchUtils.movieChangeOption(dbMovie, fetchMovie, thisTime);
-		if(changeOption == null){
-			//如果没有改变，则new一个新的，用作放置optimalResourcePrn
-			changeOption = new MovieInfoVO();
-		}
-		//给予标识，标识修改
-		changeOption.setAction(CommonConstants.update);
-		changeOption.setPrn(dbMovie.getPrn());
-		changeOption.setUpdateTime(thisTime);
-		return changeOption;
-		
-	}
-	
 	/**
 	 * 根据爬取到的链接集合等信息
 	 * 构建出ResourceInfo
@@ -441,164 +282,6 @@ public class ProcessorHelper {
 	}
 	
 	/**
-	 * 在cache中进行过滤
-	 * 通过map的key来进行过滤
-	 * 
-	 * @param category 类型 tv/movie
-	 * @param fetchResources 获取到的所有resource
-	 * @return
-	 */
-	private List<ResourceInfoVO> filterResourceInCache(int category, List<ResourceInfoVO> fetchResources){
-		//过滤完成后剩下的资源
-		Map<String, ResourceInfoVO> filterMap = new HashMap<String, ResourceInfoVO>();
-		
-		for(ResourceInfoVO fetchResource:fetchResources){
-			//是否是可支持的下载链接
-			if(!this.isCanableLink(fetchResource.getDownloadLinkTemp())) {
-				continue;
-			}
-			
-			String filterKey = fetchResource.getDownloadLinkTemp();
-			if(category == MovieCategoryEnum.movie.getCode()){
-				ResourceInfoVO filterResource = filterMap.get(filterKey);
-				if(filterResource != null){
-					continue;
-				}
-			}else {
-				if(fetchResource.getEpisodeEnd() == null){
-	    			log.warn("url:{}, 电影在豆瓣中被标记为电视剧，但是资源[{}]却未获得第几集，跳过该资源！",fetchResource.getComeFromUrl(), fetchResource.getPureName());
-					continue;
-	    		}
-				//根据Map的key来过滤
-				filterKey = fetchResource.getEpisodeEnd()+"";
-				if(fetchResource.getEpisodeStart() != null){
-					filterKey = fetchResource.getEpisodeStart() + "-" + fetchResource.getEpisodeEnd();
-				}
-				ResourceInfoVO filterResource = filterMap.get(filterKey);
-				if(filterResource != null){
-					int action = resourceCompare(category, fetchResource, filterResource);
-					if(action == CommonConstants.abandon){
-						continue;
-					}
-				}
-			}
-			filterMap.put(filterKey, fetchResource);
-		}
-		return new ArrayList<ResourceInfoVO>(filterMap.values());
-	}
-	
-	/**
-	 * 与数据库中的resource对比进行过滤
-	 * @param category 类型 tv/movie
-	 * @param fetchResources 获取到的所有resource
-	 * @return
-	 * @throws InvocationTargetException 
-	 * @throws IllegalAccessException 
-	 * @throws InstantiationException 
-	 */
-	private List<ResourceInfoVO> filterResourceInDB(int category, String moviePrn, 
-			List<ResourceInfoVO> fetchResources, 
-			ResourceInfoEntity dbOptimalResource, Date thisTime) throws InstantiationException, IllegalAccessException, InvocationTargetException{
-		//过滤完成后剩下的资源
-		List<ResourceInfoVO> filterList = new ArrayList<>();
-		
-		//将数据库查询出的数据转换为VO
-		ResourceInfoVO dbOptimalResourceVO = VOUtils.po2vo(dbOptimalResource, ResourceInfoVO.class);
-		
-		for(ResourceInfoVO fetchResource : fetchResources){
-			if(Pattern.compile(RegexConstant.baiduNet).matcher(fetchResource.getDownloadLinkTemp()).find()) {
-				fetchResource.setAction(CommonConstants.abandon);
-				continue;
-			}
-			
-			int action = resourceCompare(category, fetchResource, dbOptimalResourceVO);
-			if(action == CommonConstants.abandon){
-				fetchResource.setAction(action);
-				continue;
-			}
-			
-			if(action == CommonConstants.insert){
-				fetchResource.setAction(action);
-				fetchResource.setCreateTime(thisTime);
-				fetchResource.setMoviePrn(moviePrn);
-			}else if(action == CommonConstants.update){
-				fetchResource = FetchUtils.resourceChangeOption(dbOptimalResource, fetchResource);
-				fetchResource.setPureName(dbOptimalResource.getPureName());
-				fetchResource.setAction(CommonConstants.update);
-				fetchResource.setUpdateTime(thisTime);
-				fetchResource.setPrn(dbOptimalResource.getPrn());
-			}
-			//设置action在后续插入数据库时使用
-			filterList.add(fetchResource);
-		}
-		
-		return filterList;
-	}
-	
-	
-	/**
-	 * 是否是支持的下载链接
-	 * @param fetchResource
-	 * @return
-	 */
-	private boolean isCanableLink(String downloadLink) {
-		if(StringUtils.isBlank(downloadLink)) {
-			return false;
-		}
-		
-		if(Pattern.compile(RegexConstant.ed2k).matcher(downloadLink).find() || 
-				Pattern.compile(RegexConstant.thunder).matcher(downloadLink).find() || 
-				Pattern.compile(RegexConstant.torrent).matcher(downloadLink).find() || 
-				Pattern.compile(RegexConstant.magnet).matcher(downloadLink).find()){
-			return true;
-		}
-		return false;
-	}
-	
-	/**
-	 * 批量分析下载链接并填充信息，如果是种子文件则下载到服务器，再设置。
-	 * 
-	 * @param fetchResource
-	 * @throws Exception 
-	 * @throws AnalystException
-	 */
-	private void analyzeDownloadLink(List<ResourceInfoVO> fetchResources, Date thisTime){
-		for(ResourceInfoVO fetchResource : fetchResources) {
-			String link = fetchResource.getDownloadLinkTemp();
-			try {
-				if(StringUtils.isBlank(link)){
-					log.info("The download link of \"["+fetchResource.getPureName()+"]\" is null");
-					continue;
-				}
-
-				LinkAnalyzeResultVO analyzeResult = null;
-				//根據需要分析下載鏈接
-				if(StringUtils.isBlank(fetchResource.getSize()) || StringUtils.isBlank(fetchResource.getFormat())){
-					analyzeResult = LinkAnalyst.analyseDownloadLink(link, fetchResource.getThunderDecoding());
-					if(analyzeResult != null) {
-						if(StringUtils.isBlank(fetchResource.getSize())) {
-							fetchResource.setSize(analyzeResult.getMovieSize());
-						}
-						if(StringUtils.isBlank(fetchResource.getFormat())) {
-							fetchResource.setFormat(analyzeResult.getMovieFormat());
-						}
-						if(analyzeResult.getTorrentBytes() != null) {
-							fetchResource.setTorrentBytes(analyzeResult.getTorrentBytes());
-							fetchResource.setDownloadLinkTemp(analyzeResult.getDownloadLink());
-							link = analyzeResult.getDownloadLink();
-						}
-					}
-				}
-				
-			} catch (Throwable e) {
-				//假若失败，则resource还是存的原始的地址，所以不用删除
-				log.error("解析下载链接失败！movie: ["+ fetchResource.getPureName() +"] url: "+ link, e);
-			}
-			
-		}
-	}
-	
-	/**
 	 * 去除英文名字，因为英文名字会干扰....
 	 * @param downloadLinkName
 	 * @param anotherName
@@ -618,56 +301,6 @@ public class ProcessorHelper {
 		}
     	return downloadLinkName;
     }
-	
-	/**
-	 * 在一批resource中获取最佳resource
-	 * @param category
-	 * @param resources
-	 * @return
-	 */
-	private ResourceInfoVO getOptimalResource(int category, List<ResourceInfoVO> resources){
-		ResourceInfoVO optimalResource = null;
-		for(ResourceInfoVO resource:resources){
-			
-			/*因为前面的逻辑决定了，电影不会有修改，只有剧集才会有修改，
-			而剧集只有在fetch到新一集的时候才会新增，故，如果不是新增，则不必变更optimal*/
-			if(resource.getAction() != CommonConstants.insert) {
-				continue;
-			}
-			
-			if(optimalResource == null){
-				optimalResource = resource;
-				continue;
-			}
-			
-			if(category == MovieCategoryEnum.movie.getCode()){
-				if(resource.getDefinition().intValue() > optimalResource.getDefinition().intValue()){
-					optimalResource = resource;
-				}
-			}else {
-				if(resource.getEpisodeEnd().intValue() > optimalResource.getEpisodeEnd().intValue()){
-					optimalResource = resource;
-				}
-			}
-		}
-		return optimalResource;
-	}
-	
-	/**
-	 * 为finalMovie设置最佳resource的信息
-	 * @param finalMovie
-	 * @param optimalResource
-	 */
-	private void setOptimalResource(MovieInfoVO finalMovie, ResourceInfoVO optimalResource) {
-		//既然走到这里，且optimal为空，那么表明resource中只有修改，没有新增
-		//仅仅只是为了将影片展示排序靠前
-		if(optimalResource == null) {
-			finalMovie.setResourceWriteTime(new Date());
-			return;
-		}
-		finalMovie.setOptimalResourcePrn(optimalResource.getPrn());
-		finalMovie.setResourceWriteTime(optimalResource.getCreateTime());
-	}
 	
 	/**
      * 根据下载链接的名字，拼装ResourceInfoVO
@@ -715,56 +348,4 @@ public class ProcessorHelper {
 		return newResource;
     }
     
-    /**
-	 * 将新获得的resource与缓存中的最佳resource进行比较
-	 * @param category 类别 tv/movie
-	 * @param fetchResource 最新获取到resource
-	 * @param optimalResource 最佳的resource
-	 * @return
-	 */
-	private int resourceCompare(int category, ResourceInfoVO fetchResource, ResourceInfoVO optimalResource){
-		
-		Integer fetchEpisodeEnd = fetchResource.getEpisodeEnd();
-		String fetchSubtitle = fetchResource.getSubtitle();
-		Integer fetchDefinition = fetchResource.getDefinition();
-		
-		Integer optimalEpisodeEnd = optimalResource.getEpisodeEnd();
-		String optimalSubtitle = optimalResource.getSubtitle();
-		Integer optimalDefinition = optimalResource.getDefinition();
-		
-		if(category == MovieCategoryEnum.movie.getCode()){
-			if(fetchDefinition.intValue() > optimalDefinition.intValue()){
-				return CommonConstants.insert;
-			}else {
-				return CommonConstants.abandon;
-			}
-		}else {
-			
-			if(fetchEpisodeEnd.intValue() > optimalEpisodeEnd.intValue()){
-				//如果是新的一集
-				return CommonConstants.insert;
-			}else if(fetchEpisodeEnd.intValue() == optimalEpisodeEnd.intValue()){
-				//如果集数相同
-				if(StringUtils.isNotBlank(fetchSubtitle) && StringUtils.isBlank(optimalSubtitle)){
-					//如果新的有字幕，而最佳的没有字幕
-					return CommonConstants.update;
-				}else if((StringUtils.isNotBlank(fetchSubtitle) && StringUtils.isNotBlank(optimalSubtitle)) ||
-						(StringUtils.isBlank(fetchSubtitle) && StringUtils.isBlank(optimalSubtitle))){
-					//如果都没有字幕或者都有字幕
-					if(fetchDefinition.intValue() > optimalDefinition.intValue()){
-						//若果新的清晰度更高
-						return CommonConstants.update;
-					}else {
-						return CommonConstants.abandon;
-					}
-				}else {
-					return CommonConstants.abandon;
-				}
-			}else {
-				return CommonConstants.abandon;
-			}
-		}
-		
-	}
-	
 }

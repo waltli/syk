@@ -25,6 +25,7 @@ import com.sbolo.syk.fetch.spider.PageProcessor;
 import com.sbolo.syk.fetch.spider.exception.AnalystException;
 import com.sbolo.syk.fetch.vo.ConcludeVO;
 import com.sbolo.syk.fetch.vo.LinkInfoVO;
+import com.sbolo.syk.fetch.vo.MovieInfoVO;
 import com.sbolo.syk.fetch.vo.PureNameAndSeasonVO;
 
 public class SixVHaoProcessor extends ProcessorHelper implements PageProcessor {
@@ -125,9 +126,9 @@ public class SixVHaoProcessor extends ProcessorHelper implements PageProcessor {
 				}
 			}
 			
-			ConcludeVO conclude = this.resolve(pureNameAndSeason, precisions, linkInfos, shots, url, null);
-			if(conclude != null) {
-				fields.put(url, conclude);
+			MovieInfoVO fetchMovie = this.resolve(pureNameAndSeason, precisions, linkInfos, shots, url, null);
+			if(fetchMovie != null) {
+				fields.put(url, fetchMovie); 
 			}
 		}else {
 			log.warn(url+" 不符合6vhao的正则表达式，首页："+pageUrlReg+",详情页："+detailUrlReg);

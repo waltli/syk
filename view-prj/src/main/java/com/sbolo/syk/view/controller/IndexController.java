@@ -69,8 +69,6 @@ public class IndexController {
 	@RequestMapping("sidebar")
 	@ResponseBody
 	public RequestResult<Map<String, Object>> sidebar() throws Exception{
-//		String[] labelArr = new String[]{"喜剧", "剧情", "爱情", "惊悚", "犯罪", "悬疑", "动作", "科幻", "冒险", "动画", "战争", "奇幻", "历史", "恐怖", "运动", "武侠", "音乐", "传记", "古装", "灾难", "家庭", "同性", "西部", "儿童", "歌舞", "情色", "纪录片", "真人秀", "舞台艺术"};
-//		List<String> labels = Arrays.asList(labelArr);
 		List<String> labels = movieDictService.getLabels();
 		Map<String, List<MovieHotStatVO>> currMonthTop = movieInfoService.getCurrMonthTop();
 		Map<String, List<MovieHotStatVO>> lastMonthTop = movieInfoService.getLastMonthTop();
