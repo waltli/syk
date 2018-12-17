@@ -82,7 +82,6 @@ public class MigrateService {
 		}
 		this.done(prnList);
 		log.info("已迁移数：{}", prnList.size());
-		log.info("======================数据迁移结束=========================");
 	}
 	
 	private MigrateVO todo(List<MovieFetchRecordEntity> noMigrated) {

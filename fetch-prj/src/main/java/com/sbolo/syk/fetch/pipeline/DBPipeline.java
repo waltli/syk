@@ -59,29 +59,54 @@ public class DBPipeline implements Pipeline {
 		List<ResourceInfoEntity> updateResourceInfos = new ArrayList<>();
 		List<MovieDictEntity> addDicts = new ArrayList<>();
 		
-		List<MovieInfoVO> finalMovies = (List<MovieInfoVO>) fields.get("finalMovies");
-		List<ResourceInfoVO> finalResources = (List<ResourceInfoVO>) fields.get("finalResources");
-		List<MovieDictVO> finalDicts = (List<MovieDictVO>) fields.get("finalDicts");
-		List<MovieFileIndexEntity> fileIdxs = (List<MovieFileIndexEntity>) fields.get("fileIdxs");
+		Object movieObj = fields.get("finalMovies");
+		Object resourceObj = fields.get("finalResources");
+		Object DictObj = fields.get("finalDicts");
+		Object idxObj = fields.get("fileIdxs");
+		
+		List<MovieInfoVO> finalMovies = null;
+		List<ResourceInfoVO> finalResources = null;
+		List<MovieDictVO> finalDicts = null;
+		List<MovieFileIndexEntity> fileIdxs = null;
+		
+		if(movieObj == null) {
+			log.warn("没有可用的影片需要插入！");
+			return;
+		}
+		finalMovies = (List<MovieInfoVO>) movieObj;
+		if(resourceObj != null) {
+			finalResources = (List<ResourceInfoVO>) resourceObj;
+		}
+		if(DictObj != null) {
+			finalDicts = (List<MovieDictVO>) DictObj;
+		}
+		if(idxObj != null) {
+			fileIdxs = (List<MovieFileIndexEntity>) idxObj;
+		}
 		
 		try {
-			for(MovieInfoVO finalMovie : finalMovies) {
-				if(finalMovie.getAction() == CommonConstants.insert) {
-					MovieInfoEntity movieEntity = VOUtils.po2vo(finalMovie, MovieInfoEntity.class);
-					addMovies.add(movieEntity);
-				}else if(finalMovie.getAction() == CommonConstants.update) {
-					MovieInfoEntity movieEntity = VOUtils.po2vo(finalMovie, MovieInfoEntity.class);
-					updateMovies.add(movieEntity);
+			
+			if(finalMovies != null && finalMovies.size() > 0) {
+				for(MovieInfoVO finalMovie : finalMovies) {
+					if(finalMovie.getAction() == CommonConstants.insert) {
+						MovieInfoEntity movieEntity = VOUtils.po2vo(finalMovie, MovieInfoEntity.class);
+						addMovies.add(movieEntity);
+					}else if(finalMovie.getAction() == CommonConstants.update) {
+						MovieInfoEntity movieEntity = VOUtils.po2vo(finalMovie, MovieInfoEntity.class);
+						updateMovies.add(movieEntity);
+					}
 				}
 			}
 			
-			for(ResourceInfoVO finalResource : finalResources) {
-				if(finalResource.getAction() == CommonConstants.insert) {
-					ResourceInfoEntity resourceInfoEntity = VOUtils.po2vo(finalResource, ResourceInfoEntity.class);
-					addResourceInfos.add(resourceInfoEntity);
-				}else if(finalResource.getAction() == CommonConstants.update) {
-					ResourceInfoEntity resourceInfoEntity = VOUtils.po2vo(finalResource, ResourceInfoEntity.class);
-					updateResourceInfos.add(resourceInfoEntity);
+			if(finalResources != null && finalResources.size() > 0) {
+				for(ResourceInfoVO finalResource : finalResources) {
+					if(finalResource.getAction() == CommonConstants.insert) {
+						ResourceInfoEntity resourceInfoEntity = VOUtils.po2vo(finalResource, ResourceInfoEntity.class);
+						addResourceInfos.add(resourceInfoEntity);
+					}else if(finalResource.getAction() == CommonConstants.update) {
+						ResourceInfoEntity resourceInfoEntity = VOUtils.po2vo(finalResource, ResourceInfoEntity.class);
+						updateResourceInfos.add(resourceInfoEntity);
+					}
 				}
 			}
 			

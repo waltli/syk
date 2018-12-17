@@ -28,6 +28,7 @@ import com.sbolo.syk.fetch.service.ResourceInfoService;
 import com.sbolo.syk.fetch.spider.exception.SpiderException;
 import com.sbolo.syk.fetch.tool.DoubanUtils;
 import com.sbolo.syk.fetch.tool.FetchUtils;
+import com.sbolo.syk.fetch.vo.MovieArroundVO;
 import com.sbolo.syk.fetch.vo.LinkInfoVO;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
 import com.sbolo.syk.fetch.vo.PureNameAndSeasonVO;
@@ -80,7 +81,10 @@ public class ProcessorHelper {
 		//根据扫描的信息构建resource对象
 		List<ResourceInfoVO> fetchResources = this.getResources(links, fetchMovie, shots, comeFromUrl, thisTime);
 		fetchMovie.setResourceList(fetchResources);
-		fields.put(comeFromUrl, fetchMovie);
+		
+		MovieArroundVO ma = new MovieArroundVO();
+		ma.setInfo(fetchMovie);
+		fields.put(comeFromUrl, ma);
 	}
 	
     public PureNameAndSeasonVO getPureNameAndSeason(String pureName, String fullName) throws SpiderException{

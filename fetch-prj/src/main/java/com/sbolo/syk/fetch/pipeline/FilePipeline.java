@@ -46,8 +46,18 @@ public class FilePipeline implements Pipeline {
 	@Override
 	public void process(Map<String, Object> fields) throws Exception {
 		
-		List<MovieInfoVO> finalMovies = (List<MovieInfoVO>) fields.get("finalMovies");
-		List<ResourceInfoVO> finalResources = (List<ResourceInfoVO>) fields.get("finalResources");
+		Object movieObj = fields.get("finalMovies");
+		Object resourceObj = fields.get("finalResources");
+		
+		if(movieObj == null) {
+			return;
+		}
+		
+		List<MovieInfoVO> finalMovies = (List<MovieInfoVO>) movieObj;
+		List<ResourceInfoVO> finalResources = null;
+		if(resourceObj != null) {
+			finalResources = (List<ResourceInfoVO>) resourceObj;
+		}
 		
 		Map<String, MovieFileIndexEntity> pioneer = getPioneer(finalMovies, finalResources);
 		List<MovieFileIndexEntity> fileIdxs = new ArrayList<>();
@@ -65,32 +75,36 @@ public class FilePipeline implements Pipeline {
 	private Map<String, MovieFileIndexEntity> getPioneer(List<MovieInfoVO> fetchMovies, List<ResourceInfoVO> filter2){
 		Set<String> urls = new HashSet<>();
 		
-		for(MovieInfoVO fetchMovie : fetchMovies) {
-			String iconOutUrl = fetchMovie.getIconOutUrl();
-			List<String> posterOutUrlList = fetchMovie.getPosterOutUrlList();
-			List<String> photoOutUrlList = fetchMovie.getPhotoOutUrlList();
-			
-			if(StringUtils.isNotBlank(iconOutUrl)) {
-				urls.add(iconOutUrl);
-			}
-			
-			if(posterOutUrlList != null && posterOutUrlList.size() > 0) {
-				urls.addAll(posterOutUrlList);
-			}
-			
-			if(photoOutUrlList != null && photoOutUrlList.size() > 0) {
-				urls.addAll(photoOutUrlList);
+		if(fetchMovies != null && fetchMovies.size() > 0) {
+			for(MovieInfoVO fetchMovie : fetchMovies) {
+				String iconOutUrl = fetchMovie.getIconOutUrl();
+				List<String> posterOutUrlList = fetchMovie.getPosterOutUrlList();
+				List<String> photoOutUrlList = fetchMovie.getPhotoOutUrlList();
+				
+				if(StringUtils.isNotBlank(iconOutUrl)) {
+					urls.add(iconOutUrl);
+				}
+				
+				if(posterOutUrlList != null && posterOutUrlList.size() > 0) {
+					urls.addAll(posterOutUrlList);
+				}
+				
+				if(photoOutUrlList != null && photoOutUrlList.size() > 0) {
+					urls.addAll(photoOutUrlList);
+				}
 			}
 		}
 		
-		for(ResourceInfoVO fetchResource : filter2) {
-			String downLink = fetchResource.getDownloadLinkTemp();
-			List<String> shotOutUrlList = fetchResource.getShotOutUrlList();
-			if(Pattern.compile(RegexConstant.torrent).matcher(downLink).find()) {
-				urls.add(downLink);
-			}
-			if(shotOutUrlList != null && shotOutUrlList.size() > 0) {
-				urls.addAll(shotOutUrlList);
+		if(filter2 != null && filter2.size() > 0) {
+			for(ResourceInfoVO fetchResource : filter2) {
+				String downLink = fetchResource.getDownloadLinkTemp();
+				List<String> shotOutUrlList = fetchResource.getShotOutUrlList();
+				if(Pattern.compile(RegexConstant.torrent).matcher(downLink).find()) {
+					urls.add(downLink);
+				}
+				if(shotOutUrlList != null && shotOutUrlList.size() > 0) {
+					urls.addAll(shotOutUrlList);
+				}
 			}
 		}
 		
@@ -113,6 +127,10 @@ public class FilePipeline implements Pipeline {
 	private void downloadAndSetResourceFile(List<ResourceInfoVO> filter2, 
 			Map<String, MovieFileIndexEntity> pioneer, List<MovieFileIndexEntity> newFileIdxList, 
 			Date thisTime) {
+		
+		if(filter2 == null || filter2.size() == 0) {
+			return;
+		}
 		
 		for(ResourceInfoVO fetchResource : filter2) {
 			//处理shot
@@ -211,6 +229,11 @@ public class FilePipeline implements Pipeline {
 	 * @param picList
 	 */
 	private void downloadAndSetMoviePic(List<MovieInfoVO> fetchMovies, Map<String, MovieFileIndexEntity> pioneer, List<MovieFileIndexEntity> newFileIdxList, Date thisTime){
+		
+		if(fetchMovies == null || fetchMovies.size() == 0) {
+			return;
+		}
+		
 		for(MovieInfoVO fetchMovie : fetchMovies) {
 			List<PicVO> picList = new ArrayList<>();
 			//获取icon

@@ -43,6 +43,7 @@ import com.sbolo.syk.fetch.spider.exception.SpiderException;
 import com.sbolo.syk.fetch.tool.DoubanUtils;
 import com.sbolo.syk.fetch.tool.FetchUtils;
 import com.sbolo.syk.fetch.tool.LinkAnalyst;
+import com.sbolo.syk.fetch.vo.MovieArroundVO;
 import com.sbolo.syk.fetch.vo.MovieDictVO;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
 import com.sbolo.syk.fetch.vo.ResourceInfoVO;
@@ -68,28 +69,34 @@ public class MyDistinct implements Distinct {
 		Date thisTime = new Date();
 		
 		//获取fetchMovies
-		List<MovieInfoVO> fetchMovies = new ArrayList<>();
+		List<MovieArroundVO> fetchMovies = new ArrayList<>();
 		Collection<Object> values = fields.values();
 		Iterator<Object> it = values.iterator() ;
-		it.forEachRemaining(obj -> fetchMovies.add((MovieInfoVO) obj));
+		it.forEachRemaining(obj -> fetchMovies.add((MovieArroundVO) obj));
 		
 		//初步在缓存和DB中过滤movie
-		List<MovieInfoVO> stepMovies = distMovie(fetchMovies, thisTime);
+		List<MovieArroundVO> stepMovies = distOnlyMovie(fetchMovies, thisTime);
 		
 		//根据resource深入过滤movie和resource
-		List<MovieInfoVO> finalMovies = distResource(stepMovies, thisTime);
+		List<MovieArroundVO> finalMovies = distWithResource(stepMovies, thisTime);
+		
+		if(finalMovies == null || finalMovies.size() == 0) {
+			return;
+		}
 		
 		//整理备用资源信息
 		this.assist(finalMovies, thisTime);
 		
+		List<MovieInfoVO> finalDBs = splitDBMovies(finalMovies);
+		
 		//从movie中分离出resource
-		List<ResourceInfoVO> finalResources = splitResources(finalMovies);
+		List<ResourceInfoVO> finalResources = splitResources(finalDBs);
 		
 		//从movie中分离出dict
-		List<MovieDictVO> finalDicts = distDict(finalMovies, thisTime);
+		List<MovieDictVO> finalDicts = distDict(finalDBs, thisTime);
 		
 		fields.clear();
-		fields.put("finalMovies", finalMovies);
+		fields.put("finalMovies", finalDBs);
 		fields.put("finalResources", finalResources);
 		fields.put("finalDicts", finalDicts);
 	}
@@ -107,23 +114,26 @@ public class MyDistinct implements Distinct {
 		cacheDist = new ConcurrentHashMap<String, String>();
 	}
 	
-	private void assist(List<MovieInfoVO> finalMovies, Date thisTime) throws DistinctException {
+	private void assist(List<MovieArroundVO> finalMovies, Date thisTime) throws DistinctException {
 		if(finalMovies == null || finalMovies.size() == 0) {
-			throw new DistinctException("assist, finalMovies为空！");
+			return;
 		}
 		
-		for(MovieInfoVO finalMovie : finalMovies) {
+		for(MovieArroundVO finalMovie : finalMovies) {
+			
+			MovieInfoVO finalDB = finalMovie.getDb();
+			
 			List<ResourceInfoVO> oneResource = finalMovie.getResourceList();
 			
 			//精选过后获取posterUrlList
-			List<String> posterOutUrlList = DoubanUtils.getPosterUrlList(finalMovie.getPosterPageUrl(), finalMovie.getIconOutUrl());
-			finalMovie.setPosterOutUrlList(posterOutUrlList);
+			List<String> posterOutUrlList = DoubanUtils.getPosterUrlList(finalDB.getPosterPageUrl(), finalDB.getIconOutUrl());
+			finalDB.setPosterOutUrlList(posterOutUrlList);
 			
 			//既然走到这里，证明缓存中的resource比数据库存在更佳的resource
 			ResourceInfoVO fetchOptimalResource = this.getOptimalResource(finalMovie.getCategory(), oneResource);
 			
 			//为finalMovie设置optimalResource的相关信息
-			this.setOptimalResource(finalMovie, fetchOptimalResource);
+			this.setOptimalResource(finalDB, fetchOptimalResource);
 			
 			//从下载连接中分析资源信息
 			this.analyzeDownloadLink(oneResource, thisTime);
@@ -223,9 +233,21 @@ public class MyDistinct implements Distinct {
 		return optimalResource;
 	}
 	
+	private List<MovieInfoVO> splitDBMovies(List<MovieArroundVO> finalMovies) throws DistinctException{
+		if(finalMovies == null || finalMovies.size() == 0) {
+			return null;
+		}
+		
+		List<MovieInfoVO> finalDB = new ArrayList<>();
+		for(MovieArroundVO finalMovie : finalMovies) {
+			finalDB.add(finalMovie.getDb());
+		}
+		return finalDB;
+	}
+	
 	private List<ResourceInfoVO> splitResources(List<MovieInfoVO> finalMovies) throws DistinctException {
 		if(finalMovies == null || finalMovies.size() == 0) {
-			throw new DistinctException("splitResources, finalMovies为空！");
+			return null;
 		}
 		
 		List<ResourceInfoVO> finalResources = new ArrayList<>();
@@ -242,7 +264,7 @@ public class MyDistinct implements Distinct {
 	
 	private List<MovieDictVO> distDict(List<MovieInfoVO> fetchMovies, Date thisTime) throws DistinctException{
 		if(fetchMovies == null || fetchMovies.size() == 0) {
-			throw new DistinctException("distDict, fetchMovies为空！");
+			return null;
 		}
 		
 		Set<String> setLabels = new HashSet<>();
@@ -347,27 +369,27 @@ public class MyDistinct implements Distinct {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	private List<MovieInfoVO> distResource(List<MovieInfoVO> fetchMovies, Date thisTime) throws DistinctException, InstantiationException, IllegalAccessException, InvocationTargetException {
+	private List<MovieArroundVO> distWithResource(List<MovieArroundVO> fetchMovies, Date thisTime) throws DistinctException, InstantiationException, IllegalAccessException, InvocationTargetException {
 		if(fetchMovies == null || fetchMovies.size() == 0) {
 			throw new DistinctException("distResource, fetchMovies为空！");
 		}
 		
-		List<MovieInfoVO> finalMovies = new ArrayList<>();
+		List<MovieArroundVO> finalMovies = new ArrayList<>();
 
 		//过滤掉没有resource的movie，将movie为insert的标识为最终movie
 		//为update的，留后处理
-		Map<String, MovieInfoVO> toupMovies = new HashMap<>();
-		for(MovieInfoVO fetchMovie : fetchMovies) {
+		Map<String, MovieArroundVO> toupMovies = new HashMap<>();
+		for(MovieArroundVO fetchMovie : fetchMovies) {
 			List<ResourceInfoVO> oneResources = fetchMovie.getResourceList();
 			if(oneResources == null || oneResources.size() == 0) {
-				log.info("未爬取到该影片的资源，跳过! movie: [{}] url: {}", fetchMovie.getPureName(), fetchMovie.getComeFromUrl());
+				log.warn("未爬取到该影片的资源，跳过! movie: [{}] url: {}", fetchMovie.getPureName(), fetchMovie.getComeFromUrl());
 				continue;
 			}
 			
 			//根据下载链接或集数进行过滤，此处只会获取不会设置action，根据action过滤掉abandon
 			List<ResourceInfoVO> filter1 = filterResourceInCache(fetchMovie.getCategory(), oneResources);
 			if(filter1 == null || filter1.size() == 0) {
-				log.info("resource过滤后该影片的资源数为0! movie: [{}] url: {}", fetchMovie.getPureName(), fetchMovie.getComeFromUrl());
+				log.warn("resource缓存过滤后该影片的资源数为0! movie: [{}] url: {}", fetchMovie.getPureName(), fetchMovie.getComeFromUrl());
 				continue;
 			}
 			
@@ -399,7 +421,7 @@ public class MyDistinct implements Distinct {
 		//与DB中的optimalResource进行比较，看是否fetch到的更加optimal
 		for(ResourceInfoEntity dbOptimalResource : dbOptimalResources) {
 			String optimalResourceMoviePrn = dbOptimalResource.getMoviePrn();
-			MovieInfoVO toup = toupMovies.get(optimalResourceMoviePrn);
+			MovieArroundVO toup = toupMovies.get(optimalResourceMoviePrn);
 			if(toup == null) {
 				log.warn("严重问题：前面根据查询的movie标识为udpate，但现在根据updateMovie的prn却获取不到对象。请检查！ 影片prn：{}", optimalResourceMoviePrn);
 				continue;
@@ -408,6 +430,10 @@ public class MyDistinct implements Distinct {
 			//对movie为update的resource进行判断，看resource为insert or update
 			List<ResourceInfoVO> filters = this.filterResourceInDB(toup.getCategory(), toup.getPrn(), toup.getResourceList(), dbOptimalResource, thisTime);
 			toup.setResourceList(filters);
+			if(filters == null || filters.size() == 0) {
+				log.warn("resource在DB中过滤后该影片的资源数为0! movie: [{}] url: {}", toup.getPureName(), toup.getComeFromUrl());
+				continue;
+			}
 			finalMovies.add(toup);
 		}
 		return finalMovies;
@@ -611,20 +637,21 @@ public class MyDistinct implements Distinct {
 	 * @return
 	 * @throws DistinctException
 	 */
-	private List<MovieInfoVO> distMovie(List<MovieInfoVO> fetchMovies, Date thisTime) throws DistinctException {
+	private List<MovieArroundVO> distOnlyMovie(List<MovieArroundVO> fetchMovies, Date thisTime) throws DistinctException {
 		if(fetchMovies == null || fetchMovies.size() == 0) {
 			throw new DistinctException("distMovie,fetch到的movies为空！");
 		}
 		
 		//1、过滤相同的pureName和releaseTime
-		List<MovieInfoVO> filter1 = new ArrayList<>();
+		List<MovieArroundVO> filter1 = new ArrayList<>();
 		List<String> pureNames = new ArrayList<>();
-		for(MovieInfoVO vo : fetchMovies) {
+		for(MovieArroundVO vo : fetchMovies) {
 			String comeFromUrl = vo.getComeFromUrl();
-			if(isRepeatedMovieInCache(vo, comeFromUrl)) {
+			if(isRepeatedMovieInCache(vo.getInfo(), comeFromUrl)) {
 				continue;
 			}
 			pureNames.add(vo.getPureName());
+			vo.setDb(vo.getInfo());
 			filter1.add(vo);
 		}
 		
@@ -632,7 +659,7 @@ public class MyDistinct implements Distinct {
 		List<MovieInfoEntity> dbMovies = movieInfoService.getByPureNames(pureNames);
 		//如果DB中查询为空，则直接全部插入
 		if(dbMovies == null || dbMovies.size() == 0) {
-			for(MovieInfoVO dist : filter1) {
+			for(MovieArroundVO dist : filter1) {
 				//给予标识，标识插入
 				dist.setAction(CommonConstants.insert);
 			}
@@ -640,11 +667,10 @@ public class MyDistinct implements Distinct {
 		}
 		
 		//3、标识inser or update 并获取update项
-		List<MovieInfoVO> movieFilter2 = new ArrayList<>();
-		for(MovieInfoVO fetchMovie : filter1) {
+		for(MovieArroundVO ma : filter1) {
 			boolean isExist = false;
-			String fetchPureName = fetchMovie.getPureName();
-			Date fetchReleaseTime = fetchMovie.getReleaseTime();
+			String fetchPureName = ma.getPureName();
+			Date fetchReleaseTime = ma.getReleaseTime();
 			for(MovieInfoEntity dbMovie : dbMovies) {
 				String dbPureName = dbMovie.getPureName();
 				Date dbReleaseTime = dbMovie.getReleaseTime();
@@ -653,8 +679,9 @@ public class MyDistinct implements Distinct {
 				if(fetchPureName.equals(dbPureName) && 
 						fetchReleaseTime.getTime() <= dbReleaseTime.getTime()) {
 					isExist = true;
+					ma.setAction(CommonConstants.update);
 					//获取需要修改的项
-					MovieInfoVO changeOption = FetchUtils.movieChangeOption(dbMovie, fetchMovie, thisTime);
+					MovieInfoVO changeOption = FetchUtils.movieChangeOption(dbMovie, ma.getInfo(), thisTime);
 					if(changeOption == null){
 						//如果没有改变，则new一个新的，用作放置optimalResourcePrn
 						changeOption = new MovieInfoVO();
@@ -663,23 +690,18 @@ public class MyDistinct implements Distinct {
 					changeOption.setAction(CommonConstants.update);
 					changeOption.setPrn(dbMovie.getPrn());
 					changeOption.setUpdateTime(thisTime);
-					changeOption.setResourceList(fetchMovie.getResourceList());
-					//后面会用到category，所以没办法，必须设置
-					changeOption.setCategory(dbMovie.getCategory());
-					changeOption.setComeFromUrl(fetchMovie.getComeFromUrl());
-					movieFilter2.add(changeOption);
+					ma.setDb(changeOption);
 					break;
 				}
 			}
 			
 			//db遍历结束后还是不存在则表示是新的
 			if(!isExist) {
-				fetchMovie.setAction(CommonConstants.insert);
-				movieFilter2.add(fetchMovie);
+				ma.setAction(CommonConstants.insert);
 			}
 		}
 		
-		return movieFilter2;
+		return filter1;
 	}
 	
 	/**
