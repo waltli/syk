@@ -164,7 +164,7 @@ public class DoubanUtils {
 				MovieInfoVO newMovie = new MovieInfoVO();
 				String moviePrn = StringUtil.getId(CommonConstants.movie_s);
 				Integer category = MovieCategoryEnum.movie.getCode();
-				String tagDescp = null;
+				String tagText = null;
 				newMovie.setPrn(moviePrn);
 				Document doc = Jsoup.parse(new String(response.body().bytes(), "utf-8"));
 				String pureName = doc.select("head title").first().text().replace("(豆瓣)", "").trim();
@@ -243,7 +243,7 @@ public class DoubanUtils {
 						releaseTimeStr = Utils.getTimeStr(content);
 					}else if("首播".equals(title)) {
 						releaseTimeStr = Utils.getTimeStr(content);
-						tagDescp = content;
+						tagText = content;
 					}else if("片长".equals(title) || "单集片长".equals(title)){
 						newMovie.setDuration(content);
 					}else if("又名".equals(title)){
@@ -257,12 +257,14 @@ public class DoubanUtils {
 				
 				newMovie.setCategory(category);
 				//赋值tag
-				if(StringUtils.isNotBlank(tagDescp)) {
-					Integer tag = getTag(category, tagDescp);
-					if(tag == MovieTagEnum.Other.getCode()) {
-						tag = getTag(category, newMovie.getLocations());
+				if(StringUtils.isNotBlank(tagText)) {
+					String tagDesp = getTagDesp(category, tagText);
+					if(tagDesp.equals(MovieTagEnum.Other.getLocation())) {
+						tagDesp = getTagDesp(category, newMovie.getLocations());
 					}
-					newMovie.setTag(tag);
+					MovieTagEnum tagEnum = MovieTagEnum.getByLocation(tagDesp);
+					newMovie.setTag(tagEnum.getCode());
+					newMovie.setTagDesp(tagDesp);
 				}
 				if(StringUtils.isNotBlank(anotherName)){
 					newMovie.setAnotherName(anotherName);
@@ -324,17 +326,18 @@ public class DoubanUtils {
 		}
 	}
 	
-	private static Integer getTag(int category, String text) {
-		Integer tagCode = null;
+	public static String getTagDesp(int category, String text) {
+		String tagDesp = null;
 		if(category == MovieCategoryEnum.tv.getCode()) {
 			Matcher m2 = Pattern.compile(RegexConstant.TAG_LOCATION).matcher(text);
-	    	String tagLocation = null;
 	    	if(m2.find()){
-	    		tagLocation = m2.group();
+	    		tagDesp = m2.group();
 	    	}
-	    	tagCode = MovieTagEnum.getCodeByLocation(tagLocation);
 		}
-		return tagCode;
+		if(StringUtils.isBlank(tagDesp)) {
+			tagDesp = "其它";
+		}
+		return tagDesp;
 	}
 	
 	public static List<MovieInfoVO> fetchListFromDouban(final String query) throws Exception{

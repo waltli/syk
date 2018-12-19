@@ -45,17 +45,18 @@
         </table>
         <table tableName="movie_hot_stat" domainObjectName="MovieHotStatEntity">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
-        </table>
-        <table tableName="movie_label" domainObjectName="MovieLabelEntity">
-            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
-        </table>
-        <table tableName="movie_location" domainObjectName="MovieLocationEntity">
-            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table> -->
         <!-- <table tableName="movie_dict" domainObjectName="MovieDictEntity">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table> -->
-        <table tableName="movie_fetch_record" domainObjectName="MovieFetchRecordEntity">
+        <!-- <table tableName="movie_fetch_record" domainObjectName="MovieFetchRecordEntity">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
+        </table> -->
+        
+        <table tableName="movie_label" domainObjectName="MovieLabelEntity">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
+        </table>
+        <table tableName="movie_location" domainObjectName="MovieLocationEntity">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
     </context>

@@ -148,6 +148,8 @@ public class MovieInfoVO {
     private Integer category;
     
     private Integer tag;
+    
+    private String tagDesp;
 
     /**
      * 当前第几季
@@ -248,7 +250,15 @@ public class MovieInfoVO {
     private List<ResourceInfoVO> resourceList;
     
     private List<MovieDictVO> dictList;
-    
+
+	public String getTagDesp() {
+		return tagDesp;
+	}
+
+	public void setTagDesp(String tagDesp) {
+		this.tagDesp = tagDesp;
+	}
+
 	public List<MovieDictVO> getDictList() {
 		return dictList;
 	}

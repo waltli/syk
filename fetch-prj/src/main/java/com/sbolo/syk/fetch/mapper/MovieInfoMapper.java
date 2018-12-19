@@ -49,5 +49,8 @@ public interface MovieInfoMapper extends Mapper<MovieInfoEntity>, BatchWriteMapp
 	
 	MovieInfoEntity selectByPureNameAndPrecision(Map<String, Object> params);
 	
+	@ResultMap("BaseResultMap")
+	@Select("select * from movie_info where category=#{category}")
+	List<MovieInfoEntity> selectByCategory(int category);
 	
 }

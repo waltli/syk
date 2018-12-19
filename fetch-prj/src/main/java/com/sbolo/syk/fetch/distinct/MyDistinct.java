@@ -269,9 +269,11 @@ public class MyDistinct implements Distinct {
 		
 		Set<String> setLabels = new HashSet<>();
 		Set<String> setLocations = new HashSet<>();
+		Set<String> setTagDesp = new HashSet<>();
 		for(MovieInfoVO fetchMovie : fetchMovies) {
 			String labels = fetchMovie.getLabels();
 			String locations = fetchMovie.getLocations();
+			String tagDesp = fetchMovie.getTagDesp();
 			
 			if(StringUtils.isNotBlank(labels)) {
 				List<String> oneLabelList = Arrays.asList(labels.split(RegexConstant.slashSep));
@@ -287,6 +289,10 @@ public class MyDistinct implements Distinct {
 					//添加到Set里面去重
 					setLocations.add(oneLocation);
 				}
+			}
+			
+			if(StringUtils.isNotBlank(tagDesp)) {
+				setTagDesp.add(tagDesp);
 			}
 		}
 		
