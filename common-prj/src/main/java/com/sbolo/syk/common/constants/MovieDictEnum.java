@@ -4,7 +4,8 @@ public enum MovieDictEnum {
 
 	ROOT("ROOT", "根"),
 	LABEL("LABEL", "标签类型"),
-	LOCATION("LOCATION", "地区类型");
+	LOCATION("LOCATION", "地区类型"),
+	TAG("TAG", "标志类型");
 	
 	private String code;
 	private String desc;

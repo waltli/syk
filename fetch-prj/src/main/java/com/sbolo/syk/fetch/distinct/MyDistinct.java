@@ -31,6 +31,7 @@ import com.sbolo.syk.common.constants.RegexConstant;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.common.vo.LinkAnalyzeResultVO;
+import com.sbolo.syk.fetch.entity.MovieDictEntity;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
 import com.sbolo.syk.fetch.service.MovieDictService;
@@ -267,13 +268,14 @@ public class MyDistinct implements Distinct {
 			return null;
 		}
 		
+		//放在Set里面去重
 		Set<String> setLabels = new HashSet<>();
 		Set<String> setLocations = new HashSet<>();
-		Set<String> setTagDesp = new HashSet<>();
+		Set<String> setTags = new HashSet<>();
 		for(MovieInfoVO fetchMovie : fetchMovies) {
 			String labels = fetchMovie.getLabels();
 			String locations = fetchMovie.getLocations();
-			String tagDesp = fetchMovie.getTagDesp();
+			String tag = fetchMovie.getTag();
 			
 			if(StringUtils.isNotBlank(labels)) {
 				List<String> oneLabelList = Arrays.asList(labels.split(RegexConstant.slashSep));
@@ -291,71 +293,92 @@ public class MyDistinct implements Distinct {
 				}
 			}
 			
-			if(StringUtils.isNotBlank(tagDesp)) {
-				setTagDesp.add(tagDesp);
+			if(StringUtils.isNotBlank(tag)) {
+				setTags.add(tag);
 			}
 		}
 		
-		String dbLabelRoot = movieDictService.getLabelRoot();
-		String dbLocationRoot = movieDictService.getLocationRoot();
-		List<String> dbLabelList = movieDictService.getLabels();
-		List<String> dbLocationList = movieDictService.getLocations();
+		if(setLabels.size() == 0 || setLocations.size() == 0 || setTags.size() == 0) {
+			return null;
+		}
 		
 		List<MovieDictVO> fetchDicts = new ArrayList<>();
-		
-		if(StringUtils.isBlank(dbLabelRoot)) {
-			MovieDictVO labelRoot = new MovieDictVO(MovieDictEnum.LABEL.getCode(), MovieDictEnum.ROOT.getCode(), MovieDictEnum.LABEL.getDesc(), MovieStatusEnum.available.getCode(), 1, thisTime);
-			fetchDicts.add(labelRoot);
-		}
-		if(StringUtils.isBlank(dbLocationRoot)) {
-			MovieDictVO locationRoot = new MovieDictVO(MovieDictEnum.LOCATION.getCode(), MovieDictEnum.ROOT.getCode(), MovieDictEnum.LOCATION.getDesc(), MovieStatusEnum.available.getCode(), 1, thisTime);
-			fetchDicts.add(locationRoot);
-		}
-		
-		if(dbLabelList != null && dbLabelList.size() > 0) {
-			for(String fetchLabel : setLabels) {
-				boolean exist = false;
-				for(String dbLabel : dbLabelList) {
-					if(dbLabel.equals(fetchLabel)) {
-						exist = true;
-						break;
+		List<MovieDictEntity> all = movieDictService.getAll();
+		if(all != null && all.size() > 0) {
+			//放在MAP中在后面进行过滤是否存在
+			Map<String, Integer> dbMap = new HashMap<>();
+			for(MovieDictEntity dictEntity : all) {
+				String val = dictEntity.getVal();
+				String parentCode = dictEntity.getParentCode();
+				String key = this.getDictKey(parentCode, val);
+				dbMap.put(key, 1);
+			}
+			
+			if(setLabels.size() > 0) {
+				String parentCode = MovieDictEnum.LABEL.getCode();
+				for(String fetchLabel : setLabels) {
+					String key = this.getDictKey(parentCode, fetchLabel);
+					if(dbMap.get(key) != null) {
+						continue;
 					}
-				}
-				if(!exist) {
 					MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.label_s), MovieDictEnum.LABEL.getCode(), fetchLabel, MovieStatusEnum.available.getCode(), 2, thisTime);
 					fetchDicts.add(vo);
 				}
 			}
-		}else {
-			for(String fetchLabel : setLabels) {
-				MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.label_s), MovieDictEnum.LABEL.getCode(), fetchLabel, MovieStatusEnum.available.getCode(), 2, thisTime);
-				fetchDicts.add(vo);
-			}
-		}
-		
-		if(dbLocationList != null && dbLocationList.size() > 0) {
-			for(String fetchLocation : setLocations) {
-				boolean exist = false;
-				for(String dbLocation : dbLocationList) {
-					if(dbLocation.equals(fetchLocation)) {
-						exist = true;
-						break;
+			
+			if(setLocations.size() > 0) {
+				String parentCode = MovieDictEnum.LOCATION.getCode();
+				for(String fetchLocation : setLocations) {
+					String key = this.getDictKey(parentCode, fetchLocation);
+					if(dbMap.get(key) != null) {
+						continue;
 					}
-				}
-				if(!exist) {
 					MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.location_s), MovieDictEnum.LOCATION.getCode(), fetchLocation, MovieStatusEnum.available.getCode(), 2, thisTime);
 					fetchDicts.add(vo);
 				}
 			}
+			
+			if(setTags.size() > 0) {
+				String parentCode = MovieDictEnum.TAG.getCode();
+				for(String fetchTag : setTags) {
+					String key = this.getDictKey(parentCode, fetchTag);
+					if(dbMap.get(key) != null) {
+						continue;
+					}
+					MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.tag_s), MovieDictEnum.TAG.getCode(), fetchTag, MovieStatusEnum.available.getCode(), 2, thisTime);
+					fetchDicts.add(vo);
+				}
+			}
+			
 		}else {
+			MovieDictVO labelRoot = new MovieDictVO(MovieDictEnum.LABEL.getCode(), MovieDictEnum.ROOT.getCode(), MovieDictEnum.LABEL.getDesc(), MovieStatusEnum.available.getCode(), 1, thisTime);
+			MovieDictVO locationRoot = new MovieDictVO(MovieDictEnum.LOCATION.getCode(), MovieDictEnum.ROOT.getCode(), MovieDictEnum.LOCATION.getDesc(), MovieStatusEnum.available.getCode(), 1, thisTime);
+			MovieDictVO tagRoot = new MovieDictVO(MovieDictEnum.TAG.getCode(), MovieDictEnum.ROOT.getCode(), MovieDictEnum.TAG.getDesc(), MovieStatusEnum.available.getCode(), 1, thisTime);
+			fetchDicts.add(labelRoot);
+			fetchDicts.add(locationRoot);
+			fetchDicts.add(tagRoot);
+			
+			for(String fetchLabel : setLabels) {
+				MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.label_s), MovieDictEnum.LABEL.getCode(), fetchLabel, MovieStatusEnum.available.getCode(), 2, thisTime);
+				fetchDicts.add(vo);
+			}
+			
 			for(String fetchLocation : setLocations) {
 				MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.location_s), MovieDictEnum.LOCATION.getCode(), fetchLocation, MovieStatusEnum.available.getCode(), 2, thisTime);
 				fetchDicts.add(vo);
 			}
+			
+			for(String fetchTag : setTags) {
+				MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.tag_s), MovieDictEnum.TAG.getCode(), fetchTag, MovieStatusEnum.available.getCode(), 2, thisTime);
+				fetchDicts.add(vo);
+			}
 		}
-		
 		return fetchDicts;
 		
+	}
+	
+	private String getDictKey(String parentCode, String val) {
+		return parentCode + "-" + val;
 	}
 	
 	/**

@@ -147,10 +147,7 @@ public class MovieInfoVO {
      */
     private Integer category;
     
-    private Integer tag;
-    
-    private String tagDesp;
-
+    private String tag;
     /**
      * 当前第几季
      */
@@ -251,14 +248,6 @@ public class MovieInfoVO {
     
     private List<MovieDictVO> dictList;
 
-	public String getTagDesp() {
-		return tagDesp;
-	}
-
-	public void setTagDesp(String tagDesp) {
-		this.tagDesp = tagDesp;
-	}
-
 	public List<MovieDictVO> getDictList() {
 		return dictList;
 	}
@@ -283,11 +272,11 @@ public class MovieInfoVO {
 		this.comeFromUrl = comeFromUrl;
 	}
 
-	public Integer getTag() {
+	public String getTag() {
 		return tag;
 	}
 
-	public void setTag(Integer tag) {
+	public void setTag(String tag) {
 		this.tag = tag;
 	}
 
@@ -1084,7 +1073,7 @@ public class MovieInfoVO {
     	SimpleDateFormat sdf = new SimpleDateFormat(CommonConstants.timeFormat.get(10));
     	String bucketHost = ConfigUtils.getPropertyValue("bucket.host");
     	
-    	if(this.getCategory() == MovieCategoryEnum.tv.getCode() || this.getCategory() == MovieCategoryEnum.variety.getCode()) {
+    	if(this.getCategory() == MovieCategoryEnum.tv.getCode()) {
     		if(this.getOptimalResource() != null && this.getOptimalResource().getEpisodeEnd() != null) {
     			this.setShowName(this.getPureName() + " 更新至" + this.getOptimalResource().getEpisodeEnd() + "集");
     		}

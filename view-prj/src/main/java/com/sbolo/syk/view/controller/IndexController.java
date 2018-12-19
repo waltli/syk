@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sbolo.syk.common.annotation.Paginator;
+import com.sbolo.syk.common.constants.MovieCategoryEnum;
 import com.sbolo.syk.common.exception.BusinessException;
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.common.ui.RequestResult;
@@ -59,11 +60,26 @@ public class IndexController {
 	public String go(Model model,
 			@RequestParam(value="page",defaultValue="1", required=false) Integer pageNum,
             @RequestParam(value="l", required=false) String label,
-            @RequestParam(value="q", required=false) String keyword) throws Exception{
+            @RequestParam(value="q", required=false) String keyword,
+            @RequestParam(value="c", required=false) Integer category,
+            @RequestParam(value="t", required=false) String tag) throws Exception{
 		
-		RequestResult<MovieInfoVO> result = movieInfoService.getAroundList(pageNum, pageSize, label, keyword);
+		RequestResult<MovieInfoVO> result = movieInfoService.getAroundList(pageNum, pageSize, label, keyword, category, tag);
 		model.addAttribute("requestResult", result);
 		return index;
+	}
+	
+	@RequestMapping("nav")
+	@ResponseBody
+	public RequestResult<Map<String, Object>> nav() throws Exception{
+		Map<String, Object> m = new HashMap<>();
+		Map<Integer, String> categoryMap = MovieCategoryEnum.toMap();
+		m.put("categoryMap", categoryMap);
+		
+		List<String> tags = movieDictService.getTags();
+		m.put("tags", tags);
+		
+		return new RequestResult<Map<String, Object>>(m);
 	}
 	
 	@RequestMapping("sidebar")

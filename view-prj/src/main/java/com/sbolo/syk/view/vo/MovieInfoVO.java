@@ -935,7 +935,7 @@ public class MovieInfoVO {
     	SimpleDateFormat sdf = new SimpleDateFormat(CommonConstants.timeFormat.get(10));
     	String bucketHost = ConfigUtils.getPropertyValue("bucket.host");
 
-    	if(this.getCategory() == MovieCategoryEnum.tv.getCode() || this.getCategory() == MovieCategoryEnum.variety.getCode()) {
+    	if(this.getCategory() == MovieCategoryEnum.tv.getCode()) {
     		if(this.getOptimalResource() != null && this.getOptimalResource().getEpisodeEnd() != null) {
     			this.setShowName(this.getPureName() + " 更新至" + this.getOptimalResource().getEpisodeEnd() + "集");
     		}

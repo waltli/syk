@@ -21,6 +21,10 @@ public interface MovieInfoMapper extends Mapper<MovieInfoEntity>, BatchWriteMapp
 	
 	List<MovieInfoEntity> selectByAssociationWithLabel(Map<String, Object> params);
 	
+	List<MovieInfoEntity> selectByAssociationWithCategory(Map<String, Object> params);
+	
+	List<MovieInfoEntity> selectByAssociationWithTag(Map<String, Object> params);
+	
 	@Update("update movie_info set count_click = count_click+1 where prn=#{prn}")
 	int updateCountClick(String prn);
 	

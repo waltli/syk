@@ -258,13 +258,12 @@ public class DoubanUtils {
 				newMovie.setCategory(category);
 				//赋值tag
 				if(StringUtils.isNotBlank(tagText)) {
-					String tagDesp = getTagDesp(category, tagText);
-					if(tagDesp.equals(MovieTagEnum.Other.getLocation())) {
-						tagDesp = getTagDesp(category, newMovie.getLocations());
+					String tagLocation = getTagLocation(category, tagText);
+					if(tagLocation.equals(MovieTagEnum.Other.getLocation())) {
+						tagLocation = getTagLocation(category, newMovie.getLocations());
 					}
-					MovieTagEnum tagEnum = MovieTagEnum.getByLocation(tagDesp);
-					newMovie.setTag(tagEnum.getCode());
-					newMovie.setTagDesp(tagDesp);
+					String tag = MovieTagEnum.getTagByLocation(tagLocation);
+					newMovie.setTag(tag);
 				}
 				if(StringUtils.isNotBlank(anotherName)){
 					newMovie.setAnotherName(anotherName);
@@ -326,18 +325,18 @@ public class DoubanUtils {
 		}
 	}
 	
-	public static String getTagDesp(int category, String text) {
-		String tagDesp = null;
+	public static String getTagLocation(int category, String text) {
+		String tagLocation = null;
 		if(category == MovieCategoryEnum.tv.getCode()) {
 			Matcher m2 = Pattern.compile(RegexConstant.TAG_LOCATION).matcher(text);
 	    	if(m2.find()){
-	    		tagDesp = m2.group();
+	    		tagLocation = m2.group();
 	    	}
 		}
-		if(StringUtils.isBlank(tagDesp)) {
-			tagDesp = "其它";
+		if(StringUtils.isBlank(tagLocation)) {
+			tagLocation = "其它";
 		}
-		return tagDesp;
+		return tagLocation;
 	}
 	
 	public static List<MovieInfoVO> fetchListFromDouban(final String query) throws Exception{

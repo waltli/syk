@@ -57,19 +57,27 @@ public class MovieInfoService {
 	@Resource
 	private MovieHotStatMapper movieHotStatMapper;
 	
-	public RequestResult<MovieInfoVO> getAroundList(int pageNum, int pageSize, String label, String keyword) throws InstantiationException, IllegalAccessException, InvocationTargetException{
+	public RequestResult<MovieInfoVO> getAroundList(int pageNum, int pageSize, String label, String keyword, Integer category, String tag) throws InstantiationException, IllegalAccessException, InvocationTargetException{
         Map<String, Object> params = new HashMap<String, Object>();
         if(StringUtils.isNotBlank(keyword)){
         	params.put("keyword", keyword);
         }
         List<MovieInfoEntity> list = null;
-		if(StringUtils.isBlank(label)){
-			PageHelper.startPage(pageNum, pageSize, "t.resource_write_time DESC");
-			list = movieInfoMapper.selectByAssociation(params);
-		}else {
+		if(StringUtils.isNotBlank(label)){
 			params.put("label", label);
 			PageHelper.startPage(pageNum, pageSize, "t.resource_write_time DESC");
 			list = movieInfoMapper.selectByAssociationWithLabel(params);
+		}else if(category != null) {
+			params.put("category", category);
+			PageHelper.startPage(pageNum, pageSize, "t.resource_write_time DESC");
+			list = movieInfoMapper.selectByAssociationWithCategory(params);
+		}else if(StringUtils.isNotBlank(tag)) {
+			params.put("tag", tag);
+			PageHelper.startPage(pageNum, pageSize, "t.resource_write_time DESC");
+			list = movieInfoMapper.selectByAssociationWithTag(params);
+		}else {
+			PageHelper.startPage(pageNum, pageSize, "t.resource_write_time DESC");
+			list = movieInfoMapper.selectByAssociation(params);
 		}
 		PageInfo<MovieInfoEntity> pageInfo = new PageInfo<>(list);
 		List<MovieInfoVO> movieVOList = new ArrayList<>();

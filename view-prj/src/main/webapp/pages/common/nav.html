@@ -10,38 +10,36 @@
 		</ul>
 	</div>
 	<div id="db-nav-movie" class="nav">
-		<div class="nav-primary">
-			<a href="${pageCtx('ctx')}">
-				<span class="nav-logo navbar-sprite" >
-					
-				</span>
-			</a>
-			<div class="nav-search">
-				<form action="${pageCtx('ctx')}" method="get">
-					<div class="inp navbar-sprite">
-						<input id="inp-query" value="${params.q!}" name="q" size="22" maxlength="40" placeholder="电影，演员" autocomplete="off">
-					</div>
-					<div class="inp-btn navbar-sprite">
-						<input type="submit" value="搜索" id="search">
-					</div>
-				</form>
+		<div class="nav-wrap">
+			<div class="nav-primary">
+				<a href="${pageCtx('ctx')}">
+					<span class="nav-logo navbar-sprite" >
+						
+					</span>
+				</a>
+				<div class="nav-search">
+					<form action="${pageCtx('ctx')}" method="get">
+						<div class="inp navbar-sprite">
+							<input id="inp-query" value="${params.q!}" name="q" size="22" maxlength="40" placeholder="电影，演员" autocomplete="off">
+						</div>
+						<div class="inp-btn navbar-sprite">
+							<input type="submit" value="搜索" id="search">
+						</div>
+					</form>
+				</div>
+				<div class="nav-info">
+					<!-- <a href="#" class="login">登录</a>
+					<a href="#" class="register">注册</a> -->
+				</div>
+				<br class="clear">
 			</div>
-			<div class="nav-info">
-				<!-- <a href="#" class="login">登录</a>
-				<a href="#" class="register">注册</a> -->
+		</div>
+		<div class="nav-secondary">
+			<div class="nav-items" id="nav-items">
+				
 			</div>
-			<br class="clear">
 		</div>
 	</div>
-	<!-- <div class="nav-secondary">
-		<div class="nav-items">
-			<ul>
-				<c:forEach begin="0" end="29" step="1">
-					<li style="float:left; margin-right:7px;">科幻</li>
-				</c:forEach>
-			</ul>
-		</div>
-	</div> -->
 </div>
 <script type="text/javascript">
 	$("input#search[type='submit']").unbind("click").bind("click",function(ev){
@@ -52,4 +50,57 @@
 		}
 		$(this).parents("form:first").submit();
 	});
+	
+	$.ajax({
+		url:ctx+"/nav",
+		success : function(data){
+			debugger;
+			if(!data.status){
+				return;
+			}
+			var map = data.obj;
+			var categoryMap = map.categoryMap;
+			var tags = map.tags;
+			
+			var categoryHtml = buildCategory(categoryMap);
+			var tagHtml = buildTag(tags);
+			
+			if(!categoryHtml && !tagHtml){
+				return;
+			}
+			var $html = $("<ul></ul>");
+			
+			if(categoryHtml){
+				$html.append(categoryHtml);
+			}
+			
+			if(tagHtml){
+				$html.append(tagHtml);
+			}
+			$("#nav-items").append($html);
+		}
+	});
+	
+	function buildCategory(categoryMap){
+		if(!categoryMap){
+			return;
+		}
+		
+		html = "";
+		for(var key in categoryMap){
+			html += '<li><a href="'+ ctx+'?c='+key+'">'+categoryMap[key]+'</a></li>';
+		}
+		return html;
+	}
+	
+	function buildTag(tags){
+		if(!tags){
+			return;
+		}
+		html = "";
+		for(var i in tags){
+			html += '<li><a href="'+ ctx+'?t='+i+'">'+i+'</a></li>';
+		}
+		return html;
+	}
 </script>

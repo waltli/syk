@@ -29,7 +29,7 @@
     <result column="imdb_score" jdbcType="DECIMAL" property="imdbScore" />
     <result column="attention_rate" jdbcType="INTEGER" property="attentionRate" />
     <result column="category" jdbcType="INTEGER" property="category" />
-    <result column="tag" jdbcType="INTEGER" property="tag" />
+    <result column="tag" jdbcType="VARCHAR" property="tag" />
     <result column="present_season" jdbcType="INTEGER" property="presentSeason" />
     <result column="total_episode" jdbcType="INTEGER" property="totalEpisode" />
     <result column="st" jdbcType="INTEGER" property="st" />
@@ -66,7 +66,7 @@
     <result column="imdb_score" jdbcType="DECIMAL" property="imdbScore" />
     <result column="attention_rate" jdbcType="INTEGER" property="attentionRate" />
     <result column="category" jdbcType="INTEGER" property="category" />
-    <result column="tag" jdbcType="INTEGER" property="tag" />
+    <result column="tag" jdbcType="VARCHAR" property="tag" />
     <result column="present_season" jdbcType="INTEGER" property="presentSeason" />
     <result column="total_episode" jdbcType="INTEGER" property="totalEpisode" />
     <result column="st" jdbcType="INTEGER" property="st" />
@@ -123,6 +123,26 @@
   		movie_info t, resource_info t1
   	WHERE 
   		t.optimal_resource_prn = t1.prn and LOCATE(#{label}, t.labels)>0 and t.st = 1
+  </select>
+  
+  <select id="selectByAssociationWithCategory" resultMap="AssociationResourceMap" parameterType="java.util.Map" >
+  	SELECT *, t1.id rid, t1.prn rprn, t1.pure_name rpure_name, 
+  		t1.release_time rrelease_time, t1.st rst, 
+  		t1.create_time rcreate_time, t1.update_time rupdate_time
+  	FROM 
+  		movie_info t, resource_info t1
+  	WHERE 
+  		t.optimal_resource_prn = t1.prn and t.category = #{category} and t.st = 1
+  </select>
+  
+  <select id="selectByAssociationWithTag" resultMap="AssociationResourceMap" parameterType="java.util.Map" >
+  	SELECT *, t1.id rid, t1.prn rprn, t1.pure_name rpure_name, 
+  		t1.release_time rrelease_time, t1.st rst, 
+  		t1.create_time rcreate_time, t1.update_time rupdate_time
+  	FROM 
+  		movie_info t, resource_info t1
+  	WHERE 
+  		t.optimal_resource_prn = t1.prn and t.tag = #{tag} and t.st = 1
   </select>
   
   

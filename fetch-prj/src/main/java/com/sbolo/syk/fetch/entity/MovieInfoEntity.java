@@ -152,7 +152,7 @@ public class MovieInfoEntity {
     private Integer category;
     
     @Column(name = "`tag`")
-    private Integer tag;
+    private String tag;
 
     /**
      * 当前第几季
@@ -214,15 +214,15 @@ public class MovieInfoEntity {
     @Column(name = "`count_download`")
     private Integer countDownload;
     
-    public Integer getTag() {
+	private ResourceInfoEntity optimalResource;
+
+	public String getTag() {
 		return tag;
 	}
 
-	public void setTag(Integer tag) {
+	public void setTag(String tag) {
 		this.tag = tag;
 	}
-
-	private ResourceInfoEntity optimalResource;
 
 	public ResourceInfoEntity getOptimalResource() {
 		return optimalResource;

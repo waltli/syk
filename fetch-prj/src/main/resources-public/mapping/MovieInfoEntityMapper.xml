@@ -29,7 +29,7 @@
     <result column="imdb_score" jdbcType="DECIMAL" property="imdbScore" />
     <result column="attention_rate" jdbcType="INTEGER" property="attentionRate" />
     <result column="category" jdbcType="INTEGER" property="category" />
-    <result column="tag" jdbcType="INTEGER" property="tag" />
+    <result column="tag" jdbcType="VARCHAR" property="tag" />
     <result column="present_season" jdbcType="INTEGER" property="presentSeason" />
     <result column="total_episode" jdbcType="INTEGER" property="totalEpisode" />
     <result column="st" jdbcType="INTEGER" property="st" />
@@ -66,7 +66,7 @@
     <result column="imdb_score" jdbcType="DECIMAL" property="imdbScore" />
     <result column="attention_rate" jdbcType="INTEGER" property="attentionRate" />
     <result column="category" jdbcType="INTEGER" property="category" />
-    <result column="tag" jdbcType="INTEGER" property="tag" />
+    <result column="tag" jdbcType="VARCHAR" property="tag" />
     <result column="present_season" jdbcType="INTEGER" property="presentSeason" />
     <result column="total_episode" jdbcType="INTEGER" property="totalEpisode" />
     <result column="st" jdbcType="INTEGER" property="st" />

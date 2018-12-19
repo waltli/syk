@@ -64,4 +64,18 @@ public class MovieDictService {
 		return movieDictMapper.selectByCode(MovieDictEnum.LOCATION.getCode());
 	}
 	
+	public String getTagRoot() {
+		return movieDictMapper.selectByCode(MovieDictEnum.TAG.getCode());
+	}
+	
+	public List<String> getTags() {
+		List<String> tagEntities = movieDictMapper.selectByParentCode(MovieDictEnum.TAG.getCode());
+		return tagEntities;
+	}
+	
+	public List<MovieDictEntity> getAll(){
+		List<MovieDictEntity> selectAll = movieDictMapper.selectAll();
+		return selectAll;
+	}
+	
 }

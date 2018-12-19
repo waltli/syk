@@ -37,4 +37,9 @@ public class MovieDictService {
 		return locationEntities;
 	}
 	
+	public List<String> getTags() {
+		List<String> tagEntities = movieDictMapper.selectByParentCode(MovieDictEnum.TAG.getCode());
+		return tagEntities;
+	}
+	
 }

@@ -28,6 +28,12 @@
 						@if(isNotEmpty(params.q)){
 							搜索：<span class="tags-name">${params.q}</span><sup class="tags-del" belong="q"></sup>
 						@}
+						@if(isNotEmpty(params.c)){
+							搜索：<span class="tags-name">${params.c}</span><sup class="tags-del" belong="c"></sup>
+						@}
+						@if(isNotEmpty(params.t)){
+							搜索：<span class="tags-name">${params.t}</span><sup class="tags-del" belong="t"></sup>
+						@}
 					</h1>
 				</div>
 			@}

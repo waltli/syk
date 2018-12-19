@@ -113,6 +113,22 @@ a:hover {
 	/* border-bottom: 1px solid #e5ebe4; */
 }
 
+.nav {
+    width: 100%;
+    min-width: 950px;
+    overflow: hidden;
+    zoom: 1;
+    margin-bottom: 40px;
+}
+
+.nav .nav-wrap {
+    border-bottom: 1px solid #e5ebe4;
+}
+
+#db-nav-movie .nav-wrap {
+    border-color: #e3ebec;
+}
+
 .nav .nav-primary {
     width: 950px;
     margin: 0 auto;
@@ -120,14 +136,6 @@ a:hover {
     position: relative;
     padding: 10px 0 5px;
     zoom: 1;
-}
-
-.nav {
-    width: 100%;
-    min-width: 950px;
-    overflow: hidden;
-    zoom: 1;
-    margin-bottom: 40px;
 }
 
 .nav .nav-logo {
@@ -213,6 +221,32 @@ a:hover {
 .nav-info .register{
 	margin-left: 15px;
 }
+
+
+.nav-secondary {
+    width: 950px;
+    margin: 0 auto;
+    padding-bottom: 0;
+    overflow: hidden;
+    zoom: 1;
+}
+
+.nav-secondary .nav-items {
+    float: none;
+    zoom: 1;
+    font-size: 14px;
+}
+
+.nav-secondary ul {
+    margin: 9px 0;
+}
+
+.nav-secondary li {
+    display: inline;
+    margin-right: 25px;
+}
+
+
 
 #pagecontent {
 	/* background: -webkit-linear-gradient(top, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 7px); */

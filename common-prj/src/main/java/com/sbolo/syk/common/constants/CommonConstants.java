@@ -48,6 +48,7 @@ public class CommonConstants {
 	public static final String hot_s = "h";
 	public static final String label_s = "b";
 	public static final String location_s = "a";
+	public static final String tag_s = "t";
 	public static final String pic_s = "p";
 	public static final String file_s = "f";
 	public static final String message_s = "g";

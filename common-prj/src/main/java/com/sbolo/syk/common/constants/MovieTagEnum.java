@@ -41,6 +41,16 @@ public enum MovieTagEnum {
 		return Other.getCode();
 	}
 	
+	public static String getTagByLocation(String location){
+		MovieTagEnum[] values = MovieTagEnum.values();
+		for(MovieTagEnum value : values){
+			if(value.getLocation().equals(location)){
+				return value.getTag();
+			}
+		}
+		return Other.getTag();
+	}
+	
 	public static MovieTagEnum getByLocation(String location){
 		MovieTagEnum[] values = MovieTagEnum.values();
 		for(MovieTagEnum value : values){
