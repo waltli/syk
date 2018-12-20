@@ -194,6 +194,12 @@ public class TestJunit {
 			
 			if(setLabels.size() > 0) {
 				String parentCode = MovieDictEnum.LABEL.getCode();
+				String rootKey = this.getDictKey(MovieDictEnum.ROOT.getCode(), MovieDictEnum.LABEL.getDesc());
+				if(dbMap.get(rootKey) == null) {
+					MovieDictVO labelRoot = new MovieDictVO(MovieDictEnum.LABEL.getCode(), MovieDictEnum.ROOT.getCode(), MovieDictEnum.LABEL.getDesc(), MovieStatusEnum.available.getCode(), 1, thisTime);
+					fetchDicts.add(labelRoot);
+				}
+				
 				for(String fetchLabel : setLabels) {
 					String key = this.getDictKey(parentCode, fetchLabel);
 					if(dbMap.get(key) != null) {
@@ -206,6 +212,11 @@ public class TestJunit {
 			
 			if(setLocations.size() > 0) {
 				String parentCode = MovieDictEnum.LOCATION.getCode();
+				String rootKey = this.getDictKey(MovieDictEnum.ROOT.getCode(), MovieDictEnum.LOCATION.getDesc());
+				if(dbMap.get(rootKey) == null) {
+					MovieDictVO locationRoot = new MovieDictVO(MovieDictEnum.LOCATION.getCode(), MovieDictEnum.ROOT.getCode(), MovieDictEnum.LOCATION.getDesc(), MovieStatusEnum.available.getCode(), 1, thisTime);
+					fetchDicts.add(locationRoot);
+				}
 				for(String fetchLocation : setLocations) {
 					String key = this.getDictKey(parentCode, fetchLocation);
 					if(dbMap.get(key) != null) {
@@ -218,6 +229,11 @@ public class TestJunit {
 			
 			if(setTags.size() > 0) {
 				String parentCode = MovieDictEnum.TAG.getCode();
+				String rootKey = this.getDictKey(MovieDictEnum.ROOT.getCode(), MovieDictEnum.TAG.getDesc());
+				if(dbMap.get(rootKey) == null) {
+					MovieDictVO tagRoot = new MovieDictVO(MovieDictEnum.TAG.getCode(), MovieDictEnum.ROOT.getCode(), MovieDictEnum.TAG.getDesc(), MovieStatusEnum.available.getCode(), 1, thisTime);
+					fetchDicts.add(tagRoot);
+				}
 				for(String fetchTag : setTags) {
 					String key = this.getDictKey(parentCode, fetchTag);
 					if(dbMap.get(key) != null) {

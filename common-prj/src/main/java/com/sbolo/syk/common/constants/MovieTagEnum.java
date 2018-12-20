@@ -6,6 +6,7 @@ public enum MovieTagEnum {
 	Taiwan(1, "台湾", "国产剧"),
 	USA(2, "美国", "欧美剧"),
 	England(2, "英国", "欧美剧"),
+	France(2, "法国", "欧美剧"),
 	HongKong(3, "香港", "港剧"),
 	Japan(4, "日本", "日剧"),
 	Korea(5,"韩国", "韩剧"),
