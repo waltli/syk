@@ -9,6 +9,15 @@
 	电影搜索：${params.q }
 @} else if(isNotEmpty(params.l)) {
 	电影标签：${params.l }
+@} else if(isNotEmpty(params.c)) {
+	类别：
+	@if(params.c == "1") {
+		电影
+	@}else {
+		剧集
+	@}
+@} else if(isNotEmpty(params.t)) {
+	标签：${params.t }
 @}else {
 	蝉影
 @}
@@ -19,7 +28,7 @@
 	@include("common/nav.html"){}
 	<div id="wrapper">
 		<div id="pagecontent">
-			@if(isNotEmpty(params.l) || isNotEmpty(params.q)){
+			@if(isNotEmpty(params.l) || isNotEmpty(params.q) || isNotEmpty(params.c) || isNotEmpty(params.t)){
 				<div id="titleBar">
 					<h1 class="label_notice">
 						@if(isNotEmpty(params.l)){
@@ -29,10 +38,18 @@
 							搜索：<span class="tags-name">${params.q}</span><sup class="tags-del" belong="q"></sup>
 						@}
 						@if(isNotEmpty(params.c)){
-							搜索：<span class="tags-name">${params.c}</span><sup class="tags-del" belong="c"></sup>
+							类别：
+							<span class="tags-name">
+							@if(params.c == "1") {
+								电影
+							@}else {
+								剧集
+							@}
+							</span>
+							<sup class="tags-del" belong="c"></sup>
 						@}
 						@if(isNotEmpty(params.t)){
-							搜索：<span class="tags-name">${params.t}</span><sup class="tags-del" belong="t"></sup>
+							类别：<span class="tags-name">${params.t}</span><sup class="tags-del" belong="t"></sup>
 						@}
 					</h1>
 				</div>

@@ -3,12 +3,17 @@ package com.sbolo.syk.fetch.vo;
 import java.util.Date;
 import javax.persistence.*;
 
+import com.sbolo.syk.common.constants.CommonConstants;
+import com.sbolo.syk.common.constants.MovieStatusEnum;
+
 public class MovieDictVO {
     private Long id;
 
     private String code;
 
     private String parentCode;
+    
+    private String rootCode;
 
     private String val;
 
@@ -22,16 +27,41 @@ public class MovieDictVO {
 
     private String remark;
     
-    public MovieDictVO(String code, String parentCode, String val, Integer st, Integer tier, Date createTime) {
-    	this.code = code;
-    	this.parentCode = parentCode;
-    	this.val = val;
-    	this.st = st;
-    	this.tier = tier;
-    	this.createTime = createTime;
+    private MovieDictVO() {}
+    
+    public static MovieDictVO buildRoot(String code, String val, Date createTime) {
+    	MovieDictVO vo = new MovieDictVO();
+    	vo.setCode(code);
+    	vo.setParentCode(CommonConstants.DICT_TOP);
+    	vo.setRootCode(code);
+    	vo.setVal(val);
+    	vo.setSt(MovieStatusEnum.available.getCode());
+    	vo.setTier(1);
+    	vo.setCreateTime(createTime);
+    	return vo;
+    }
+    
+    public static MovieDictVO build(String code, String parentCode, String rootCode, String val, Integer tier, Date createTime) {
+    	MovieDictVO vo = new MovieDictVO();
+    	vo.setCode(code);
+    	vo.setParentCode(parentCode);
+    	vo.setRootCode(rootCode);
+    	vo.setVal(val);
+    	vo.setSt(MovieStatusEnum.available.getCode());
+    	vo.setTier(tier);
+    	vo.setCreateTime(createTime);
+    	return vo;
     }
 
-    /**
+    public String getRootCode() {
+		return rootCode;
+	}
+
+	public void setRootCode(String rootCode) {
+		this.rootCode = rootCode;
+	}
+
+	/**
      * @return id
      */
     public Long getId() {

@@ -25,6 +25,8 @@ import org.mybatis.generator.config.Configuration;
 import org.mybatis.generator.config.xml.ConfigurationParser;
 import org.mybatis.generator.exception.XMLParserException;
 import org.mybatis.generator.internal.DefaultShellCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -45,15 +47,18 @@ import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.ThreeDESUtils;
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.fetch.entity.MovieDictEntity;
+import com.sbolo.syk.fetch.entity.MovieFetchRecordEntity;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
 import com.sbolo.syk.fetch.entity.MovieLabelEntity;
 import com.sbolo.syk.fetch.entity.MovieLocationEntity;
 import com.sbolo.syk.fetch.mapper.MovieDictMapper;
+import com.sbolo.syk.fetch.mapper.MovieFetchRecordMapper;
 import com.sbolo.syk.fetch.mapper.MovieInfoMapper;
 import com.sbolo.syk.fetch.mapper.MovieLabelMapper;
 import com.sbolo.syk.fetch.mapper.MovieLocationMapper;
 import com.sbolo.syk.fetch.service.MovieDictService;
 import com.sbolo.syk.fetch.tool.DoubanUtils;
+import com.sbolo.syk.fetch.tool.FetchUtils;
 import com.sbolo.syk.fetch.vo.MovieDictVO;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
 
@@ -61,6 +66,8 @@ import com.sbolo.syk.fetch.vo.MovieInfoVO;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = fetchApplication.class)
 public class TestJunit {
+	
+	private static final Logger log = LoggerFactory.getLogger(TestJunit.class);
 	
 	@Autowired
     private MockMvc mockMvc;
@@ -79,6 +86,9 @@ public class TestJunit {
 	
 	@Autowired
 	private MovieDictService movieDictService;
+	
+	@Autowired
+	private MovieFetchRecordMapper movieFetchRecordMapper;
 	
 	@After
 	public void after() throws Exception{
@@ -113,6 +123,10 @@ public class TestJunit {
 	public void tag() throws Exception{
 		List<MovieInfoEntity> selectByCategoryAndNullTag = movieInfoMapper.selectByCategoryAndNullTag(MovieCategoryEnum.tv.getCode());
 		
+		if(selectByCategoryAndNullTag == null || selectByCategoryAndNullTag.size() == 0) {
+			return;
+		}
+		
 		List<MovieInfoEntity> toupList = new ArrayList<>();
 		
 		for(MovieInfoEntity entity : selectByCategoryAndNullTag) {
@@ -124,8 +138,14 @@ public class TestJunit {
 			toupList.add(newEntity);
 		}
 		
-		movieInfoMapper.updateListByPrn(toupList);
+		if(toupList.size() == 0) {
+			log.info("toupList.size == 0");
+			return;
+		}
 		
+		List<MovieFetchRecordEntity> fetchRecordList = FetchUtils.buildFetchRecordList(null, toupList, null, null, null);
+		
+		movieDictService.junitUP(toupList, fetchRecordList);
 	}
 	
 	@Test
@@ -134,144 +154,18 @@ public class TestJunit {
 		
 		List<MovieInfoVO> po2vos = VOUtils.po2vo(selectAll, MovieInfoVO.class);
 		
-		List<MovieDictVO> distDicts = this.distDict(po2vos, new Date());
+		List<MovieDictVO> distDicts = movieDictService.distDict(po2vos, new Date());
 		
 		List<MovieDictEntity> dictAll = VOUtils.po2vo(distDicts, MovieDictEntity.class);
 		
-		movieDictMapper.insertList(dictAll);
+		if(dictAll.size() == 0) {
+			log.info("dictAll.size == 0");
+			return;
+		}
+		
+		List<MovieFetchRecordEntity> fetchRecordList = FetchUtils.buildFetchRecordList(null, null, null, null, dictAll);
+		
+		movieDictService.junitInsert(dictAll, fetchRecordList);
 	}
 	
-	private List<MovieDictVO> distDict(List<MovieInfoVO> fetchMovies, Date thisTime) throws Exception{
-		if(fetchMovies == null || fetchMovies.size() == 0) {
-			return null;
-		}
-		
-		//放在Set里面去重
-		Set<String> setLabels = new HashSet<>();
-		Set<String> setLocations = new HashSet<>();
-		Set<String> setTags = new HashSet<>();
-		for(MovieInfoVO fetchMovie : fetchMovies) {
-			String labels = fetchMovie.getLabels();
-			String locations = fetchMovie.getLocations();
-			String tag = fetchMovie.getTag();
-			
-			if(StringUtils.isNotBlank(labels)) {
-				List<String> oneLabelList = Arrays.asList(labels.split(RegexConstant.slashSep));
-				for(String oneLabel : oneLabelList) {
-					//添加到Set里面去重
-					setLabels.add(oneLabel);
-				}
-			}
-			
-			if(StringUtils.isNotBlank(locations)) {
-				List<String> oneLocationList = Arrays.asList(locations.split(RegexConstant.slashSep));
-				for(String oneLocation : oneLocationList) {
-					//添加到Set里面去重
-					setLocations.add(oneLocation);
-				}
-			}
-			
-			if(StringUtils.isNotBlank(tag)) {
-				setTags.add(tag);
-			}
-		}
-		
-		if(setLabels.size() == 0 || setLocations.size() == 0 || setTags.size() == 0) {
-			return null;
-		}
-		
-		List<MovieDictVO> fetchDicts = new ArrayList<>();
-		List<MovieDictEntity> all = movieDictService.getAll();
-		if(all != null && all.size() > 0) {
-			//放在MAP中在后面进行过滤是否存在
-			Map<String, Integer> dbMap = new HashMap<>();
-			for(MovieDictEntity dictEntity : all) {
-				String val = dictEntity.getVal();
-				String parentCode = dictEntity.getParentCode();
-				String key = this.getDictKey(parentCode, val);
-				dbMap.put(key, 1);
-			}
-			
-			if(setLabels.size() > 0) {
-				String parentCode = MovieDictEnum.LABEL.getCode();
-				String rootKey = this.getDictKey(MovieDictEnum.ROOT.getCode(), MovieDictEnum.LABEL.getDesc());
-				if(dbMap.get(rootKey) == null) {
-					MovieDictVO labelRoot = new MovieDictVO(MovieDictEnum.LABEL.getCode(), MovieDictEnum.ROOT.getCode(), MovieDictEnum.LABEL.getDesc(), MovieStatusEnum.available.getCode(), 1, thisTime);
-					fetchDicts.add(labelRoot);
-				}
-				
-				for(String fetchLabel : setLabels) {
-					String key = this.getDictKey(parentCode, fetchLabel);
-					if(dbMap.get(key) != null) {
-						continue;
-					}
-					MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.label_s), MovieDictEnum.LABEL.getCode(), fetchLabel, MovieStatusEnum.available.getCode(), 2, thisTime);
-					fetchDicts.add(vo);
-				}
-			}
-			
-			if(setLocations.size() > 0) {
-				String parentCode = MovieDictEnum.LOCATION.getCode();
-				String rootKey = this.getDictKey(MovieDictEnum.ROOT.getCode(), MovieDictEnum.LOCATION.getDesc());
-				if(dbMap.get(rootKey) == null) {
-					MovieDictVO locationRoot = new MovieDictVO(MovieDictEnum.LOCATION.getCode(), MovieDictEnum.ROOT.getCode(), MovieDictEnum.LOCATION.getDesc(), MovieStatusEnum.available.getCode(), 1, thisTime);
-					fetchDicts.add(locationRoot);
-				}
-				for(String fetchLocation : setLocations) {
-					String key = this.getDictKey(parentCode, fetchLocation);
-					if(dbMap.get(key) != null) {
-						continue;
-					}
-					MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.location_s), MovieDictEnum.LOCATION.getCode(), fetchLocation, MovieStatusEnum.available.getCode(), 2, thisTime);
-					fetchDicts.add(vo);
-				}
-			}
-			
-			if(setTags.size() > 0) {
-				String parentCode = MovieDictEnum.TAG.getCode();
-				String rootKey = this.getDictKey(MovieDictEnum.ROOT.getCode(), MovieDictEnum.TAG.getDesc());
-				if(dbMap.get(rootKey) == null) {
-					MovieDictVO tagRoot = new MovieDictVO(MovieDictEnum.TAG.getCode(), MovieDictEnum.ROOT.getCode(), MovieDictEnum.TAG.getDesc(), MovieStatusEnum.available.getCode(), 1, thisTime);
-					fetchDicts.add(tagRoot);
-				}
-				for(String fetchTag : setTags) {
-					String key = this.getDictKey(parentCode, fetchTag);
-					if(dbMap.get(key) != null) {
-						continue;
-					}
-					MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.tag_s), MovieDictEnum.TAG.getCode(), fetchTag, MovieStatusEnum.available.getCode(), 2, thisTime);
-					fetchDicts.add(vo);
-				}
-			}
-			
-		}else {
-			MovieDictVO labelRoot = new MovieDictVO(MovieDictEnum.LABEL.getCode(), MovieDictEnum.ROOT.getCode(), MovieDictEnum.LABEL.getDesc(), MovieStatusEnum.available.getCode(), 1, thisTime);
-			MovieDictVO locationRoot = new MovieDictVO(MovieDictEnum.LOCATION.getCode(), MovieDictEnum.ROOT.getCode(), MovieDictEnum.LOCATION.getDesc(), MovieStatusEnum.available.getCode(), 1, thisTime);
-			MovieDictVO tagRoot = new MovieDictVO(MovieDictEnum.TAG.getCode(), MovieDictEnum.ROOT.getCode(), MovieDictEnum.TAG.getDesc(), MovieStatusEnum.available.getCode(), 1, thisTime);
-			fetchDicts.add(labelRoot);
-			fetchDicts.add(locationRoot);
-			fetchDicts.add(tagRoot);
-			
-			for(String fetchLabel : setLabels) {
-				MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.label_s), MovieDictEnum.LABEL.getCode(), fetchLabel, MovieStatusEnum.available.getCode(), 2, thisTime);
-				fetchDicts.add(vo);
-			}
-			
-			for(String fetchLocation : setLocations) {
-				MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.location_s), MovieDictEnum.LOCATION.getCode(), fetchLocation, MovieStatusEnum.available.getCode(), 2, thisTime);
-				fetchDicts.add(vo);
-			}
-			
-			for(String fetchTag : setTags) {
-				MovieDictVO vo = new MovieDictVO(StringUtil.getId(CommonConstants.tag_s), MovieDictEnum.TAG.getCode(), fetchTag, MovieStatusEnum.available.getCode(), 2, thisTime);
-				fetchDicts.add(vo);
-			}
-		}
-		return fetchDicts;
-		
-	}
-	
-	private String getDictKey(String parentCode, String val) {
-		return parentCode + "-" + val;
-	}
 }

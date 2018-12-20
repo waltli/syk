@@ -71,6 +71,8 @@ public class CommonConstants {
 	
 	public static final String DICT = "dict_";
 	
+	public static final String DICT_TOP = "0";
+	
 	/**
 	 * 当前正在使用的过滤标识
 	 */

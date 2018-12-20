@@ -36,7 +36,9 @@
 		</div>
 		<div class="nav-secondary">
 			<div class="nav-items" id="nav-items">
-				
+				<ul id="items">
+					<li><a href="${pageCtx('ctx')}">全部</a></li>
+				</ul>
 			</div>
 		</div>
 	</div>
@@ -54,7 +56,6 @@
 	$.ajax({
 		url:ctx+"/nav",
 		success : function(data){
-			debugger;
 			if(!data.status){
 				return;
 			}
@@ -68,16 +69,14 @@
 			if(!categoryHtml && !tagHtml){
 				return;
 			}
-			var $html = $("<ul></ul>");
 			
 			if(categoryHtml){
-				$html.append(categoryHtml);
+				$("#items").append(categoryHtml);
 			}
 			
 			if(tagHtml){
-				$html.append(tagHtml);
+				$("#items").append(tagHtml);
 			}
-			$("#nav-items").append($html);
 		}
 	});
 	
@@ -99,7 +98,7 @@
 		}
 		html = "";
 		for(var i in tags){
-			html += '<li><a href="'+ ctx+'?t='+i+'">'+i+'</a></li>';
+			html += '<li><a href="'+ ctx+'?t='+tags[i]+'">'+tags[i]+'</a></li>';
 		}
 		return html;
 	}

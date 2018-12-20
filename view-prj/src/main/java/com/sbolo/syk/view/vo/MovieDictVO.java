@@ -9,6 +9,8 @@ public class MovieDictVO {
     private String code;
 
     private String parentCode;
+    
+    private String rootCode;
 
     private String val;
 
@@ -22,7 +24,15 @@ public class MovieDictVO {
 
     private String remark;
 
-    /**
+    public String getRootCode() {
+		return rootCode;
+	}
+
+	public void setRootCode(String rootCode) {
+		this.rootCode = rootCode;
+	}
+
+	/**
      * @return id
      */
     public Long getId() {

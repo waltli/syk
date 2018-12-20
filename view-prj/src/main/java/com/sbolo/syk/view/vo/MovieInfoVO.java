@@ -156,7 +156,7 @@ public class MovieInfoVO {
      */
     private Integer category;
     
-    private Integer tag;
+    private String tag;
 
     /**
      * 当前第几季
@@ -220,11 +220,11 @@ public class MovieInfoVO {
     
     private List<String> shotUrlList;
     
-	public Integer getTag() {
+	public String getTag() {
 		return tag;
 	}
 
-	public void setTag(Integer tag) {
+	public void setTag(String tag) {
 		this.tag = tag;
 	}
 

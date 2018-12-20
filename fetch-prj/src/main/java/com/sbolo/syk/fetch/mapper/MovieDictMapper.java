@@ -3,6 +3,7 @@ package com.sbolo.syk.fetch.mapper;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.ResultMap;
@@ -21,6 +22,13 @@ public interface MovieDictMapper extends Mapper<MovieDictEntity>, BatchWriteMapp
 	@Select("select t.val from movie_dict t where t.code = #{code}")
 	String selectByCode(String code);
 	
+	@Select("select t.val from movie_dict t where t.root_code = #{rootCode}")
+	List<String> selectByRootCode(String rootCode);
+	
+	List<MovieDictEntity> selectByRootCodes(List<String> rootCodes);
+	
 	List<MovieDictEntity> selectByCodes(List<String> codes);
+	
+	List<String> selectByVals(@Param("parentCode") String parentCode, @Param("set") Set<String> vals);
 	
 }

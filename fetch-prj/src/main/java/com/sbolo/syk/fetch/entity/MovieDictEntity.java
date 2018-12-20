@@ -15,6 +15,9 @@ public class MovieDictEntity {
 
     @Column(name = "`parent_code`")
     private String parentCode;
+    
+    @Column(name = "`root_code`")
+    private String rootCode;
 
     @Column(name = "`val`")
     private String val;
@@ -34,7 +37,15 @@ public class MovieDictEntity {
     @Column(name = "`remark`")
     private String remark;
 
-    /**
+    public String getRootCode() {
+		return rootCode;
+	}
+
+	public void setRootCode(String rootCode) {
+		this.rootCode = rootCode;
+	}
+
+	/**
      * @return id
      */
     public Long getId() {

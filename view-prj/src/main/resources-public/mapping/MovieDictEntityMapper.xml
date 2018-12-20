@@ -8,6 +8,7 @@
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="code" jdbcType="VARCHAR" property="code" />
     <result column="parent_code" jdbcType="VARCHAR" property="parentCode" />
+    <result column="root_code" jdbcType="VARCHAR" property="rootCode" />
     <result column="val" jdbcType="VARCHAR" property="val" />
     <result column="st" jdbcType="INTEGER" property="st" />
     <result column="tier" jdbcType="INTEGER" property="tier" />

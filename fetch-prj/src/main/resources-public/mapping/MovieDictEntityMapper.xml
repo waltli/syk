@@ -8,6 +8,7 @@
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="code" jdbcType="VARCHAR" property="code" />
     <result column="parent_code" jdbcType="VARCHAR" property="parentCode" />
+    <result column="root_code" jdbcType="VARCHAR" property="rootCode" />
     <result column="val" jdbcType="VARCHAR" property="val" />
     <result column="st" jdbcType="INTEGER" property="st" />
     <result column="tier" jdbcType="INTEGER" property="tier" />
@@ -18,6 +19,20 @@
   
   <select id="selectByCodes" parameterType="java.util.List" resultMap="BaseResultMap">
   	select * from movie_dict where `code` in 
+  	<foreach collection="list" open="(" close=")" item="item" separator=",">
+  		#{item}
+  	</foreach>
+  </select>
+  
+  <select id="selectByVals" parameterType="java.util.Set" resultType="java.lang.String">
+  	select val from movie_dict where `parent_code` = #{parentCode} and `val` in 
+  	<foreach collection="set" open="(" close=")" item="item" separator=",">
+  		#{item}
+  	</foreach>
+  </select>
+  
+  <select id="selectByRootCodes" parameterType="java.util.List" resultMap="BaseResultMap">
+  	select * from movie_dict where `root_code` in 
   	<foreach collection="list" open="(" close=")" item="item" separator=",">
   		#{item}
   	</foreach>

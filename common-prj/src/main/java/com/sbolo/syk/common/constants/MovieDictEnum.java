@@ -1,8 +1,11 @@
 package com.sbolo.syk.common.constants;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 public enum MovieDictEnum {
 
-	ROOT("ROOT", "根"),
 	LABEL("LABEL", "标签类型"),
 	LOCATION("LOCATION", "地区类型"),
 	TAG("TAG", "大标签");
@@ -13,6 +16,15 @@ public enum MovieDictEnum {
 	MovieDictEnum(String code, String desc){
 		this.code = code;
 		this.desc = desc;
+	}
+	
+	public static List<String> getCodes(){
+		List<String> codes = new ArrayList<>();
+		MovieDictEnum[] values = MovieDictEnum.values();
+		for(MovieDictEnum value : values){
+			codes.add(value.getCode());
+		}
+		return codes;
 	}
 	
 	public String getCode() {
