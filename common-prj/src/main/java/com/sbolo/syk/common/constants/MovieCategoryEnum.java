@@ -1,6 +1,8 @@
 package com.sbolo.syk.common.constants;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.sbolo.syk.common.tools.StringUtil;
@@ -18,8 +20,17 @@ public enum MovieCategoryEnum {
 		this.desc = desc;
 	}
 	
+	public static int getCodeByDesp(String desp){
+		MovieCategoryEnum[] values = MovieCategoryEnum.values();
+		for(MovieCategoryEnum value : values){
+			if(value.getDesc().equals(desp)){
+				return value.getCode();
+			}
+		}
+		return 0;
+	}
+	
 	public static int getCodeByName(String name){
-		name = StringUtil.replaceBlank2(name).toUpperCase();
 		MovieCategoryEnum[] values = MovieCategoryEnum.values();
 		for(MovieCategoryEnum value : values){
 			if(value.name().equals(name)){
@@ -27,6 +38,15 @@ public enum MovieCategoryEnum {
 			}
 		}
 		return 0;
+	}
+
+	public static List<String> getDesps(){
+		List<String> desps = new ArrayList<>();
+		MovieCategoryEnum[] values = MovieCategoryEnum.values();
+		for(MovieCategoryEnum value : values){
+			desps.add(value.getDesc());
+		}
+		return desps;
 	}
 	
 	public static Map<Integer, String> toMap(){

@@ -61,10 +61,10 @@ public class IndexController {
 			@RequestParam(value="page",defaultValue="1", required=false) Integer pageNum,
             @RequestParam(value="l", required=false) String label,
             @RequestParam(value="q", required=false) String keyword,
-            @RequestParam(value="c", required=false) Integer category,
+            @RequestParam(value="c", required=false) String categoryDesp,
             @RequestParam(value="t", required=false) String tag) throws Exception{
 		
-		RequestResult<MovieInfoVO> result = movieInfoService.getAroundList(pageNum, pageSize, label, keyword, category, tag);
+		RequestResult<MovieInfoVO> result = movieInfoService.getAroundList(pageNum, pageSize, label, keyword, categoryDesp, tag);
 		model.addAttribute("requestResult", result);
 		return index;
 	}
@@ -73,8 +73,8 @@ public class IndexController {
 	@ResponseBody
 	public RequestResult<Map<String, Object>> nav() throws Exception{
 		Map<String, Object> m = new HashMap<>();
-		Map<Integer, String> categoryMap = MovieCategoryEnum.toMap();
-		m.put("categoryMap", categoryMap);
+		List<String> desps = MovieCategoryEnum.getDesps();
+		m.put("categories", desps);
 		
 		List<String> tags = movieDictService.getTags();
 		m.put("tags", tags);

@@ -143,9 +143,7 @@ public class TestJunit {
 			return;
 		}
 		
-		List<MovieFetchRecordEntity> fetchRecordList = FetchUtils.buildFetchRecordList(null, toupList, null, null, null);
-		
-		movieDictService.junitUP(toupList, fetchRecordList);
+		movieDictService.junitUP(toupList);
 	}
 	
 	@Test
@@ -163,9 +161,7 @@ public class TestJunit {
 			return;
 		}
 		
-		List<MovieFetchRecordEntity> fetchRecordList = FetchUtils.buildFetchRecordList(null, null, null, null, dictAll);
-		
-		movieDictService.junitInsert(dictAll, fetchRecordList);
+		movieDictService.junitInsert(dictAll);
 	}
 	
 }

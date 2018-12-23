@@ -196,16 +196,12 @@ public class MovieDictService {
 	}
 	
 	@Transactional
-	public void junitInsert(List<MovieDictEntity> dictAll, List<MovieFetchRecordEntity> fetchRecordList) {
+	public void junitInsert(List<MovieDictEntity> dictAll) {
 		movieDictMapper.insertList(dictAll);
-		
-		movieFetchRecordMapper.insertList(fetchRecordList);
 	}
 	
 	@Transactional
-	public void junitUP(List<MovieInfoEntity> toupList, List<MovieFetchRecordEntity> fetchRecordList) {
+	public void junitUP(List<MovieInfoEntity> toupList) {
 		movieInfoMapper.updateListByPrn(toupList);
-		
-		movieFetchRecordMapper.insertList(fetchRecordList);
 	}
 }

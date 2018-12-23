@@ -14,6 +14,7 @@ import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,8 +28,10 @@ import com.sbolo.syk.common.tools.BucketUtils;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.common.ui.RequestResult;
+import com.sbolo.syk.fetch.entity.MovieFetchRecordEntity;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
+import com.sbolo.syk.fetch.mapper.MovieFetchRecordMapper;
 import com.sbolo.syk.fetch.mapper.MovieInfoMapper;
 import com.sbolo.syk.fetch.mapper.ResourceInfoMapper;
 import com.sbolo.syk.fetch.tool.FetchUtils;
@@ -48,6 +51,9 @@ public class MovieInfoService {
 	
 	@Resource
 	private ResourceInfoMapper resourceInfoMapper;
+	
+	@Autowired
+	private MovieFetchRecordMapper movieFetchRecordMapper;
 	
 	public List<MovieInfoEntity> getByPureNames(List<String> pureNames) {
 		List<MovieInfoEntity> entities = movieInfoMapper.selectByPureNames(pureNames);
@@ -118,13 +124,12 @@ public class MovieInfoService {
 		return movieInfoMapper.selectByPureNameAndReleaseTime(params);
 	}
 	
-	@Transactional
-	public void manualAddAround(MovieInfoVO movie, List<ResourceInfoVO> resources) throws Exception {
+	public void manualProcess(MovieInfoVO movie, List<ResourceInfoVO> resources) throws Exception {
 		String moviePrn = StringUtil.getId(CommonConstants.movie_s);
-		Date now = new Date();
+		Date thisTime = new Date();
 		movie.setPrn(moviePrn);
-		movie.setCreateTime(now);
-		movie.setResourceWriteTime(now);
+		movie.setCreateTime(thisTime);
+		movie.setResourceWriteTime(thisTime);
 		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		String releaseTimeStr = movie.getReleaseTimeStr();
@@ -168,7 +173,7 @@ public class MovieInfoService {
 			resource.setReleaseTime(releaseTime);
 			resource.setSpeed(5);
 			resource.setSeason(movie.getPresentSeason());
-			resource.setCreateTime(now);
+			resource.setCreateTime(thisTime);
 			
 			if(movie.getCategory() == MovieCategoryEnum.tv.getCode()){
 				if(resource.getEpisodeStart() != null && resource.getEpisodeStart() > maxEpisodeStart){
@@ -210,13 +215,27 @@ public class MovieInfoService {
 		
 		movie.setOptimalResourcePrn(optimalResource.getPrn());
 		movie.setResourceWriteTime(optimalResource.getCreateTime());
-		
+	}
+	
+	@Transactional
+	public void manualAddAround(MovieInfoVO movie, List<ResourceInfoVO> resources) throws Exception {
 		MovieInfoEntity movieEntity = VOUtils.po2vo(movie, MovieInfoEntity.class);
-		movieInfoMapper.insert(movieEntity);
-		
+		List<ResourceInfoEntity> resourceEntities = null;
 		if(resources.size() != 0){
-			List<ResourceInfoEntity> resourceEntities = VOUtils.po2vo(resources, ResourceInfoEntity.class);
+			resourceEntities = VOUtils.po2vo(resources, ResourceInfoEntity.class);
+		}
+		List<MovieInfoEntity> addMovies = new ArrayList<>();
+		addMovies.add(movieEntity);
+		List<MovieFetchRecordEntity> recordList = FetchUtils.buildFetchRecordList(addMovies, null, resourceEntities, null, null);
+		
+		if(movieEntity != null) {
+			movieInfoMapper.insert(movieEntity);
+		}
+		if(resourceEntities != null && resourceEntities.size() > 0) {
 			resourceInfoMapper.insertList(resourceEntities);
+		}
+		if(recordList != null && recordList.size() > 0) {
+			movieFetchRecordMapper.insertList(recordList);
 		}
 	}
 	
@@ -234,8 +253,7 @@ public class MovieInfoService {
 		return movieVO;
 	}
 	
-	@Transactional
-	public void modiMovieInfoManual(MovieInfoVO modiMovie) throws Exception{
+	public MovieInfoVO modiMovieProcess(MovieInfoVO modiMovie) throws Exception {
 		MovieInfoEntity dbMovie = movieInfoMapper.selectByPrn(modiMovie.getPrn());
 		if(dbMovie == null){
 			throw new Exception("该影片信息不存在，修改失败！");
@@ -243,7 +261,7 @@ public class MovieInfoService {
 		MovieInfoVO changeMovie = FetchUtils.movieChangeOption(dbMovie, modiMovie, new Date());
 		
 		if(changeMovie == null){
-			return;
+			return null;
 		}
 		changeMovie.setPrn(dbMovie.getPrn());
 		
@@ -266,10 +284,19 @@ public class MovieInfoService {
 			String uriJson = FetchUtils.compareUploadGetJsonAndDelOld(dbMovie.getPhotoUriJson(), changeMovie.getPhotoSubDirStr(), CommonConstants.photo_v);
 			changeMovie.setPhotoUriJson(uriJson);
 		}
-		
+		return changeMovie;
+	}
+	
+	@Transactional
+	public void modiMovie(MovieInfoVO changeMovie) throws Exception{
 		MovieInfoEntity movieInfoEntity = VOUtils.po2vo(changeMovie, MovieInfoEntity.class);
+		
 		if(movieInfoEntity != null) {
+			List<MovieInfoEntity> updateMovies = new ArrayList<>();
+			updateMovies.add(movieInfoEntity);
+			List<MovieFetchRecordEntity> recordList = FetchUtils.buildFetchRecordList(null, updateMovies, null, null, null);
 			movieInfoMapper.updateByPrn(movieInfoEntity);
+			movieFetchRecordMapper.insertList(recordList);
 		}
 	}
 	
@@ -286,7 +313,7 @@ public class MovieInfoService {
 		return movieInfoMapper.selectByPureNameAndPrecision(params);
 	}
 	
-	public MovieInfoEntity freshOptimalResource(int category, ResourceInfoVO newOptimalResourceVO, ResourceInfoEntity nowOptimalResourceVO) throws Exception{
+	public MovieInfoVO freshOptimalResource(int category, ResourceInfoVO newOptimalResourceVO, ResourceInfoEntity nowOptimalResourceVO) throws Exception{
 		if(category == MovieCategoryEnum.movie.getCode()){
 			if(newOptimalResourceVO.getDefinition() == null){
 				return null;
@@ -323,7 +350,7 @@ public class MovieInfoService {
 			}
 		}
 		
-		MovieInfoEntity toUpMovie = new MovieInfoEntity();
+		MovieInfoVO toUpMovie = new MovieInfoVO();
 		toUpMovie.setOptimalResourcePrn(newOptimalResourceVO.getPrn());
 		toUpMovie.setPrn(nowOptimalResourceVO.getMoviePrn());
 		toUpMovie.setUpdateTime(new Date());

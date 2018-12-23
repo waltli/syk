@@ -60,10 +60,10 @@
 				return;
 			}
 			var map = data.obj;
-			var categoryMap = map.categoryMap;
+			var categories = map.categories;
 			var tags = map.tags;
 			
-			var categoryHtml = buildCategory(categoryMap);
+			var categoryHtml = buildCategory(categories);
 			var tagHtml = buildTag(tags);
 			
 			if(!categoryHtml && !tagHtml){
@@ -80,14 +80,14 @@
 		}
 	});
 	
-	function buildCategory(categoryMap){
-		if(!categoryMap){
+	function buildCategory(categories){
+		if(!categories){
 			return;
 		}
 		
 		html = "";
-		for(var key in categoryMap){
-			html += '<li><a href="'+ ctx+'?c='+key+'">'+categoryMap[key]+'</a></li>';
+		for(var key in categories){
+			html += '<li><a href="'+ ctx+'?c='+categories[key]+'">'+categories[key]+'</a></li>';
 		}
 		return html;
 	}

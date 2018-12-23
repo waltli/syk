@@ -10,12 +10,7 @@
 @} else if(isNotEmpty(params.l)) {
 	电影标签：${params.l }
 @} else if(isNotEmpty(params.c)) {
-	类别：
-	@if(params.c == "1") {
-		电影
-	@}else {
-		剧集
-	@}
+	类别：${params.c }
 @} else if(isNotEmpty(params.t)) {
 	标签：${params.t }
 @}else {
@@ -39,14 +34,7 @@
 						@}
 						@if(isNotEmpty(params.c)){
 							类别：
-							<span class="tags-name">
-							@if(params.c == "1") {
-								电影
-							@}else {
-								剧集
-							@}
-							</span>
-							<sup class="tags-del" belong="c"></sup>
+							<span class="tags-name">${params.c }</span><sup class="tags-del" belong="c"></sup>
 						@}
 						@if(isNotEmpty(params.t)){
 							类别：<span class="tags-name">${params.t}</span><sup class="tags-del" belong="t"></sup>

@@ -33,6 +33,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.sbolo.syk.common.annotation.CacheAvl;
 import com.sbolo.syk.common.constants.CommonConstants;
+import com.sbolo.syk.common.constants.MovieCategoryEnum;
 import com.sbolo.syk.common.constants.TriggerEnum;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.VOUtils;
@@ -57,7 +58,7 @@ public class MovieInfoService {
 	@Resource
 	private MovieHotStatMapper movieHotStatMapper;
 	
-	public RequestResult<MovieInfoVO> getAroundList(int pageNum, int pageSize, String label, String keyword, Integer category, String tag) throws InstantiationException, IllegalAccessException, InvocationTargetException{
+	public RequestResult<MovieInfoVO> getAroundList(int pageNum, int pageSize, String label, String keyword, String categoryDesp, String tag) throws InstantiationException, IllegalAccessException, InvocationTargetException{
         Map<String, Object> params = new HashMap<String, Object>();
         if(StringUtils.isNotBlank(keyword)){
         	params.put("keyword", keyword);
@@ -67,7 +68,8 @@ public class MovieInfoService {
 			params.put("label", label);
 			PageHelper.startPage(pageNum, pageSize, "t.resource_write_time DESC");
 			list = movieInfoMapper.selectByAssociationWithLabel(params);
-		}else if(category != null) {
+		}else if(categoryDesp != null) {
+			int category = MovieCategoryEnum.getCodeByDesp(categoryDesp);
 			params.put("category", category);
 			PageHelper.startPage(pageNum, pageSize, "t.resource_write_time DESC");
 			list = movieInfoMapper.selectByAssociationWithCategory(params);

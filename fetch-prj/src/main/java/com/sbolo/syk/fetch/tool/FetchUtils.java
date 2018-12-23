@@ -51,6 +51,60 @@ import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 public class FetchUtils {
 	private static final Logger log = LoggerFactory.getLogger(FetchUtils.class);
 	
+	public static void deleteFiles(List<ResourceInfoVO> fetchResources) {
+		List<MovieInfoVO> fetchMovies = null;
+		deleteFiles(fetchMovies, fetchResources);
+	}
+	
+	public static void deleteFiles(MovieInfoVO fetchMovie, List<ResourceInfoVO> fetchResources) {
+		List<MovieInfoVO> fetchMovies = new ArrayList<>();
+		if(fetchMovie != null) {
+			fetchMovies.add(fetchMovie);
+		}
+		deleteFiles(fetchMovies, fetchResources);
+	}
+	
+	public static void deleteFiles(List<MovieInfoVO> fetchMovies, List<ResourceInfoVO> fetchResources) {
+		List<String> uris = new ArrayList<>();
+		if(fetchMovies != null && fetchMovies.size() > 0) {
+			for(MovieInfoVO fetchMovie : fetchMovies) {
+				String iconUri = fetchMovie.getIconUri();
+				List<String> posterUriList = fetchMovie.getPosterUriList();
+				List<String> photoUriList = fetchMovie.getPhotoUriList();
+				
+				if(StringUtils.isNotBlank(iconUri)) {
+					uris.add(iconUri);
+				}
+				if(posterUriList != null && posterUriList.size() > 0) {
+					uris.addAll(posterUriList);
+				}
+				
+				if(photoUriList != null && photoUriList.size() > 0) {
+					uris.addAll(photoUriList);
+				}
+			}
+		}
+		
+		if(fetchResources != null && fetchResources.size() > 0) {
+			for(ResourceInfoVO fetchResource : fetchResources) {
+				List<String> shotUriList = fetchResource.getShotUriList();
+				uris.addAll(shotUriList);
+				if(Pattern.compile(RegexConstant.torrent).matcher(fetchResource.getDownloadLink()).find()) {
+					uris.add(fetchResource.getDownloadLink());
+				}
+			}
+		}
+		
+		
+		try {
+			if(uris.size() > 0) {
+				BucketUtils.deletes(uris);
+			}
+		} catch (Exception e) {
+			log.error("删除文件时出现错误", e);
+		}
+	}
+	
 	public static List<MovieFetchRecordEntity> buildFetchRecordList(
 			List<MovieInfoEntity> addMovies, List<MovieInfoEntity> updateMovies,
 			List<ResourceInfoEntity> addResourceInfos, List<ResourceInfoEntity> updateResourceInfos, 
@@ -94,9 +148,6 @@ public class FetchUtils {
 				fetchRecordList.add(fetchRecord);
 			}
 		}
-		
-		
-		
 		return fetchRecordList;
 	}
 	
