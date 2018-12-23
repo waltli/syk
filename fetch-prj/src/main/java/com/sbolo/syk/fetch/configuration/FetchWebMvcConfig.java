@@ -27,7 +27,7 @@ public class FetchWebMvcConfig implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(loginInterceptor()).addPathPatterns("/**").excludePathPatterns("/test111", "/test222", "/login-work", "/login", "/assets/**", "/temp/**", "/error");
+        registry.addInterceptor(loginInterceptor()).addPathPatterns("/**").excludePathPatterns("/test/**", "/login-work", "/login", "/assets/**", "/temp/**", "/error");
     }
 	
 }

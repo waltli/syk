@@ -47,7 +47,7 @@ public class MovieScheduler {
 	
 	
 	
-	@Scheduled(cron="0 0 10,14,18,21 * * ?")
+//	@Scheduled(cron="0 0 10,14,18,21 * * ?")
 	public void goSpider(){
 		try {
 			spider.run();

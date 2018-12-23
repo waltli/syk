@@ -1,5 +1,6 @@
 package com.sbolo.syk.fetch.controller;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +22,11 @@ import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.common.ui.RequestResult;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
+import com.sbolo.syk.fetch.mapper.MovieInfoMapper;
+import com.sbolo.syk.fetch.mapper.ResourceInfoMapper;
 import com.sbolo.syk.fetch.service.MovieInfoService;
 import com.sbolo.syk.fetch.service.ResourceInfoService;
+import com.sbolo.syk.fetch.tool.FetchUtils;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
 import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 import com.sbolo.syk.fetch.vo.ResourceInfosVO;
@@ -41,6 +45,12 @@ public class ResourceController {
 	
 	@Resource
 	private ResourceInfoService resourceInfoService;
+	
+	@Resource
+	private MovieInfoMapper movieInfoMapper;
+	
+	@Resource
+	private ResourceInfoMapper resourceInfoMapper;
 	
 	@RequestMapping("list")
 	public String list(Model model,
@@ -82,8 +92,16 @@ public class ResourceController {
 	
 	@RequestMapping(value="add-work", method=RequestMethod.POST)
 	public String addResourceHere(Model model, HttpServletRequest request, String moviePrn, ResourceInfosVO resourceModel) throws Exception{
-		List<ResourceInfoVO> resourcesVO = resourceModel.getResources();
-		resourceInfoService.manualAddResources(moviePrn, resourcesVO);
+		List<ResourceInfoVO> resources = resourceModel.getResources();
+		MovieInfoEntity movieAround = movieInfoMapper.selectAssociationByMoviePrn(moviePrn);
+		try {
+			resourceInfoService.addResourcesProcess(movieAround, resources);
+			MovieInfoVO toUpMovie = resourceInfoService.setOptimalAndGet(movieAround, resources);
+			resourceInfoService.manualAddResources(toUpMovie, resources);
+		} catch (Exception e) {
+			FetchUtils.deleteFiles(resources);
+			throw e;
+		}
 		RequestResult<String> result = new RequestResult<>("success");
 		model.addAttribute("result", result);
 		return add_result;
@@ -110,7 +128,14 @@ public class ResourceController {
 	
 	@RequestMapping(value="modi-work", method={RequestMethod.POST})
 	public String modiWork(Model model, ResourceInfoVO newResource, boolean isOptimal) throws Exception{
-		resourceInfoService.modiResource(newResource, isOptimal);
+		ResourceInfoEntity dbResource = resourceInfoMapper.selectByPrn(newResource.getPrn());
+		if(dbResource == null){
+			throw new Exception("该资源信息不存在，修改失败！");
+		}
+		Date thisTime = new Date();
+		ResourceInfoVO changeResource = resourceInfoService.modiResourceProcess(newResource, dbResource, thisTime);
+		MovieInfoVO toUpMovie = resourceInfoService.getToUpMovie(isOptimal, changeResource, dbResource.getMoviePrn(), thisTime);
+		resourceInfoService.modiResource(newResource, toUpMovie);
 		RequestResult<String> result = new RequestResult<>("sucess");
 		model.addAttribute("result", result);
 		return add_result;

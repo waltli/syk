@@ -122,7 +122,13 @@ public class MovieController {
 			return "redirect:existed?mi="+existMovie.getPrn();
 		}
 		List<ResourceInfoVO> resources = resourceModel.getResources();
-		movieInfoService.manualAddAround(movie, resources);
+		try {
+			movieInfoService.manualProcess(movie, resources);
+			movieInfoService.manualAddAround(movie, resources);
+		} catch (Exception e) {
+			FetchUtils.deleteFiles(movie, resources);
+			throw e;
+		}
 		RequestResult<MovieInfoVO> result = new RequestResult<>(movie);
 		model.addAttribute("result", result);
 		return add_result;
@@ -169,7 +175,13 @@ public class MovieController {
 	
 	@RequestMapping(value="modi-movie-work", method={RequestMethod.POST})
 	public String updateWork(Model model, HttpServletRequest request, MovieInfoVO movie) throws Exception{
-		movieInfoService.modiMovieInfoManual(movie);
+		try {
+			MovieInfoVO changeMovie = movieInfoService.modiMovieProcess(movie);
+			movieInfoService.modiMovie(changeMovie);
+		} catch (Exception e) {
+			FetchUtils.deleteFiles(movie, null);
+			throw e;
+		}
 		RequestResult<MovieInfoVO> result = new RequestResult<>(movie);
 		model.addAttribute("result", result);
 		return add_result;

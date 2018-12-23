@@ -159,44 +159,8 @@ public class DBPipeline implements Pipeline {
 		
 		} catch (Exception e) {
 			log.error("分解入库时出现错误", e);
-			deleteFiles(finalMovies, finalResources);
+			FetchUtils.deleteFiles(finalMovies, finalResources);
 			throw e;
-		}
-	}
-	
-	private void deleteFiles(List<MovieInfoVO> fetchMovies, List<ResourceInfoVO> fetchResources) {
-		List<String> uris = new ArrayList<>();
-		
-		for(MovieInfoVO fetchMovie : fetchMovies) {
-			String iconUri = fetchMovie.getIconUri();
-			List<String> posterUriList = fetchMovie.getPosterUriList();
-			List<String> photoUriList = fetchMovie.getPhotoUriList();
-			
-			if(StringUtils.isNotBlank(iconUri)) {
-				uris.add(iconUri);
-			}
-			if(posterUriList != null && posterUriList.size() > 0) {
-				uris.addAll(posterUriList);
-			}
-			
-			if(photoUriList != null && photoUriList.size() > 0) {
-				uris.addAll(photoUriList);
-			}
-		}
-		
-		
-		for(ResourceInfoVO fetchResource : fetchResources) {
-			List<String> shotUriList = fetchResource.getShotUriList();
-			uris.addAll(shotUriList);
-			if(Pattern.compile(RegexConstant.torrent).matcher(fetchResource.getDownloadLink()).find()) {
-				uris.add(fetchResource.getDownloadLink());
-			}
-		}
-		
-		try {
-			BucketUtils.deletes(uris);
-		} catch (Exception e) {
-			log.error("删除文件时出现错误", e);
 		}
 	}
 	

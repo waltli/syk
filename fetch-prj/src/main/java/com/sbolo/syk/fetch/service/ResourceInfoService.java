@@ -13,6 +13,7 @@ import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,11 +25,14 @@ import com.sbolo.syk.common.constants.RegexConstant;
 import com.sbolo.syk.common.tools.BucketUtils;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.VOUtils;
+import com.sbolo.syk.fetch.entity.MovieFetchRecordEntity;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
+import com.sbolo.syk.fetch.mapper.MovieFetchRecordMapper;
 import com.sbolo.syk.fetch.mapper.MovieInfoMapper;
 import com.sbolo.syk.fetch.mapper.ResourceInfoMapper;
 import com.sbolo.syk.fetch.tool.FetchUtils;
+import com.sbolo.syk.fetch.vo.MovieInfoVO;
 import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 
 @Service
@@ -42,6 +46,9 @@ public class ResourceInfoService {
 	
 	@Resource
 	private MovieInfoService movieInfoService;
+	
+	@Autowired
+	private MovieFetchRecordMapper movieFetchRecordMapper;
 	
 	public List<ResourceInfoEntity> getOptimalResources(List<String> moviePrns) {
 		List<ResourceInfoEntity> dbOptimalResources = resourceInfoMapper.selectOptimalResources(moviePrns);
@@ -103,28 +110,39 @@ public class ResourceInfoService {
 		}
 	}
 	
-	@Transactional
-	public void manualAddResources(String moviePrn, List<ResourceInfoVO> resourcesVO) throws Exception{
-		
-		MovieInfoEntity movieAround = movieInfoMapper.selectAssociationByMoviePrn(moviePrn);
-		ResourceInfoEntity optimalResource = movieAround.getOptimalResource();
-		
-		Date now = new Date();
+	public MovieInfoVO setOptimalAndGet(MovieInfoEntity movieAround, List<ResourceInfoVO> resources) throws Exception {
 		Integer optimalIdx = 0;
 		Integer maxDefinition = -1;
+		for(int i=0; i<resources.size(); i++){
+			ResourceInfoVO resource = resources.get(i);
+			int definitionScore = resource.getDefinition();
+			if(definitionScore > maxDefinition){
+				maxDefinition = definitionScore;
+				optimalIdx = i;
+			}
+		}
+		//设置最佳资源信息
+		ResourceInfoEntity dbOptimalResource = movieAround.getOptimalResource();
+		ResourceInfoVO newOptimalResourceVO = resources.get(optimalIdx);
+		MovieInfoVO toUpMovie = movieInfoService.freshOptimalResource(movieAround.getCategory(), newOptimalResourceVO, dbOptimalResource);
+		return toUpMovie;
+	}
+	
+	public void addResourcesProcess(MovieInfoEntity movieAround, List<ResourceInfoVO> resources) throws Exception {
+		String moviePrn = movieAround.getPrn();
+		Date thisTime = new Date();
 		Integer maxEpisodeStart = -1;
 		Integer maxEpisodeEnd = -1;
-		List<ResourceInfoEntity> resources = new ArrayList<>();
-		for(int i=0; i<resourcesVO.size(); i++){
-			ResourceInfoVO resourceVO = resourcesVO.get(i);
-			ResourceInfoEntity resource = VOUtils.po2vo(resourceVO, ResourceInfoEntity.class);
+		List<ResourceInfoVO> changeResources = new ArrayList<>();
+		for(int i=0; i<resources.size(); i++){
+			ResourceInfoVO resource = resources.get(i);
 			String resourcePrn = StringUtil.getId(CommonConstants.resource_s);
 			resource.setPrn(resourcePrn);
 			resource.setPureName(movieAround.getPureName());
 			resource.setReleaseTime(movieAround.getReleaseTime());
 			resource.setSpeed(5);
 			resource.setMoviePrn(moviePrn);
-			resource.setCreateTime(now);
+			resource.setCreateTime(thisTime);
 			resource.setSt(MovieStatusEnum.available.getCode());
 			
 			if(movieAround.getCategory() == MovieCategoryEnum.tv.getCode()){
@@ -137,10 +155,10 @@ public class ResourceInfoService {
 			}
 			
 			//上传torrent文件
-			String downloadLinkTemp = resourceVO.getDownloadLinkTemp();
+			String downloadLinkTemp = resource.getDownloadLinkTemp();
 			String downloadLink = null;
 			if(Pattern.compile(RegexConstant.torrent).matcher(downloadLinkTemp).find()) {
-				String torrentName = FetchUtils.getTorrentName(resourceVO);
+				String torrentName = FetchUtils.getTorrentName(resource);
 				downloadLink = FetchUtils.uploadTorrentGetUriFromDir(downloadLinkTemp, torrentName);
 			}else {
 				downloadLink = downloadLinkTemp;
@@ -148,31 +166,38 @@ public class ResourceInfoService {
 			resource.setDownloadLink(downloadLink);
 			
 			//上传shots图片
-			String shotSubDirStr = resourceVO.getShotSubDirStr();
+			String shotSubDirStr = resource.getShotSubDirStr();
 			if(StringUtils.isNotBlank(shotSubDirStr)) {
 				String shotUriJson = FetchUtils.uploadShotAndGetUriJsonFromDirs(shotSubDirStr);
 				resource.setShotUriJson(shotUriJson);
 			}
 			
 			//资源清晰度得分
-			Integer definitionScore = FetchUtils.translateDefinitionIntoScore(resourceVO.getQuality(), resourceVO.getResolution());
+			Integer definitionScore = FetchUtils.translateDefinitionIntoScore(resource.getQuality(), resource.getResolution());
 			resource.setDefinition(definitionScore);
-			if(definitionScore > maxDefinition){
-				maxDefinition = definitionScore;
-				optimalIdx = i;
-			}
-			resources.add(resource);
+			changeResources.add(resource);
 		}
-		
-		//设置最佳资源信息
-		ResourceInfoVO newOptimalResourceVO = resourcesVO.get(optimalIdx);
-		MovieInfoEntity toUpMovie = movieInfoService.freshOptimalResource(movieAround.getCategory(), newOptimalResourceVO, optimalResource);
-		
-		if(toUpMovie != null){
-			movieInfoMapper.updateByPrn(toUpMovie);
-		}
+	}
+	
+	@Transactional
+	public void manualAddResources(MovieInfoVO toUpMovie, List<ResourceInfoVO> resources) throws Exception{
+		MovieInfoEntity movieEntity = VOUtils.po2vo(toUpMovie, MovieInfoEntity.class);
+		List<ResourceInfoEntity> resourceEntities = null;
 		if(resources.size() != 0){
-			resourceInfoMapper.insertList(resources);
+			resourceEntities = VOUtils.po2vo(resources, ResourceInfoEntity.class);
+		}
+		List<MovieInfoEntity> updateMovies = new ArrayList<>();
+		updateMovies.add(movieEntity);
+		List<MovieFetchRecordEntity> recordList = FetchUtils.buildFetchRecordList(null, updateMovies, resourceEntities, null, null);
+		
+		if(movieEntity != null){
+			movieInfoMapper.updateByPrn(movieEntity);
+		}
+		if(resourceEntities != null && resourceEntities.size() > 0){
+			resourceInfoMapper.insertList(resourceEntities);
+		}
+		if(recordList != null && recordList.size() > 0) {
+			movieFetchRecordMapper.insertList(recordList);
 		}
 	}
 	
@@ -183,57 +208,73 @@ public class ResourceInfoService {
 		return resourceVO;
 	}
 	
+	public ResourceInfoVO modiResourceProcess(ResourceInfoVO newResource, ResourceInfoEntity dbResource, Date thisTime) throws Exception {
+		ResourceInfoVO changeResource = FetchUtils.resourceChangeOption(dbResource, newResource);
+		
+		if(changeResource == null) {
+			return null;
+		}
+		String downloadLinkTemp = changeResource.getDownloadLinkTemp();
+		if(StringUtils.isNotBlank(downloadLinkTemp)){
+			String downloadLink = null;
+			if(Pattern.compile(RegexConstant.torrent).matcher(downloadLinkTemp).find()){
+				//上传torrent文件
+				String torrentName = FetchUtils.getTorrentName(newResource);
+				downloadLink = FetchUtils.uploadTorrentGetUriFromDir(downloadLinkTemp, torrentName);
+			}else {
+				downloadLink = downloadLinkTemp;
+			}
+			changeResource.setDownloadLink(downloadLink);
+			BucketUtils.delete(dbResource.getDownloadLink());
+		}
+		
+		//上传shots图片
+		if(StringUtils.isNotBlank(changeResource.getShotSubDirStr())) {
+			String uriJson = FetchUtils.compareUploadGetJsonAndDelOld(dbResource.getShotUriJson(), changeResource.getShotSubDirStr(), CommonConstants.shot_v);
+			changeResource.setShotUriJson(uriJson);
+		}
+		
+		int definitionScore = FetchUtils.translateDefinitionIntoScore(newResource.getQuality(), newResource.getResolution());
+		changeResource.setDefinition(definitionScore);
+		
+		changeResource.setPrn(dbResource.getPrn());
+		changeResource.setUpdateTime(new Date());
+		return changeResource;
+	}
+	
+	public MovieInfoVO getToUpMovie(boolean isOptimal, ResourceInfoVO changeResource, String moviePrn, Date thisTime) {
+		if(!isOptimal){
+			return null;
+		}
+		MovieInfoVO toUpMovie = new MovieInfoVO();
+		toUpMovie.setOptimalResourcePrn(changeResource.getPrn());
+		toUpMovie.setResourceWriteTime(thisTime);
+		toUpMovie.setPrn(moviePrn);
+		toUpMovie.setUpdateTime(thisTime);
+		return toUpMovie;
+	}
+	
 	@Transactional
-	public void modiResource(ResourceInfoVO newResource, boolean isOptimal) throws Exception{
-		ResourceInfoEntity dbResource = resourceInfoMapper.selectByPrn(newResource.getPrn());
-		if(dbResource == null){
-			throw new Exception("该资源信息不存在，修改失败！");
+	public void modiResource(ResourceInfoVO newResource, MovieInfoVO toUpMovie) throws Exception{
+		ResourceInfoEntity modiResourceEntity = VOUtils.po2vo(newResource, ResourceInfoEntity.class);
+		MovieInfoEntity movieEntity = VOUtils.po2vo(toUpMovie, MovieInfoEntity.class);
+		
+		List<MovieInfoEntity> updateMovies = new ArrayList<>();
+		updateMovies.add(movieEntity);
+		List<ResourceInfoEntity> updateResourceInfos = new ArrayList<>();
+		updateResourceInfos.add(modiResourceEntity);
+		List<MovieFetchRecordEntity> recordList = FetchUtils.buildFetchRecordList(null, updateMovies, null, updateResourceInfos, null);
+		
+		if(modiResourceEntity != null) {
+			resourceInfoMapper.updateByPrn(modiResourceEntity);
+		}
+		if(movieEntity != null) {
+			movieInfoMapper.updateByPrn(movieEntity);
+		}
+		if(recordList != null && recordList.size() > 0) {
+			movieFetchRecordMapper.insertList(recordList);
 		}
 		
-		ResourceInfoVO changeOption = FetchUtils.resourceChangeOption(dbResource, newResource);
-		
-		if(changeOption != null){
-			String downloadLinkTemp = changeOption.getDownloadLinkTemp();
-			if(StringUtils.isNotBlank(downloadLinkTemp)){
-				String downloadLink = null;
-				if(Pattern.compile(RegexConstant.torrent).matcher(downloadLinkTemp).find()){
-					//上传torrent文件
-					String torrentName = FetchUtils.getTorrentName(newResource);
-					downloadLink = FetchUtils.uploadTorrentGetUriFromDir(downloadLinkTemp, torrentName);
-				}else {
-					downloadLink = downloadLinkTemp;
-				}
-				changeOption.setDownloadLink(downloadLink);
-				BucketUtils.delete(dbResource.getDownloadLink());
-			}
-			
-			//上传shots图片
-			if(StringUtils.isNotBlank(changeOption.getShotSubDirStr())) {
-				String uriJson = FetchUtils.compareUploadGetJsonAndDelOld(dbResource.getShotUriJson(), changeOption.getShotSubDirStr(), CommonConstants.shot_v);
-				changeOption.setShotUriJson(uriJson);
-			}
-			
-			int definitionScore = FetchUtils.translateDefinitionIntoScore(newResource.getQuality(), newResource.getResolution());
-			changeOption.setDefinition(definitionScore);
-			
-			changeOption.setPrn(dbResource.getPrn());
-			changeOption.setUpdateTime(new Date());
-			
-			ResourceInfoEntity newResourceEntity = VOUtils.po2vo(changeOption, ResourceInfoEntity.class);
-			
-			resourceInfoMapper.updateByPrn(newResourceEntity);
-			
-			if(isOptimal){
-				MovieInfoEntity toUpMovie = null;
-				Date now = new Date();
-				toUpMovie = new MovieInfoEntity();
-				toUpMovie.setOptimalResourcePrn(newResourceEntity.getPrn());
-				toUpMovie.setResourceWriteTime(now);
-				toUpMovie.setPrn(dbResource.getMoviePrn());
-				toUpMovie.setUpdateTime(now);
-				movieInfoMapper.updateByPrn(toUpMovie);
-			}
-		}
 	}
 	
 }
