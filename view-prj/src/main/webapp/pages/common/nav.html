@@ -85,7 +85,7 @@
 			return;
 		}
 		
-		html = "";
+		var html = "";
 		for(var key in categories){
 			html += '<li><a href="'+ ctx+'?c='+categories[key]+'">'+categories[key]+'</a></li>';
 		}
@@ -96,7 +96,7 @@
 		if(!tags){
 			return;
 		}
-		html = "";
+		var html = "";
 		for(var i in tags){
 			html += '<li><a href="'+ ctx+'?t='+tags[i]+'">'+tags[i]+'</a></li>';
 		}
