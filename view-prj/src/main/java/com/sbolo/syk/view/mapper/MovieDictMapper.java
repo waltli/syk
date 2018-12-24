@@ -15,7 +15,7 @@ import tk.mybatis.mapper.common.Mapper;
 
 public interface MovieDictMapper extends Mapper<MovieDictEntity>, BatchWriteMapper<MovieDictEntity> {
 	
-	@Select("select t.val from movie_dict t where t.parent_code = #{parentCode}")
+	@Select("select t.val from movie_dict t where t.parent_code = #{parentCode} ORDER BY t.in_order")
 	List<String> selectByParentCode(String parentCode);
 	
 }

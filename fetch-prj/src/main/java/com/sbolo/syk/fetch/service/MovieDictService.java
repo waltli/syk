@@ -188,7 +188,13 @@ public class MovieDictService {
 			if(dbMap.get(key) != null) {
 				continue;
 			}
-			MovieDictVO vo = MovieDictVO.build(StringUtil.getId(sign), parentCode, parentCode, val, 2, thisTime);
+			Integer inOrder = null;
+			if(sign.equals(CommonConstants.label_s)) {
+				inOrder = val.length();
+			}else if(sign.equals(CommonConstants.tag_s)) {
+				inOrder = 50;
+			}
+			MovieDictVO vo = MovieDictVO.build(StringUtil.getId(sign), parentCode, parentCode, val, 2, thisTime, inOrder);
 			dicts.add(vo);
 		}
 		

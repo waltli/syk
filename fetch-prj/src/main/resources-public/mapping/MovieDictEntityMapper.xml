@@ -15,6 +15,7 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
     <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="in_order" jdbcType="INTEGER" property="inOrder" />
   </resultMap>
   
   <select id="selectByCodes" parameterType="java.util.List" resultMap="BaseResultMap">

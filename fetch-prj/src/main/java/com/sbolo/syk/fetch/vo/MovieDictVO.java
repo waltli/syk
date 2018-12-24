@@ -27,6 +27,8 @@ public class MovieDictVO {
 
     private String remark;
     
+    private Integer inOrder;
+    
     private MovieDictVO() {}
     
     public static MovieDictVO buildRoot(String code, String val, Date createTime) {
@@ -38,6 +40,7 @@ public class MovieDictVO {
     	vo.setSt(MovieStatusEnum.available.getCode());
     	vo.setTier(1);
     	vo.setCreateTime(createTime);
+    	vo.setInOrder(5);
     	return vo;
     }
     
@@ -50,10 +53,25 @@ public class MovieDictVO {
     	vo.setSt(MovieStatusEnum.available.getCode());
     	vo.setTier(tier);
     	vo.setCreateTime(createTime);
+    	vo.setInOrder(50);
+    	return vo;
+    }
+    
+    public static MovieDictVO build(String code, String parentCode, String rootCode, String val, Integer tier, Date createTime, int inOrder) {
+    	MovieDictVO vo = build(code, parentCode, rootCode, val, tier, createTime);
+    	vo.setInOrder(inOrder);
     	return vo;
     }
 
-    public String getRootCode() {
+    public Integer getInOrder() {
+		return inOrder;
+	}
+
+	public void setInOrder(Integer inOrder) {
+		this.inOrder = inOrder;
+	}
+
+	public String getRootCode() {
 		return rootCode;
 	}
 

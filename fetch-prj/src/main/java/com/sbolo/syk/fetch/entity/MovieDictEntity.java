@@ -36,8 +36,19 @@ public class MovieDictEntity {
 
     @Column(name = "`remark`")
     private String remark;
+    
+    @Column(name = "`in_order`")
+    private Integer inOrder;
+    
+    public Integer getInOrder() {
+		return inOrder;
+	}
 
-    public String getRootCode() {
+	public void setInOrder(Integer inOrder) {
+		this.inOrder = inOrder;
+	}
+
+	public String getRootCode() {
 		return rootCode;
 	}
 
