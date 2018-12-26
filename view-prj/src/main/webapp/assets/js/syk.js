@@ -50,7 +50,6 @@ var syk = {
 				data:{"openType":openType},
 				type:"get",
 				success:function(data){
-					debugger;
 					syk.verify(data, function(){
 						var authorizeUrl = data.obj.authorizeUrl;
 						var h = ($(window).height() - 480 )/2 - 20;

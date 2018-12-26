@@ -27,6 +27,7 @@ import com.sbolo.syk.common.http.interceptor.OuterChain;
 import com.sbolo.syk.common.http.interceptor.OuterInterceptor;
 import com.sbolo.syk.common.http.interceptor.outer.DynamicProxyInterceptor;
 import com.sbolo.syk.common.http.interceptor.outer.ExecutorInterceptor;
+import com.sbolo.syk.common.http.interceptor.outer.UserAgentInterceptor;
 import com.sbolo.syk.common.http.proxy.StatefulProxy;
 
 import okhttp3.Cookie;
@@ -98,8 +99,10 @@ public class HttpClient {
 	private void init() {
 		if(oIntercepts == null) {
 			oIntercepts = new ArrayList<OuterInterceptor>();
+//			UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor();
 			DynamicProxyInterceptor dynamicProxyInterceptor = new DynamicProxyInterceptor(this, listProxies);
 			ExecutorInterceptor executorInterceptor = new ExecutorInterceptor(okHttpClient);
+//			oIntercepts.add(userAgentInterceptor);
 			oIntercepts.add(dynamicProxyInterceptor);
 			oIntercepts.add(executorInterceptor);
 		}

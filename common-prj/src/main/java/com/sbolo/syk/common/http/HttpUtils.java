@@ -24,6 +24,7 @@ import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.exception.BusinessException;
 import com.sbolo.syk.common.http.callback.HttpSendCallback;
 import com.sbolo.syk.common.http.callback.HttpSendCallbackPure;
+import com.sbolo.syk.common.http.interceptor.outer.UserAgentInterceptor;
 import com.sbolo.syk.common.tools.FileUtils;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.Utils;
@@ -184,8 +185,7 @@ public class HttpUtils {
 
 	public static final HttpClient getHttpClient() {
 		return HttpClient.getHttpClient();
-		// return HttpClient.getHttpClient().addOInterceptor(new
-		// DoubanInterceptor());
+//		 return HttpClient.getHttpClient().addOInterceptor(new UserAgentInterceptor());
 	}
 	public static String getResultJsonByPost(String url,Map<String,String> params){
 		HttpResult<String> httpPost = HttpUtils.httpPost(url, params, new HttpSendCallback<String>() {

@@ -57,7 +57,7 @@ public class MovieDictVO {
     	return vo;
     }
     
-    public static MovieDictVO build(String code, String parentCode, String rootCode, String val, Integer tier, Date createTime, int inOrder) {
+    public static MovieDictVO build(String code, String parentCode, String rootCode, String val, Integer tier, Date createTime, Integer inOrder) {
     	MovieDictVO vo = build(code, parentCode, rootCode, val, tier, createTime);
     	vo.setInOrder(inOrder);
     	return vo;

@@ -6,7 +6,18 @@
 @include("common/header.html"){}
 @var movie = result.obj.movie;
 @var resources = result.obj.resources;
-<title>${movie.pureName }（蝉影）</title>
+<title>${movie.pureName }-高清下载，ED2K下载，BT下载，迅雷下载（蝉影）</title>
+<meta name="keywords" content="${movie.pureName } 高清下载，${movie.pureName } ED2K下载，${movie.pureName } BT下载，${movie.pureName } 迅雷下载">
+<meta name="description" content="片名：${movie.pureName }
+又名：${movie.anotherName}
+导演：${movie.directors }
+编剧：${movie.writers }
+演员：${movie.casts }
+标签：${movie.labels }
+制片国家/地区：${movie.locations }
+语言：${movie.languages }
+首播：${movie.releaseTimeStr }
+片长：${movie.duration }">
 <link rel="stylesheet" type="text/css" href="${pageCtx('ctxassets')}/css/detail.css" />
 <script src="${pageCtx('ctxassets')}/js/easySlider.js"></script>
 </head>

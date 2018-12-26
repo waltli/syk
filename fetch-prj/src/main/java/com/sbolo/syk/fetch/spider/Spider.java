@@ -122,7 +122,7 @@ public class Spider {
 		try {
 			isRun = true;
 			init();
-//			Random random = new Random();
+			Random random = new Random();
 			for(int i=0; i<listProcessor.size(); i++){
 				final PageProcessor curProcessor = listProcessor.get(i);
 				try {
@@ -139,12 +139,12 @@ public class Spider {
 							}
 							waitNewUrl();
 						}else {
-							threadAlive.incrementAndGet(); //运行线程数加一
-							threadPool.execute(new Runnable() {
-								@Override
-								public void run() {
+//							threadAlive.incrementAndGet(); //运行线程数加一
+//							threadPool.execute(new Runnable() {
+//								@Override
+//								public void run() {
 									try {
-//										Thread.sleep(random.nextInt(2000));
+										Thread.sleep(10000);
 										toProcess(curProcessor, url);
 									} catch (UnknownHostException | SocketTimeoutException | SocketException e){
 										//the exception of time out that do nothing
@@ -153,10 +153,10 @@ public class Spider {
 									} catch (Exception e) {
 										log.error(url,e);
 									} finally{
-										threadAlive.decrementAndGet(); //the thread of running was subtracted when it run end
+//										threadAlive.decrementAndGet(); //the thread of running was subtracted when it run end
 									}
-								}
-							});
+//								}
+//							});
 						}
 					}
 				} catch(Exception e){
@@ -258,7 +258,7 @@ public class Spider {
 		if(threadPool == null){
 //			threadPool = new ThreadPoolExecutor(1, 20, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue(25), new ThreadPoolExecutor.CallerRunsPolicy());
 			//线程数不能开的太多，否则短时间内请求过多，网站会认为是攻击。
-			threadPool = new ThreadPoolExecutor(1, 2, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue(5), new ThreadPoolExecutor.CallerRunsPolicy());
+			threadPool = new ThreadPoolExecutor(1, 1, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue(5), new ThreadPoolExecutor.CallerRunsPolicy());
 			threadPool.allowCoreThreadTimeOut(true);
 		}
 	}
