@@ -129,7 +129,9 @@ public class DBPipeline implements Pipeline {
 				insertMovieSize = movieInfoMapper.insertList(addMovies);
 			}
 			if(updateMovies.size() > 0) {
-				updateMovieSize = movieInfoMapper.updateListByPrn(updateMovies);
+				movieInfoMapper.updateListByPrn(updateMovies);
+				//因为mysql一次执行多条sql语句只会返回最有一条影响的条数，也就始终是1，所以这里size=参数的size
+				updateMovieSize = updateMovies.size();
 			}
 			if(addResourceInfos.size() > 0) {
 				insertResourceSize = resourceInfoMapper.insertList(addResourceInfos);

@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -118,20 +119,18 @@ public class Spider {
 			log.info("系统正在运行....");
 			return;
 		}
-		
 		try {
 			isRun = true;
 			init();
+//			Random random = new Random();
 			for(int i=0; i<listProcessor.size(); i++){
 				final PageProcessor curProcessor = listProcessor.get(i);
 				try {
-					int count = 0;
 					log.info("===============================进入{}================================", curProcessor.getClass().getSimpleName());
 					curProcessor.before();
+					//第一次填充开始url
+					queue.put(curProcessor.startUrl());
 					while(true){
-						if(count == 0){
-							queue.put(curProcessor.startUrl());
-						}
 						final String url = queue.poll();
 						if(url == null){
 							if(threadAlive.get() == 0){ //当前运行线程个数为0则跳出循环
@@ -145,6 +144,7 @@ public class Spider {
 								@Override
 								public void run() {
 									try {
+//										Thread.sleep(random.nextInt(2000));
 										toProcess(curProcessor, url);
 									} catch (UnknownHostException | SocketTimeoutException | SocketException e){
 										//the exception of time out that do nothing
@@ -158,7 +158,6 @@ public class Spider {
 								}
 							});
 						}
-						count++;
 					}
 				} catch(Exception e){
 					log.error("", e);
@@ -257,7 +256,9 @@ public class Spider {
 			downloader = new Downloader();
 		}
 		if(threadPool == null){
-			threadPool = new ThreadPoolExecutor(1, 20, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue(25), new ThreadPoolExecutor.CallerRunsPolicy());
+//			threadPool = new ThreadPoolExecutor(1, 20, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue(25), new ThreadPoolExecutor.CallerRunsPolicy());
+			//线程数不能开的太多，否则短时间内请求过多，网站会认为是攻击。
+			threadPool = new ThreadPoolExecutor(1, 2, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue(5), new ThreadPoolExecutor.CallerRunsPolicy());
 			threadPool.allowCoreThreadTimeOut(true);
 		}
 	}

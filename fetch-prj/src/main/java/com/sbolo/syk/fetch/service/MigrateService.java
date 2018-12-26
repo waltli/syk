@@ -55,6 +55,9 @@ public class MigrateService {
 		log.info("======================开始数据迁移=========================");
 		List<MovieFetchRecordEntity> noMigrated = movieFetchRecordService.getNoMigrated();
 		log.info("待迁移数：{}", noMigrated.size());
+		if(noMigrated == null || noMigrated.size() == 0) {
+			return;
+		}
 		MigrateVO todo = this.todo(noMigrated);
 		
 		String url = ConfigUtils.getPropertyValue("migrate.view.url");
