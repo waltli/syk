@@ -37,6 +37,16 @@ private static final Logger log = LoggerFactory.getLogger(MeiJuTTProcessor.class
 	public void before() {
 		this.init();
 	}
+	
+	@Override
+	public int getSleep() {
+		return 10000;
+	}
+	
+	@Override
+	public boolean needThread() {
+		return false;
+	}
 
 	@Override
 	public void process(Page page, Map<String, Object> fields) throws Exception {

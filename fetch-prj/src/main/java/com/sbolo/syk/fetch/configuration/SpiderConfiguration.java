@@ -63,7 +63,7 @@ public class SpiderConfiguration {
 	@Bean
 	public Spider spider() {
 		List<PageProcessor> listProcessor = new ArrayList<>();
-//		listProcessor.add(sixVHaoProcessor());
+		listProcessor.add(sixVHaoProcessor());
 		listProcessor.add(meiJuTTProcessor());
 		List<Pipeline> listPipeline = new ArrayList<>();
 		listPipeline.add(filePipeline());

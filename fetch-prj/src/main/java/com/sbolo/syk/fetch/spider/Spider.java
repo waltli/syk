@@ -96,21 +96,117 @@ public class Spider {
 	public void setListProcessor(List<PageProcessor> listProcessor) {
 		this.listProcessor = listProcessor;
 	}
-
-	private void toProcess(PageProcessor curProcessor, String url) throws Exception{
-		Page page = downloader.download(url);
-		curProcessor.process(page, fields);
-		List<String> urls = page.getAndWipeUrls(); //获取在process中新爬出的URL
-		for(String newUrl : urls){
-//			String url2Md5 = MD5Utils.signature(newUrl); //将URL加密为MD5
-			if(urlsSet.add(newUrl)){ //URL去重
-				queue.put(newUrl); //如果该URL没有出现过则添加到队列
+	
+	private void process(PageProcessor curProcessor, String url) {
+		try {
+			//增加线程睡眠时间，减少爬取紧密度，避免被加入黑名单
+			Thread.sleep(curProcessor.getSleep());
+			Page page = downloader.download(url);
+			curProcessor.process(page, fields);
+			List<String> urls = page.getAndWipeUrls(); //获取在process中新爬出的URL
+			for(String newUrl : urls){
+				if(urlsSet.add(newUrl)){ //URL去重
+					queue.put(newUrl); //如果该URL没有出现过则添加到队列
+				}
 			}
+			//队列不为空，则唤醒其他线程
+			if(!queue.isEmpty()){
+				signalNewUrl();
+			}
+		} catch (UnknownHostException | SocketTimeoutException | SocketException e){
+			//the exception of time out that do nothing
+		} catch (SpiderException e) {
+			log.warn(e.getMessage());
+		} catch (Exception e) {
+			log.error(url,e);
 		}
 		
-		//队列不为空，则唤醒其他线程
-		if(!queue.isEmpty()){
-			signalNewUrl();
+	}
+
+	private void toProcess(PageProcessor curProcessor) {
+		while(true){
+			String url = queue.poll();
+			if(url == null){
+				log.info(curProcessor.getClass().getSimpleName()+"网页遍历结束");
+				break;
+			}else {
+				process(curProcessor, url);
+			}
+			
+		}
+	}
+	
+	private void toThreadProcess(PageProcessor curProcessor) {
+		while(true){
+			String url = queue.poll();
+			if(url == null){
+				if(threadAlive.get() == 0){ //当前运行线程个数为0则跳出循环
+					log.info(curProcessor.getClass().getSimpleName()+"网页遍历结束");
+					break;
+				}
+				waitNewUrl();
+			}else {
+				threadAlive.incrementAndGet(); //运行线程数加一
+				threadPool.execute(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							
+							process(curProcessor, url);
+						} finally{
+							threadAlive.decrementAndGet(); //the thread of running was subtracted when it run end
+						}
+					}
+				});
+			}
+		}
+	}
+	
+	private void pageProcess() {
+		for(int i=0; i<listProcessor.size(); i++){
+			final PageProcessor processor = listProcessor.get(i);
+			try {
+				log.info("===============================进入{}================================", processor.getClass().getSimpleName());
+				processor.before();
+				//第一次填充开始url
+				queue.put(processor.startUrl());
+				if(processor.needThread()) {
+					toThreadProcess(processor);
+				}else {
+					toProcess(processor);
+				}
+			} catch(Exception e){
+				log.error("", e);
+			} finally {
+				processor.after();
+			}
+		}
+	}
+	
+	private void distinct() throws Exception {
+		if(fields == null || fields.size() == 0) {
+			return;
+		}
+		try {
+			distinct.before();
+			distinct.process(fields);
+		} finally {
+			distinct.after();
+		}
+	}
+	
+	private void pipeline() throws Exception {
+		if(fields == null || fields.size() == 0) {
+			return;
+		}
+		for(int i=0; i<listPipeline.size(); i++) {
+			Pipeline pipeline = listPipeline.get(i);
+			try {
+				pipeline.before();
+				pipeline.process(fields);
+			} finally {
+				pipeline.after();
+			}
 		}
 	}
 	
@@ -121,71 +217,10 @@ public class Spider {
 		}
 		try {
 			isRun = true;
-			init();
-			Random random = new Random();
-			for(int i=0; i<listProcessor.size(); i++){
-				final PageProcessor curProcessor = listProcessor.get(i);
-				try {
-					log.info("===============================进入{}================================", curProcessor.getClass().getSimpleName());
-					curProcessor.before();
-					//第一次填充开始url
-					queue.put(curProcessor.startUrl());
-					while(true){
-						final String url = queue.poll();
-						if(url == null){
-							if(threadAlive.get() == 0){ //当前运行线程个数为0则跳出循环
-								log.info(curProcessor.getClass().getSimpleName()+"网页遍历结束");
-								break;
-							}
-							waitNewUrl();
-						}else {
-//							threadAlive.incrementAndGet(); //运行线程数加一
-//							threadPool.execute(new Runnable() {
-//								@Override
-//								public void run() {
-									try {
-										Thread.sleep(10000);
-										toProcess(curProcessor, url);
-									} catch (UnknownHostException | SocketTimeoutException | SocketException e){
-										//the exception of time out that do nothing
-									} catch (SpiderException e) {
-										log.warn(e.getMessage());
-									} catch (Exception e) {
-										log.error(url,e);
-									} finally{
-//										threadAlive.decrementAndGet(); //the thread of running was subtracted when it run end
-									}
-//								}
-//							});
-						}
-					}
-				} catch(Exception e){
-					log.error("", e);
-				} finally {
-					curProcessor.after();
-				}
-			}
-			if(fields == null || fields.size() == 0) {
-				return;
-			}
-			try {
-				distinct.before();
-				distinct.process(fields);
-			} finally {
-				distinct.after();
-			}
-			if(fields == null || fields.size() == 0) {
-				return;
-			}
-			for(int i=0; i<listPipeline.size(); i++) {
-				Pipeline pipeline = listPipeline.get(i);
-				try {
-					pipeline.before();
-					pipeline.process(fields);
-				} finally {
-					pipeline.after();
-				}
-			}
+			this.init();
+			this.pageProcess();
+			this.distinct();
+			this.pipeline();
 		} finally{
 			isRun = false;
 			this.destroy();
@@ -256,9 +291,7 @@ public class Spider {
 			downloader = new Downloader();
 		}
 		if(threadPool == null){
-//			threadPool = new ThreadPoolExecutor(1, 20, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue(25), new ThreadPoolExecutor.CallerRunsPolicy());
-			//线程数不能开的太多，否则短时间内请求过多，网站会认为是攻击。
-			threadPool = new ThreadPoolExecutor(1, 1, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue(5), new ThreadPoolExecutor.CallerRunsPolicy());
+			threadPool = new ThreadPoolExecutor(1, 20, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue(25), new ThreadPoolExecutor.CallerRunsPolicy());
 			threadPool.allowCoreThreadTimeOut(true);
 		}
 	}
