@@ -1,13 +1,105 @@
-<link href="${pageCtx('ctxassets')}/img/favicon.ico" rel="icon" type="image/x-icon" />
-<link href="${pageCtx('ctxassets')}/img/favicon.ico" rel="shortcut icon" type="image/x-icon" />
-
-<script type="text/javascript" src="${pageCtx('ctxassets')}/jq/jquery-1.11.1.js"></script>
-<script type="text/javascript" src="${pageCtx('ctxassets')}/jq/jquery.validate.js"></script>
-<script type="text/javascript" src="${pageCtx('ctxassets')}/jq/jquery.validate.extend.js"></script>
-<script type="text/javascript" src="${pageCtx('ctxassets')}/jq/jquery.lazyload.min.js"></script>
-<script type="text/javascript" src="${pageCtx('ctxassets')}/js/syk.js"></script>
-<script type="text/javascript" src="${pageCtx('ctxassets')}/js/htmlUtils.js"></script>
-<script type="text/javascript" src="${pageCtx('ctxassets')}/layui/layui.all.js"></script>
-
-<link rel="stylesheet" type="text/css" href="${pageCtx('ctxassets')}/layui/css/layui.css">
-<link rel="stylesheet" type="text/css" href="${pageCtx('ctxassets')}/css/every.css" />
+<header id="nav">
+	<nav id="db-global-nav" class="global-nav-items">
+		<ul>
+			<li><a href="${pageCtx('ctx')}">首页</a></li>
+			<li><a href="${pageCtx('ctx')}/about">关于</a></li>
+			<li><a href="${pageCtx('ctx')}/disclaimer">声明</a></li>
+			<li><a href="${pageCtx('ctx')}/reference">参考</a></li>
+			<li><a>帮助</a></li>
+			<li><a>建议</a></li>
+		</ul>
+	</nav>
+	<div id="db-nav-movie" class="nav">
+		<div class="nav-wrap">
+			<div class="nav-primary">
+				<a href="${pageCtx('ctx')}">
+					<span class="nav-logo navbar-sprite" >
+						
+					</span>
+				</a>
+				<div class="nav-search">
+					<form action="${pageCtx('ctx')}" method="get">
+						<div class="inp navbar-sprite">
+							<input id="inp-query" value="${params.q!}" name="q" size="22" maxlength="40" placeholder="电影，演员" autocomplete="off">
+						</div>
+						<div class="inp-btn navbar-sprite">
+							<input type="submit" value="搜索" id="search">
+						</div>
+					</form>
+				</div>
+				<div class="nav-info">
+					<!-- <a href="#" class="login">登录</a>
+					<a href="#" class="register">注册</a> -->
+				</div>
+				<br class="clear">
+			</div>
+		</div>
+		<nav class="nav-secondary">
+			<div class="nav-items" id="nav-items">
+				<ul id="items">
+					<li><a href="${pageCtx('ctx')}">全部</a></li>
+				</ul>
+			</div>
+		</nav>
+	</div>
+</header>
+<script type="text/javascript">
+	$("input#search[type='submit']").unbind("click").bind("click",function(ev){
+		var oldKeyword = params.keyword;
+		var newKeyword = $("#inp-query").val();
+		if(!newKeyword || newKeyword == oldKeyword){
+		  return false;
+		}
+		$(this).parents("form:first").submit();
+	});
+	
+	$.ajax({
+		url:ctx+"/nav",
+		success : function(data){
+			if(!data.status){
+				return;
+			}
+			var map = data.obj;
+			var categories = map.categories;
+			var tags = map.tags;
+			
+			var categoryHtml = buildCategory(categories);
+			var tagHtml = buildTag(tags);
+			
+			if(!categoryHtml && !tagHtml){
+				return;
+			}
+			
+			if(categoryHtml){
+				$("#items").append(categoryHtml);
+			}
+			
+			if(tagHtml){
+				$("#items").append(tagHtml);
+			}
+		}
+	});
+	
+	function buildCategory(categories){
+		if(!categories){
+			return;
+		}
+		
+		var html = "";
+		for(var key in categories){
+			html += '<li><a href="'+ ctx+'?c='+categories[key]+'">'+categories[key]+'</a></li>';
+		}
+		return html;
+	}
+	
+	function buildTag(tags){
+		if(!tags){
+			return;
+		}
+		var html = "";
+		for(var i in tags){
+			html += '<li><a href="'+ ctx+'?t='+tags[i]+'">'+tags[i]+'</a></li>';
+		}
+		return html;
+	}
+</script>

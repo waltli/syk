@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 @include("common/global.html"){}
-@include("common/header.html"){}
+@include("common/importer.html"){}
 @var movie = result.obj.movie;
 @var resources = result.obj.resources;
 <title>${movie.pureName }-高清下载，ED2K下载，BT下载，迅雷下载（蝉影）</title>
@@ -22,7 +22,7 @@
 <script src="${pageCtx('ctxassets')}/js/easySlider.js"></script>
 </head>
 <body>
-	@include("common/nav.html"){}
+	@include("common/header.html"){}
 	<div id="wrapper">
 		<div id="pagecontent">
 			<div id="titleBar">
@@ -242,9 +242,7 @@
 				<div id="ds-thread" pkey="${movie.prn }"></div>
 				<script type="text/javascript" src="${pageCtx('ctxassets')}/message/js/message.js"></script>
 			</div>
-			<div id="sidebar" style="width:325px; margin-right:0px;">
-				@include("common/sidebar.html"){}
-			</div>
+			@include("common/sidebar.html"){}
 			<br class="clear">
 			@include("common/footer.html"){}
 		</div>

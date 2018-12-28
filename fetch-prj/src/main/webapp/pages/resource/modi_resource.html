@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 @include("../common/global.html"){}
-@include("../common/header.html"){}
+@include("../common/importer.html"){}
 <title>蝉影后台管理系统</title>
 <link rel="stylesheet" type="text/css" href="${pageCtx('ctxassets')}/css/modi_resource.css" />
 </head>
@@ -12,7 +12,7 @@
 	@var resource = result.obj.resource;
 	@var movie = result.obj.movie;
 	<div id="wrapper">
-		@include("../common/nav.html"){}
+		@include("../common/header.html"){}
 		<div class="main">
 			<div class="main-content">
 				<form action="${pageCtx('ctx')}/resource/modi-work" id="modiResourceForm" method="post">

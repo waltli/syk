@@ -97,7 +97,7 @@ public class Spider {
 		this.listProcessor = listProcessor;
 	}
 	
-	private void process(PageProcessor curProcessor, String url) {
+	private void pageProcess(PageProcessor curProcessor, String url) {
 		try {
 			//增加线程睡眠时间，减少爬取紧密度，避免被加入黑名单
 			Thread.sleep(curProcessor.getSleep());
@@ -123,20 +123,19 @@ public class Spider {
 		
 	}
 
-	private void toProcess(PageProcessor curProcessor) {
+	private void looper(PageProcessor curProcessor) {
 		while(true){
 			String url = queue.poll();
 			if(url == null){
 				log.info(curProcessor.getClass().getSimpleName()+"网页遍历结束");
 				break;
 			}else {
-				process(curProcessor, url);
+				pageProcess(curProcessor, url);
 			}
-			
 		}
 	}
 	
-	private void toThreadProcess(PageProcessor curProcessor) {
+	private void threadLooper(PageProcessor curProcessor) {
 		while(true){
 			String url = queue.poll();
 			if(url == null){
@@ -151,8 +150,7 @@ public class Spider {
 					@Override
 					public void run() {
 						try {
-							
-							process(curProcessor, url);
+							pageProcess(curProcessor, url);
 						} finally{
 							threadAlive.decrementAndGet(); //the thread of running was subtracted when it run end
 						}
@@ -171,9 +169,9 @@ public class Spider {
 				//第一次填充开始url
 				queue.put(processor.startUrl());
 				if(processor.needThread()) {
-					toThreadProcess(processor);
+					threadLooper(processor);
 				}else {
-					toProcess(processor);
+					looper(processor);
 				}
 			} catch(Exception e){
 				log.error("", e);
@@ -215,8 +213,8 @@ public class Spider {
 			log.info("系统正在运行....");
 			return;
 		}
+		isRun = true;
 		try {
-			isRun = true;
 			this.init();
 			this.pageProcess();
 			this.distinct();

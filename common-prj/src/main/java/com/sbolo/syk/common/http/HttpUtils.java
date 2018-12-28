@@ -1,33 +1,15 @@
 package com.sbolo.syk.common.http;
 
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
-import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.exception.BusinessException;
 import com.sbolo.syk.common.http.callback.HttpSendCallback;
 import com.sbolo.syk.common.http.callback.HttpSendCallbackPure;
-import com.sbolo.syk.common.http.interceptor.outer.UserAgentInterceptor;
-import com.sbolo.syk.common.tools.FileUtils;
-import com.sbolo.syk.common.tools.StringUtil;
-import com.sbolo.syk.common.tools.Utils;
 
 import okhttp3.FormBody;
 import okhttp3.MediaType;

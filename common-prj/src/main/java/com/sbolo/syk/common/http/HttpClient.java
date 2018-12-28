@@ -87,7 +87,7 @@ public class HttpClient {
 //			}
 //		}) //配置cookie存储
         ;
-		//配置访问https
+		//配置访问https，在本地测试不出来，因为windows自带很多证书，但是一旦放到linux中就会出现访问不了https
 		SSLSocketFactory sslSocketFactory = createSSLSocketFactory();
 		if(sslSocketFactory != null) {
 			okHttpBuilder.sslSocketFactory(sslSocketFactory).hostnameVerifier(new TrustAllHostnameVerifier());

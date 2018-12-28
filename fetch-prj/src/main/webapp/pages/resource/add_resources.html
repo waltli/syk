@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 @include("../common/global.html"){}
-@include("../common/header.html"){}
+@include("../common/importer.html"){}
 <title>蝉影后台管理系统</title>
 <link rel="stylesheet" type="text/css" href="${pageCtx('ctxassets')}/css/add_resources.css" />
 </head>
 <body>
 	@var movie = result.obj;
 	<div id="wrapper">
-		@include("../common/nav.html"){}
+		@include("../common/header.html"){}
 		<div class="main">
 			<div class="main-content">
 				<form action="${pageCtx('ctx')}/resource/add-work" id="addResourceForm" method="post">
