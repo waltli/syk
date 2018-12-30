@@ -53,11 +53,13 @@
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table> -->
         
-        <table tableName="movie_label" domainObjectName="MovieLabelEntity">
+        <!-- <table tableName="movie_label" domainObjectName="MovieLabelEntity">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
         <table tableName="movie_location" domainObjectName="MovieLocationEntity">
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
+        </table> -->
+        <table tableName="test" domainObjectName="TestEntity">
         </table>
     </context>
 </generatorConfiguration>

@@ -185,7 +185,7 @@ public class FileUtils {
 			graphics2D.drawImage(srcImg, 0, 0, imgWidth, imgHeight, null);
 			
 			//水印文字
-	        String word = "chanying.cc";
+	        String word = "cyvdo.com";
 	        //創建字體
 	        Font font = new Font("微软雅黑", Font.BOLD, 20);
 			

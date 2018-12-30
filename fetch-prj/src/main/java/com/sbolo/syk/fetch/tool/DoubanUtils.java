@@ -31,6 +31,7 @@ import com.sbolo.syk.common.http.callback.HttpSendCallback;
 import com.sbolo.syk.common.http.callback.HttpSendCallbackPure;
 import com.sbolo.syk.common.tools.DateUtil;
 import com.sbolo.syk.common.tools.StringUtil;
+import com.sbolo.syk.common.tools.UIDGen;
 import com.sbolo.syk.common.tools.Utils;
 import com.sbolo.syk.fetch.spider.exception.SpiderException;
 import com.sbolo.syk.fetch.vo.MovieInfoVO;
@@ -162,7 +163,7 @@ public class DoubanUtils {
 					throw new SpiderException("Requested url: "+url+" that was redirected to "+finalUrl);
 				}
 				MovieInfoVO newMovie = new MovieInfoVO();
-				String moviePrn = StringUtil.getId(CommonConstants.movie_s);
+				String moviePrn = UIDGen.getUID(CommonConstants.movie_s);
 				Integer category = MovieCategoryEnum.movie.getCode();
 				String tagText = null;
 				newMovie.setPrn(moviePrn);

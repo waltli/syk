@@ -22,6 +22,7 @@ import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.MovieDictEnum;
 import com.sbolo.syk.common.constants.RegexConstant;
 import com.sbolo.syk.common.tools.StringUtil;
+import com.sbolo.syk.common.tools.UIDGen;
 import com.sbolo.syk.fetch.entity.MovieDictEntity;
 import com.sbolo.syk.fetch.entity.MovieFetchRecordEntity;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
@@ -153,17 +154,17 @@ public class MovieDictService {
 			fetchDicts.add(tagRoot);
 			
 			for(String fetchLabel : setLabels) {
-				MovieDictVO vo = MovieDictVO.build(StringUtil.getId(CommonConstants.label_s), MovieDictEnum.LABEL.getCode(), MovieDictEnum.LABEL.getCode(), fetchLabel, 2, thisTime);
+				MovieDictVO vo = MovieDictVO.build(UIDGen.getUID(CommonConstants.label_s), MovieDictEnum.LABEL.getCode(), MovieDictEnum.LABEL.getCode(), fetchLabel, 2, thisTime);
 				fetchDicts.add(vo);
 			}
 			
 			for(String fetchLocation : setLocations) {
-				MovieDictVO vo = MovieDictVO.build(StringUtil.getId(CommonConstants.location_s), MovieDictEnum.LOCATION.getCode(), MovieDictEnum.LOCATION.getCode(), fetchLocation, 2, thisTime);
+				MovieDictVO vo = MovieDictVO.build(UIDGen.getUID(CommonConstants.location_s), MovieDictEnum.LOCATION.getCode(), MovieDictEnum.LOCATION.getCode(), fetchLocation, 2, thisTime);
 				fetchDicts.add(vo);
 			}
 			
 			for(String fetchTag : setTags) {
-				MovieDictVO vo = MovieDictVO.build(StringUtil.getId(CommonConstants.tag_s), MovieDictEnum.TAG.getCode(), MovieDictEnum.TAG.getCode(), fetchTag, 2, thisTime);
+				MovieDictVO vo = MovieDictVO.build(UIDGen.getUID(CommonConstants.tag_s), MovieDictEnum.TAG.getCode(), MovieDictEnum.TAG.getCode(), fetchTag, 2, thisTime);
 				fetchDicts.add(vo);
 			}
 		}
@@ -194,7 +195,7 @@ public class MovieDictService {
 			}else if(sign.equals(CommonConstants.tag_s)) {
 				inOrder = 50;
 			}
-			MovieDictVO vo = MovieDictVO.build(StringUtil.getId(sign), parentCode, parentCode, val, 2, thisTime, inOrder);
+			MovieDictVO vo = MovieDictVO.build(UIDGen.getUID(sign), parentCode, parentCode, val, 2, thisTime, inOrder);
 			dicts.add(vo);
 		}
 		

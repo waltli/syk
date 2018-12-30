@@ -3,7 +3,7 @@ package com.sbolo.syk.fetch.vo;
 import java.util.Date;
 import javax.persistence.*;
 
-import com.sbolo.syk.common.tools.UIDGenerator;
+import com.sbolo.syk.common.tools.UIDGen;
 
 
 public class MovieLocationVO {
@@ -179,7 +179,7 @@ public class MovieLocationVO {
     public static MovieLocationVO buildLocation(String locationName, String moviePrn, String pureName, Date releaseTime, Date thisTime) {
 		MovieLocationVO location = new MovieLocationVO();
 		location.setLocationName(locationName);
-		location.setPrn(UIDGenerator.getUID()+"");
+		location.setPrn(UIDGen.getUID()+"");
 		location.setMoviePrn(moviePrn);
 		location.setPureName(pureName);
 		location.setReleaseTime(releaseTime);

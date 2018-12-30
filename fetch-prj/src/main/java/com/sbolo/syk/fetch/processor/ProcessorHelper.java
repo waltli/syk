@@ -19,6 +19,7 @@ import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.MovieStatusEnum;
 import com.sbolo.syk.common.constants.RegexConstant;
 import com.sbolo.syk.common.tools.StringUtil;
+import com.sbolo.syk.common.tools.UIDGen;
 import com.sbolo.syk.common.tools.Utils;
 import com.sbolo.syk.fetch.exception.ResourceException;
 import com.sbolo.syk.fetch.mapper.MovieFileIndexMapper;
@@ -338,7 +339,7 @@ public class ProcessorHelper {
     	newResource.setComeFromUrl(comeFromUrl);
     	newResource.setDownloadLinkTemp(downloadLink);
     	
-    	String resourcePrn = StringUtil.getId(CommonConstants.resource_s);
+    	String resourcePrn = UIDGen.getUID(CommonConstants.resource_s);
     	newResource.setPrn(resourcePrn);
     	newResource.setSpeed(5);
     	newResource.setSt(MovieStatusEnum.available.getCode());

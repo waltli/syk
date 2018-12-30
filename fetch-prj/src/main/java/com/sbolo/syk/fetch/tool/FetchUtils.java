@@ -36,6 +36,7 @@ import com.sbolo.syk.common.tools.ConfigUtils;
 import com.sbolo.syk.common.tools.FileUtils;
 import com.sbolo.syk.common.tools.GrapicmagickUtils;
 import com.sbolo.syk.common.tools.StringUtil;
+import com.sbolo.syk.common.tools.UIDGen;
 import com.sbolo.syk.common.tools.Utils;
 import com.sbolo.syk.fetch.entity.MovieDictEntity;
 import com.sbolo.syk.fetch.entity.MovieFetchRecordEntity;
@@ -158,7 +159,7 @@ public class FetchUtils {
 		fetchRecordEntity.setDataJson(dataJson);
 		fetchRecordEntity.setHasMigrated(false);
 		fetchRecordEntity.setOperateType(operateType);
-		fetchRecordEntity.setPrn(StringUtil.getId(null));
+		fetchRecordEntity.setPrn(UIDGen.getUID()+"");
 		fetchRecordEntity.setRelyData(relyData);
 		fetchRecordEntity.setSt(MovieStatusEnum.available.getCode());
 		return fetchRecordEntity;
@@ -172,7 +173,7 @@ public class FetchUtils {
 		String typeDir = FileUtils.getTypeDir("icon");
 		String dateDir = FileUtils.getTypeDir("date");
 		String targetDir = root + typeDir + dateDir;
-		String fileName = StringUtil.getId(CommonConstants.pic_s);
+		String fileName = UIDGen.getUID(CommonConstants.pic_s);
 		BucketUtils.upload(imageBytes, targetDir, fileName, suffix);
 		return ConfigUtils.getPropertyValue("bucket.formal") + typeDir + dateDir + "/" + fileName + "." +suffix;
 	}
@@ -204,7 +205,7 @@ public class FetchUtils {
 		String typeDir = FileUtils.getTypeDir("poster");
 		String dateDir = FileUtils.getTypeDir("date");
 		String targetDir = root + typeDir + dateDir;
-		String fileName = StringUtil.getId(CommonConstants.pic_s);
+		String fileName = UIDGen.getUID(CommonConstants.pic_s);
 		BucketUtils.upload(imageBytes, targetDir, fileName, suffix);
 		return ConfigUtils.getPropertyValue("bucket.formal") + typeDir + dateDir + "/" + fileName + "." +suffix;
 	}
@@ -250,7 +251,7 @@ public class FetchUtils {
 		String typeDir = FileUtils.getTypeDir("photo");
 		String dateDir = FileUtils.getTypeDir("date");
 		String targetDir = root + typeDir + dateDir;
-		String fileName = StringUtil.getId(CommonConstants.pic_s);
+		String fileName = UIDGen.getUID(CommonConstants.pic_s);
 		BucketUtils.upload(imageBytes, targetDir, fileName, suffix);
 		return ConfigUtils.getPropertyValue("bucket.formal") + typeDir + dateDir + "/" + fileName + "." +suffix;
 	}
@@ -303,7 +304,7 @@ public class FetchUtils {
 			String typeDir = FileUtils.getTypeDir("shot");
 			String dateDir = FileUtils.getTypeDir("date");
 			String targetDir = root + typeDir + dateDir;
-			String fileName = StringUtil.getId(CommonConstants.pic_s);
+			String fileName = UIDGen.getUID(CommonConstants.pic_s);
 			BucketUtils.upload(imageBytes, targetDir, fileName, suffix);
 			return ConfigUtils.getPropertyValue("bucket.formal") + typeDir + dateDir + "/" + fileName + "." +suffix;
 		} finally {
@@ -399,7 +400,7 @@ public class FetchUtils {
 		if(StringUtils.isNotBlank(fetchResource.getSubtitle())){
 			subtitleNotice = fetchResource.getSubtitle();
 		}
-		fileName.append(".").append(subtitleNotice).append(CommonConstants.local_sign);
+		fileName.append(".").append(subtitleNotice).append(CommonConstants.domain);
 		return fileName.toString();
 	}
 	
@@ -448,7 +449,7 @@ public class FetchUtils {
 		}
 		
 		String downloadLink = resource.getDownloadLink();
-		if(StringUtil.isLocalLink(downloadLink)){
+		if(!StringUtil.isWebLink(downloadLink)){
 			String torrentPath = formalDir+"/"+downloadLink;
 			FileUtils.deleteFile(torrentPath);
 		}
@@ -909,7 +910,7 @@ public class FetchUtils {
 		String root = ConfigUtils.getPropertyValue("fs.temp.dir");
 		String typeDir = FileUtils.getTypeDir("icon");
 		String targetDir = root+typeDir;
-		String fileName = StringUtil.getId(CommonConstants.pic_s);
+		String fileName = UIDGen.getUID(CommonConstants.pic_s);
 		FileUtils.saveFile(bytes, targetDir, fileName, suffix);
 		return typeDir+"/"+fileName+"."+suffix;
 	}
@@ -924,7 +925,7 @@ public class FetchUtils {
 		String root = ConfigUtils.getPropertyValue("fs.temp.dir");
 		String typeDir = FileUtils.getTypeDir("poster");
 		String targetDir = root+typeDir;
-		String fileName = StringUtil.getId(CommonConstants.pic_s);
+		String fileName = UIDGen.getUID(CommonConstants.pic_s);
 		FileUtils.saveFile(bytes, targetDir, fileName, suffix);
 		return typeDir+"/"+fileName+"."+suffix;
 	}
@@ -939,7 +940,7 @@ public class FetchUtils {
 		String root = ConfigUtils.getPropertyValue("fs.temp.dir");
 		String typeDir = FileUtils.getTypeDir("photo");
 		String targetDir = root+typeDir;
-		String fileName = StringUtil.getId(CommonConstants.pic_s);
+		String fileName = UIDGen.getUID(CommonConstants.pic_s);
 		FileUtils.saveFile(bytes, targetDir, fileName, suffix);
 		return typeDir+"/"+fileName+"."+suffix;
 	}
@@ -954,7 +955,7 @@ public class FetchUtils {
 		String root = ConfigUtils.getPropertyValue("fs.temp.dir");
 		String typeDir = FileUtils.getTypeDir("shot");
 		String targetDir = root+typeDir;
-		String fileName = StringUtil.getId(CommonConstants.pic_s);
+		String fileName = UIDGen.getUID(CommonConstants.pic_s);
 		FileUtils.saveFile(bytes, targetDir, fileName, suffix);
 		return typeDir+"/"+fileName+"."+suffix;
 	}
@@ -969,7 +970,7 @@ public class FetchUtils {
 		String root = ConfigUtils.getPropertyValue("fs.temp.dir");
 		String typeDir = FileUtils.getTypeDir("torrent");
 		String targetDir = root+typeDir;
-		String fileName = StringUtil.getId(CommonConstants.file_s);
+		String fileName = UIDGen.getUID(CommonConstants.file_s);
 		FileUtils.saveFile(bytes, targetDir, fileName, suffix);
 		return typeDir+"/"+fileName+"."+suffix;
 	}

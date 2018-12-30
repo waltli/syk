@@ -42,7 +42,7 @@ public class ExcelUtil {
         	list = new ArrayList<>();
         }
 		if(StringUtils.isBlank(fileName)){
-        	fileName = UIDGenerator.getUID()+ ".xlsx";
+        	fileName = UIDGen.getUID()+ ".xlsx";
         }else{
         	fileName+=".xlsx";
         }

@@ -20,6 +20,7 @@ import com.sbolo.syk.common.http.HttpUtils.HttpResult;
 import com.sbolo.syk.common.http.callback.HttpSendCallback;
 import com.sbolo.syk.common.tools.ConfigUtils;
 import com.sbolo.syk.common.tools.StringUtil;
+import com.sbolo.syk.common.tools.UIDGen;
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.view.entity.SykOpenUserEntity;
 import com.sbolo.syk.view.entity.SykUserEntity;
@@ -90,7 +91,7 @@ public class AccountService {
 		qqUser.setNickname(qqUserInfo.getNickname());
 		qqUser.setOpenId(openid);
 		qqUser.setOpenType(OpenTypeEnum.QQ.getCode());
-		qqUser.setPrn(StringUtil.getId(null));
+		qqUser.setPrn(UIDGen.getUID()+"");
 		qqUser.setUserPrn(sykUser.getPrn());
 		
 		sykOpenUserMapper.insertSelective(qqUser);
@@ -99,7 +100,7 @@ public class AccountService {
 	
 	private SykUserEntity addAndGetSykUser(String avatarUrl, String nickname) {
 		String defaultPassword = ConfigUtils.getPropertyValue("user.defaultPassword");
-		String prn = StringUtil.getId(CommonConstants.user_s);
+		String prn = UIDGen.getUID(CommonConstants.user_s);
 		SykUserEntity user = new SykUserEntity();
 		user.setAvatarUri(avatarUrl);
 		user.setCreateTime(new Date());

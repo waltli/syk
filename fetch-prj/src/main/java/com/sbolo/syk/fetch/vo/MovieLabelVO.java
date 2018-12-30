@@ -3,7 +3,7 @@ package com.sbolo.syk.fetch.vo;
 import java.util.Date;
 import javax.persistence.*;
 
-import com.sbolo.syk.common.tools.UIDGenerator;
+import com.sbolo.syk.common.tools.UIDGen;
 
 
 public class MovieLabelVO {

@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.tools.StringUtil;
+import com.sbolo.syk.common.tools.UIDGen;
 
 public class SykMessageVO implements Comparable<SykMessageVO> {
 	
@@ -342,7 +343,7 @@ public class SykMessageVO implements Comparable<SykMessageVO> {
 		}
 		
 		if(StringUtils.isBlank(this.getPrn())) {
-			this.setPrn(StringUtil.getId(CommonConstants.message_s));
+			this.setPrn(UIDGen.getUID(CommonConstants.message_s));
 		}
 		
 		if(StringUtils.isBlank(this.getAuthorPrn())) {

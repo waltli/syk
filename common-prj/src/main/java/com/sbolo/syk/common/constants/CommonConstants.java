@@ -22,7 +22,7 @@ public class CommonConstants {
 	public static final String resource_key = "resourceInfo";
 	public static final String label_mapping_key = "label";
 	public static final String location_mapping_key = "location";
-	public static final String local_sign = "[www.chanying.cc]";
+	public static final String domain = "[www.cyvdo.com]";
 	
 	//图片裁剪的尺寸，比实际需要大了1px，以为在裁剪的时候有误差
 	public static final int icon_width = 183;  

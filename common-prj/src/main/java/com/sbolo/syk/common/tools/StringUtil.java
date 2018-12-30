@@ -140,15 +140,12 @@ public class StringUtil {
 		return sb.toString();
 	}
 	
-	public static Boolean isLocalLink(String link){
-		return link.contains(CommonConstants.local_sign);
-	}
-	
-	public static String getId(String sign){
-		if(StringUtils.isBlank(sign)) {
-			return UIDGenerator.getUID()+"";
+	public static Boolean isWebLink(String link){
+		Matcher matcher = Pattern.compile("(?i)(^ed2k://)|(^thunder://)|(^magnet:\\?)|(^https?://)|(^//)").matcher(link);
+		if(matcher.find()) {
+			return true;
 		}
-		return sign + UIDGenerator.getUID();
+		return false;
 	}
 	
 	public static Boolean isHttp(String str) {

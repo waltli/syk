@@ -24,6 +24,7 @@ import com.sbolo.syk.common.constants.MovieStatusEnum;
 import com.sbolo.syk.common.constants.RegexConstant;
 import com.sbolo.syk.common.tools.BucketUtils;
 import com.sbolo.syk.common.tools.StringUtil;
+import com.sbolo.syk.common.tools.UIDGen;
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.fetch.entity.MovieFetchRecordEntity;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
@@ -136,7 +137,7 @@ public class ResourceInfoService {
 		List<ResourceInfoVO> changeResources = new ArrayList<>();
 		for(int i=0; i<resources.size(); i++){
 			ResourceInfoVO resource = resources.get(i);
-			String resourcePrn = StringUtil.getId(CommonConstants.resource_s);
+			String resourcePrn = UIDGen.getUID(CommonConstants.resource_s);
 			resource.setPrn(resourcePrn);
 			resource.setPureName(movieAround.getPureName());
 			resource.setReleaseTime(movieAround.getReleaseTime());

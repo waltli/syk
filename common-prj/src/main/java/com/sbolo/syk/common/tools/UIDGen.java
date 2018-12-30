@@ -2,7 +2,7 @@ package com.sbolo.syk.common.tools;
 
 import org.apache.commons.lang3.StringUtils;
 
-public class UIDGenerator {
+public class UIDGen {
 	/** 开始时间截 (2017-11-06) */
     private final long twepoch = 1509976472321L;
 
@@ -19,30 +19,39 @@ public class UIDGenerator {
     private long lastTimestamp = -1L;
     
     private static class UIDGeneratorHolder {
-        private static final UIDGenerator instance = new UIDGenerator();
+        private static final UIDGen instance = new UIDGen();
     }
     
-    private static UIDGenerator get(){
+    private static UIDGen get(){
         return UIDGeneratorHolder.instance;
     }
     
 	public static long getUID() {
 		String workerId = ConfigUtils.getPropertyValue("workerId");
 		if(StringUtils.isBlank(workerId)) {
-			return getUID(null);
+			return getUID(0l);
 		}
 		return getUID(Long.valueOf(workerId));
 	}
 
-	public static long getUID(Long workerId) {
-		UIDGenerator generator = get();
-		if(workerId == null){
-			workerId = 0l;
-		}else if (workerId.longValue() > generator.maxWorkerId || workerId.longValue() < 0) {
+	public static long getUID(long workerId) {
+		UIDGen generator = get();
+		if (workerId > generator.maxWorkerId || workerId < 0) {
             throw new IllegalArgumentException(String.format("workId不能大于%d或小于0", generator.maxWorkerId));
         }
 		generator.workerId = workerId;
         return generator.nextId();
+	}
+	
+	public static String getUID(String sign) {
+		return getUID(0l, sign);
+	}
+	
+	public static String getUID(long workerId, String sign) {
+		if(StringUtils.isBlank(sign)) {
+			throw new RuntimeException("sign is null!");
+		}
+		return sign+getUID(workerId);
 	}
 
     /**

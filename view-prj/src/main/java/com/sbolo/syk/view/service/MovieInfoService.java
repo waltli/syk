@@ -36,6 +36,7 @@ import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.MovieCategoryEnum;
 import com.sbolo.syk.common.constants.TriggerEnum;
 import com.sbolo.syk.common.tools.StringUtil;
+import com.sbolo.syk.common.tools.UIDGen;
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.common.ui.RequestResult;
 import com.sbolo.syk.view.entity.MovieHotStatEntity;
@@ -207,7 +208,7 @@ public class MovieInfoService {
 	private MovieHotStatEntity buildHotStat(String prn, Integer trigger){
 		MovieInfoEntity movie = movieInfoMapper.selectByPrn(prn);
 		MovieHotStatEntity hot = new MovieHotStatEntity();
-		hot.setPrn(StringUtil.getId(CommonConstants.hot_s));
+		hot.setPrn(UIDGen.getUID(CommonConstants.hot_s));
 		hot.setMoviePrn(prn);
 		hot.setDoubanScore(movie.getDoubanScore());
 		hot.setImdbScore(movie.getImdbScore());

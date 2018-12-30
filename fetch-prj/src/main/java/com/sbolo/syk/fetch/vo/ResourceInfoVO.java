@@ -668,10 +668,10 @@ public class ResourceInfoVO {
     	
     	if(StringUtils.isNotBlank(this.getDownloadLink())){
     		String downloadLinkUrl = "";
-    		if(StringUtil.isLocalLink(this.getDownloadLink())){
-    			downloadLinkUrl = bucketHost + this.getDownloadLink();
-    		}else {
+    		if(StringUtil.isWebLink(this.getDownloadLink())){
     			downloadLinkUrl = this.getDownloadLink();
+    		}else {
+    			downloadLinkUrl = bucketHost + this.getDownloadLink();
     		}
     		this.setDownloadLinkUrl(downloadLinkUrl);
     		

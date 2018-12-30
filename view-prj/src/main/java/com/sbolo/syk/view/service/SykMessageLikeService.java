@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.sbolo.syk.common.exception.BusinessException;
 import com.sbolo.syk.common.tools.StringUtil;
+import com.sbolo.syk.common.tools.UIDGen;
 import com.sbolo.syk.view.entity.SykMessageLikeEntity;
 import com.sbolo.syk.view.mapper.SykMessageLikeMapper;
 
@@ -25,7 +26,7 @@ public class SykMessageLikeService {
 	public int add(String msgPrn, String gaverPrn, String gaverIp) {
 		SykMessageLikeEntity likeEntity = new SykMessageLikeEntity();
 		likeEntity.setCreateTime(new Date());
-		likeEntity.setPrn(StringUtil.getId(null));
+		likeEntity.setPrn(UIDGen.getUID()+"");
 		likeEntity.setGaverIp(gaverIp);
 		likeEntity.setGaverPrn(gaverPrn);
 		likeEntity.setMsgPrn(msgPrn);

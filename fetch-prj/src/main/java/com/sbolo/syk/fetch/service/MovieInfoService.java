@@ -26,6 +26,7 @@ import com.sbolo.syk.common.constants.MovieStatusEnum;
 import com.sbolo.syk.common.constants.RegexConstant;
 import com.sbolo.syk.common.tools.BucketUtils;
 import com.sbolo.syk.common.tools.StringUtil;
+import com.sbolo.syk.common.tools.UIDGen;
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.common.ui.RequestResult;
 import com.sbolo.syk.fetch.entity.MovieFetchRecordEntity;
@@ -125,7 +126,7 @@ public class MovieInfoService {
 	}
 	
 	public void manualProcess(MovieInfoVO movie, List<ResourceInfoVO> resources) throws Exception {
-		String moviePrn = StringUtil.getId(CommonConstants.movie_s);
+		String moviePrn = UIDGen.getUID(CommonConstants.movie_s);
 		Date thisTime = new Date();
 		movie.setPrn(moviePrn);
 		movie.setCreateTime(thisTime);
@@ -165,7 +166,7 @@ public class MovieInfoService {
 		Integer maxEpisodeEnd = -1;
 		for(int i=0; i<resources.size(); i++){
 			ResourceInfoVO resource = resources.get(i);
-			String resourcePrn = StringUtil.getId(CommonConstants.resource_s);
+			String resourcePrn = UIDGen.getUID(CommonConstants.resource_s);
 			resource.setPrn(resourcePrn);
 			resource.setMoviePrn(moviePrn);
 			resource.setPureName(movie.getPureName());
