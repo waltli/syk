@@ -1,5 +1,5 @@
 @var serverPort = ":"+request.serverPort;
-@if(request.serverPort == 80){
+@if(request.serverPort == 80 || request.serverPort == 443){
 	@serverPort = "";
 @}
 @var ctx = request.scheme+"://"+request.serverName+serverPort+ctxPath;
