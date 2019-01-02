@@ -13,6 +13,8 @@
     <result column="douban_score" jdbcType="DECIMAL" property="doubanScore" />
     <result column="imdb_score" jdbcType="DECIMAL" property="imdbScore" />
     <result column="trigger_type" jdbcType="INTEGER" property="triggerType" />
+    <result column="trigger_ip" jdbcType="VARCHAR" property="triggerIp"/>
+    <result column="trigger_addr" jdbcType="VARCHAR" property="triggerAddr"/>
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>

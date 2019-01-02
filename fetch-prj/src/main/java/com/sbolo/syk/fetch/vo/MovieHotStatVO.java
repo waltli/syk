@@ -46,6 +46,10 @@ public class MovieHotStatVO {
      */
     
     private Integer triggerType;
+    
+    private String triggerIp;
+    
+    private String triggerAddr;
 
     /**
      * 创建时间
@@ -60,7 +64,23 @@ public class MovieHotStatVO {
     private Date updateTime;
 
 
-    /**
+    public String getTriggerIp() {
+		return triggerIp;
+	}
+
+	public void setTriggerIp(String triggerIp) {
+		this.triggerIp = triggerIp;
+	}
+
+	public String getTriggerAddr() {
+		return triggerAddr;
+	}
+
+	public void setTriggerAddr(String triggerAddr) {
+		this.triggerAddr = triggerAddr;
+	}
+
+	/**
      * 获取全局唯一标识
      *
      * 

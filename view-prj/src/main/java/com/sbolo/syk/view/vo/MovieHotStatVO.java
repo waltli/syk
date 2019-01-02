@@ -3,6 +3,8 @@ package com.sbolo.syk.view.vo;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.Column;
+
 public class MovieHotStatVO implements Serializable {
     /**
 	 * 
@@ -50,8 +52,28 @@ public class MovieHotStatVO implements Serializable {
      * 触发方式
      */
     private Integer triggerType;
+    
+    private String triggerIp;
+    
+    private String triggerAddr;
 
-    /**
+    public String getTriggerIp() {
+		return triggerIp;
+	}
+
+	public void setTriggerIp(String triggerIp) {
+		this.triggerIp = triggerIp;
+	}
+
+	public String getTriggerAddr() {
+		return triggerAddr;
+	}
+
+	public void setTriggerAddr(String triggerAddr) {
+		this.triggerAddr = triggerAddr;
+	}
+
+	/**
      * 创建时间
      */
     private Date createTime;

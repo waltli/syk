@@ -58,6 +58,12 @@ public class MovieHotStatEntity {
      */
     @Column(name = "`trigger_type`")
     private Integer triggerType;
+    
+    @Column(name="`trigger_ip`")
+    private String triggerIp;
+    
+    @Column(name="`trigger_addr`")
+    private String triggerAddr;
 
     /**
      * 创建时间
@@ -73,7 +79,23 @@ public class MovieHotStatEntity {
     
     private Integer hotCount;
 
-    public Integer getCategory() {
+    public String getTriggerIp() {
+		return triggerIp;
+	}
+
+	public void setTriggerIp(String triggerIp) {
+		this.triggerIp = triggerIp;
+	}
+
+	public String getTriggerAddr() {
+		return triggerAddr;
+	}
+
+	public void setTriggerAddr(String triggerAddr) {
+		this.triggerAddr = triggerAddr;
+	}
+
+	public Integer getCategory() {
 		return category;
 	}
 

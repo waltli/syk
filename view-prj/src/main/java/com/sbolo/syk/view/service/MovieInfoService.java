@@ -59,6 +59,9 @@ public class MovieInfoService {
 	@Resource
 	private MovieHotStatMapper movieHotStatMapper;
 	
+	@Autowired
+	private ThreadPoolTaskExecutor threadPool;
+	
 	public RequestResult<MovieInfoVO> getAroundList(int pageNum, int pageSize, String label, String keyword, String categoryDesp, String tag) throws InstantiationException, IllegalAccessException, InvocationTargetException{
         Map<String, Object> params = new HashMap<String, Object>();
         if(StringUtils.isNotBlank(keyword)){
@@ -178,34 +181,22 @@ public class MovieInfoService {
 	}
 	
 	@Transactional
-	public void modifyCountClick(String prn){
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			log.error("",e);
-		}
-		movieInfoMapper.updateCountClick(prn);
-		MovieHotStatEntity hotStat = buildHotStat(prn, TriggerEnum.click.getCode());
-		movieHotStatMapper.insertSelective(hotStat);
+	public void modiHot(String moviePrn, int hotType, String clentIp){
+		threadPool.execute(new Runnable() {
+			@Override
+			public void run() {
+				MovieHotStatEntity hotStat = buildHotStat(moviePrn, hotType, clentIp);
+				movieInfoMapper.updateCountClick(moviePrn);
+				movieHotStatMapper.insertSelective(hotStat);
+			}
+		});
 	}
 	
 	public MovieInfoEntity getMovieByPrn(String prn){
 		return movieInfoMapper.selectByPrn(prn);
 	}
 	
-	@Transactional
-	public void modifyCountDownload(String moviePrn){
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			log.error("",e);
-		}
-		movieInfoMapper.updateCountDownload(moviePrn);
-		MovieHotStatEntity hotStat = buildHotStat(moviePrn, TriggerEnum.download.getCode());
-		movieHotStatMapper.insertSelective(hotStat);
-	}
-	
-	private MovieHotStatEntity buildHotStat(String prn, Integer trigger){
+	private MovieHotStatEntity buildHotStat(String prn, Integer trigger, String clentIp){
 		MovieInfoEntity movie = movieInfoMapper.selectByPrn(prn);
 		MovieHotStatEntity hot = new MovieHotStatEntity();
 		hot.setPrn(UIDGen.getUID(CommonConstants.hot_s));
@@ -216,6 +207,7 @@ public class MovieInfoService {
 		hot.setReleaseTime(movie.getReleaseTime());
 		hot.setCategory(movie.getCategory());
 		hot.setTriggerType(trigger);
+		hot.setTriggerIp(clentIp);
 		hot.setCreateTime(new Date());
 		return hot;
 	}

@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +21,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sbolo.syk.common.annotation.Paginator;
 import com.sbolo.syk.common.constants.MovieCategoryEnum;
+import com.sbolo.syk.common.constants.TriggerEnum;
 import com.sbolo.syk.common.exception.BusinessException;
+import com.sbolo.syk.common.mvc.controller.BaseController;
 import com.sbolo.syk.common.tools.VOUtils;
 import com.sbolo.syk.common.ui.RequestResult;
 import com.sbolo.syk.view.entity.MovieInfoEntity;
@@ -33,7 +37,7 @@ import com.sbolo.syk.view.vo.ResourceInfoVO;
 
 
 @Controller
-public class IndexController {
+public class IndexController extends BaseController {
 	private static final Logger log = LoggerFactory.getLogger(IndexController.class);
 	
 	private static final String index = "index.html";
@@ -45,9 +49,6 @@ public class IndexController {
 	
 	@Autowired
 	private MovieInfoService movieInfoService;
-	
-	@Autowired
-	private ThreadPoolTaskExecutor threadPool;
 	
 	@Autowired
 	private ResourceInfoService resourceInfoService;
@@ -104,8 +105,9 @@ public class IndexController {
 	
 	@RequestMapping("hotDownload")
 	@ResponseBody
-	public RequestResult<String> hotDownload(@RequestParam(value="mi", required=true) String moviePrn){
-		movieInfoService.modifyCountDownload(moviePrn);
+	public RequestResult<String> hotDownload(HttpServletRequest request, @RequestParam(value="mi", required=true) String moviePrn){
+		String clientIP = this.getClientIP(request);
+		movieInfoService.modiHot(moviePrn, TriggerEnum.download.getCode(), clientIP);
 		RequestResult<String> result = new RequestResult<>("success");
 		return result;
 	}
@@ -141,14 +143,7 @@ public class IndexController {
 		map.put("resources", reosurcesVO);
 		RequestResult<Map<String, Object>> result = new RequestResult<>(map);
 		model.addAttribute("result", result);
-		
-		threadPool.execute(new Runnable() {
-			@Override
-			public void run() {
-				movieInfoService.modifyCountClick(moviePrn);
-			}
-		});
-		
+		movieInfoService.modiHot(moviePrn, TriggerEnum.click.getCode(), clientIP);
 		return detail;
 	}
 	
