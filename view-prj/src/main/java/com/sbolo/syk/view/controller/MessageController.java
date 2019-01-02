@@ -26,6 +26,7 @@ import org.springframework.web.util.HtmlUtils;
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
 import com.sbolo.syk.common.constants.MatchRuleEnum;
+import com.sbolo.syk.common.constants.TriggerEnum;
 import com.sbolo.syk.common.exception.BusinessException;
 import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.http.HttpUtils.HttpResult;
@@ -36,6 +37,7 @@ import com.sbolo.syk.common.ui.RequestResult;
 import com.sbolo.syk.view.entity.SykMessageEntity;
 import com.sbolo.syk.view.entity.SykMessageLikeEntity;
 import com.sbolo.syk.view.enums.OrderMarkerEnum;
+import com.sbolo.syk.view.service.MovieInfoService;
 import com.sbolo.syk.view.service.SykMessageLikeService;
 import com.sbolo.syk.view.service.SykMessageService;
 import com.sbolo.syk.view.vo.SykMessageVO;
@@ -55,6 +57,9 @@ public class MessageController extends BaseController {
 	@Autowired
 	private SykMessageLikeService sykMessageLikeService;
 	
+	@Autowired
+	private MovieInfoService movieInfoService;
+	
 	private static final Integer pageSize = 10;
 	
 	@PostMapping("push")
@@ -67,7 +72,8 @@ public class MessageController extends BaseController {
 		vo.setMsgContent(HtmlUtils.htmlEscape(msgContent));
 		Set<String> sensitiveWords = SensitiveWordUtils.getSensitiveWords(msgContent, MatchRuleEnum.MIN_MATCH);
 		if(sensitiveWords == null || sensitiveWords.size() <= 0) {
-			sykMessageService.addOne(vo);
+			sykMessageService.addOne(vo, clientIP);
+			movieInfoService.lazyHot(vo.getPkey(), TriggerEnum.comment.getCode(), clientIP);
 		}
 		vo.setAuthor(sykUser);
 		vo.parse();

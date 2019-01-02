@@ -27,15 +27,15 @@ public interface MovieInfoMapper extends Mapper<MovieInfoEntity>, BatchWriteMapp
 	
 	@Update("update movie_info set count_click = count_click+1 where prn=#{prn}")
 	int updateCountClick(String prn);
+
+	@Update("update movie_info set count_download = count_download+1 where prn=#{prn}")
+	int updateCountDownload(String prn);
 	
 	@Update("update movie_info set count_comment = count_comment+1 where prn=#{prn}")
 	int updateCountComment(String prn);
 	
 	@Update("update movie_info set count_comment = count_comment-#{size} where prn=#{prn}")
 	int updateCountCommentSub(@Param("prn") String prn, @Param("size") int size);
-	
-	@Update("update movie_info set count_download = count_download+1 where prn=#{prn}")
-	int updateCountDownload(String prn);
 	
 	@ResultMap("BaseResultMap")
 	@Select("select t.* from movie_info t where t.prn=#{prn}")

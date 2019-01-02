@@ -8,7 +8,9 @@ import org.apache.ibatis.annotations.Select;
 
 import com.sbolo.syk.view.entity.MovieHotStatEntity;
 
-public interface MovieHotStatMapper {
+import tk.mybatis.mapper.common.base.insert.InsertSelectiveMapper;
+
+public interface MovieHotStatMapper extends InsertSelectiveMapper<MovieHotStatEntity> {
 	
 	@ResultMap("BaseResultMap")
 	@Select("SELECT a.prn, a.pure_name, a.douban_score, b.hot_count " + 
@@ -26,5 +28,4 @@ public interface MovieHotStatMapper {
 			"ORDER BY hot_count DESC")
 	List<MovieHotStatEntity> selectHotByTime(Map<String, Object> params);
 	
-	int insertSelective(MovieHotStatEntity record);
 }

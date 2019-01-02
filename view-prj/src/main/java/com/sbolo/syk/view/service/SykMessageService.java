@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.PageHelper;
 import com.sbolo.syk.common.constants.CommonConstants;
+import com.sbolo.syk.common.constants.TriggerEnum;
 import com.sbolo.syk.common.exception.BusinessException;
 import com.sbolo.syk.common.tools.DateUtil;
 import com.sbolo.syk.common.tools.StringUtil;
@@ -126,11 +127,10 @@ public class SykMessageService {
 	}
 	
 	@Transactional
-	public void addOne(SykMessageVO vo) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+	public void addOne(SykMessageVO vo, String clientIP) throws InstantiationException, IllegalAccessException, InvocationTargetException {
 		this.check(vo);
 		SykMessageEntity entity = VOUtils.po2vo(vo, SykMessageEntity.class);
 		sykMessageMapper.insert(entity);
-		movieInfoMapper.updateCountComment(vo.getPkey());
 	}
 	
 	public SykMessageEntity getOne(String msgPrn) {

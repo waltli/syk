@@ -22,6 +22,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -181,13 +182,27 @@ public class MovieInfoService {
 	}
 	
 	@Transactional
-	public void modiHot(String moviePrn, int hotType, String clentIp){
+	public void hot(String moviePrn, int hotType, String clientIP){
+		if(hotType == TriggerEnum.click.getCode()) {
+			MovieHotStatEntity hotStat = buildHotStat(moviePrn, hotType, clientIP);
+			movieInfoMapper.updateCountClick(moviePrn);
+			movieHotStatMapper.insertSelective(hotStat);
+		}else if(hotType == TriggerEnum.download.getCode()) {
+			MovieHotStatEntity hotStat = buildHotStat(moviePrn, hotType, clientIP);
+			movieHotStatMapper.insertSelective(hotStat);
+			movieInfoMapper.updateCountDownload(moviePrn);
+		}else {
+			movieInfoMapper.updateCountComment(moviePrn);
+		}
+	}
+	
+	public void lazyHot(String moviePrn, int hotType, String clientIP) {
+		MovieInfoService proxy = (MovieInfoService) AopContext.currentProxy();
 		threadPool.execute(new Runnable() {
+			
 			@Override
 			public void run() {
-				MovieHotStatEntity hotStat = buildHotStat(moviePrn, hotType, clentIp);
-				movieInfoMapper.updateCountClick(moviePrn);
-				movieHotStatMapper.insertSelective(hotStat);
+				proxy.hot(moviePrn, hotType, clientIP);
 			}
 		});
 	}
@@ -196,7 +211,7 @@ public class MovieInfoService {
 		return movieInfoMapper.selectByPrn(prn);
 	}
 	
-	private MovieHotStatEntity buildHotStat(String prn, Integer trigger, String clentIp){
+	private MovieHotStatEntity buildHotStat(String prn, Integer trigger, String clientIP){
 		MovieInfoEntity movie = movieInfoMapper.selectByPrn(prn);
 		MovieHotStatEntity hot = new MovieHotStatEntity();
 		hot.setPrn(UIDGen.getUID(CommonConstants.hot_s));
@@ -207,7 +222,7 @@ public class MovieInfoService {
 		hot.setReleaseTime(movie.getReleaseTime());
 		hot.setCategory(movie.getCategory());
 		hot.setTriggerType(trigger);
-		hot.setTriggerIp(clentIp);
+		hot.setTriggerIp(clientIP);
 		hot.setCreateTime(new Date());
 		return hot;
 	}

@@ -107,13 +107,13 @@ public class IndexController extends BaseController {
 	@ResponseBody
 	public RequestResult<String> hotDownload(HttpServletRequest request, @RequestParam(value="mi", required=true) String moviePrn){
 		String clientIP = this.getClientIP(request);
-		movieInfoService.modiHot(moviePrn, TriggerEnum.download.getCode(), clientIP);
+		movieInfoService.lazyHot(moviePrn, TriggerEnum.download.getCode(), clientIP);
 		RequestResult<String> result = new RequestResult<>("success");
 		return result;
 	}
 	
 	@RequestMapping("detail")
-	public String detail(Model model,
+	public String detail(Model model, HttpServletRequest request, 
             @RequestParam(value="mi", required=true) final String moviePrn) throws InstantiationException, IllegalAccessException, InvocationTargetException{
 		if(StringUtils.isBlank(moviePrn) || moviePrn.equals("null")) {
 			throw new BusinessException("prn不能为空");
@@ -143,7 +143,8 @@ public class IndexController extends BaseController {
 		map.put("resources", reosurcesVO);
 		RequestResult<Map<String, Object>> result = new RequestResult<>(map);
 		model.addAttribute("result", result);
-		movieInfoService.modiHot(moviePrn, TriggerEnum.click.getCode(), clientIP);
+		String clientIP = this.getClientIP(request);
+		movieInfoService.lazyHot(moviePrn, TriggerEnum.click.getCode(), clientIP);
 		return detail;
 	}
 	
