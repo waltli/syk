@@ -135,7 +135,7 @@ public class ResourceController {
 		Date thisTime = new Date();
 		ResourceInfoVO changeResource = resourceInfoService.modiResourceProcess(newResource, dbResource, thisTime);
 		MovieInfoVO toUpMovie = resourceInfoService.getToUpMovie(isOptimal, changeResource, dbResource.getMoviePrn(), thisTime);
-		resourceInfoService.modiResource(newResource, toUpMovie);
+		resourceInfoService.modiResource(changeResource, toUpMovie);
 		RequestResult<String> result = new RequestResult<>("sucess");
 		model.addAttribute("result", result);
 		return add_result;

@@ -222,11 +222,11 @@ public class ResourceInfoService {
 				//上传torrent文件
 				String torrentName = FetchUtils.getTorrentName(newResource);
 				downloadLink = FetchUtils.uploadTorrentGetUriFromDir(downloadLinkTemp, torrentName);
+				BucketUtils.delete(dbResource.getDownloadLink());
 			}else {
 				downloadLink = downloadLinkTemp;
 			}
 			changeResource.setDownloadLink(downloadLink);
-			BucketUtils.delete(dbResource.getDownloadLink());
 		}
 		
 		//上传shots图片
@@ -234,9 +234,10 @@ public class ResourceInfoService {
 			String uriJson = FetchUtils.compareUploadGetJsonAndDelOld(dbResource.getShotUriJson(), changeResource.getShotSubDirStr(), CommonConstants.shot_v);
 			changeResource.setShotUriJson(uriJson);
 		}
-		
-		int definitionScore = FetchUtils.translateDefinitionIntoScore(newResource.getQuality(), newResource.getResolution());
-		changeResource.setDefinition(definitionScore);
+		if(StringUtils.isNotBlank(changeResource.getQuality()) && StringUtils.isNotBlank(changeResource.getResolution())) {
+			int definitionScore = FetchUtils.translateDefinitionIntoScore(changeResource.getQuality(), changeResource.getResolution());
+			changeResource.setDefinition(definitionScore);
+		}
 		
 		changeResource.setPrn(dbResource.getPrn());
 		changeResource.setUpdateTime(new Date());
@@ -257,21 +258,20 @@ public class ResourceInfoService {
 	
 	@Transactional
 	public void modiResource(ResourceInfoVO newResource, MovieInfoVO toUpMovie) throws Exception{
-		ResourceInfoEntity modiResourceEntity = VOUtils.po2vo(newResource, ResourceInfoEntity.class);
-		MovieInfoEntity movieEntity = VOUtils.po2vo(toUpMovie, MovieInfoEntity.class);
-		
 		List<MovieInfoEntity> updateMovies = new ArrayList<>();
-		updateMovies.add(movieEntity);
-		List<ResourceInfoEntity> updateResourceInfos = new ArrayList<>();
-		updateResourceInfos.add(modiResourceEntity);
-		List<MovieFetchRecordEntity> recordList = FetchUtils.buildFetchRecordList(null, updateMovies, null, updateResourceInfos, null);
-		
-		if(modiResourceEntity != null) {
-			resourceInfoMapper.updateByPrn(modiResourceEntity);
-		}
-		if(movieEntity != null) {
+		if(toUpMovie != null) {
+			MovieInfoEntity movieEntity = VOUtils.po2vo(toUpMovie, MovieInfoEntity.class);
+			updateMovies.add(movieEntity);
 			movieInfoMapper.updateByPrn(movieEntity);
 		}
+		List<ResourceInfoEntity> updateResourceInfos = new ArrayList<>();
+		if(newResource != null) {
+			ResourceInfoEntity modiResourceEntity = VOUtils.po2vo(newResource, ResourceInfoEntity.class);
+			updateResourceInfos.add(modiResourceEntity);
+			resourceInfoMapper.updateByPrn(modiResourceEntity);
+		}
+		List<MovieFetchRecordEntity> recordList = FetchUtils.buildFetchRecordList(null, updateMovies, null, updateResourceInfos, null);
+		
 		if(recordList != null && recordList.size() > 0) {
 			movieFetchRecordMapper.insertList(recordList);
 		}

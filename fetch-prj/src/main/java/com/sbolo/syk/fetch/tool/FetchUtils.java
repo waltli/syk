@@ -681,8 +681,10 @@ public class FetchUtils {
     	boolean hasChange = false;
     	
     	if(StringUtils.isNotBlank(fetchResource.getDownloadLinkTemp())){
-    		changeOption.setDownloadLinkTemp(fetchResource.getDownloadLinkTemp());
-			hasChange = true;
+    		if(StringUtils.isNotBlank(dbResource.getDownloadLink()) && !dbResource.getDownloadLink().equals(fetchResource.getDownloadLinkTemp())) {
+    			changeOption.setDownloadLinkTemp(fetchResource.getDownloadLinkTemp());
+    			hasChange = true;
+    		}
     	}
     	
     	if(StringUtils.isNotBlank(fetchResource.getSize())){
