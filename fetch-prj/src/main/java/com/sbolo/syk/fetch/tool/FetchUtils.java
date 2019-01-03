@@ -826,37 +826,39 @@ public class FetchUtils {
 		
 		//如果是连续剧则获取最新集数
 		if(category == MovieCategoryEnum.tv.getCode()){
-			List<Pattern> list_episode = RegexConstant.list_episode3;
+			List<Pattern> list_episode = RegexConstant.list_episode;
 			boolean hasEpisode = false;
 			for(int i=0; i<list_episode.size(); i++){
 	    		m2 = list_episode.get(i).matcher(downloadLinkName);
-	    		if(m2.find()){
-	    			String m2Grop1 = m2.group(1);
-	    			if(m2Grop1 == null){
-	    				m2Grop1 = "";
-	    			}
-					Matcher m3 = Pattern.compile(RegexConstant.cn_number).matcher(m2Grop1);
-					if(m3.find()){
-						//将中文数字转换为阿拉伯数字
-						resourceVO.setEpisodeEnd(Utils.chineseNumber2Int(m3.group()));
-					}else if(m2.group().equals("全集")){
-						resourceVO.setEpisodeStart(1);
-						resourceVO.setEpisodeEnd(totalEpisode);
-					}else if(m2Grop1.indexOf("-") != -1){
-						//如过集数的样式为40-50
-						String[] episodeArr = m2.group(1).split("-");
-						Integer startEpisode = Integer.valueOf(episodeArr[0]);
-						Integer endEpisode = Integer.valueOf(episodeArr[1]);
-						if(endEpisode.intValue()>startEpisode.intValue()){
-							resourceVO.setEpisodeStart(startEpisode);
-						}
-						resourceVO.setEpisodeEnd(endEpisode);
-					}else {
-						resourceVO.setEpisodeEnd(Integer.valueOf(m2Grop1));
-					}
-					hasEpisode = true;
-					break;
+	    		if(!m2.find()){
+	    			continue;
 	    		}
+	    		
+    			String m2Grop1 = m2.group(1);
+    			if(m2Grop1 == null){
+    				m2Grop1 = "";
+    			}
+				Matcher m3 = Pattern.compile(RegexConstant.cn_number).matcher(m2Grop1);
+				if(m3.find()){
+					//将中文数字转换为阿拉伯数字
+					resourceVO.setEpisodeEnd(Utils.chineseNumber2Int(m3.group()));
+				}else if(m2.group().equals("全集")){
+					resourceVO.setEpisodeStart(1);
+					resourceVO.setEpisodeEnd(totalEpisode);
+				}else if(m2Grop1.indexOf("-") != -1){
+					//如过集数的样式为40-50
+					String[] episodeArr = m2.group(1).split("-");
+					Integer startEpisode = Integer.valueOf(episodeArr[0]);
+					Integer endEpisode = Integer.valueOf(episodeArr[1]);
+					if(endEpisode.intValue()>startEpisode.intValue()){
+						resourceVO.setEpisodeStart(startEpisode);
+					}
+					resourceVO.setEpisodeEnd(endEpisode);
+				}else {
+					resourceVO.setEpisodeEnd(Integer.valueOf(m2Grop1));
+				}
+				hasEpisode = true;
+				break;
 	    	}
 			
 			if(!hasEpisode) {

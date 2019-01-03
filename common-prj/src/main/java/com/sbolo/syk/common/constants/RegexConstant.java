@@ -14,8 +14,7 @@ public class RegexConstant {
 	
 	public static final List<Pattern> list_release_time = new ArrayList<Pattern>(); 
 	public static final List<Pattern> list_season = new ArrayList<Pattern>();
-	public static final List<Pattern> list_episode3 = new ArrayList<Pattern>();
-	public static final List<Pattern> list_episode2 = new ArrayList<Pattern>();
+	public static final List<Pattern> list_episode = new ArrayList<Pattern>();
 //	public static final List<Pattern> list_title = new ArrayList<Pattern>();
 	public static final String resource_protocol = "(?i)(^ed2k://)|(^thunder://)|(^magnet:\\?)|(\\.torrent$)|(#torrent$)|(^https?://pan\\.baidu\\.com/.*)";
 	public static final String ed2k = "(?i)^ed2k://";
@@ -51,10 +50,13 @@ public class RegexConstant {
 	public static final String magnet_size = "(?i)(?<=xl\\=).*?(?=&)";
 	
 	public static void main(String[] args) {
-		String d = "】おっぱいバレー";
-		Matcher m = Pattern.compile(magnet_size).matcher("magnet:?xt=urn:btih:UM6BOBWQ67QIWQYKOQBWXWJQWFR4CO5L&dn=%e6%91%a9%e5%a4%a9%e8%90%a5%e6%95%91%2e1080p%2e%e5%9b%bd%e8%8b%b1%e5%8f%8c%e8%af%ad%2eBD%e4%b8%ad%e8%8b%b1%e5%8f%8c%e5%ad%97%5b%e6%9c%80%e6%96%b0%e7%94%b5%e5%bd%b1www%2e66ys%2etv%5d%20%2emp4&tr=udp%3a%2f%2f9%2erarbg%2eto%3a2710%2fannounce&tr=udp%3a%2f%2f9%2erarbg%2eme%3a2710%2fannounce&tr=http%3a%2f%2ftr%2ecili001%2ecom%3a8070%2fannounce&tr=http%3a%2f%2ftracker%2etrackerfix%2ecom%3a80%2fannounce&tr=udp%3a%2f%2fopen%2edemonii%2ecom%3a1337&tr=udp%3a%2f%2ftracker%2eopentrackr%2eorg%3a1337%2fannounce&tr=udp%3a%2f%2fp4p%2earenabg%2ecom%3a1337");
-		if(m.find()){
-			System.out.println(m.group());
+		for(int i=0; i<list_episode.size(); i++) {
+			Matcher matcher = list_episode.get(i).matcher("永远的沙丽.Sally4Ever.S101.双语中字.亿万同人字幕组.橘里橘气译制组.mp4");
+			if(matcher.find()){
+				String group1 = matcher.group(1);
+				String group = matcher.group();
+				System.out.println();
+			}
 		}
 	}
 
@@ -71,24 +73,16 @@ public class RegexConstant {
 		list_season.add(Pattern.compile("(?i)S(\\d{1,2})"));
 		list_season.add(Pattern.compile("(?i)Season(\\d{1,2})"));
 		
-		list_episode3.add(Pattern.compile("[第全新]([一二三四五六七八九十]{1,3}|\\d{1,3}\\-\\d{1,3}|\\d{1,3})[集期]"));
-		list_episode3.add(Pattern.compile("(?i)EP(\\d{1,3}\\-\\d{1,3}|\\d{1,3})"));
-		list_episode3.add(Pattern.compile("(?i)E(\\d{1,3}\\-\\d{1,3}|\\d{1,3})"));
-		list_episode3.add(Pattern.compile("(?i)Episode(\\d{1,3}\\-\\d{1,3}|\\d{1,3})"));
-		list_episode3.add(Pattern.compile("(全集)"));
-		list_episode3.add(Pattern.compile("(?i)(?<=\\d{1,3}x)(\\d{1,3})"));   //代码解释：反向（即需要获取的内容在？右边）获取
-		list_episode3.add(Pattern.compile("(\\d{1,3}\\-\\d{1,3})")); 
-		list_episode3.add(Pattern.compile("(\\d{1,3})\\.")); //优先级最低
+		list_episode.add(Pattern.compile("[第全新]([一二三四五六七八九十]{1,3}|\\d{1,3}\\-\\d{1,3}|\\d{1,3})[集期]"));
+		list_episode.add(Pattern.compile("(?i)EP(\\d{1,3}\\-\\d{1,3}|\\d{1,3})"));
+		list_episode.add(Pattern.compile("(?i)E(\\d{1,3}\\-\\d{1,3}|\\d{1,3})"));
+		list_episode.add(Pattern.compile("(?i)Episode(\\d{1,3}\\-\\d{1,3}|\\d{1,3})"));
+		list_episode.add(Pattern.compile("(全集)"));
+		list_episode.add(Pattern.compile("(?i)(?<=\\d{1,3}x)(\\d{1,3})"));   //代码解释：反向（即需要获取的内容在？右边）获取
+		list_episode.add(Pattern.compile("(?i)S\\d{1,2}(\\d{2})"));
+		list_episode.add(Pattern.compile("(\\d{1,3}\\-\\d{1,3})")); 
+		list_episode.add(Pattern.compile("(\\d{1,3})\\.")); //优先级最低
 		
-		list_episode2.add(Pattern.compile("[第全新]([一二三四五六七八九十]{1,2}|\\d{1,2}\\-\\d{1,2}|\\d{1,2})[集期]"));
-		list_episode2.add(Pattern.compile("(?i)EP(\\d{1,2}\\-\\d{1,2}|\\d{1,2})"));
-		list_episode2.add(Pattern.compile("(?i)E(\\d{1,2}\\-\\d{1,2}|\\d{1,2})"));
-		list_episode2.add(Pattern.compile("(?i)Episode(\\d{1,2}\\-\\d{1,2}|\\d{1,2})"));
-		list_episode2.add(Pattern.compile("(全集)"));
-		list_episode2.add(Pattern.compile("(?i)(?<=\\d{1,2}x)(\\d{1,2})"));   //代码解释：反向（即需要获取的内容在？右边）获取
-		list_episode2.add(Pattern.compile("(\\d{1,2}\\-\\d{1,2})")); 
-		list_episode2.add(Pattern.compile("(\\d{1,2})\\.")); //优先级最低
-//		
 //		list_title.add(Pattern.compile("导(\\s|\\t|\\r|\\n| |　|(&nbsp;))*?演(\\s*[:：]\\s)?"));
 //		list_title.add(Pattern.compile("主(\\s|\\t|\\r|\\n| |　|(&nbsp;))*?演(\\s*[:：]\\s)?"));
 //		list_title.add(Pattern.compile("演(\\s|\\t|\\r|\\n| |　|(&nbsp;))*?员(\\s*[:：]\\s)?"));
