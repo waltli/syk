@@ -183,16 +183,18 @@ public class MovieInfoService {
 	
 	@Transactional
 	public void hot(String moviePrn, int hotType, String clientIP){
-		if(hotType == TriggerEnum.click.getCode()) {
-			MovieHotStatEntity hotStat = buildHotStat(moviePrn, hotType, clientIP);
-			movieInfoMapper.updateCountClick(moviePrn);
-			movieHotStatMapper.insertSelective(hotStat);
-		}else if(hotType == TriggerEnum.download.getCode()) {
-			MovieHotStatEntity hotStat = buildHotStat(moviePrn, hotType, clientIP);
-			movieHotStatMapper.insertSelective(hotStat);
-			movieInfoMapper.updateCountDownload(moviePrn);
-		}else {
+		if(hotType == TriggerEnum.comment.getCode()) {
 			movieInfoMapper.updateCountComment(moviePrn);
+			return;
+		}
+		
+		MovieHotStatEntity hotStat = buildHotStat(moviePrn, hotType, clientIP);
+		movieHotStatMapper.insertSelective(hotStat);
+		
+		if(hotType == TriggerEnum.click.getCode()) {
+			movieInfoMapper.updateCountClick(moviePrn);
+		}else if(hotType == TriggerEnum.download.getCode()) {
+			movieInfoMapper.updateCountDownload(moviePrn);
 		}
 	}
 	
