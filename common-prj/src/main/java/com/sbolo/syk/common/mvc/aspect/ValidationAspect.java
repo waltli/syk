@@ -9,6 +9,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,6 +34,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import javax.validation.executable.ExecutableValidator;
 
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -61,29 +64,28 @@ import com.sbolo.syk.common.tools.ReflectionUtils;
 import com.sbolo.syk.common.tools.Utils;
 import com.sbolo.syk.common.ui.RequestResult;
 
-//@Aspect
-//@Component
+@Aspect
+@Component
 public class ValidationAspect {
 	
-	private static final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+	private static final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 	private static final String errorPage = "bzjx/error.jsp";
 	
-	@SuppressWarnings({ "rawtypes", "unchecked"})
 	@Around("execution(* com.sbolo.syk.*.controller.*Controller.*(..)) && "
 			+ "(@annotation(org.springframework.web.bind.annotation.GetMapping) || "
 			+ "@annotation(org.springframework.web.bind.annotation.PostMapping) || "
 			+ "@annotation(org.springframework.web.bind.annotation.RequestMapping))")
     public Object paginator(ProceedingJoinPoint point) throws Throwable {
 		//目标方法周边信息
-		Signature signature = point.getSignature();    
+    	Object target = point.getTarget();
+		Signature signature = point.getSignature();
 		MethodSignature methodSignature = (MethodSignature)signature;    
 		Method targetMethod = methodSignature.getMethod();
 		Class<?> returnType = targetMethod.getReturnType();
-		
-		//request、response
 		ServletRequestAttributes servletRequestAttributes = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes());
 		HttpServletRequest request = servletRequestAttributes.getRequest();
 		HttpServletResponse response = servletRequestAttributes.getResponse();
+		
 		response.setHeader("Content-type", "text/html;charset=UTF-8");
 		response.setCharacterEncoding("UTF-8");
 		
@@ -99,66 +101,66 @@ public class ValidationAspect {
 							+ "页面跳转：返回类型必须为String！");
 		}
 		
+		//方法中是否含有需要验证的参数
+		boolean methodGo = false;
+		Annotation[][] parameterAnnotations = targetMethod.getParameterAnnotations();
+		sign : for(Annotation[] annos : parameterAnnotations) {
+			for(Annotation anno : annos) {
+				if(anno.annotationType().isAnnotationPresent(Constraint.class)){
+					methodGo = true;
+					break sign;
+				}
+			}
+		}
+		
+		//参数值数组
 		Object[] args = point.getArgs();
-		//与args[]同下标
+		//参数名数组与args[]同下标
 		Parameter[] parameters = targetMethod.getParameters();
-		//待生成javabean集合
-		List<JavassistField> assists = new ArrayList<>();
 		//违反约束的javaBean
-		List<Object> realApply = new ArrayList<>();
+		List<Object> todos = new ArrayList<>();
 		for(int i=0; i<parameters.length; i++){
 			Parameter parameter = parameters[i];
 			Class<?> parameterType = parameter.getType();
 			//排除无需验证的参数
-			if(this.isExcludeClass(parameterType)){
+			if(isExcludeClass(parameterType)){
 				continue;
 			}
-			//是否基本类型
+			//集合不纳入对象验证中
+			if(Collection.class.isAssignableFrom(parameterType) || Map.class.isAssignableFrom(parameterType)){
+				continue;
+			}
+			//基本类型不纳入对象验证中
 			if(Utils.isMinimumType(parameterType)){
-				Annotation[] parameterAnnotations = parameter.getDeclaredAnnotations();
-				List<Annotation> constraintAnnotations = new ArrayList<>();
-				for(Annotation anno : parameterAnnotations){
+				continue;
+			}
+			//自定义对象参数是否需要验证
+			Field[] fields = parameterType.getDeclaredFields();
+			sign : for(Field field : fields) {
+				Annotation[] annotations = field.getAnnotations();
+				for(Annotation anno : annotations){
 					if(anno.annotationType().isAnnotationPresent(Constraint.class)){
-						constraintAnnotations.add(anno);
+						todos.add(args[i]);
+						break sign;
 					}
 				}
-				if(constraintAnnotations.size() == 0){
-					continue;
-				}
-				JavassistField assist = new JavassistField();
-				String fieldName = parameter.getName();
-				assist.setFieldName(fieldName);
-				Object parameterValue = args[i];
-				assist.setValue(parameterValue);
-				assist.setClazz(parameterType);
-				assist.setAnnotations(constraintAnnotations);
-				assists.add(assist);
-				continue;
 			}
-			
-			//是否集合（不含map）
-			if(Collection.class.isAssignableFrom(parameterType)){
-				realApply.addAll((Collection) args[i]);
-			}else {
-				realApply.add(args[i]);
-			}
-			
 		}
-		
-		//生成代理bean
-		if(assists.size() > 0){
-			JavassistBean javassistBean = new JavassistBean(assists);
-			realApply.add(javassistBean.getObject());
-		}
-		
-		//约束违反集合
 		Set<ConstraintViolation<Object>> constraintViolations = new HashSet<>();
-		if(realApply.size() > 0){
-			Validator validator = factory.getValidator();
-			realApply.forEach(obj -> {
+		//验证方法中的参数
+		if(methodGo) {
+			ExecutableValidator executableValidator = validator.forExecutables();
+	    	Set<ConstraintViolation<Object>> methodValidators = executableValidator.validateParameters(target, targetMethod, args);
+	    	constraintViolations.addAll(methodValidators);
+		}
+		
+		//验证参数中的自定义对象
+		if(constraintViolations.size() == 0 && todos.size() > 0){
+			todos.forEach(obj -> {
 				constraintViolations.addAll(validator.validate(obj));
 			});
 		}
+		
 		Object result = null;
 		if(constraintViolations.size() > 0){
 			String[] errors = new String[constraintViolations.size()];
