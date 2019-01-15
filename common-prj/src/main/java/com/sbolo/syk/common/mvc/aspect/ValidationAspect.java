@@ -155,7 +155,7 @@ public class ValidationAspect {
 		}
 		
 		//验证参数中的自定义对象
-		if(constraintViolations.size() == 0 && todos.size() > 0){
+		if(todos.size() > 0){
 			todos.forEach(obj -> {
 				constraintViolations.addAll(validator.validate(obj));
 			});
