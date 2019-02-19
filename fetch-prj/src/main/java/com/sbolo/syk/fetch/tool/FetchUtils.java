@@ -715,6 +715,13 @@ public class FetchUtils {
     		}
     	}
     	
+    	if(fetchResource.getDefinition() != null){
+    		if(dbResource.getDefinition() == null || dbResource.getDefinition() != fetchResource.getDefinition()){
+    			changeOption.setDefinition(fetchResource.getDefinition());
+    			hasChange = true;
+    		}
+    	}
+    	
     	if(fetchResource.getEpisodeStart() != null){
     		if(dbResource.getEpisodeStart() == null || dbResource.getEpisodeStart().intValue() != fetchResource.getEpisodeStart().intValue()){
     			changeOption.setEpisodeStart(fetchResource.getEpisodeStart());

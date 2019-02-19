@@ -3,8 +3,17 @@ package com.sbolo.syk.fetch.entity;
 import java.util.Date;
 import javax.persistence.*;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sbolo.syk.fetch.distinct.MyDistinct;
+
 @Table(name = "`resource_info`")
 public class ResourceInfoEntity {
+	
+	private static final Logger log = LoggerFactory.getLogger(ResourceInfoEntity.class);
     /**
      * 自增id
      */
@@ -500,4 +509,9 @@ public class ResourceInfoEntity {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
+	}
 }

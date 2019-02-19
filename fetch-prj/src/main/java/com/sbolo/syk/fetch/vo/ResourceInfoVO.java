@@ -9,6 +9,8 @@ import java.util.regex.Pattern;
 import javax.persistence.*;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -655,6 +657,11 @@ public class ResourceInfoVO {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
+    
+    @Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
+	}
     
     public void parse(){
     	SimpleDateFormat sdf = new SimpleDateFormat(CommonConstants.timeFormat.get(10));

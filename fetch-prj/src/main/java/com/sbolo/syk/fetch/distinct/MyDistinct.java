@@ -386,11 +386,15 @@ public class MyDistinct implements Distinct {
 				fetchResource.setCreateTime(thisTime);
 				fetchResource.setMoviePrn(moviePrn);
 			}else if(action == CommonConstants.update){
-				fetchResource = FetchUtils.resourceChangeOption(dbOptimalResource, fetchResource);
-				fetchResource.setPureName(dbOptimalResource.getPureName());
-				fetchResource.setAction(CommonConstants.update);
-				fetchResource.setUpdateTime(thisTime);
-				fetchResource.setPrn(dbOptimalResource.getPrn());
+				ResourceInfoVO changeOption = FetchUtils.resourceChangeOption(dbOptimalResource, fetchResource);
+				if(changeOption == null) {
+					log.error("严重错误：action为update，但是获取changeOption时为null \n dbOptimalResource: "+dbOptimalResource.toString() +"\n fetchResource: "+fetchResource.toString());
+					continue;
+				}
+				changeOption.setPureName(dbOptimalResource.getPureName());
+				changeOption.setAction(CommonConstants.update);
+				changeOption.setUpdateTime(thisTime);
+				changeOption.setPrn(dbOptimalResource.getPrn());
 			}
 			//设置action在后续插入数据库时使用
 			filterList.add(fetchResource);
