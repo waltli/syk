@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.sbolo.syk.common.constants.MovieCategoryEnum;
-import com.sbolo.syk.common.constants.MovieTagEnum;
+import com.sbolo.syk.common.enums.MovieCategoryEnum;
+import com.sbolo.syk.common.enums.MovieTagEnum;
 import com.sbolo.syk.common.exception.BusinessException;
 import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.tools.ConfigUtils;
@@ -29,7 +29,7 @@ import com.sbolo.syk.common.tools.DateUtil;
 import com.sbolo.syk.common.tools.FileUtils;
 import com.sbolo.syk.common.tools.GrapicmagickUtils;
 import com.sbolo.syk.common.tools.VOUtils;
-import com.sbolo.syk.common.ui.RequestResult;
+import com.sbolo.syk.common.ui.ResultApi;
 import com.sbolo.syk.fetch.entity.MovieDictEntity;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
@@ -73,25 +73,25 @@ public class TestController {
 	
 	@GetMapping("111")
 	@ResponseBody
-	public RequestResult<String> test() throws ParseException{
+	public ResultApi<String> test() throws ParseException{
 		try {
 			spider.run();
 		} catch (Exception e) {
 			log.error("",e);
 		}
-		return new RequestResult<String>("到达");
+		return new ResultApi<String>("到达");
 	}
 	
 	@GetMapping("222")
 	@ResponseBody
-	public RequestResult<String> test222() throws Exception {
+	public ResultApi<String> test222() throws Exception {
 		migrateService.migrate();
-		return new RequestResult<String>("到达");
+		return new ResultApi<String>("到达");
 	}
 	
 	@GetMapping("333")
 	@ResponseBody
-	public RequestResult<String> test333() throws Exception{
+	public ResultApi<String> test333() throws Exception{
 		String url = "https://tu.66vod.net/2018/3503.jpg";
     	byte[] bytes = HttpUtils.getBytes(url);
     	InputStream resourceAsStream = this.getClass().getResourceAsStream("/img/mark.png");
@@ -99,12 +99,12 @@ public class TestController {
 		byte[] watermark = GrapicmagickUtils.watermark(bytes, byteArray);
 		String tempDir = ConfigUtils.getPropertyValue("fs.temp.dir");
 		FileUtils.saveFile(watermark, tempDir, "test", "jpg");
-		return new RequestResult<String>("到达");
+		return new ResultApi<String>("到达");
 	}
 	
 	@GetMapping("tag")
 	@ResponseBody
-	public RequestResult<String> tag() throws Exception{
+	public ResultApi<String> tag() throws Exception{
 		List<MovieInfoEntity> selectByCategoryAndNullTag = movieInfoMapper.selectByCategoryAndNullTag(MovieCategoryEnum.tv.getCode());
 		
 		if(selectByCategoryAndNullTag == null || selectByCategoryAndNullTag.size() == 0) {
@@ -127,12 +127,12 @@ public class TestController {
 		}
 		
 		movieDictService.junitUP(toupList);
-		return new RequestResult<String>("到达");
+		return new ResultApi<String>("到达");
 	}
 	
 	@GetMapping("dict")
 	@ResponseBody
-	public RequestResult<String> Dict() throws Exception{
+	public ResultApi<String> Dict() throws Exception{
 		List<MovieInfoEntity> selectAll = movieInfoMapper.selectAll();
 		
 		List<MovieInfoVO> po2vos = VOUtils.po2vo(selectAll, MovieInfoVO.class);
@@ -146,6 +146,6 @@ public class TestController {
 		}
 		
 		movieDictService.junitInsert(dictAll);
-		return new RequestResult<String>("到达");
+		return new ResultApi<String>("到达");
 	}
 }

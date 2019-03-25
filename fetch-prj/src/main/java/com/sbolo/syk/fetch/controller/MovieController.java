@@ -27,7 +27,7 @@ import com.sbolo.syk.common.tools.ConfigUtils;
 import com.sbolo.syk.common.tools.DateUtil;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.VOUtils;
-import com.sbolo.syk.common.ui.RequestResult;
+import com.sbolo.syk.common.ui.ResultApi;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
 import com.sbolo.syk.fetch.service.MovieInfoService;
 import com.sbolo.syk.fetch.tool.DoubanUtils;
@@ -60,42 +60,42 @@ public class MovieController {
 	public String go(Model model, HttpServletRequest request, 
 			@RequestParam(value="page",defaultValue="1", required=false) Integer pageNum,
             @RequestParam(value="q", required=false) String keyword) throws InstantiationException, IllegalAccessException, InvocationTargetException{
-		RequestResult<MovieInfoVO> result = movieInfoService.getAroundList(pageNum, pageSize, null, keyword);
+		ResultApi<MovieInfoVO> result = movieInfoService.getAroundList(pageNum, pageSize, null, keyword);
 		model.addAttribute("result", result);
 		return list;
 	}
 	
 	@RequestMapping("fetch-list")
 	@ResponseBody
-	public RequestResult<MovieInfoVO> doubanResult(@RequestParam(value="q", required=true) String query) throws Exception{
+	public ResultApi<MovieInfoVO> doubanResult(@RequestParam(value="q", required=true) String query) throws Exception{
 		List<MovieInfoVO> fetchMovies = DoubanUtils.fetchListFromDouban(query);
-		RequestResult<MovieInfoVO> result = new RequestResult<>(fetchMovies);
+		ResultApi<MovieInfoVO> result = new ResultApi<>(fetchMovies);
 		return result;
 	}
 	
 	@RequestMapping("fetch-detail")
 	@ResponseBody
-	public RequestResult<MovieInfoVO> doubanDetail(@RequestParam(value="doubanId", required=true) String doubanId) throws Exception{
+	public ResultApi<MovieInfoVO> doubanDetail(@RequestParam(value="doubanId", required=true) String doubanId) throws Exception{
 		String doubanUrl = StringUtil.jointDoubanUrl(doubanId);
 		MovieInfoVO fetchMovie = DoubanUtils.fetchMovieFromDouban(doubanUrl, new Date());
-		RequestResult<MovieInfoVO> result = new RequestResult<>(fetchMovie);
+		ResultApi<MovieInfoVO> result = new ResultApi<>(fetchMovie);
 		return result;
 		
 	}
 	
 	@RequestMapping(value="signDelete", method=RequestMethod.POST)
 	@ResponseBody
-	public RequestResult<String> signDelete(String moviePrn){
+	public ResultApi<String> signDelete(String moviePrn){
 		movieInfoService.signDeleteable(moviePrn);
-		RequestResult<String> result = new RequestResult<>("success");
+		ResultApi<String> result = new ResultApi<>("success");
 		return result;
 	}
 	
 	@RequestMapping(value="signAvailable", method=RequestMethod.POST)
 	@ResponseBody
-	public RequestResult<String> signAvailable(String moviePrn){
+	public ResultApi<String> signAvailable(String moviePrn){
 		movieInfoService.signAvailable(moviePrn);
-		RequestResult<String> result = new RequestResult<>("success");
+		ResultApi<String> result = new ResultApi<>("success");
 		return result;
 	}
 	
@@ -129,20 +129,20 @@ public class MovieController {
 			FetchUtils.deleteFiles(movie, resources);
 			throw e;
 		}
-		RequestResult<MovieInfoVO> result = new RequestResult<>(movie);
+		ResultApi<MovieInfoVO> result = new ResultApi<>(movie);
 		model.addAttribute("result", result);
 		return add_result;
 	}
 	
 	@RequestMapping("exists")
 	@ResponseBody
-	public RequestResult<Boolean> exists(String pureName){
-		RequestResult<Boolean> result = null;
+	public ResultApi<Boolean> exists(String pureName){
+		ResultApi<Boolean> result = null;
 		MovieInfoEntity movie = movieInfoService.getMovieInfoByPureName(pureName);
 		if(movie == null){
-			result = new RequestResult<>(false);
+			result = new ResultApi<>(false);
 		}else {
-			result = new RequestResult<>(true);
+			result = new ResultApi<>(true);
 		}
 		return result;
 	}
@@ -155,7 +155,7 @@ public class MovieController {
 			throw new BusinessException("moviePrn为空！");
 		}
 		MovieInfoVO movieVO = movieInfoService.getMovieInfoByPrn(moviePrn);
-		RequestResult<MovieInfoVO> result = new RequestResult<>(movieVO);
+		ResultApi<MovieInfoVO> result = new ResultApi<>(movieVO);
 		model.addAttribute("result", result);
 		return existed;
 	}
@@ -167,7 +167,7 @@ public class MovieController {
 		if(movieVO == null){
 			throw new Exception("未查询到prn为"+moviePrn+"的影片信息！");
 		}
-		RequestResult<MovieInfoVO> result = new RequestResult<>(movieVO);
+		ResultApi<MovieInfoVO> result = new ResultApi<>(movieVO);
 		model.addAttribute("result", result);
 		
 		return modi_movie_page;
@@ -182,7 +182,7 @@ public class MovieController {
 			FetchUtils.deleteFiles(movie, null);
 			throw e;
 		}
-		RequestResult<MovieInfoVO> result = new RequestResult<>(movie);
+		ResultApi<MovieInfoVO> result = new ResultApi<>(movie);
 		model.addAttribute("result", result);
 		return add_result;
 	}
@@ -195,30 +195,30 @@ public class MovieController {
 	
 	@RequestMapping(value="set-optimal", method=RequestMethod.POST)
 	@ResponseBody
-	public RequestResult<String> setOptimal(String moviePrn, String optimalResourcePrn){
+	public ResultApi<String> setOptimal(String moviePrn, String optimalResourcePrn){
 		MovieInfoEntity toUpMovie = new MovieInfoEntity();
 		toUpMovie.setOptimalResourcePrn(optimalResourcePrn);
 		toUpMovie.setPrn(moviePrn);
 		movieInfoService.updateByPrn(toUpMovie);
-		RequestResult<String> result = new RequestResult<>("success");
+		ResultApi<String> result = new ResultApi<>("success");
 		return result;
 	}
 	
 	@RequestMapping("download-icon")
 	@ResponseBody
-	public RequestResult<Map<String, Object>> downloadIcon(HttpServletRequest request, String url) throws Exception{
+	public ResultApi<Map<String, Object>> downloadIcon(HttpServletRequest request, String url) throws Exception{
 		String subDir = FetchUtils.saveTempIcon(url);
 		Map<String, Object> map = new HashMap<>();
 		map.put("subDir", subDir);
 		String root = ConfigUtils.getPropertyValue("fs.temp.mapping");
 		map.put("uri", root+subDir);
-		RequestResult<Map<String, Object>> result = new RequestResult<>(map);
+		ResultApi<Map<String, Object>> result = new ResultApi<>(map);
 		return result;
 	}
 	
 	@RequestMapping("download-photo")
 	@ResponseBody
-	public RequestResult<Map<String, Object>> downloadPhoto(HttpServletRequest request, String urlStr) throws Exception{
+	public ResultApi<Map<String, Object>> downloadPhoto(HttpServletRequest request, String urlStr) throws Exception{
 		String[] urlArr = urlStr.split(",");
 		List<String> subDirList = new ArrayList<>();
 		List<String> tempUriList = new ArrayList<>();
@@ -233,7 +233,7 @@ public class MovieController {
 			Map<String, Object> map = new HashMap<>();
 			map.put("subDirList", subDirList);
 			map.put("tempUriList", tempUriList);
-			return new RequestResult<Map<String, Object>>(map);
+			return new ResultApi<Map<String, Object>>(map);
 		}else {
 			throw new BusinessException("下载photo计数为零");
 		}
@@ -242,7 +242,7 @@ public class MovieController {
 	
 	@RequestMapping("download-posters")
 	@ResponseBody
-	public RequestResult<Map<String, Object>> downloadPosters(HttpServletRequest request, final String pageUrl, final String iconName) throws Exception{
+	public ResultApi<Map<String, Object>> downloadPosters(HttpServletRequest request, final String pageUrl, final String iconName) throws Exception{
 		List<String> posterUrlList = DoubanUtils.getPosterUrlList(pageUrl, iconName);
 		
 		if(posterUrlList == null || posterUrlList.size() <= 0){
@@ -262,7 +262,7 @@ public class MovieController {
 			Map<String, Object> map = new HashMap<>();
 			map.put("subDirList", subDirList);
 			map.put("posterTempUriList", posterTempUriList);
-			return new RequestResult<>(map);
+			return new ResultApi<>(map);
 		}else {
 			throw new BusinessException("下载poster计数为零");
 		}

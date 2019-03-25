@@ -12,9 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
-import com.sbolo.syk.common.constants.RoleEnum;
-import com.sbolo.syk.common.constants.UserSettleEnum;
-import com.sbolo.syk.common.constants.UserStEnum;
+import com.sbolo.syk.common.enums.RoleEnum;
+import com.sbolo.syk.common.enums.UserSettleEnum;
+import com.sbolo.syk.common.enums.UserStEnum;
 import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.http.HttpUtils.HttpResult;
 import com.sbolo.syk.common.http.callback.HttpSendCallback;

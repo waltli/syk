@@ -13,8 +13,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
-import com.sbolo.syk.common.constants.MovieCategoryEnum;
 import com.sbolo.syk.common.constants.RegexConstant;
+import com.sbolo.syk.common.enums.MovieCategoryEnum;
 import com.sbolo.syk.common.tools.ConfigUtils;
 import com.sbolo.syk.common.tools.StringUtil;
 

@@ -18,7 +18,7 @@ import com.sbolo.syk.common.tools.ConfigUtils;
  * @description desc
  */
 @SuppressWarnings({ "serial" })
-public class RequestResult<T> implements Serializable {
+public class ResultApi<T> implements Serializable {
 
 	private T obj; // 第一条记录
 	private List<T> list; // 记录列表
@@ -44,16 +44,16 @@ public class RequestResult<T> implements Serializable {
 	private String[] error;
 	private Throwable throwable;
 
-	public RequestResult() {
+	public ResultApi() {
 		this.code = 200;
 	}
 
-	public RequestResult(T obj) {
+	public ResultApi(T obj) {
 		this.obj = obj;
 		this.code = 200;
 	}
 	
-	public RequestResult(List<T> list) {
+	public ResultApi(List<T> list) {
 		this.list = list;
 		if (list != null && list.size() > 0) {
 			this.listSize = list.size();
@@ -62,7 +62,7 @@ public class RequestResult<T> implements Serializable {
 		this.code = 200;
 	}
 
-	public RequestResult(List<T> list, long allRow, int currentPage, int pageSize) {
+	public ResultApi(List<T> list, long allRow, int currentPage, int pageSize) {
 		this(list);
 		this.allRow = allRow;
 		this.currentPage = currentPage;
@@ -71,7 +71,7 @@ public class RequestResult<T> implements Serializable {
 		init();
 	}
 	
-	public RequestResult(List<T> list, long allRow, int currentPage, int pageSize, String order, String sort) {
+	public ResultApi(List<T> list, long allRow, int currentPage, int pageSize, String order, String sort) {
 		this(list, allRow, currentPage, pageSize);
 		if(StringUtils.isNotBlank(order)){
 			this.order = order;
@@ -81,20 +81,20 @@ public class RequestResult<T> implements Serializable {
 		}
 	}
 	
-	public static <T> RequestResult<T> error(String str) {
+	public static <T> ResultApi<T> error(String str) {
 		String[] strs = new String[]{str};
 		return error(strs);
 	}
 	
-	public static <T> RequestResult<T> error(String[] strs) {
-		RequestResult<T> requestResult = new RequestResult<T>();
+	public static <T> ResultApi<T> error(String[] strs) {
+		ResultApi<T> requestResult = new ResultApi<T>();
 		requestResult.setStatus(false);
 		requestResult.setError(strs);
 		return requestResult;
 	}
 
-	public static <T> RequestResult<T> error(Throwable t) {
-		RequestResult<T> requestResult = new RequestResult<T>();
+	public static <T> ResultApi<T> error(Throwable t) {
+		ResultApi<T> requestResult = new ResultApi<T>();
 		requestResult.setStatus(false);
 		requestResult.setThrowable(t);
 		requestResult.setError(t.getMessage());

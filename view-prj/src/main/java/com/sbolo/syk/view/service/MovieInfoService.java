@@ -34,12 +34,12 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.sbolo.syk.common.annotation.CacheAvl;
 import com.sbolo.syk.common.constants.CommonConstants;
-import com.sbolo.syk.common.constants.MovieCategoryEnum;
-import com.sbolo.syk.common.constants.TriggerEnum;
+import com.sbolo.syk.common.enums.MovieCategoryEnum;
+import com.sbolo.syk.common.enums.TriggerEnum;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.UIDGen;
 import com.sbolo.syk.common.tools.VOUtils;
-import com.sbolo.syk.common.ui.RequestResult;
+import com.sbolo.syk.common.ui.ResultApi;
 import com.sbolo.syk.view.entity.MovieHotStatEntity;
 import com.sbolo.syk.view.entity.MovieInfoEntity;
 import com.sbolo.syk.view.entity.ResourceInfoEntity;
@@ -63,7 +63,7 @@ public class MovieInfoService {
 	@Autowired
 	private ThreadPoolTaskExecutor threadPool;
 	
-	public RequestResult<MovieInfoVO> getAroundList(int pageNum, int pageSize, String label, String keyword, String categoryDesp, String tag) throws InstantiationException, IllegalAccessException, InvocationTargetException{
+	public ResultApi<MovieInfoVO> getAroundList(int pageNum, int pageSize, String label, String keyword, String categoryDesp, String tag) throws InstantiationException, IllegalAccessException, InvocationTargetException{
         Map<String, Object> params = new HashMap<String, Object>();
         if(StringUtils.isNotBlank(keyword)){
         	params.put("keyword", keyword);
@@ -99,7 +99,7 @@ public class MovieInfoService {
 			movieVOList.add(movieVO);
 		}
 		MovieInfoVO.parse(movieVOList);
-		return new RequestResult<>(movieVOList, pageInfo.getTotal(), pageNum, pageSize);
+		return new ResultApi<>(movieVOList, pageInfo.getTotal(), pageNum, pageSize);
 	}
 	
 	@CacheAvl(key="sidebar", hKey="currMonthTop", timeout=30, timeUnit=TimeUnit.MINUTES)

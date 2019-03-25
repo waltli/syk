@@ -2,20 +2,15 @@ package com.sbolo.syk.common.mvc.aspect;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -33,17 +28,14 @@ import javax.validation.Constraint;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 import javax.validation.executable.ExecutableValidator;
 
-import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.aop.AopInvocationException;
-import org.springframework.core.MethodParameter;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpMethod;
@@ -57,12 +49,8 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.alibaba.fastjson.JSON;
-import com.sbolo.syk.common.javassist.JavassistBean;
-import com.sbolo.syk.common.javassist.JavassistField;
-import com.sbolo.syk.common.tools.ReflectionUtils;
 import com.sbolo.syk.common.tools.Utils;
-import com.sbolo.syk.common.ui.RequestResult;
+import com.sbolo.syk.common.ui.ResultApi;
 
 @Aspect
 @Component
@@ -71,7 +59,7 @@ public class ValidationAspect {
 	private static final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 	private static final String errorPage = "bzjx/error.jsp";
 	
-	@Around("execution(* com.sbolo.syk.*.controller.*Controller.*(..)) && "
+	@Around("execution(* com.jwwd.*.controller.*Controller.*(..)) && "
 			+ "(@annotation(org.springframework.web.bind.annotation.GetMapping) || "
 			+ "@annotation(org.springframework.web.bind.annotation.PostMapping) || "
 			+ "@annotation(org.springframework.web.bind.annotation.RequestMapping))")
@@ -92,14 +80,6 @@ public class ValidationAspect {
 		//异步注解
 		ResponseBody responseBody = targetMethod.getAnnotation(ResponseBody.class);
 		RestController restController = point.getTarget().getClass().getAnnotation(RestController.class);
-		
-		if((responseBody != null || restController != null) && !returnType.equals(RequestResult.class)){
-			throw new AopInvocationException("异步请求的返回类型必须为RequestResult！"); 
-		}else if((responseBody == null && restController == null) && !returnType.equals(String.class)){
-			throw new AopInvocationException(  
-					"异步请求：返回类型必须为RequestResult，并在方法上添加@ResponseBody注解。\n"
-							+ "页面跳转：返回类型必须为String！");
-		}
 		
 		//方法中是否含有需要验证的参数
 		boolean methodGo = false;
@@ -171,7 +151,7 @@ public class ValidationAspect {
 	        }
 			if(responseBody != null || restController != null){
 				//异步提交
-				result = RequestResult.error(errors);
+				result = ResultApi.error(errors);
 			}else {
 				//跳转到错误页面
 				request.setAttribute("errorInfo", errors);

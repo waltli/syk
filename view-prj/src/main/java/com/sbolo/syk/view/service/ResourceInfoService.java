@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.sbolo.syk.common.constants.MovieCategoryEnum;
+import com.sbolo.syk.common.enums.MovieCategoryEnum;
 import com.sbolo.syk.view.entity.ResourceInfoEntity;
 import com.sbolo.syk.view.mapper.ResourceInfoMapper;
 

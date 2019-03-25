@@ -37,10 +37,9 @@ import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
-import com.sbolo.syk.common.constants.MovieQualityEnum;
 import com.sbolo.syk.common.constants.MovieResolutionConstant;
 import com.sbolo.syk.common.constants.RegexConstant;
-import com.sbolo.syk.common.constants.TimeDirectEnum;
+import com.sbolo.syk.common.enums.MovieQualityEnum;
 import com.sbolo.syk.common.exception.BusinessException;
 
 public class Utils {

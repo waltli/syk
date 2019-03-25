@@ -21,14 +21,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.sbolo.syk.common.constants.CommonConstants;
-import com.sbolo.syk.common.constants.MovieCategoryEnum;
-import com.sbolo.syk.common.constants.MovieStatusEnum;
 import com.sbolo.syk.common.constants.RegexConstant;
+import com.sbolo.syk.common.enums.MovieCategoryEnum;
+import com.sbolo.syk.common.enums.MovieStatusEnum;
 import com.sbolo.syk.common.tools.BucketUtils;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.UIDGen;
 import com.sbolo.syk.common.tools.VOUtils;
-import com.sbolo.syk.common.ui.RequestResult;
+import com.sbolo.syk.common.ui.ResultApi;
 import com.sbolo.syk.fetch.entity.MovieFetchRecordEntity;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
@@ -61,7 +61,7 @@ public class MovieInfoService {
 		return entities;
 	}
 	
-	public RequestResult<MovieInfoVO> getAroundList(int pageNum, int pageSize, String label, String keyword) throws InstantiationException, IllegalAccessException, InvocationTargetException{
+	public ResultApi<MovieInfoVO> getAroundList(int pageNum, int pageSize, String label, String keyword) throws InstantiationException, IllegalAccessException, InvocationTargetException{
         Map<String, Object> params = new HashMap<String, Object>();
         if(StringUtils.isNotBlank(keyword)){
         	params.put("keyword", keyword);
@@ -88,7 +88,7 @@ public class MovieInfoService {
 			movieVOList.add(movieVO);
 		}
 		MovieInfoVO.parse(movieVOList);
-		return new RequestResult<>(movieVOList, pageInfo.getTotal(), pageNum, pageSize);
+		return new ResultApi<>(movieVOList, pageInfo.getTotal(), pageNum, pageSize);
 	}
 	
 	@Transactional

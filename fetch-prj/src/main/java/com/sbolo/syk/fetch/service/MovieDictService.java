@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sbolo.syk.common.constants.CommonConstants;
-import com.sbolo.syk.common.constants.MovieDictEnum;
 import com.sbolo.syk.common.constants.RegexConstant;
+import com.sbolo.syk.common.enums.MovieDictEnum;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.UIDGen;
 import com.sbolo.syk.fetch.entity.MovieDictEntity;

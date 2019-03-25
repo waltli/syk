@@ -16,8 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.sbolo.syk.common.constants.CommonConstants;
-import com.sbolo.syk.common.constants.MovieStatusEnum;
 import com.sbolo.syk.common.constants.RegexConstant;
+import com.sbolo.syk.common.enums.MovieStatusEnum;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.UIDGen;
 import com.sbolo.syk.common.tools.Utils;

@@ -23,12 +23,12 @@ import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
-import com.sbolo.syk.common.constants.MovieCategoryEnum;
-import com.sbolo.syk.common.constants.MovieDictEnum;
-import com.sbolo.syk.common.constants.MovieQualityEnum;
 import com.sbolo.syk.common.constants.MovieResolutionConstant;
-import com.sbolo.syk.common.constants.MovieStatusEnum;
 import com.sbolo.syk.common.constants.RegexConstant;
+import com.sbolo.syk.common.enums.MovieCategoryEnum;
+import com.sbolo.syk.common.enums.MovieDictEnum;
+import com.sbolo.syk.common.enums.MovieQualityEnum;
+import com.sbolo.syk.common.enums.MovieStatusEnum;
 import com.sbolo.syk.common.exception.BusinessException;
 import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.tools.BucketUtils;

@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.PageHelper;
 import com.sbolo.syk.common.constants.CommonConstants;
-import com.sbolo.syk.common.constants.TriggerEnum;
+import com.sbolo.syk.common.enums.TriggerEnum;
 import com.sbolo.syk.common.exception.BusinessException;
 import com.sbolo.syk.common.tools.DateUtil;
 import com.sbolo.syk.common.tools.StringUtil;

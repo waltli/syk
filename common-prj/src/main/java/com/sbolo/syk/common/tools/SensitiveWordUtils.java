@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import com.sbolo.syk.common.constants.MatchRuleEnum;
+import com.sbolo.syk.common.enums.MatchRuleEnum;
 
 public class SensitiveWordUtils {
 	private static Map<Object,Object> sensitiveWordsMap = new HashMap<>();

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.mvc.controller.BaseController;
-import com.sbolo.syk.common.ui.RequestResult;
+import com.sbolo.syk.common.ui.ResultApi;
 import com.sbolo.syk.view.service.AccountService;
 import com.sbolo.syk.view.vo.LoginPreVO;
 import com.sbolo.syk.view.vo.SykUserVO;
@@ -30,7 +30,7 @@ public class LoginController extends BaseController {
 	
 	@GetMapping("cb_qq")
 	public void cbQQ(HttpServletResponse response, HttpSession session, String code, String state) throws IOException {
-		RequestResult<SykUserVO> result = null;
+		ResultApi<SykUserVO> result = null;
 		try {
 //			String qqState = String.valueOf(session.getAttribute("qqState"));
 //			if(!state.equals(qqState)) {
@@ -38,9 +38,9 @@ public class LoginController extends BaseController {
 //			}
 			SykUserVO user = accountService.qqLogin(code);
 			this.setUserInfo(session, user, user.getUsername());
-			result = new RequestResult<>(user);
+			result = new ResultApi<>(user);
 		} catch (Exception e) {
-			result = RequestResult.error(e);
+			result = ResultApi.error(e);
 			result.setCode(360);
 			log.error("", e);
 		}
@@ -69,19 +69,19 @@ public class LoginController extends BaseController {
 	}
 	
 	@GetMapping("pre")
-	public RequestResult<LoginPreVO> getLoginPre(Integer openType) throws UnsupportedEncodingException{
+	public ResultApi<LoginPreVO> getLoginPre(Integer openType) throws UnsupportedEncodingException{
 		LoginPreVO loginPre = new LoginPreVO(openType, "abc888888");
 		loginPre.notNull();
-		return new RequestResult<>(loginPre);
+		return new ResultApi<>(loginPre);
 	}
 	
 	@PostMapping("logout")
-	public RequestResult<String> logout(HttpSession session, String username) throws Exception{
+	public ResultApi<String> logout(HttpSession session, String username) throws Exception{
 		String hasUsername = this.getUserName(session);
 		if(!hasUsername.equals(username)) {
 			throw new Exception("当前登录用户不一致");
 		}
 		this.removeUser(session);
-		return new RequestResult<>("success");
+		return new ResultApi<>("success");
 	}
 }

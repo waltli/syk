@@ -4,7 +4,7 @@ import java.util.Date;
 import javax.persistence.*;
 
 import com.sbolo.syk.common.constants.CommonConstants;
-import com.sbolo.syk.common.constants.MovieStatusEnum;
+import com.sbolo.syk.common.enums.MovieStatusEnum;
 
 public class MovieDictVO {
     private Long id;

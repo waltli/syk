@@ -1,23 +1,42 @@
-package com.sbolo.syk.common.constants;
+package com.sbolo.syk.common.enums;
 
 import com.sbolo.syk.common.tools.StringUtil;
 
-public enum OrderEnum {
-	ASC(1, "ASC"),
-	DESC(2, "DESC");
+/**
+ * 
+ * 方法参数类型
+ * @author Cathy
+ *
+ */
+public enum ParamTypeEnum {
+
+
+	BYTE(1, "byte"),
+	SHORT(2, "short"),
+	INT(3, "int"),
+	LONG(4, "long"),
+	FLOAT(5, "float"),
+	DOUBLE(6, "double"),
+	BOOLEAN(7, "boolean"),
+	CHAR(8, "char"),
+	STRING(9, "String"),
+	LIST(10, "List"),
+	OBJECT(11, "Object"),
+	VOID(12,"void");
+	
 	
 	private Integer code;
 	private String desc;
 
-	OrderEnum(Integer code, String desc){
+	ParamTypeEnum(Integer code, String desc){
 		this.code = code;
 		this.desc = desc;
 	}
 	
 	public static Integer getCodeByName(String name){
 		name = StringUtil.replaceBlank2(name).toUpperCase();
-		OrderEnum[] values = OrderEnum.values();
-		for(OrderEnum value : values){
+		ParamTypeEnum[] values = ParamTypeEnum.values();
+		for(ParamTypeEnum value : values){
 			if(value.name().equals(name)){
 				return value.getCode();
 			}
@@ -26,8 +45,8 @@ public enum OrderEnum {
 	}
 	
 	public static Integer getCodeByDesc(String desc){
-		OrderEnum[] values = OrderEnum.values();
-		for(OrderEnum value : values){
+		ParamTypeEnum[] values = ParamTypeEnum.values();
+		for(ParamTypeEnum value : values){
 			if(value.getDesc().equals(desc)){
 				return value.getCode();
 			}
@@ -36,8 +55,8 @@ public enum OrderEnum {
 	}
 	
 	public static String getDescByCode(Integer code){
-		OrderEnum[] values = OrderEnum.values();
-		for(OrderEnum value : values){
+		ParamTypeEnum[] values = ParamTypeEnum.values();
+		for(ParamTypeEnum value : values){
 			if(value.getCode().equals(code)){
 				return value.getDesc();
 			}
@@ -60,4 +79,6 @@ public enum OrderEnum {
 	public void setDesc(String desc) {
 		this.desc = desc;
 	}
+
+
 }

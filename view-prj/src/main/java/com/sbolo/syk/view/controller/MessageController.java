@@ -25,15 +25,15 @@ import org.springframework.web.util.HtmlUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
-import com.sbolo.syk.common.constants.MatchRuleEnum;
-import com.sbolo.syk.common.constants.TriggerEnum;
+import com.sbolo.syk.common.enums.MatchRuleEnum;
+import com.sbolo.syk.common.enums.TriggerEnum;
 import com.sbolo.syk.common.exception.BusinessException;
 import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.http.HttpUtils.HttpResult;
 import com.sbolo.syk.common.http.callback.HttpSendCallback;
 import com.sbolo.syk.common.mvc.controller.BaseController;
 import com.sbolo.syk.common.tools.SensitiveWordUtils;
-import com.sbolo.syk.common.ui.RequestResult;
+import com.sbolo.syk.common.ui.ResultApi;
 import com.sbolo.syk.view.entity.SykMessageEntity;
 import com.sbolo.syk.view.entity.SykMessageLikeEntity;
 import com.sbolo.syk.view.enums.OrderMarkerEnum;
@@ -63,7 +63,7 @@ public class MessageController extends BaseController {
 	private static final Integer pageSize = 10;
 	
 	@PostMapping("push")
-	public RequestResult<SykMessageVO> pushMessage(HttpServletRequest request, HttpSession session, SykMessageVO vo) throws InstantiationException, IllegalAccessException, InvocationTargetException{
+	public ResultApi<SykMessageVO> pushMessage(HttpServletRequest request, HttpSession session, SykMessageVO vo) throws InstantiationException, IllegalAccessException, InvocationTargetException{
 		String clientIP = this.getClientIP(request);
 		String userAgent = this.getUserAgent(request);
 		SykUserVO sykUser = (SykUserVO) this.getUser(request);
@@ -77,11 +77,11 @@ public class MessageController extends BaseController {
 		}
 		vo.setAuthor(sykUser);
 		vo.parse();
-		return new RequestResult<>(vo);
+		return new ResultApi<>(vo);
 	}
 	
 	@GetMapping("gets")
-	public RequestResult<TestVO> getMessages(
+	public ResultApi<TestVO> getMessages(
 			@RequestParam(value="pkey",required=true) String pkey,
 //			@RequestParam(value="page",defaultValue="1", required=false) Integer pageNum,
 			@RequestParam(value="orderMarker", required=false) String orderMarker,
@@ -95,11 +95,11 @@ public class MessageController extends BaseController {
 //			session.setAttribute(CommonConstants.USER, token);
 //		}
 		TestVO test = sykMessageService.getListByPage(pkey, token, orderMarker);
-		return new RequestResult<>(test);
+		return new ResultApi<>(test);
 	}
 	
 	@PostMapping("like")
-	public RequestResult<Map<String, Object>> like(HttpServletRequest request, String msgPrn){
+	public ResultApi<Map<String, Object>> like(HttpServletRequest request, String msgPrn){
 		SykUserVO token = (SykUserVO) this.getUser(request);
 		String gaverIp = this.getClientIP(request);
 		SykMessageLikeEntity likeEntity = sykMessageLikeService.getByMsgPrnAndGaverPrn(msgPrn, token.getPrn());
@@ -114,11 +114,11 @@ public class MessageController extends BaseController {
 		Map<String, Object> m = new HashMap<>();
 		m.put("likeCount", one.getLikeCount());
 		m.put("marker", marker);
-		return new RequestResult<>(m);
+		return new ResultApi<>(m);
 	}
 	
 	@PostMapping("delete")
-	public RequestResult<String> delete(HttpServletRequest request, String msgPrn){
+	public ResultApi<String> delete(HttpServletRequest request, String msgPrn){
 		SykUserVO token = (SykUserVO) this.getUser(request);
 		SykMessageEntity msgEntity = sykMessageService.getByPrn(msgPrn);
 		if(msgEntity == null) {
@@ -133,7 +133,7 @@ public class MessageController extends BaseController {
 			throw new BusinessException("未获取到消息数据。");
 		}
 		sykMessageService.remove(msgPrnl, msgEntity.getPkey());
-		return new RequestResult<>("success");
+		return new ResultApi<>("success");
 	}
 	
 }

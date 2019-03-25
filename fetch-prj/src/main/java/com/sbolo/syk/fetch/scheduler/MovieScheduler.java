@@ -17,7 +17,7 @@ import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.http.HttpUtils.HttpResult;
 import com.sbolo.syk.common.http.callback.HttpSendCallback;
 import com.sbolo.syk.common.tools.ConfigUtils;
-import com.sbolo.syk.common.ui.RequestResult;
+import com.sbolo.syk.common.ui.ResultApi;
 import com.sbolo.syk.common.vo.MigrateVO;
 import com.sbolo.syk.fetch.entity.MovieDictEntity;
 import com.sbolo.syk.fetch.entity.MovieFetchRecordEntity;

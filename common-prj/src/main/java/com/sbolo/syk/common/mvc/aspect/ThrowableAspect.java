@@ -27,7 +27,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import com.sbolo.syk.common.annotation.CacheAvl;
 import com.sbolo.syk.common.annotation.CacheDel;
 import com.sbolo.syk.common.tools.DateUtil;
-import com.sbolo.syk.common.ui.RequestResult;
+import com.sbolo.syk.common.ui.ResultApi;
 
 @Aspect
 @Component
@@ -57,12 +57,12 @@ public class ThrowableAspect {
 			return obj;
 		} catch (Throwable e) {
 			log.error("", e);
-			RequestResult<String> result = RequestResult.error(e);
+			ResultApi<String> result = ResultApi.error(e);
 			
 			ResponseBody responseBody = targetMethod.getAnnotation(ResponseBody.class);
 			RestController restController = point.getTarget().getClass().getAnnotation(RestController.class);
 			
-			if(returnType.equals(RequestResult.class)) {
+			if(returnType.equals(ResultApi.class)) {
 				return result;
 			}else if(responseBody == null && restController == null && String.class.equals(returnType)) {
 				request.setAttribute("result", result);

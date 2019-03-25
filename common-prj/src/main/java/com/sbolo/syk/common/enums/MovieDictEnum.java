@@ -1,4 +1,4 @@
-package com.sbolo.syk.common.constants;
+package com.sbolo.syk.common.enums;
 
 import java.util.ArrayList;
 import java.util.List;

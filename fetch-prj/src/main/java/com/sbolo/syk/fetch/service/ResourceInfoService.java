@@ -19,9 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
-import com.sbolo.syk.common.constants.MovieCategoryEnum;
-import com.sbolo.syk.common.constants.MovieStatusEnum;
 import com.sbolo.syk.common.constants.RegexConstant;
+import com.sbolo.syk.common.enums.MovieCategoryEnum;
+import com.sbolo.syk.common.enums.MovieStatusEnum;
 import com.sbolo.syk.common.tools.BucketUtils;
 import com.sbolo.syk.common.tools.StringUtil;
 import com.sbolo.syk.common.tools.UIDGen;

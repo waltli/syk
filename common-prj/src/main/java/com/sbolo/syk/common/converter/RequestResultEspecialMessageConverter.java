@@ -22,7 +22,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 
 import com.sbolo.syk.common.tools.Utils;
-import com.sbolo.syk.common.ui.RequestResult;
+import com.sbolo.syk.common.ui.ResultApi;
 
 public class RequestResultEspecialMessageConverter<T> extends AbstractHttpMessageConverter<T> implements GenericHttpMessageConverter<T> {
 	private static final Logger LOG = LoggerFactory.getLogger(RequestResultEspecialMessageConverter.class);
@@ -79,7 +79,7 @@ public class RequestResultEspecialMessageConverter<T> extends AbstractHttpMessag
 
 	@Override
 	protected boolean supports(Class<?> clazz) {
-		return clazz.isAssignableFrom(RequestResult.class);
+		return clazz.isAssignableFrom(ResultApi.class);
 	}
 
 	@Override

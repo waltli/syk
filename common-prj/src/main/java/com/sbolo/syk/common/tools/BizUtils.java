@@ -24,7 +24,7 @@ import com.sbolo.syk.common.exception.BusinessException;
 import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.http.HttpUtils.HttpResult;
 import com.sbolo.syk.common.http.callback.HttpSendCallback;
-import com.sbolo.syk.common.ui.RequestResult;
+import com.sbolo.syk.common.ui.ResultApi;
 
 import okhttp3.MediaType;
 import okhttp3.Response;
@@ -36,43 +36,43 @@ public class BizUtils {
 
 	private static MediaType streamMedia = MediaType.parse("application/octet-stream");
 
-	public static <T, REQUEST> RequestResult<T> getByForm(String url, REQUEST request, Class<T> responseClass) {
+	public static <T, REQUEST> ResultApi<T> getByForm(String url, REQUEST request, Class<T> responseClass) {
 		try {
 			url = buildUrl(url, request);
-			HttpResult<RequestResult<T>> httpResult = HttpUtils.httpGet(url, new HttpSendCallback<RequestResult<T>>() {
+			HttpResult<ResultApi<T>> httpResult = HttpUtils.httpGet(url, new HttpSendCallback<ResultApi<T>>() {
 
 				@Override
-				public RequestResult<T> onResponse(Response response) throws Exception {
+				public ResultApi<T> onResponse(Response response) throws Exception {
 					if (!response.isSuccessful()) {
 						throw new BusinessException("请求响应失败，code: " + response.code() + ". message: "
 								+ response.message() + ". url: " + response.request().url().url());
 					}
 
-					RequestResult<T> result = parseResult(response.body(), responseClass);
+					ResultApi<T> result = parseResult(response.body(), responseClass);
 					return result;
 				}
 			});
 			return httpResult.getValue();
 		} catch (Exception e) {
 			LOG.error("", e);
-			return RequestResult.error(e);
+			return ResultApi.error(e);
 		}
 	}
 
-	public static <T, REQUEST> RequestResult<T> postByForm(String url, REQUEST request, Class<T> responseClass) {
+	public static <T, REQUEST> ResultApi<T> postByForm(String url, REQUEST request, Class<T> responseClass) {
 		try {
 			url = buildUrl(url, null);
 			Map<String, String> params = getParamMap(request);
-			HttpResult<RequestResult<T>> httpResult = HttpUtils.httpPost(url, params,
-					new HttpSendCallback<RequestResult<T>>() {
+			HttpResult<ResultApi<T>> httpResult = HttpUtils.httpPost(url, params,
+					new HttpSendCallback<ResultApi<T>>() {
 
 						@Override
-						public RequestResult<T> onResponse(Response response) throws Exception {
+						public ResultApi<T> onResponse(Response response) throws Exception {
 							if (!response.isSuccessful()) {
 								throw new BusinessException("请求响应失败，code: " + response.code() + ". message: "
 										+ response.message() + ". url: " + response.request().url().url());
 							}
-							RequestResult<T> result = parseResult(response.body(), responseClass);
+							ResultApi<T> result = parseResult(response.body(), responseClass);
 							return result;
 						}
 
@@ -80,23 +80,23 @@ public class BizUtils {
 			return httpResult.getValue();
 		} catch (Exception e) {
 			LOG.error("", e);
-			return RequestResult.error(e);
+			return ResultApi.error(e);
 		}
 	}
 
-	public static <T, REQUEST> RequestResult<T> postByJson(String url, REQUEST request, Class<T> responseClass) {
+	public static <T, REQUEST> ResultApi<T> postByJson(String url, REQUEST request, Class<T> responseClass) {
 		try {
 			url = buildUrl(url, null);
-			HttpResult<RequestResult<T>> httpResult = HttpUtils.httpPost(url, request,
-					new HttpSendCallback<RequestResult<T>>() {
+			HttpResult<ResultApi<T>> httpResult = HttpUtils.httpPost(url, request,
+					new HttpSendCallback<ResultApi<T>>() {
 
 						@Override
-						public RequestResult<T> onResponse(Response response) throws Exception {
+						public ResultApi<T> onResponse(Response response) throws Exception {
 							if (!response.isSuccessful()) {
 								throw new BusinessException("请求响应失败，code: " + response.code() + ". message: "
 										+ response.message() + ". url: " + response.request().url().url());
 							}
-							RequestResult<T> result = parseResult(response.body(), responseClass);
+							ResultApi<T> result = parseResult(response.body(), responseClass);
 							return result;
 						}
 
@@ -104,22 +104,22 @@ public class BizUtils {
 			return httpResult.getValue();
 		} catch (Exception e) {
 			LOG.error("", e);
-			return RequestResult.error(e);
+			return ResultApi.error(e);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <T> RequestResult<T> parseResult(ResponseBody responseBody, Class<T> responseClass)
+	private static <T> ResultApi<T> parseResult(ResponseBody responseBody, Class<T> responseClass)
 			throws IOException {
 		MediaType mediaType = responseBody.contentType();
-		RequestResult<T> result = null;
+		ResultApi<T> result = null;
 		if (mediaType == null) {
 			throw new BusinessException("服务端返回RequestResult为null！");
 		}
 
 		if (mediaType.type().equals(streamMedia.type()) && mediaType.subtype().equals(streamMedia.subtype())) {
 			byte[] bytes = responseBody.bytes();
-			result = (RequestResult<T>) Utils.byteToObject(bytes);
+			result = (ResultApi<T>) Utils.byteToObject(bytes);
 		} else {
 			result = json2Result(responseBody.string(), responseClass);
 		}
@@ -210,8 +210,8 @@ public class BizUtils {
 		return url;
 	}
 
-	private static <T> RequestResult<T> json2Result(String resultStr, Class<T> responseClass) {
-		RequestResult<T> result = JSON.parseObject(resultStr, new TypeReference<RequestResult<T>>() {
+	private static <T> ResultApi<T> json2Result(String resultStr, Class<T> responseClass) {
+		ResultApi<T> result = JSON.parseObject(resultStr, new TypeReference<ResultApi<T>>() {
 		});
 		List<T> list = result.getList();
 		if (list != null && list.size() > 0 && list.get(0) instanceof JSONObject) {

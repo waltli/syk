@@ -1,4 +1,4 @@
-package com.sbolo.syk.common.constants;
+package com.sbolo.syk.common.enums;
 
 public enum MovieTagEnum {
 	China(1, "中国", "国产剧"),

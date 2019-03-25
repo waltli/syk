@@ -1,24 +1,23 @@
-package com.sbolo.syk.common.constants;
+package com.sbolo.syk.common.enums;
 
 import com.sbolo.syk.common.tools.StringUtil;
 
-public enum TriggerEnum {
-	click(1, "点击"),
-	download(2,"下载"),
-	comment(3,"评论");
+public enum MovieStatusEnum {
+	available(1, "可用"),
+	deletable(2,"");
 	
 	private int code;
 	private String desc;
 
-	TriggerEnum(int code, String desc){
+	MovieStatusEnum(int code, String desc){
 		this.code = code;
 		this.desc = desc;
 	}
 	
 	public static int getCodeByName(String name){
 		name = StringUtil.replaceBlank2(name).toUpperCase();
-		TriggerEnum[] values = TriggerEnum.values();
-		for(TriggerEnum value : values){
+		MovieStatusEnum[] values = MovieStatusEnum.values();
+		for(MovieStatusEnum value : values){
 			if(value.name().equals(name)){
 				return value.getCode();
 			}

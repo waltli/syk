@@ -16,7 +16,7 @@ import com.sbolo.syk.common.http.HttpUtils;
 import com.sbolo.syk.common.http.HttpUtils.HttpResult;
 import com.sbolo.syk.common.http.callback.HttpSendCallback;
 import com.sbolo.syk.common.tools.ConfigUtils;
-import com.sbolo.syk.common.ui.RequestResult;
+import com.sbolo.syk.common.ui.ResultApi;
 import com.sbolo.syk.common.vo.MigrateVO;
 import com.sbolo.syk.fetch.entity.MovieDictEntity;
 import com.sbolo.syk.fetch.entity.MovieFetchRecordEntity;
@@ -62,19 +62,19 @@ public class MigrateService {
 		
 		String url = ConfigUtils.getPropertyValue("migrate.view.url");
 		
-		HttpResult<RequestResult> httpResult = HttpUtils.httpPost(url, todo, new HttpSendCallback<RequestResult>() {
+		HttpResult<ResultApi> httpResult = HttpUtils.httpPost(url, todo, new HttpSendCallback<ResultApi>() {
 
 			@Override
-			public RequestResult<String> onResponse(Response response) throws Exception {
+			public ResultApi<String> onResponse(Response response) throws Exception {
 				if(!response.isSuccessful()) {
-					return RequestResult.error("code: "+ response.code()+ " message: "+response.message());
+					return ResultApi.error("code: "+ response.code()+ " message: "+response.message());
 				}
 				String string = response.body().string();
-				return JSON.parseObject(string, RequestResult.class);
+				return JSON.parseObject(string, ResultApi.class);
 			}
 		});
 		
-		RequestResult result = httpResult.getValue();
+		ResultApi result = httpResult.getValue();
 		if(!result.getStatus()) {
 			throw new Exception("数据迁移失败！cause:"+ Arrays.toString(result.getError()));
 		}

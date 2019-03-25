@@ -20,12 +20,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sbolo.syk.common.annotation.Paginator;
-import com.sbolo.syk.common.constants.MovieCategoryEnum;
-import com.sbolo.syk.common.constants.TriggerEnum;
+import com.sbolo.syk.common.enums.MovieCategoryEnum;
+import com.sbolo.syk.common.enums.TriggerEnum;
 import com.sbolo.syk.common.exception.BusinessException;
 import com.sbolo.syk.common.mvc.controller.BaseController;
 import com.sbolo.syk.common.tools.VOUtils;
-import com.sbolo.syk.common.ui.RequestResult;
+import com.sbolo.syk.common.ui.ResultApi;
 import com.sbolo.syk.view.entity.MovieInfoEntity;
 import com.sbolo.syk.view.entity.ResourceInfoEntity;
 import com.sbolo.syk.view.service.MovieDictService;
@@ -65,14 +65,14 @@ public class IndexController extends BaseController {
             @RequestParam(value="c", required=false) String categoryDesp,
             @RequestParam(value="t", required=false) String tag) throws Exception{
 		
-		RequestResult<MovieInfoVO> result = movieInfoService.getAroundList(pageNum, pageSize, label, keyword, categoryDesp, tag);
+		ResultApi<MovieInfoVO> result = movieInfoService.getAroundList(pageNum, pageSize, label, keyword, categoryDesp, tag);
 		model.addAttribute("requestResult", result);
 		return index;
 	}
 	
 	@RequestMapping("nav")
 	@ResponseBody
-	public RequestResult<Map<String, Object>> nav() throws Exception{
+	public ResultApi<Map<String, Object>> nav() throws Exception{
 		Map<String, Object> m = new HashMap<>();
 		List<String> desps = MovieCategoryEnum.getDesps();
 		m.put("categories", desps);
@@ -80,12 +80,12 @@ public class IndexController extends BaseController {
 		List<String> tags = movieDictService.getTags();
 		m.put("tags", tags);
 		
-		return new RequestResult<Map<String, Object>>(m);
+		return new ResultApi<Map<String, Object>>(m);
 	}
 	
 	@RequestMapping("sidebar")
 	@ResponseBody
-	public RequestResult<Map<String, Object>> sidebar() throws Exception{
+	public ResultApi<Map<String, Object>> sidebar() throws Exception{
 		List<String> labels = movieDictService.getLabels();
 		Map<String, List<MovieHotStatVO>> currMonthTop = movieInfoService.getCurrMonthTop();
 		Map<String, List<MovieHotStatVO>> lastMonthTop = movieInfoService.getLastMonthTop();
@@ -99,16 +99,16 @@ public class IndexController extends BaseController {
 		if(lastMonthTop != null && lastMonthTop.size() > 0){
 			m.put("lastMonthTop", lastMonthTop);
 		}
-		RequestResult<Map<String, Object>> result = new RequestResult<Map<String,Object>>(m);
+		ResultApi<Map<String, Object>> result = new ResultApi<Map<String,Object>>(m);
 		return result;
 	}
 	
 	@RequestMapping("hotDownload")
 	@ResponseBody
-	public RequestResult<String> hotDownload(HttpServletRequest request, @RequestParam(value="mi", required=true) String moviePrn){
+	public ResultApi<String> hotDownload(HttpServletRequest request, @RequestParam(value="mi", required=true) String moviePrn){
 		String clientIP = this.getClientIP(request);
 		movieInfoService.lazyHot(moviePrn, TriggerEnum.download.getCode(), clientIP);
-		RequestResult<String> result = new RequestResult<>("success");
+		ResultApi<String> result = new ResultApi<>("success");
 		return result;
 	}
 	
@@ -141,7 +141,7 @@ public class IndexController extends BaseController {
 		Map<String, Object> map = new HashMap<>();
 		map.put("movie", movieVO);
 		map.put("resources", reosurcesVO);
-		RequestResult<Map<String, Object>> result = new RequestResult<>(map);
+		ResultApi<Map<String, Object>> result = new ResultApi<>(map);
 		model.addAttribute("result", result);
 		String clientIP = this.getClientIP(request);
 		movieInfoService.lazyHot(moviePrn, TriggerEnum.click.getCode(), clientIP);

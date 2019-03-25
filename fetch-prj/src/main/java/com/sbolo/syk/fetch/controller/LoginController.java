@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sbolo.syk.common.tools.VOUtils;
-import com.sbolo.syk.common.ui.RequestResult;
+import com.sbolo.syk.common.ui.ResultApi;
 import com.sbolo.syk.fetch.entity.SykUserEntity;
 import com.sbolo.syk.fetch.service.SykUserService;
 import com.sbolo.syk.fetch.vo.SykUserVO;
@@ -44,13 +44,13 @@ public class LoginController {
 
 	@RequestMapping(value="login-work", method=RequestMethod.POST)
 	@ResponseBody
-	public RequestResult<Map<String, Object>> login(HttpSession session, String username, String password, 
+	public ResultApi<Map<String, Object>> login(HttpSession session, String username, String password, 
 			@RequestParam(value="cb", required=false)String cbUrl) throws Exception{
-		RequestResult<Map<String, Object>> result = null;
+		ResultApi<Map<String, Object>> result = null;
 		SykUserEntity userEntity = sykUserService.getOneByUsernamePassword(username, password);
 		
 		if(userEntity == null){
-			result = RequestResult.error("用户名或密码错误");
+			result = ResultApi.error("用户名或密码错误");
 			return result;
 		}
 		
@@ -62,7 +62,7 @@ public class LoginController {
 		
 		m.put("user", userVO);
 		m.put("cbUrl", cbUrl);
-		result = new RequestResult<>(m);
+		result = new ResultApi<>(m);
 		
 		return result;
 	}

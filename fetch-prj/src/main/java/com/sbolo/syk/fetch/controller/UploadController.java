@@ -20,9 +20,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
-import com.sbolo.syk.common.constants.MovieCategoryEnum;
+import com.sbolo.syk.common.enums.MovieCategoryEnum;
 import com.sbolo.syk.common.tools.ConfigUtils;
-import com.sbolo.syk.common.ui.RequestResult;
+import com.sbolo.syk.common.ui.ResultApi;
 import com.sbolo.syk.fetch.tool.FetchUtils;
 import com.sbolo.syk.fetch.vo.ResourceInfoVO;
 
@@ -36,7 +36,7 @@ public class UploadController {
 			Integer fileType, 
 			HttpServletRequest request, 
 			HttpServletResponse response){
-		RequestResult<Map<String, Object>> result = null;
+		ResultApi<Map<String, Object>> result = null;
 		InputStream is = null;
 		try {
 			if(myfile.isEmpty()){
@@ -68,9 +68,9 @@ public class UploadController {
         	map.put("subDir", subDir);
         	uri = ConfigUtils.getPropertyValue("fs.temp.mapping")+subDir;
         	map.put("uri", uri);
-        	result = new RequestResult<>(map);
+        	result = new ResultApi<>(map);
 		} catch (Exception e) {
-			result = RequestResult.error(e);
+			result = ResultApi.error(e);
 			log.error("",e);
 		} finally {
 			if(is != null) {

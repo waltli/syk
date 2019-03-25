@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sbolo.syk.common.mvc.controller.BaseController;
-import com.sbolo.syk.common.ui.RequestResult;
+import com.sbolo.syk.common.ui.ResultApi;
 import com.sbolo.syk.common.vo.MigrateVO;
 import com.sbolo.syk.view.service.MigrateService;
 
@@ -23,8 +23,8 @@ public class MigrateController extends BaseController {
 	private MigrateService migrateService;
 	
 	@PostMapping("write")
-	public RequestResult<String> write(@RequestBody MigrateVO vo) {
+	public ResultApi<String> write(@RequestBody MigrateVO vo) {
 		migrateService.write(vo);
-		return new RequestResult<>("success!");
+		return new ResultApi<>("success!");
 	}
 }

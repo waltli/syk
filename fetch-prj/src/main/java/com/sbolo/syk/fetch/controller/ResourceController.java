@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sbolo.syk.common.tools.VOUtils;
-import com.sbolo.syk.common.ui.RequestResult;
+import com.sbolo.syk.common.ui.ResultApi;
 import com.sbolo.syk.fetch.entity.MovieInfoEntity;
 import com.sbolo.syk.fetch.entity.ResourceInfoEntity;
 import com.sbolo.syk.fetch.mapper.MovieInfoMapper;
@@ -60,24 +60,24 @@ public class ResourceController {
 		List<ResourceInfoVO> resourceVOList = resourceInfoService.getListByMoviePrnOrderNoStatus(moviePrn, movieVO.getCategory());
 		map.put("movie", movieVO);
 		map.put("resources", resourceVOList);
-		RequestResult<Map<String, Object>> result = new RequestResult<>(map);
+		ResultApi<Map<String, Object>> result = new ResultApi<>(map);
 		model.addAttribute("result", result);
 		return list;
 	}
 	
 	@RequestMapping(value="signDelete", method=RequestMethod.POST)
 	@ResponseBody
-	public RequestResult<String> signDelete(String moviePrn, String resourcePrn){
+	public ResultApi<String> signDelete(String moviePrn, String resourcePrn){
 		resourceInfoService.signDeleteable(moviePrn, resourcePrn);
-		RequestResult<String> result = new RequestResult<>("success");
+		ResultApi<String> result = new ResultApi<>("success");
 		return result;
 	}
 	
 	@RequestMapping(value="signAvailable", method=RequestMethod.POST)
 	@ResponseBody
-	public RequestResult<String> signAvailable(String moviePrn, String resourcePrn){
+	public ResultApi<String> signAvailable(String moviePrn, String resourcePrn){
 		resourceInfoService.signAvailable(moviePrn, resourcePrn);
-		RequestResult<String> result = new RequestResult<>("success");
+		ResultApi<String> result = new ResultApi<>("success");
 		return result;
 	}
 	
@@ -85,7 +85,7 @@ public class ResourceController {
 	public String addResourceHere(Model model, HttpServletRequest request, 
 			@RequestParam(value="mi", required=true) String moviePrn) throws Exception{
 		MovieInfoVO movieVO = movieInfoService.getMovieInfoByPrn(moviePrn);
-		RequestResult<MovieInfoVO> result = new RequestResult<>(movieVO);
+		ResultApi<MovieInfoVO> result = new ResultApi<>(movieVO);
 		model.addAttribute("result", result);
 		return add_page;
 	}
@@ -102,7 +102,7 @@ public class ResourceController {
 			FetchUtils.deleteFiles(resources);
 			throw e;
 		}
-		RequestResult<String> result = new RequestResult<>("success");
+		ResultApi<String> result = new ResultApi<>("success");
 		model.addAttribute("result", result);
 		return add_result;
 	}
@@ -121,7 +121,7 @@ public class ResourceController {
 		Map<String, Object> map = new HashMap<>();
 		map.put("resource", resourceVO);
 		map.put("movie", movieVO);
-		RequestResult<Map<String, Object>> result = new RequestResult<>(map);
+		ResultApi<Map<String, Object>> result = new ResultApi<>(map);
 		model.addAttribute("result", result);
 		return modi_page;
 	}
@@ -136,7 +136,7 @@ public class ResourceController {
 		ResourceInfoVO changeResource = resourceInfoService.modiResourceProcess(newResource, dbResource, thisTime);
 		MovieInfoVO toUpMovie = resourceInfoService.getToUpMovie(isOptimal, changeResource, dbResource.getMoviePrn(), thisTime);
 		resourceInfoService.modiResource(changeResource, toUpMovie);
-		RequestResult<String> result = new RequestResult<>("sucess");
+		ResultApi<String> result = new ResultApi<>("sucess");
 		model.addAttribute("result", result);
 		return add_result;
 	}

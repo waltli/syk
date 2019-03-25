@@ -23,7 +23,7 @@ import org.im4java.process.StandardStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sbolo.syk.common.constants.ContentTypeEnum;
+import com.sbolo.syk.common.enums.ContentTypeEnum;
 import com.sbolo.syk.common.http.HttpUtils;
 
 /**

@@ -1,4 +1,4 @@
-package com.sbolo.syk.common.constants;
+package com.sbolo.syk.common.enums;
 
 import org.apache.commons.lang3.StringUtils;
 

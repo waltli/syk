@@ -13,7 +13,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 import com.sbolo.syk.common.constants.CommonConstants;
-import com.sbolo.syk.common.ui.RequestResult;
+import com.sbolo.syk.common.ui.ResultApi;
 import com.sbolo.syk.view.vo.SykUserVO;
 
 public class LoginInterceptor implements HandlerInterceptor {
@@ -45,7 +45,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 		}
 		
 		if(this.isXHR(request)) {
-			RequestResult<String> result = new RequestResult<>();
+			ResultApi<String> result = new ResultApi<>();
 			result.setCode(HttpStatus.UNAUTHORIZED.value());
 			result.setError("请先登录。");
 			String json = JSON.toJSONString(result);
