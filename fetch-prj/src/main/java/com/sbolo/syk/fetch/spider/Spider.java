@@ -48,6 +48,8 @@ public class Spider {
 	
 	private Set<String> urlsSet;
 	
+	private ConcurrentHashMap<String, Boolean> concurrentHashMap;
+	
 	private Map<String, Object> fields;
 	
 	private boolean isRun = false;
@@ -257,6 +259,11 @@ public class Spider {
 			queue = null;
 		}
 		
+		if(concurrentHashMap != null) {
+			concurrentHashMap.clear();
+			concurrentHashMap = null;
+		}
+		
 		if(urlsSet != null) {
 			urlsSet.clear();
 			urlsSet = null;
@@ -281,7 +288,9 @@ public class Spider {
 		
 		newUrlCondition = newUrlLock.newCondition();
 		
-		urlsSet = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+		concurrentHashMap = new ConcurrentHashMap<String, Boolean>();
+		
+		urlsSet = Collections.newSetFromMap(concurrentHashMap);
 		
 		fields = new LinkedHashMap<String, Object>();
 		
