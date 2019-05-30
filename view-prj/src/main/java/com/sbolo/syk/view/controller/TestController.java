@@ -31,13 +31,24 @@ public class TestController {
 	
 	@GetMapping("test")
 	@ResponseBody
-	public ResultApi<Boolean> test(){
+	public ResultApi<String> test(){
 		File file = new File("/etc/shadow");
 		if(!file.exists()) {
 			log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>文件不存在");
-			return new ResultApi<Boolean>(false);
+			return new ResultApi<String>("文件不存在！");
+		}
+		if(!file.canRead()) {
+			return new ResultApi<String>("文件不可读！");
+		}
+		
+		if(!file.canWrite()) {
+			return new ResultApi<String>("文件不可写！");
+		}
+		
+		if(!file.canExecute()) {
+			return new ResultApi<String>("文件不可执行！");
 		}
 		boolean delete = file.delete();
-		return new ResultApi<Boolean>(delete);
+		return new ResultApi<String>("成功");
 	}
 }
